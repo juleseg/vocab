@@ -44,6 +44,7 @@ header.top h1{font-size:22px;margin:0}
 .sync[data-mode="cloud"] .dot{background:var(--ok)}
 .sync[data-mode="syncing"] .dot{background:var(--warn)}
 .sync[data-mode="error"] .dot{background:var(--bad)}
+.sync[data-mode="offline"] .dot{background:transparent;border:2px solid var(--muted)}
 main{flex:1;padding:8px 16px 110px}
 .screen{display:none}
 .screen.active{display:block}
@@ -307,6 +308,19 @@ body.auth main{padding-bottom:24px}
 .auth-pin{font-size:24px;letter-spacing:.5em;text-align:center}
 .auth-store{text-align:center;margin-top:14px}
 .auth-mig p{margin:0 0 12px}
+.auth-lang{margin-bottom:14px}
+.auth-msg{background:var(--surface2);border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:15px}
+.check{display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer}
+.check input{width:22px;height:22px;flex:none;accent-color:var(--accent)}
+
+/* === STYLES : ADMINISTRATION === */
+.adm-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.adm-top h2{margin:0;font-size:20px}
+.adm-tags .tag.warn{color:var(--warn)}
+.adm-pick{max-height:34vh;overflow:auto;border:1px solid var(--border);border-radius:12px;padding:0 12px;margin-bottom:12px}
+.adm-pick .check{border-bottom:1px solid var(--border)}
+.adm-pick .check:last-child{border-bottom:0}
+.adm-pick .check.sub{padding-left:22px}
 
 /* === STYLES : MISE À JOUR === */
 .upd-badge{display:inline-block;font-size:12px;font-weight:600;line-height:1.5;padding:0 7px;border-radius:999px;border:1px solid var(--warn);color:var(--warn);white-space:nowrap;vertical-align:middle}
@@ -411,6 +425,8 @@ body.auth main{padding-bottom:24px}
     <section class="screen" id="screen-pending"></section>
 
     <!-- ÉCRAN : RÉGLAGES -->
+    <section class="screen" id="screen-admin"></section>
+
     <section class="screen" id="screen-settings">
       <div class="card">
         <div class="field">
@@ -448,7 +464,15 @@ body.auth main{padding-bottom:24px}
       <div class="card">
         <h2 data-i18n="account.title"></h2>
         <p class="muted" id="accountInfo" style="margin-top:0"></p>
-        <button class="btn" id="btnLogout" data-i18n="account.logout"></button>
+        <div class="btns">
+          <button class="btn" id="btnChangePin" data-i18n="account.changePin"></button>
+          <button class="btn" id="btnLogout" data-i18n="account.logout"></button>
+        </div>
+      </div>
+
+      <div class="card" id="adminCard" hidden>
+        <h2 data-i18n="admin.title"></h2>
+        <button class="btn" id="btnAdmin" data-i18n="admin.open"></button>
       </div>
 
       <div class="card">
@@ -476,6 +500,8 @@ body.auth main{padding-bottom:24px}
 </div>
 <div class="toast" id="toast"></div>
 
+<!-- Configuration Supabase (fichier séparé, absent dans Claude : l'appli passe alors au stockage de l'artifact ou du navigateur) -->
+<script src="config.js"></script>
 <script>
 "use strict";
 
@@ -487,7 +513,14 @@ const CONFIG = {
   LS_ACCOUNTS: "vocabfr.accounts",
   LS_SESSION: "vocabfr.session", // compte connecté sur cet appareil
   REMOTE_ACCOUNTS: "accounts",   // registre des comptes : data/users/<idClaude>/accounts
-  SAVE_DELAY_MS: 800,
+  SAVE_DELAY_MS: 2000,          // écritures cloud regroupées sur 2 s
+  RETRY_MS: 20000,              // nouvel essai automatique après un échec d'envoi
+  LS_SYNCED: "vocabfr.synced:", // + identifiant : updatedAt des données en ligne à la dernière synchro réussie (détection des conflits)
+  LS_PREFS: "vocabfr.prefs",    // langue et thème de l'écran de connexion
+  LS_REMEMBER: "vocabfr.remember", // "0" = ne pas rester connecté sur cet appareil
+  LS_SB_PROFILE: "vocabfr.sb.profile", // dernier compte Supabase ouvert (pour l'usage hors connexion)
+  SB_CDN: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+  SB_EMAIL_DOMAIN: "vocab.local", // email technique = <identifiant>@vocab.local (jamais affiché, même valeur que dans le SQL)
   REMOTE_TIMEOUT_MS: 10000,
   MAX_DOC_BYTES: 250 * 1024,    // taille max d'un document cloud (un morceau)
   PIECE_MAX_BYTES: 150 * 1024,  // taille visée d'un morceau de cartes (marge sous MAX_DOC_BYTES)
@@ -495,8 +528,6 @@ const CONFIG = {
   PROPOSALS_PER_PIECE: 500,     // propositions max par morceau user:<id>:proposals:<n>
   IDS_PER_PIECE: 2000,          // ids max par morceau user:<id>:resume:<n> (complétion en pause)
   IMPORT_BATCH: 200,            // cartes enregistrées par lot pendant un import
-  SUPABASE_URL: "",             // adaptateur Supabase prévu (voir supabase.sql), pas encore branché
-  SUPABASE_ANON_KEY: "",        // clé publique "anon" uniquement, jamais la clé service_role
   LEITNER_INTERVALS_DAYS: [0, 1, 3, 7, 14, 30], // index = boîte
   AI_BATCH: 20,          // cartes max par appel à Claude (et par partie du texte « Préparer pour Claude »)
   AUTO_CHECK_DAYS: 7,    // vérification automatique au plus une fois par semaine
@@ -946,6 +977,119 @@ const I18N = {
   }
 };
 
+// Étape 12 : connexion (PIN 4 à 6 chiffres, Supabase), synchro, conflits, administration.
+Object.assign(I18N.ko, {
+  "auth.idHint": "2~20자: 영문, 숫자, 하이픈(-). 대소문자 구분 없음",
+  "auth.pin": "PIN (숫자 4~6자리)", "auth.err.pin": "PIN은 숫자 4~6자리입니다",
+  "auth.lang": "화면 언어", "auth.remember": "로그인 상태 유지",
+  "auth.unknown": "'{id}' 계정이 없습니다. 이 아이디로 계정을 만들까요?",
+  "auth.err.net": "인터넷에 연결되어 있지 않습니다. 다시 시도해 주세요.",
+  "auth.err.server": "서버 오류입니다. 잠시 후 다시 시도해 주세요.",
+  "auth.err.confirm": "계정을 만들 수 없습니다: Supabase에서 이메일 확인이 아직 켜져 있습니다.",
+  "auth.err.same": "새 PIN은 이전 PIN과 달라야 합니다",
+  "auth.err.lib": "온라인 서비스에 연결할 수 없습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.",
+  "auth.retry": "다시 시도",
+  "auth.storeSupa": "계정과 데이터는 온라인에 저장되어 기기 간에 동기화됩니다.",
+  "auth.forceTitle": "새 PIN 필요", "auth.forceText": "계속하려면 새 PIN을 정해 주세요.", "auth.forceGo": "확인",
+  "account.logout": "로그아웃", "account.changePin": "PIN 바꾸기",
+  "pin.title": "PIN 바꾸기", "pin.old": "현재 PIN", "pin.new": "새 PIN (숫자 4~6자리)", "pin.new2": "새 PIN 확인",
+  "pin.done": "PIN이 바뀌었습니다", "pin.err.old": "현재 PIN이 올바르지 않습니다",
+  "storage.offline": "오프라인",
+  "storage.info.offline": "인터넷 연결이 없습니다. 변경 내용은 이 기기에 저장되고, 연결되면 자동으로 보내집니다.",
+  "save.retry": "온라인 저장에 실패했습니다. 데이터는 이 기기에 있습니다. 자동으로 다시 시도합니다.",
+  "conflict.title": "데이터가 다릅니다",
+  "conflict.text": "다른 기기에서 온라인 데이터가 바뀌었습니다 ({rdate}, 카드 {rcards}개). 이 기기에도 보내지 않은 변경이 있습니다 ({ldate}, 카드 {lcards}개). 어느 쪽을 유지할까요?",
+  "conflict.remote": "온라인 데이터 유지", "conflict.local": "이 기기의 데이터 유지",
+  "admin.title": "관리", "admin.open": "관리 화면 열기", "admin.back": "‹ 설정", "admin.refresh": "새로고침",
+  "admin.loading": "불러오는 중…", "admin.error": "계정 목록을 불러올 수 없습니다", "admin.empty": "계정이 없습니다",
+  "admin.created": "생성: {d}", "admin.last": "마지막 접속: {d}", "admin.never": "없음", "admin.cards": "카드 {n}개",
+  "admin.you": "내 계정", "admin.isAdmin": "관리자", "admin.mustChange": "PIN 변경 필요",
+  "admin.resetPin": "PIN 초기화", "admin.resetDone": "PIN이 초기화되었습니다. 다음 로그인 때 바꿔야 합니다.",
+  "admin.export": "데이터 내보내기", "admin.import": "데이터 가져오기",
+  "admin.importConfirm": "'{id}' 계정의 데이터를 모두 이 내용으로 바꿀까요? (목록 {lists}개, 카드 {cards}개)",
+  "admin.importDone": "'{id}' 계정에 가져오기 완료",
+  "admin.copy": "폴더/목록을 다른 계정으로 복사", "admin.copyWhat": "복사할 폴더와 목록", "admin.copyTo": "받을 계정",
+  "admin.copyHint": "카드는 학습 기록 없이 복사됩니다.", "admin.copyNone": "폴더나 목록을 하나 이상 고르세요",
+  "admin.copyDone": "폴더 {folders}개, 목록 {lists}개, 카드 {cards}개를 '{id}'에 복사했습니다", "admin.noData": "이 계정에는 목록이 없습니다",
+  "admin.delete": "계정 삭제", "admin.del1": "'{id}' 계정과 모든 데이터를 삭제할까요?",
+  "admin.del2": "마지막 확인: 되돌릴 수 없습니다. '{id}' 계정을 삭제할까요?", "admin.delDone": "계정이 삭제되었습니다",
+  "admin.err": "작업에 실패했습니다", "admin.noFolder": "폴더 없음"
+});
+Object.assign(I18N.fr, {
+  "auth.idHint": "2 à 20 caractères : lettres, chiffres ou tirets (-). Majuscules et espaces ignorés.",
+  "auth.pin": "Code PIN (4 à 6 chiffres)", "auth.err.pin": "Le code doit faire 4 à 6 chiffres",
+  "auth.lang": "Langue de l'écran", "auth.remember": "Rester connecté",
+  "auth.unknown": "Le compte « {id} » n'existe pas. Le créer avec cet identifiant ?",
+  "auth.err.net": "Pas de connexion internet. Réessayez.",
+  "auth.err.server": "Erreur du serveur. Réessayez dans un moment.",
+  "auth.err.confirm": "Création impossible : la confirmation par email est encore activée dans Supabase.",
+  "auth.err.same": "Le nouveau code doit être différent de l'ancien",
+  "auth.err.lib": "Impossible de joindre le service en ligne. Vérifiez la connexion internet, puis réessayez.",
+  "auth.retry": "Réessayer",
+  "auth.storeSupa": "Comptes et données enregistrés en ligne, synchronisés entre vos appareils.",
+  "auth.forceTitle": "Nouveau code PIN obligatoire", "auth.forceText": "Choisissez un nouveau code PIN pour continuer.", "auth.forceGo": "Valider",
+  "account.logout": "Se déconnecter", "account.changePin": "Changer de code PIN",
+  "pin.title": "Changer de code PIN", "pin.old": "Code actuel", "pin.new": "Nouveau code (4 à 6 chiffres)", "pin.new2": "Confirmer le nouveau code",
+  "pin.done": "Code PIN modifié", "pin.err.old": "Code actuel incorrect",
+  "storage.offline": "Hors ligne",
+  "storage.info.offline": "Pas de connexion. Les modifications sont gardées sur cet appareil et seront envoyées automatiquement au retour de la connexion.",
+  "save.retry": "L'envoi en ligne a échoué. Les données sont gardées sur cet appareil. Nouvel essai automatique.",
+  "conflict.title": "Données différentes",
+  "conflict.text": "Les données en ligne ont été modifiées sur un autre appareil ({rdate}, {rcards} cartes). Cet appareil a aussi des modifications non envoyées ({ldate}, {lcards} cartes). Lesquelles garder ?",
+  "conflict.remote": "Garder les données en ligne", "conflict.local": "Garder celles de cet appareil",
+  "admin.title": "Administration", "admin.open": "Ouvrir l'administration", "admin.back": "‹ Réglages", "admin.refresh": "Actualiser",
+  "admin.loading": "Chargement…", "admin.error": "Impossible de charger les comptes", "admin.empty": "Aucun compte",
+  "admin.created": "Créé le {d}", "admin.last": "Dernière connexion : {d}", "admin.never": "jamais", "admin.cards": "{n} cartes",
+  "admin.you": "vous", "admin.isAdmin": "admin", "admin.mustChange": "PIN à changer",
+  "admin.resetPin": "Réinitialiser le code PIN", "admin.resetDone": "Code réinitialisé. Changement obligatoire à la prochaine connexion.",
+  "admin.export": "Exporter les données", "admin.import": "Importer des données",
+  "admin.importConfirm": "Remplacer toutes les données du compte « {id} » par ce contenu ? ({lists} listes, {cards} cartes)",
+  "admin.importDone": "Données importées dans le compte « {id} »",
+  "admin.copy": "Copier des dossiers ou des listes vers un autre compte", "admin.copyWhat": "Dossiers et listes à copier", "admin.copyTo": "Compte de destination",
+  "admin.copyHint": "Les cartes sont copiées sans la progression.", "admin.copyNone": "Choisissez au moins un dossier ou une liste",
+  "admin.copyDone": "{folders} dossiers, {lists} listes et {cards} cartes copiés vers « {id} »", "admin.noData": "Ce compte n'a aucune liste",
+  "admin.delete": "Supprimer le compte", "admin.del1": "Supprimer le compte « {id} » et toutes ses données ?",
+  "admin.del2": "Dernière confirmation : c'est définitif. Supprimer « {id} » ?", "admin.delDone": "Compte supprimé",
+  "admin.err": "L'action a échoué", "admin.noFolder": "Sans dossier"
+});
+Object.assign(I18N.en, {
+  "auth.idHint": "2 to 20 characters: letters, digits or hyphens (-). Case and spaces are ignored.",
+  "auth.pin": "PIN (4 to 6 digits)", "auth.err.pin": "The PIN must be 4 to 6 digits",
+  "auth.lang": "Screen language", "auth.remember": "Stay signed in",
+  "auth.unknown": "There is no account \"{id}\". Create it with this username?",
+  "auth.err.net": "No internet connection. Please try again.",
+  "auth.err.server": "Server error. Please try again in a moment.",
+  "auth.err.confirm": "Can't create the account: email confirmation is still on in Supabase.",
+  "auth.err.same": "The new PIN must be different from the old one",
+  "auth.err.lib": "Can't reach the online service. Check the internet connection, then try again.",
+  "auth.retry": "Try again",
+  "auth.storeSupa": "Accounts and data are saved online and synced across your devices.",
+  "auth.forceTitle": "New PIN required", "auth.forceText": "Choose a new PIN to continue.", "auth.forceGo": "Confirm",
+  "account.logout": "Sign out", "account.changePin": "Change PIN",
+  "pin.title": "Change PIN", "pin.old": "Current PIN", "pin.new": "New PIN (4 to 6 digits)", "pin.new2": "Confirm new PIN",
+  "pin.done": "PIN changed", "pin.err.old": "Wrong current PIN",
+  "storage.offline": "Offline",
+  "storage.info.offline": "No connection. Changes are kept on this device and will be sent automatically when you are back online.",
+  "save.retry": "Online save failed. Your data is kept on this device. Retrying automatically.",
+  "conflict.title": "Different data",
+  "conflict.text": "The online data was changed on another device ({rdate}, {rcards} cards). This device also has unsent changes ({ldate}, {lcards} cards). Which do you want to keep?",
+  "conflict.remote": "Keep the online data", "conflict.local": "Keep this device's data",
+  "admin.title": "Administration", "admin.open": "Open administration", "admin.back": "‹ Settings", "admin.refresh": "Refresh",
+  "admin.loading": "Loading…", "admin.error": "Can't load the accounts", "admin.empty": "No accounts",
+  "admin.created": "Created {d}", "admin.last": "Last sign-in: {d}", "admin.never": "never", "admin.cards": "{n} cards",
+  "admin.you": "you", "admin.isAdmin": "admin", "admin.mustChange": "PIN to change",
+  "admin.resetPin": "Reset PIN", "admin.resetDone": "PIN reset. It must be changed at the next sign-in.",
+  "admin.export": "Export data", "admin.import": "Import data",
+  "admin.importConfirm": "Replace all data of account \"{id}\" with this content? ({lists} lists, {cards} cards)",
+  "admin.importDone": "Data imported into account \"{id}\"",
+  "admin.copy": "Copy folders or lists to another account", "admin.copyWhat": "Folders and lists to copy", "admin.copyTo": "Destination account",
+  "admin.copyHint": "Cards are copied without progress.", "admin.copyNone": "Choose at least one folder or list",
+  "admin.copyDone": "{folders} folders, {lists} lists and {cards} cards copied to \"{id}\"", "admin.noData": "This account has no lists",
+  "admin.delete": "Delete account", "admin.del1": "Delete account \"{id}\" and all its data?",
+  "admin.del2": "Last confirmation: this cannot be undone. Delete \"{id}\"?", "admin.delDone": "Account deleted",
+  "admin.err": "The action failed", "admin.noFolder": "No folder"
+});
+
 function t(key, vars) {
   const lang = (state && state.settings && state.settings.uiLang) || "ko";
   let s = (I18N[lang] && I18N[lang][key]) || I18N.fr[key] || key;
@@ -1321,7 +1465,11 @@ function addDemoList(data) {
 // Seuls les morceaux modifiés sont écrits (comparaison avec ce qui a déjà été écrit).
 //  - local : localStorage "vocabfr." + clé (écriture tout-ou-rien : en cas d'échec, les morceaux déjà écrits sont restaurés)
 //  - cloud : document data/users/<idClaude>/<clé> = { json, updatedAt } (adaptateur claudeDbBackend)
-//  - Supabase (prévu) : une ligne par morceau, clé primaire (user_id, key) — adaptateur supabaseBackend, voir supabase.sql
+//  - Supabase (si config.js est rempli) : table user_data, une ligne par morceau, clé primaire (user_id, key),
+//    clé sans le préfixe "user:<id>:" — adaptateur supabaseBackend, voir supabase.sql
+// Conflits : localStorage "vocabfr.synced:<id>" = updatedAt des données en ligne à la dernière synchro réussie.
+// Avant chaque envoi, l'index en ligne est relu : s'il a changé depuis (autre appareil), on demande quelles données garder.
+// Envoi raté : données gardées sur l'appareil, nouvel essai automatique (CONFIG.RETRY_MS, et au retour de la connexion).
 // Ancien format (un seul bloc) : localStorage "vocabfr.user:<id>" + document "user:<id>". Migré automatiquement,
 // après un export JSON de sécurité. Le document cloud ancien n'est jamais effacé ; la clé locale ancienne
 // est retirée seulement après relecture réussie du nouveau format.
@@ -1341,34 +1489,41 @@ function claudeDbBackend(db, base) {
     async del(key) { await withTimeout(db.doc(base + "/" + key).delete(), CONFIG.REMOTE_TIMEOUT_MS); }
   };
 }
-// Adaptateur Supabase (prévu, pas encore branché : il faudra la connexion Supabase Auth).
-// Table user_chunks (user_id, key, data jsonb, updated_at) : la clé y est stockée sans le préfixe "user:<id>:".
-// client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) ; uid = auth.uid() de l'utilisateur connecté.
+// Adaptateur Supabase : table user_data (user_id, key, data jsonb, updated_at), RLS = chacun ses lignes (admin : toutes).
+// La clé y est stockée sans le préfixe "user:<id>:". uid = auth.uid() de l'utilisateur connecté.
+// updated_at est mis par le serveur (trigger). jsonb ne garde pas l'ordre des champs : voir markSynced().
 function supabaseBackend(client, uid, prefix) {
   const k = key => key.startsWith(prefix) ? key.slice(prefix.length) : key;
+  const ok = r => { if (r && r.error) throw r.error; return r ? r.data : null; };
+  const T = CONFIG.REMOTE_TIMEOUT_MS;
   return {
     async get(key) {
-      const { data, error } = await client.from("user_chunks").select("data").eq("user_id", uid).eq("key", k(key)).maybeSingle();
-      if (error) throw error;
-      return data ? JSON.stringify(data.data) : undefined;
+      const d = ok(await withTimeout(client.from("user_data").select("data").eq("user_id", uid).eq("key", k(key)).maybeSingle(), T));
+      return d ? JSON.stringify(d.data) : undefined;
     },
-    async set(key, json, updatedAt) {
-      const { error } = await client.from("user_chunks")
-        .upsert({ user_id: uid, key: k(key), data: JSON.parse(json), updated_at: new Date(updatedAt || Date.now()).toISOString() });
-      if (error) throw error;
+    // Toutes les lignes du compte en une requête : Map(clé avec préfixe → texte JSON).
+    async getAll() {
+      const rows = ok(await withTimeout(client.from("user_data").select("key,data").eq("user_id", uid), T * 3));
+      return new Map(arr(rows).map(r => [prefix + r.key, JSON.stringify(r.data)]));
+    },
+    async set(key, json) {
+      ok(await withTimeout(client.from("user_data").upsert({ user_id: uid, key: k(key), data: JSON.parse(json) }), T));
     },
     async del(key) {
-      const { error } = await client.from("user_chunks").delete().eq("user_id", uid).eq("key", k(key));
-      if (error) throw error;
+      ok(await withTimeout(client.from("user_data").delete().eq("user_id", uid).eq("key", k(key)), T));
     }
   };
 }
 
 const Storage = (() => {
   let db = null, base = null;  // base = "data/users/<idClaude>" quand le cloud est disponible
-  let backend = null;          // adaptateur cloud actif (null = pas de cloud)
-  let userId = null, remote = null; // remote = backend utilisable pour le compte connecté
-  let mode = "local";          // "local" | "cloud" | "syncing" | "error"
+  let backend = null;          // adaptateur cloud de l'artifact (null = pas de cloud Claude)
+  let sb = null;               // client Supabase (null = pas de Supabase)
+  let userId = null, remote = null; // remote = adaptateur du compte connecté
+  let remoteOk = false;        // données en ligne lues et comparées : les envois sont permis
+  let mode = "local";          // "local" | "cloud" | "syncing" | "offline" | "error"
+  let retryTimer = null, failWarned = false, conflictOpen = false;
+  let onConflictFn = null, onRetryInitFn = null;
   let timer = null, lastData = null, held = false;
   let chain = Promise.resolve();
   let localSaved = new Map();  // clé → JSON déjà présent dans localStorage
@@ -1379,7 +1534,46 @@ const Storage = (() => {
   function setMode(m) { mode = m; listeners.forEach(fn => { try { fn(m); } catch (e) {} }); }
   function onMode(fn) { listeners.push(fn); fn(mode); }
   function getMode() { return mode; }
-  function isCloud() { return !!backend; }
+  function isCloud() { return !!backend || !!sb; }
+  function isSupabase() { return !!sb; }
+  // Supabase : pas de registre de comptes local (Supabase Auth s'en charge).
+  function useSupabase(client) { sb = client; backend = null; setMode("cloud"); }
+  function failMode() { setMode(navigator.onLine === false ? "offline" : "error"); }
+
+  // --- Synchro : updatedAt des données en ligne à la dernière synchro réussie (null = inconnu) ---
+  function getSynced() {
+    if (!userId) return null;
+    try { const v = localStorage.getItem(CONFIG.LS_SYNCED + userId); return v === null ? null : Number(v); } catch (e) { return null; }
+  }
+  function setSynced(v) { if (userId) { try { localStorage.setItem(CONFIG.LS_SYNCED + userId, String(v)); } catch (e) {} } }
+  // Les données en ligne sont identiques à data : on retient leurs morceaux (évite de tout renvoyer).
+  function markSynced(data) {
+    if (!userId) return;
+    const { pieces, index } = split(data);
+    remoteSaved = new Map(pieces); remoteSaved.set(pre() + "index", index);
+    setSynced(data.updatedAt);
+  }
+  // « Garder les données de cet appareil » : tout renvoyer et supprimer les morceaux en ligne en trop.
+  function forceFullPush(remoteKeys, remoteUpdatedAt) {
+    remoteSaved = new Map(arr(remoteKeys).map(k => [k, null]));
+    remoteSaved.set(pre() + "index", null);
+    setSynced(remoteUpdatedAt);
+  }
+  function onConflict(fn) { onConflictFn = fn; }
+  function onRetryInit(fn) { onRetryInitFn = fn; }
+  function setConflictOpen(v) { conflictOpen = !!v; }
+  // Nouvel essai automatique : relecture en ligne si elle a échoué, sinon nouvel envoi.
+  function scheduleRetry() {
+    clearTimeout(retryTimer);
+    retryTimer = setTimeout(retryNow, CONFIG.RETRY_MS);
+  }
+  function retryNow() {
+    clearTimeout(retryTimer); retryTimer = null;
+    if (!userId || !remote) return;
+    if (!remoteOk) { if (onRetryInitFn) { try { onRetryInitFn(); } catch (e) {} } }
+    else if (lastData) flush();
+  }
+  try { window.addEventListener("online", retryNow); window.addEventListener("offline", () => { if (remote) setMode("offline"); }); } catch (e) {}
 
   function lsGet(key) { try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
   function lsRaw(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
@@ -1459,16 +1653,20 @@ const Storage = (() => {
     return l || r;
   }
 
-  // --- Session sur cet appareil ---
-  function getSession() { try { return localStorage.getItem(CONFIG.LS_SESSION) || null; } catch (e) { return null; } }
+  // --- Session sur cet appareil (sans Supabase) : localStorage si « Rester connecté », sinon sessionStorage ---
+  function getSession() {
+    try { return localStorage.getItem(CONFIG.LS_SESSION) || sessionStorage.getItem(CONFIG.LS_SESSION) || null; } catch (e) { return null; }
+  }
   function setSession(id) {
-    try { if (id) localStorage.setItem(CONFIG.LS_SESSION, id); else localStorage.removeItem(CONFIG.LS_SESSION); } catch (e) {}
+    try { localStorage.removeItem(CONFIG.LS_SESSION); sessionStorage.removeItem(CONFIG.LS_SESSION); } catch (e) {}
+    if (!id) return;
+    try { (rememberMe() ? localStorage : sessionStorage).setItem(CONFIG.LS_SESSION, id); } catch (e) {}
   }
 
   // --- Découpage : données → Map(clé → JSON) dans l'ordre de l'index ---
   function slices(a, n) { const out = []; for (let i = 0; i < a.length; i += n) out.push(a.slice(i, i + n)); return out; }
-  function split(data) {
-    const p = new Map(), P = pre();
+  function split(data, prefix) {
+    const p = new Map(), P = prefix === undefined ? pre() : prefix;
     const put = (k, v) => p.set(P + k, JSON.stringify(v));
     const ids = data.aiResume ? arr(data.aiResume.ids) : [];
     put("settings", {
@@ -1498,9 +1696,25 @@ const Storage = (() => {
     const index = JSON.stringify({ v: 2, updatedAt: data.updatedAt, keys: Array.from(p.keys()) });
     return { pieces: p, index };
   }
+  // Administration : données d'un autre compte ↔ lignes Supabase. Comme pour le compte lui-même :
+  // clé de ligne sans préfixe, mais liste de l'index avec le préfixe "user:<identifiant>:".
+  function packRows(data, ident) {
+    const P = "user:" + ident + ":";
+    const { pieces, index } = split(data, P);
+    const rows = Array.from(pieces, ([key, json]) => ({ key: key.slice(P.length), data: JSON.parse(json) }));
+    rows.push({ key: "index", data: JSON.parse(index) });  // l'index en dernier
+    return rows;
+  }
+  function unpackRows(rows) {
+    const m = new Map(arr(rows).map(r => [r.key, r.data]));
+    if (!m.has("index")) return null;
+    const idx = Object.assign({}, m.get("index"));
+    idx.keys = arr(idx.keys).map(k => String(k).replace(/^user:[^:]*:/, ""));
+    return assemble(idx, k => m.get(k), "").data;
+  }
   // Morceaux → données (à passer ensuite dans normalizeData). get(clé) → objet ou undefined.
-  function assemble(idx, getPiece) {
-    const P = pre();
+  function assemble(idx, getPiece, prefix) {
+    const P = prefix === undefined ? pre() : prefix;
     const s = getPiece(P + "settings") || {};
     const out = {
       version: num(s.version, 1), updatedAt: num(idx.updatedAt, 0),   // pas de version = données de la version 1
@@ -1522,11 +1736,15 @@ const Storage = (() => {
   }
 
   // --- Compte connecté ---
-  function setUser(id) {
+  // sbUid : identifiant Supabase (auth.uid()) du compte, en mode Supabase.
+  function setUser(id, sbUid) {
     clearTimeout(timer); timer = null; lastData = null; held = false;
+    clearTimeout(retryTimer); retryTimer = null; failWarned = false; conflictOpen = false; remoteOk = false;
     localSaved = new Map(); remoteSaved = new Map(); localFullWarned = false;
     userId = id || null;
-    remote = (backend && userId) ? backend : null;
+    if (!userId) remote = null;
+    else if (sb) remote = sbUid ? supabaseBackend(sb, sbUid, "user:" + userId + ":") : null;
+    else remote = backend || null;
   }
   function getUser() { return userId; }
   // Pendant l'ouverture du compte : les sauvegardes restent en mémoire (pas d'écriture avant la migration).
@@ -1597,41 +1815,51 @@ const Storage = (() => {
     return true;
   }
 
-  // Lecture cloud. Renvoie { data, old } (données du compte), undefined (cloud dispo mais vide), null (cloud indisponible).
+  // Lecture cloud. Renvoie { data, old, keys } (données du compte), undefined (cloud dispo mais vide), null (cloud indisponible).
+  // En cas d'échec : pas d'envoi (on n'a pas pu comparer), nouvel essai automatique.
   async function initRemote() {
     if (!remote) return null;
     const id = userId, P = pre();
     try {
-      const idxRaw = await remote.get(P + "index");
+      let got = null, idxRaw;
+      if (remote.getAll) { got = await remote.getAll(); idxRaw = got.get(P + "index"); }
+      else idxRaw = await remote.get(P + "index");
+      if (userId !== id) return null;
       if (idxRaw) {
         const idx = JSON.parse(idxRaw);
-        const got = new Map([[P + "index", idxRaw]]);
         const keys = arr(idx.keys);
-        for (let i = 0; i < keys.length; i += 8) {           // 8 lectures à la fois
-          const part = keys.slice(i, i + 8);
-          const vals = await Promise.all(part.map(k => remote.get(k)));
-          part.forEach((k, j) => { if (vals[j] !== undefined) got.set(k, vals[j]); });
+        if (!got) {
+          got = new Map([[P + "index", idxRaw]]);
+          for (let i = 0; i < keys.length; i += 8) {           // 8 lectures à la fois
+            const part = keys.slice(i, i + 8);
+            const vals = await Promise.all(part.map(k => remote.get(k)));
+            part.forEach((k, j) => { if (vals[j] !== undefined) got.set(k, vals[j]); });
+          }
         }
         if (userId !== id) return null;
         const { data, missing } = assemble(idx, k => got.has(k) ? JSON.parse(got.get(k)) : undefined);
         if (missing) throw new Error("incomplete");
-        remoteSaved = got;
+        remoteSaved = new Map(Array.from(got).filter(([k]) => k === P + "index" || keys.includes(k)));
+        remoteOk = true;
         setMode("cloud");
-        return { data, old: false };
+        return { data, old: false, keys: Array.from(got.keys()) };
       }
-      const old = await remoteGet(oldKey(id));
+      const old = remote.getAll ? undefined : await remoteGet(oldKey(id));
       if (userId !== id) return null;
+      remoteSaved = got ? new Map(Array.from(got.keys(), k => [k, null])) : new Map();
+      remoteOk = true;
       setMode("cloud");
-      return looksLikeAppData(old) ? { data: old, old: true } : undefined;
+      return looksLikeAppData(old) ? { data: old, old: true, keys: [] } : undefined;
     } catch (e) {
-      if (userId === id) { remote = null; setMode("error"); }
+      if (userId === id) { remoteOk = false; failMode(); scheduleRetry(); }
       return null;
     }
   }
 
   // Envoi cloud des morceaux modifiés, puis de l'index, puis suppression des morceaux disparus. Renvoie true si tout est à jour.
+  // Avant d'écrire : relecture de l'index en ligne ; s'il a changé depuis la dernière synchro → conflit (on n'écrit rien).
   async function doFlush() {
-    if (!remote || !lastData || !userId) return true;
+    if (!remote || !remoteOk || !lastData || !userId || conflictOpen) return !remote;
     const id = userId, P = pre();
     const { pieces, index } = split(lastData);
     const todo = [];
@@ -1642,6 +1870,18 @@ const Storage = (() => {
     if (todo.some(([, json]) => byteLen(json) > CONFIG.MAX_DOC_BYTES)) { setMode("error"); toast(t("save.tooBig")); return false; }
     try {
       setMode("syncing");
+      const S = getSynced();
+      if (S !== null) {
+        const rIdx = await remote.get(P + "index");
+        if (userId !== id) return false;
+        const r = rIdx ? num(JSON.parse(rIdx).updatedAt, 0) : 0;
+        if (r > S && r !== lastData.updatedAt) {            // modifié ailleurs depuis la dernière synchro
+          conflictOpen = true;
+          setMode("error");
+          if (onConflictFn) setTimeout(() => { try { onConflictFn(); } catch (e) {} }, 0);
+          return false;
+        }
+      }
       for (const [k, json] of todo) {                         // un morceau à la fois
         await remote.set(k, json, lastData.updatedAt);
         if (userId !== id) return false;
@@ -1649,11 +1889,17 @@ const Storage = (() => {
       }
       await remote.set(P + "index", index, lastData.updatedAt);
       remoteSaved.set(P + "index", index);
+      setSynced(lastData.updatedAt);
       for (const k of gone) { await remote.del(k); remoteSaved.delete(k); }
+      failWarned = false;
       setMode("cloud");
       return true;
     } catch (e) {
-      if (userId === id) setMode("error");
+      if (userId === id) {
+        failMode();
+        if (!failWarned && navigator.onLine !== false) { failWarned = true; toast(t("save.retry")); }
+        scheduleRetry();
+      }
       return false;
     }
   }
@@ -1686,11 +1932,11 @@ const Storage = (() => {
     clearTimeout(timer); timer = null;
     const local = writeLocal(data);
     if (!local) { setMode("error"); return { local: false, remote: false }; }
-    const r = remote ? await flush() : true;
+    const r = (remote && remoteOk) ? await flush() : true;  // en ligne pas encore relu : envoi plus tard
     return { local: true, remote: r };
   }
 
-  // Appli fermée ou mise en arrière-plan avant le délai : on envoie tout de suite.
+  // Appli fermée ou mise en arrière-plan avant le délai, fin de session de révision : on envoie tout de suite.
   function flushNow() { if (timer) { clearTimeout(timer); timer = null; flush(); } }
   try {
     document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushNow(); });
@@ -1704,9 +1950,161 @@ const Storage = (() => {
   }
 
   return {
-    connect, isCloud, onMode, getMode,
+    connect, isCloud, isSupabase, useSupabase, onMode, getMode,
     loadAccounts, saveAccounts, readLegacy, readLegacyLocal, getSession, setSession,
-    setUser, getUser, hold, release, readLocal, writeLocal, dropOldLocal, initRemote, save, saveNow, flushNow, flushWait
+    setUser, getUser, hold, release, readLocal, writeLocal, dropOldLocal, initRemote, save, saveNow, flushNow, flushWait,
+    getSynced, markSynced, forceFullPush, onConflict, onRetryInit, setConflictOpen, packRows, unpackRows
+  };
+})();
+
+// === SUPABASE ===
+// Client Supabase, chargé seulement si config.js est rempli (window.APP_CONFIG = { SUPABASE_URL, SUPABASE_ANON_KEY }).
+// Clé publique (« publishable » ou « anon ») uniquement : jamais la clé service_role / secrète.
+// Connexion : email technique <identifiant>@vocab.local (jamais affiché), mot de passe = SHA-256(identifiant + ":" + PIN).
+// Fonctions SQL utilisées (voir supabase.sql) : username_exists, my_profile, touch_last_seen, pin_changed,
+// admin_list_accounts, admin_reset_pin, admin_delete_account. Données : table user_data (une ligne par morceau).
+function inClaude() { return !!(window.claude && typeof window.claude.use === "function"); }
+
+// SHA-256 en hexadécimal (crypto.subtle, sinon calcul en JavaScript : même résultat).
+async function sha256Hex(str) {
+  try {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+  } catch (e) { return sha256Js(str); }
+}
+function sha256Js(str) {
+  const ror = (x, n) => (x >>> n) | (x << (32 - n));
+  const H = [], K = [];
+  for (let n = 2, c = 0; c < 64; n++) {
+    let prime = true;
+    for (let d = 2; d * d <= n; d++) if (n % d === 0) { prime = false; break; }
+    if (!prime) continue;
+    if (c < 8) H[c] = (Math.pow(n, 1 / 2) * 4294967296) | 0;
+    K[c++] = (Math.pow(n, 1 / 3) * 4294967296) | 0;
+  }
+  const b = Array.from(new TextEncoder().encode(str)), len = b.length * 8;
+  b.push(0x80);
+  while (b.length % 64 !== 56) b.push(0);
+  for (let i = 7; i >= 0; i--) b.push(i >= 4 ? 0 : (len >>> (8 * i)) & 255);
+  const w = new Array(64);
+  for (let j = 0; j < b.length; j += 64) {
+    for (let i = 0; i < 16; i++) w[i] = (b[j + 4 * i] << 24) | (b[j + 4 * i + 1] << 16) | (b[j + 4 * i + 2] << 8) | b[j + 4 * i + 3];
+    for (let i = 16; i < 64; i++) {
+      const x = w[i - 15], y = w[i - 2];
+      w[i] = (w[i - 16] + (ror(x, 7) ^ ror(x, 18) ^ (x >>> 3)) + w[i - 7] + (ror(y, 17) ^ ror(y, 19) ^ (y >>> 10))) | 0;
+    }
+    let [a, bb, c, d, e, f, g, h] = H;
+    for (let i = 0; i < 64; i++) {
+      const t1 = (h + (ror(e, 6) ^ ror(e, 11) ^ ror(e, 25)) + ((e & f) ^ (~e & g)) + K[i] + w[i]) | 0;
+      const t2 = ((ror(a, 2) ^ ror(a, 13) ^ ror(a, 22)) + ((a & bb) ^ (a & c) ^ (bb & c))) | 0;
+      h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = bb; bb = a; a = (t1 + t2) | 0;
+    }
+    [a, bb, c, d, e, f, g, h].forEach((v, i) => { H[i] = (H[i] + v) | 0; });
+  }
+  return H.map(x => (x >>> 0).toString(16).padStart(8, "0")).join("");
+}
+
+// Type d'erreur Supabase → "net" | "wrong" | "exists" | "confirm" | "same" | "server".
+function sbErrKind(e) {
+  const code = String((e && e.code) || ""), msg = String((e && (e.message || e.msg)) || e || "");
+  if (navigator.onLine === false || /fetch|network|timeout|load failed/i.test(msg) || (e && (e.name === "AuthRetryableFetchError" || e.status === 0))) return "net";
+  if (code === "invalid_credentials" || /invalid login credentials/i.test(msg)) return "wrong";
+  if (code === "user_already_exists" || /already registered|already exists/i.test(msg)) return "exists";
+  if (code === "confirm" || code === "email_not_confirmed" || /not confirmed/i.test(msg)) return "confirm";
+  if (code === "same_password" || /different from the old/i.test(msg)) return "same";
+  return "server";
+}
+
+const Supa = (() => {
+  let client = null;
+  const AUTH_KEY = "vocabfr.sb.auth";
+  // Configuration lue dans config.js ; valeurs d'exemple ou vides = pas de Supabase.
+  function cfg() {
+    const c = (window.APP_CONFIG && typeof window.APP_CONFIG === "object") ? window.APP_CONFIG : {};
+    const url = String(c.SUPABASE_URL || "").trim(), key = String(c.SUPABASE_ANON_KEY || "").trim();
+    if (!/^https:\/\/\S+$/.test(url) || key.length < 20 || /REMPLACER|VOTRE|xxxx/i.test(url + key)) return null;
+    return { url: url.replace(/\/+$/, ""), key };
+  }
+  function configured() { return !!cfg(); }
+  function loadLib() {
+    if (window.supabase && typeof window.supabase.createClient === "function") return Promise.resolve();
+    return withTimeout(new Promise((res, rej) => {
+      const sc = document.createElement("script");
+      sc.src = CONFIG.SB_CDN; sc.onload = res; sc.onerror = () => rej(new Error("cdn"));
+      document.head.appendChild(sc);
+    }), 15000);
+  }
+  // « Rester connecté » : session Supabase dans localStorage, sinon dans sessionStorage (oubliée à la fermeture).
+  const authStorage = {
+    getItem(k) { try { const v = localStorage.getItem(k); return v !== null ? v : sessionStorage.getItem(k); } catch (e) { return null; } },
+    setItem(k, v) {
+      try {
+        if (rememberMe()) { localStorage.setItem(k, v); sessionStorage.removeItem(k); }
+        else { sessionStorage.setItem(k, v); localStorage.removeItem(k); }
+      } catch (e) {}
+    },
+    removeItem(k) { try { localStorage.removeItem(k); } catch (e) {} try { sessionStorage.removeItem(k); } catch (e) {} }
+  };
+  async function init() {
+    const c = cfg();
+    if (!c) return false;
+    try {
+      await loadLib();
+      client = window.supabase.createClient(c.url, c.key, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: authStorage, storageKey: AUTH_KEY }
+      });
+      return true;
+    } catch (e) { client = null; return false; }
+  }
+  const T = 15000;
+  const ok = r => { if (r && r.error) throw r.error; return r ? r.data : null; };
+  function email(id) { return id + "@" + CONFIG.SB_EMAIL_DOMAIN; }
+  function password(id, pin) { return sha256Hex(id + ":" + pin); }
+  async function session() { return ok(await withTimeout(client.auth.getSession(), T)).session || null; }
+  async function signIn(id, pin) {
+    return ok(await withTimeout(client.auth.signInWithPassword({ email: email(id), password: await password(id, pin) }), T)).session;
+  }
+  async function signUp(id, pin) {
+    const d = ok(await withTimeout(client.auth.signUp({ email: email(id), password: await password(id, pin) }), T));
+    if (!d || !d.session) throw { code: "confirm" };   // confirmation par email encore activée
+    return d.session;
+  }
+  async function signOut() {
+    try { await withTimeout(client.auth.signOut({ scope: "local" }), 5000); } catch (e) {}
+    authStorage.removeItem(AUTH_KEY);
+  }
+  async function rpc(name, args) { return ok(await withTimeout(client.rpc(name, args || {}), T)); }
+  // Nouveau PIN pour le compte connecté (puis « PIN à changer » retiré).
+  async function setPin(id, pin) {
+    ok(await withTimeout(client.auth.updateUser({ password: await password(id, pin) }), T));
+    await rpc("pin_changed");
+  }
+  // Administration : lignes user_data d'un compte (RLS : réservé à l'admin pour les autres comptes).
+  async function readRows(userUuid) {
+    return arr(ok(await withTimeout(client.from("user_data").select("key,data").eq("user_id", userUuid), T * 2)));
+  }
+  // Remplace toutes les lignes d'un compte : morceaux, puis index, puis suppression des anciennes clés.
+  async function writeRows(userUuid, rows) {
+    const old = arr(ok(await withTimeout(client.from("user_data").select("key").eq("user_id", userUuid), T))).map(r => r.key);
+    const pieces = rows.filter(r => r.key !== "index"), idx = rows.filter(r => r.key === "index");
+    for (let i = 0; i < pieces.length; i += 5) {
+      ok(await withTimeout(client.from("user_data").upsert(pieces.slice(i, i + 5).map(r => ({ user_id: userUuid, key: r.key, data: r.data }))), T));
+    }
+    if (idx.length) ok(await withTimeout(client.from("user_data").upsert({ user_id: userUuid, key: "index", data: idx[0].data }), T));
+    const keep = new Set(rows.map(r => r.key));
+    const del = old.filter(k => !keep.has(k));
+    for (let i = 0; i < del.length; i += 50) {
+      ok(await withTimeout(client.from("user_data").delete().eq("user_id", userUuid).in("key", del.slice(i, i + 50)), T));
+    }
+  }
+  return {
+    configured, init, client: () => client, password, session, signIn, signUp, signOut, setPin, readRows, writeRows,
+    usernameExists: id => rpc("username_exists", { p_identifiant: id }),
+    myProfile: () => rpc("my_profile"),
+    touch: () => rpc("touch_last_seen"),
+    listAccounts: () => rpc("admin_list_accounts"),
+    resetPin: (userUuid, pwd) => rpc("admin_reset_pin", { p_user_id: userUuid, p_password: pwd }),
+    deleteAccount: userUuid => rpc("admin_delete_account", { p_user_id: userUuid })
   };
 })();
 
@@ -1902,8 +2300,8 @@ function applyTheme() {
 }
 
 // === NAVIGATION ===
-const SCREENS = ["home", "review", "lists", "stats", "pending", "settings"];
-const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", settings: "reglages" }; // "settings" est réservé dans l'URL
+const SCREENS = ["home", "review", "lists", "stats", "pending", "settings", "admin"];
+const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", settings: "reglages", admin: "admin" }; // "settings" est réservé dans l'URL
 let currentScreen = "home";
 
 function screenFromHash() {
@@ -1913,6 +2311,7 @@ function screenFromHash() {
 function showScreen(name) {
   if (!Storage.getUser()) { showAuth(auth.view); return; } // personne de connecté : écran de connexion
   currentScreen = SCREENS.includes(name) ? name : "home";
+  if (currentScreen === "admin" && !auth.isAdmin) currentScreen = "settings"; // Administration : admin seulement
   document.querySelectorAll(".screen").forEach(el => el.classList.toggle("active", el.id === "screen-" + currentScreen));
   document.querySelectorAll("nav.bottom button").forEach(b => b.classList.toggle("active", b.dataset.nav === currentScreen));
   renderScreen();
@@ -1989,7 +2388,7 @@ function renderSyncStatus(mode) {
   const el = $("#syncStatus");
   el.dataset.mode = mode;
   $("#syncLabel").textContent = t("storage." + mode);
-  const infoKey = mode === "error" ? "storage.info.error" : (mode === "local" ? "storage.info.local" : "storage.info.cloud");
+  const infoKey = mode === "error" ? "storage.info.error" : mode === "offline" ? "storage.info.offline" : (mode === "local" ? "storage.info.local" : "storage.info.cloud");
   $("#storageInfo").textContent = t(infoKey);
 }
 
@@ -2204,7 +2603,7 @@ function gradeCurrent(result) {
   s.revealed = false;
   commit();
 }
-function endSession() { rv.phase = "config"; rv.s = null; renderReview(); }
+function endSession() { rv.phase = "config"; rv.s = null; Storage.flushNow(); renderReview(); } // synchro en ligne après chaque session
 
 // Carte encore utilisable dans une session en cours (supprimée, ou langue de la liste changée entre-temps).
 function sessionCard(id) {
@@ -3903,6 +4302,7 @@ function renderSettings() {
   const inp = $("#setSessionSize");
   if (document.activeElement !== inp) inp.value = state.settings.sessionSize;
   $("#accountInfo").textContent = t("account.info", { id: Storage.getUser() || "" });
+  $("#adminCard").hidden = !(auth.mode === "supabase" && auth.isAdmin);
   const lg = accountLangs();
   $("#defaultLangs").textContent = t("langs.defaultInfo", { target: langName(lg.target), support: lg.support.map(x => langName(x)).join(", ") });
   renderAudioCard();
@@ -3946,6 +4346,8 @@ function initSettings() {
   $("#btnDefaultLangs").addEventListener("click", () => openLangEditor("account", state.settings));
   $("#btnExport").addEventListener("click", () => exportData());
   $("#btnLogout").addEventListener("click", () => { logout(); });
+  $("#btnChangePin").addEventListener("click", openChangePin);
+  $("#btnAdmin").addEventListener("click", () => { location.hash = "#" + HASH_OF.admin; });
   $("#btnImport").addEventListener("click", openImport);
   $("#importFile").addEventListener("change", onImportFile);
 }
@@ -3960,6 +4362,17 @@ async function exportData(data, filename) {
     const dl = window.claude && typeof window.claude.use === "function" ? await window.claude.use("downloads") : null;
     if (dl) { await dl.save({ filename, data: json }); toast(t("export.done")); return "saved"; }
   } catch (e) { /* refusé ou indisponible : on passe au plan B */ }
+  if (!inClaude()) {          // navigateur (GitHub Pages) : téléchargement d'un fichier .json
+    try {
+      const url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+      const a = document.createElement("a");
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+      toast(t("export.done"));
+      return "saved";
+    } catch (e) {}
+  }
   showExportText(json);
   return "text";
 }
@@ -3978,7 +4391,10 @@ function showExportText(json) {
   ]);
 }
 
-function openImport() {
+// target (administration) : { id, apply(data) } pour importer dans un autre compte ; sinon le compte connecté.
+let importTarget = null;
+function openImport(target) {
+  importTarget = target && typeof target.apply === "function" ? target : null;
   const wrap = document.createElement("div");
   const fileBtn = document.createElement("button");
   fileBtn.className = "btn"; fileBtn.textContent = t("import.file");
@@ -4006,11 +4422,14 @@ function importFromText(text) {
   try { raw = JSON.parse(text); } catch (e) { toast(t("import.error")); return false; }
   if (!looksLikeAppData(raw)) { toast(t("import.error")); return false; }
   const data = normalizeData(raw);
+  const tg = importTarget;
   const p = document.createElement("p");
-  p.textContent = t("import.confirm", { lists: data.lists.length, cards: data.cards.length });
+  p.textContent = tg ? t("admin.importConfirm", { id: tg.id, lists: data.lists.length, cards: data.cards.length })
+                     : t("import.confirm", { lists: data.lists.length, cards: data.cards.length });
   openModal(t("import.title"), p, [
     { label: t("cancel") },
     { label: t("confirm"), kind: "primary", onClick: () => {
+      if (tg) { tg.apply(data).then(() => toast(t("admin.importDone", { id: tg.id })), () => toast(t("admin.err"))); return; }
       state = data; applyTheme(); commit(); toast(t("import.done"));
     } }
   ]);
@@ -4984,17 +5403,236 @@ function showUndo(msg, snap) {
   undoTimer = setTimeout(hide, CONFIG.UNDO_MS);
 }
 
-// === CONNEXION ===
-// Comptes de l'appli : identifiant + code PIN à 4 chiffres (haché avec un sel, jamais stocké en clair).
-// Le PIN évite d'ouvrir le compte de l'autre par erreur ; ce n'est pas une vraie sécurité.
-// La session reste ouverte sur l'appareil jusqu'à « Changer de compte ».
-// Migration : le premier compte créé reçoit les anciennes données (après proposition d'export), une seule fois.
-const auth = { view: "loading", reg: { accounts: [], migrated: false }, legacy: null, backupAsked: false, busy: false, form: { id: "", pin: "", pin2: "", target: "fr" } };
+// === ADMINISTRATION ===
+// Écran #admin, visible seulement par l'admin (mode Supabase, compte présent dans la table admins).
+// Liste des comptes (fonction admin_list_accounts), réinitialiser le PIN (admin_reset_pin : changement obligatoire ensuite),
+// exporter / importer les données d'un compte, copier des dossiers ou des listes vers un autre compte,
+// supprimer un compte (admin_delete_account, double confirmation). Les fonctions SQL vérifient que l'appelant est admin.
+// Données d'un autre compte : lignes user_data lues / écrites directement (RLS : accès total pour l'admin).
+// Si ce compte est ouvert sur un autre appareil, il verra un conflit à son prochain envoi (choix des données à garder).
+const adm = { list: null, loading: false, error: false };
 
-function normId(s) { return String(s || "").trim().toLowerCase(); }
-function validId(s) { return /^[a-z0-9_-]{2,20}$/.test(s); }
-function validPin(s) { return /^\d{4}$/.test(s); }
-function clearAuthForm() { auth.form = { id: "", pin: "", pin2: "", target: "fr" }; }
+function admDate(ts) {
+  if (!ts) return t("admin.never");
+  try { return new Date(ts).toLocaleDateString(state.settings.uiLang); } catch (e) { return String(ts).slice(0, 10); }
+}
+function renderAdmin() {
+  const root = $("#screen-admin");
+  root.textContent = "";
+  const back = el("button", "link-btn", t("admin.back"));
+  back.addEventListener("click", () => { location.hash = "#" + HASH_OF.settings; });
+  root.appendChild(back);
+  const top = el("div", "adm-top");
+  top.appendChild(el("h2", null, t("admin.title")));
+  const ref = el("button", "link-btn", t("admin.refresh"));
+  ref.addEventListener("click", loadAdmin);
+  top.appendChild(ref);
+  root.appendChild(top);
+  if (!adm.list && !adm.loading && !adm.error) { loadAdmin(); return; }
+  if (adm.loading) { root.appendChild(el("div", "empty", t("admin.loading"))); return; }
+  if (adm.error || !adm.list) { root.appendChild(el("div", "empty", t("admin.error"))); return; }
+  if (!adm.list.length) { root.appendChild(el("div", "empty", t("admin.empty"))); return; }
+  const box = el("div", "items");
+  adm.list.forEach(a => {
+    const row = el("button", "item");
+    const main = el("div", "main");
+    main.appendChild(el("div", "t1", a.identifiant));
+    main.appendChild(el("div", "t2", [t("admin.created", { d: admDate(a.created_at) }), t("admin.last", { d: admDate(a.last_login) }), t("admin.cards", { n: num(Number(a.nb_cartes), 0) })].join(" · ")));
+    const tags = el("div", "adm-tags");
+    if (a.user_id === auth.sbUid) tags.appendChild(el("span", "tag", t("admin.you")));
+    if (a.est_admin) tags.appendChild(el("span", "tag", t("admin.isAdmin")));
+    if (a.pin_a_changer) tags.appendChild(el("span", "tag warn", t("admin.mustChange")));
+    if (tags.childNodes.length) main.appendChild(tags);
+    row.append(main, el("span", "chev", "›"));
+    row.addEventListener("click", () => adminActions(a));
+    box.appendChild(row);
+  });
+  root.appendChild(box);
+}
+async function loadAdmin() {
+  adm.loading = true; adm.error = false;
+  if (currentScreen === "admin") renderAdmin();
+  try { adm.list = arr(await Supa.listAccounts()); }
+  catch (e) { adm.list = null; adm.error = true; }
+  adm.loading = false;
+  if (currentScreen === "admin") renderAdmin();
+}
+function adminActions(a) {
+  const self = a.user_id === auth.sbUid;
+  const acts = [];
+  if (!self) acts.push({ label: t("admin.resetPin"), onClick: () => { setTimeout(() => adminResetPin(a), 0); } });
+  acts.push({ label: t("admin.export"), onClick: () => { adminExport(a); } });
+  acts.push({ label: t("admin.import"), onClick: () => { setTimeout(() => adminImport(a), 0); } });
+  if (adm.list.length > 1) acts.push({ label: t("admin.copy"), onClick: () => { adminCopy(a); } });
+  if (!self) acts.push({ label: t("admin.delete"), kind: "danger", onClick: () => { setTimeout(() => adminDelete(a), 0); } });
+  acts.push({ label: t("close") });
+  openModal(a.identifiant, null, acts);
+}
+// Données d'un compte (le sien : les données ouvertes). null si le compte n'a encore rien enregistré.
+async function admRead(a) {
+  if (a.user_id === auth.sbUid) return state;
+  const raw = Storage.unpackRows(await Supa.readRows(a.user_id));
+  return raw ? normalizeData(raw) : null;
+}
+async function admWrite(a, data) {
+  if (a.user_id === auth.sbUid) { state = data; applyTheme(); commit(); return; }
+  data.updatedAt = Date.now();
+  await Supa.writeRows(a.user_id, Storage.packRows(data, a.identifiant));
+}
+async function adminExport(a) {
+  try {
+    const d = await admRead(a);
+    if (!d) { toast(t("admin.noData")); return; }
+    await exportData(d, "vocabulaire-" + a.identifiant + "-" + todayStr() + ".json");
+  } catch (e) { toast(t("admin.err")); }
+}
+function adminImport(a) {
+  if (a.user_id === auth.sbUid) { openImport(); return; }
+  openImport({
+    id: a.identifiant,
+    apply: async data => { await admWrite(a, data); loadAdmin(); }
+  });
+}
+function adminResetPin(a) {
+  const f = { n1: "", n2: "" };
+  const wrap = el("div");
+  wrap.appendChild(formField(t("pin.new"), pinInput("", v => { f.n1 = v; })));
+  wrap.appendChild(formField(t("pin.new2"), pinInput("", v => { f.n2 = v; })));
+  let close = null;
+  close = openModal(t("admin.resetPin") + " — " + a.identifiant, wrap, [
+    { label: t("cancel") },
+    { label: t("confirm"), kind: "primary", onClick: () => {
+      if (!validPin(f.n1)) { toast(t("auth.err.pin")); return false; }
+      if (f.n1 !== f.n2) { toast(t("auth.err.pin2")); return false; }
+      (async () => {
+        try { await Supa.resetPin(a.user_id, await Supa.password(a.identifiant, f.n1)); toast(t("admin.resetDone")); loadAdmin(); }
+        catch (e) { toast(t("admin.err")); }
+      })();
+    } }
+  ]);
+}
+function adminDelete(a) {
+  const run = async () => {
+    try { await Supa.deleteAccount(a.user_id); toast(t("admin.delDone")); loadAdmin(); }
+    catch (e) { toast(t("admin.err")); }
+  };
+  openModal(t("admin.delete"), el("p", null, t("admin.del1", { id: a.identifiant })), [
+    { label: t("cancel") },
+    { label: t("admin.delete"), kind: "danger", onClick: () => {
+      setTimeout(() => openModal(t("admin.delete"), el("p", null, t("admin.del2", { id: a.identifiant })), [
+        { label: t("cancel") },
+        { label: t("admin.delete"), kind: "danger", onClick: () => { run(); } }
+      ]), 0);
+    } }
+  ]);
+}
+// Copie de dossiers et de listes vers un autre compte : nouvelles cartes sans progression.
+// Les langues effectives sont recopiées (les réglages par défaut des deux comptes peuvent différer).
+async function adminCopy(src) {
+  let d;
+  try { d = await admRead(src); } catch (e) { toast(t("admin.err")); return; }
+  if (!d || !d.lists.length) { toast(t("admin.noData")); return; }
+  const others = adm.list.filter(x => x.user_id !== src.user_id);
+  const selF = new Set(), selL = new Set();
+  const wrap = el("div");
+  wrap.appendChild(el("p", "muted", t("admin.copyWhat")));
+  const pick = el("div", "adm-pick");
+  const byOrder = (x, y) => num(x.order, 0) - num(y.order, 0);
+  const listBoxes = new Map();
+  const checkRow = (label, cls, onChange) => {
+    const r = el("label", "check" + (cls ? " " + cls : ""));
+    const cb = el("input"); cb.type = "checkbox";
+    cb.addEventListener("change", () => onChange(cb.checked));
+    r.append(cb, el("span", null, label));
+    pick.appendChild(r);
+    return cb;
+  };
+  const listRow = (l, sub) => {
+    const cb = checkRow(l.name + " (" + d.cards.filter(c => c.listId === l.id).length + ")", sub ? "sub" : "", v => { if (v) selL.add(l.id); else selL.delete(l.id); });
+    listBoxes.set(l.id, cb);
+  };
+  d.folders.slice().sort(byOrder).forEach(f => {
+    const lists = d.lists.filter(l => l.folderId === f.id).sort(byOrder);
+    checkRow("📁 " + f.name, "", v => {
+      if (v) selF.add(f.id); else selF.delete(f.id);
+      lists.forEach(l => { const cb = listBoxes.get(l.id); if (cb) { cb.checked = v; if (v) selL.add(l.id); else selL.delete(l.id); } });
+    });
+    lists.forEach(l => listRow(l, true));
+  });
+  const loose = d.lists.filter(l => !l.folderId || !d.folders.some(f => f.id === l.folderId)).sort(byOrder);
+  if (loose.length && d.folders.length) pick.appendChild(el("div", "hint", t("admin.noFolder")));
+  loose.forEach(l => listRow(l, false));
+  wrap.appendChild(pick);
+  const sel = el("select", "input");
+  others.forEach(o => { const op = el("option", null, o.identifiant); op.value = o.user_id; sel.appendChild(op); });
+  wrap.appendChild(formField(t("admin.copyTo"), sel, false, t("admin.copyHint")));
+  openModal(t("admin.copy"), wrap, [
+    { label: t("cancel") },
+    { label: t("confirm"), kind: "primary", onClick: () => {
+      if (!selF.size && !selL.size) { toast(t("admin.copyNone")); return false; }
+      const dest = others.find(o => o.user_id === sel.value);
+      if (!dest) return false;
+      runAdminCopy(d, dest, selF, selL);
+    } }
+  ]);
+}
+async function runAdminCopy(d, dest, selF, selL) {
+  try {
+    let out = await admRead(dest);
+    out = out ? JSON.parse(JSON.stringify(out)) : emptyData();
+    const acct = resolveLangs([{ target: d.settings.defaultTarget, support: d.settings.defaultSupport }]);
+    const now = Date.now();
+    const maxOrder = a => a.reduce((m, x) => Math.max(m, num(x.order, 0)), 0);
+    let fo = maxOrder(out.folders), lo = maxOrder(out.lists);
+    const fMap = {}, lMap = {};
+    d.folders.filter(f => selF.has(f.id)).forEach(f => {
+      const lg = resolveLangs([acct, f]);
+      const nf = { id: uid(), name: f.name, order: ++fo, target: lg.target, support: lg.support.slice() };
+      fMap[f.id] = nf.id; out.folders.push(nf);
+    });
+    d.lists.filter(l => selL.has(l.id)).forEach(l => {
+      const f = l.folderId ? d.folders.find(x => x.id === l.folderId) : null;
+      const nl = { id: uid(), name: l.name, folderId: (l.folderId && fMap[l.folderId]) || null, order: ++lo, createdAt: now };
+      if (l.target) { nl.target = l.target; nl.support = arr(l.support).slice(); }
+      else if (!nl.folderId) { const lg = resolveLangs([acct, f, l]); nl.target = lg.target; nl.support = lg.support.slice(); }
+      lMap[l.id] = nl.id; out.lists.push(nl);
+    });
+    let n = 0;
+    d.cards.forEach(c => {
+      if (!lMap[c.listId]) return;
+      const nc = JSON.parse(JSON.stringify(c));
+      nc.id = uid(); nc.listId = lMap[c.listId];
+      nc.box = 0; nc.dueAt = now; nc.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null };
+      out.cards.push(nc); n++;
+    });
+    out = normalizeData(out);
+    await admWrite(dest, out);
+    toast(t("admin.copyDone", { folders: Object.keys(fMap).length, lists: Object.keys(lMap).length, cards: n, id: dest.identifiant }));
+    loadAdmin();
+  } catch (e) { toast(t("admin.err")); }
+}
+
+// === CONNEXION ===
+// Deux modes, choisis au lancement (INIT) :
+//  - "supabase" (config.js rempli) : Supabase Auth. Email technique <identifiant>@vocab.local, mot de passe = SHA-256(identifiant:PIN).
+//    Profil (fonction my_profile) : identifiant, PIN à changer (admin à l'installation, PIN réinitialisé par l'admin), admin.
+//    « Rester connecté » : session Supabase gardée sur l'appareil (sinon oubliée à la fermeture du navigateur).
+//  - "local" (artifact Claude ou navigateur sans config) : registre des comptes comme avant (PIN haché avec un sel, jamais en clair).
+//    Migration : le premier compte créé reçoit les anciennes données (après proposition d'export), une seule fois.
+// Identifiant : insensible à la casse, espaces retirés, lettres/chiffres/tirets (2 à 20). PIN : 4 à 6 chiffres.
+// Identifiant inconnu à la connexion : proposition de créer le compte.
+const auth = {
+  mode: "local", view: "loading", reg: { accounts: [], migrated: false }, legacy: null, backupAsked: false, busy: false,
+  msg: "", isAdmin: false, sbUid: null, lastPin: "", forceId: "", forceTarget: null,
+  form: { id: "", pin: "", pin2: "", target: "fr" }
+};
+
+function rememberMe() { try { return localStorage.getItem(CONFIG.LS_REMEMBER) !== "0"; } catch (e) { return true; } }
+function setRememberMe(v) { try { localStorage.setItem(CONFIG.LS_REMEMBER, v ? "1" : "0"); } catch (e) {} }
+function normId(s) { return String(s || "").replace(/\s+/g, "").toLowerCase(); }
+function validId(s) { return /^[a-z0-9-]{2,20}$/.test(s); }
+function validPin(s) { return /^\d{4,6}$/.test(s); }
+function clearAuthForm() { auth.form = { id: "", pin: "", pin2: "", target: (auth.form && auth.form.target) || "fr" }; auth.msg = ""; }
 async function hashPin(pin, salt) {
   const txt = salt + ":" + pin;
   try {
@@ -5006,8 +5644,22 @@ async function hashPin(pin, salt) {
     return "f" + (h >>> 0).toString(16);
   }
 }
+// Langue et thème de l'écran de connexion (gardés sur l'appareil).
+function loadPrefs() {
+  try {
+    const p = JSON.parse(localStorage.getItem(CONFIG.LS_PREFS) || "null");
+    if (p && ["ko", "fr", "en"].includes(p.uiLang)) state.settings.uiLang = p.uiLang;
+    if (p && ["light", "dark", "auto"].includes(p.theme)) state.settings.theme = p.theme;
+  } catch (e) {}
+}
+function savePrefs() {
+  try { localStorage.setItem(CONFIG.LS_PREFS, JSON.stringify({ uiLang: state.settings.uiLang, theme: state.settings.theme })); } catch (e) {}
+}
+function errText(kind) {
+  return t({ net: "auth.err.net", exists: "auth.err.exists", confirm: "auth.err.confirm", same: "auth.err.same", wrong: "auth.err.wrong" }[kind] || "auth.err.server");
+}
 
-// Affiche l'écran de connexion. view : "loading" | "login" | "create" (le premier compte est toujours en "create").
+// Affiche l'écran de connexion. view : "loading" | "login" | "create" | "force" (nouveau PIN obligatoire) | "libError".
 function showAuth(view) {
   auth.view = view || "login";
   document.body.classList.add("auth");
@@ -5019,21 +5671,52 @@ function showAuth(view) {
 }
 function pinInput(value, onInput) {
   const i = el("input", "input auth-pin");
-  i.type = "password"; i.inputMode = "numeric"; i.pattern = "[0-9]*"; i.maxLength = 4; i.autocomplete = "off";
+  i.type = "password"; i.inputMode = "numeric"; i.pattern = "[0-9]*"; i.maxLength = 6; i.autocomplete = "off";
   i.value = value || "";
-  i.addEventListener("input", () => { i.value = i.value.replace(/\D/g, "").slice(0, 4); onInput(i.value); });
+  i.addEventListener("input", () => { i.value = i.value.replace(/\D/g, "").slice(0, 6); onInput(i.value); });
   return i;
+}
+// Sélecteur de langue de l'interface, visible sur l'écran de connexion.
+function authLangSeg() {
+  const seg = el("div", "seg");
+  [["ko", "한국어"], ["fr", "Français"], ["en", "English"]].forEach(([code, label]) => {
+    const b = el("button", null, label);
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(state.settings.uiLang === code));
+    b.addEventListener("click", () => {
+      state.settings.uiLang = code; savePrefs(); applyI18n(); renderSyncStatus(Storage.getMode());
+      if (auth.msg && auth.form.id) auth.msg = t("auth.unknown", { id: normId(auth.form.id) });
+      renderAuth();
+    });
+    seg.appendChild(b);
+  });
+  const f = formField(t("auth.lang"), seg);
+  f.classList.add("auth-lang");
+  return f;
 }
 function renderAuth() {
   const root = $("#screen-auth");
   root.textContent = "";
   if (auth.view === "loading") { root.appendChild(el("div", "empty", t("auth.loading"))); return; }
-  const first = !auth.reg.accounts.length;
+  root.appendChild(authLangSeg());
+  if (auth.view === "libError") {
+    const c = el("div", "card");
+    c.appendChild(el("p", null, t("auth.err.lib")));
+    const b = el("button", "btn primary", t("auth.retry"));
+    b.addEventListener("click", () => location.reload());
+    c.appendChild(b);
+    root.appendChild(c);
+    return;
+  }
+  if (auth.view === "force") { renderForcePin(root); return; }
+  const sbMode = auth.mode === "supabase";
+  const first = !sbMode && !auth.reg.accounts.length;
   const creating = first || auth.view === "create";
   const f = auth.form;
 
   const box = el("div", "card");
   box.appendChild(el("h2", null, t(first ? "auth.firstTitle" : creating ? "auth.createTitle" : "auth.loginTitle")));
+  if (auth.msg) box.appendChild(el("div", "auth-msg", auth.msg));
   const idInp = textInput(f.id, "");
   idInp.autocomplete = "username"; idInp.spellcheck = false;
   idInp.setAttribute("autocapitalize", "off"); idInp.setAttribute("autocorrect", "off");
@@ -5055,9 +5738,15 @@ function renderAuth() {
     });
     box.appendChild(formField(t("auth.target"), seg, false, t("auth.targetHint")));
   }
+  // Rester connecté
+  const rem = el("label", "check");
+  const cb = el("input"); cb.type = "checkbox"; cb.checked = rememberMe();
+  cb.addEventListener("change", () => setRememberMe(cb.checked));
+  rem.append(cb, el("span", null, t("auth.remember")));
+  box.appendChild(rem);
   root.appendChild(box);
 
-  // Anciennes données à rattacher au premier compte
+  // Anciennes données à rattacher au premier compte (mode local)
   if (first && auth.legacy && !auth.reg.migrated) {
     const m = el("div", "card auth-mig");
     m.appendChild(el("p", null, t("auth.migrate", { lists: auth.legacy.lists.length, cards: auth.legacy.cards.length })));
@@ -5079,20 +5768,45 @@ function renderAuth() {
     btns.appendChild(sw);
   }
   root.appendChild(btns);
-  root.appendChild(el("div", "hint auth-store", t(Storage.isCloud() ? "auth.storeCloud" : "auth.storeLocal")));
+  root.appendChild(el("div", "hint auth-store", t(sbMode ? "auth.storeSupa" : Storage.isCloud() ? "auth.storeCloud" : "auth.storeLocal")));
 }
 
 async function doLogin() {
   if (auth.busy) return;
+  const id = normId(auth.form.id), pin = auth.form.pin;
+  if (id.length < 2) { toast(t("auth.err.id")); return; }
+  if (!validPin(pin)) { toast(t("auth.err.pin")); return; }
   auth.busy = true;
   try {
-    const id = normId(auth.form.id), pin = auth.form.pin;
+    if (auth.mode === "supabase") { await sbLogin(id, pin); return; }
     let a = auth.reg.accounts.find(x => x.id === id);
     if (!a && Storage.isCloud()) { auth.reg = await Storage.loadAccounts(); a = auth.reg.accounts.find(x => x.id === id); } // créé sur un autre appareil
-    if (!a || !validPin(pin) || (await hashPin(pin, a.salt)) !== a.pinHash) { toast(t("auth.err.wrong")); return; }
+    if (!a && validId(id)) { offerCreate(id); return; }
+    if (!a || (await hashPin(pin, a.salt)) !== a.pinHash) { toast(t("auth.err.wrong")); return; }
     clearAuthForm();
     await startUser(id, null);
   } finally { auth.busy = false; }
+}
+// Identifiant inconnu : on passe à la création, identifiant et PIN gardés (il reste la confirmation).
+function offerCreate(id) {
+  auth.form.id = id; auth.form.pin2 = "";
+  auth.msg = t("auth.unknown", { id });
+  showAuth("create");
+}
+async function sbLogin(id, pin) {
+  try {
+    const session = await Supa.signIn(id, pin);
+    auth.lastPin = pin;
+    clearAuthForm();
+    await enterSupabase(session);
+  } catch (e) {
+    const k = sbErrKind(e);
+    if (k !== "wrong") { toast(errText(k)); return; }
+    let exists = true;
+    try { exists = await Supa.usernameExists(id); } catch (e2) {}
+    if (!exists && validId(id)) offerCreate(id);
+    else toast(t("auth.err.wrong"));
+  }
 }
 
 async function doCreate() {
@@ -5103,6 +5817,7 @@ async function doCreate() {
   if (f.pin !== f.pin2) { toast(t("auth.err.pin2")); return; }
   auth.busy = true;
   try {
+    if (auth.mode === "supabase") { await sbCreate(id, f.pin, f.target); return; }
     auth.reg = await Storage.loadAccounts(); // registre à jour (autre appareil)
     if (auth.reg.accounts.some(a => a.id === id)) { toast(t("auth.err.exists")); return; }
     const migrate = !auth.reg.migrated && !!auth.legacy;
@@ -5120,6 +5835,117 @@ async function doCreate() {
     toast(t(migrate ? "auth.migrated" : "auth.welcome", { id }));
   } finally { auth.busy = false; }
 }
+async function sbCreate(id, pin, target) {
+  try {
+    if (await Supa.usernameExists(id)) { toast(t("auth.err.exists")); return; }
+    const session = await Supa.signUp(id, pin);
+    auth.lastPin = pin;
+    clearAuthForm();
+    await enterSupabase(session, target);
+    toast(t("auth.welcome", { id }));
+  } catch (e) { toast(errText(sbErrKind(e))); }
+}
+
+// Supabase : profil du compte (identifiant, PIN à changer, admin), puis ouverture des données.
+// Hors connexion : dernier profil connu sur cet appareil, s'il s'agit du même compte.
+async function enterSupabase(session, target) {
+  const userUuid = session.user.id;
+  let prof = null;
+  try { prof = await Supa.myProfile(); }
+  catch (e) {
+    try { const c = JSON.parse(localStorage.getItem(CONFIG.LS_SB_PROFILE) || "null"); if (c && c.uid === userUuid) prof = c; } catch (e2) {}
+    if (!prof) throw e;
+  }
+  const id = normId((prof && prof.identifiant) || String(session.user.email || "").split("@")[0]);
+  auth.sbUid = userUuid;
+  auth.isAdmin = !!(prof && prof.is_admin);
+  try { localStorage.setItem(CONFIG.LS_SB_PROFILE, JSON.stringify({ uid: userUuid, identifiant: id, is_admin: auth.isAdmin })); } catch (e) {}
+  if (prof && prof.must_change_pin) {
+    auth.forceId = id; auth.forceTarget = target || null;
+    auth.form = { id: "", pin: "", pin2: "", target: auth.form.target };
+    showAuth("force");
+    return;
+  }
+  Supa.touch().catch(() => {});
+  await startUser(id, null, target, userUuid);
+}
+// Écran bloquant : nouveau PIN obligatoire (admin à la première connexion, ou PIN réinitialisé par l'admin).
+function renderForcePin(root) {
+  const f = auth.form;
+  const box = el("div", "card");
+  box.appendChild(el("h2", null, t("auth.forceTitle")));
+  box.appendChild(el("p", "muted", t("auth.forceText")));
+  const p1 = pinInput(f.pin, v => { f.pin = v; }), p2 = pinInput(f.pin2, v => { f.pin2 = v; });
+  box.appendChild(formField(t("pin.new"), p1));
+  box.appendChild(formField(t("pin.new2"), p2));
+  [p1, p2].forEach(i => i.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); doForcePin(); } }));
+  root.appendChild(box);
+  const btns = el("div", "btns");
+  const go = el("button", "btn primary", t("auth.forceGo"));
+  go.addEventListener("click", doForcePin);
+  const out = el("button", "link-btn", t("account.logout"));
+  out.addEventListener("click", () => logout());
+  btns.append(go, out);
+  root.appendChild(btns);
+}
+async function doForcePin() {
+  if (auth.busy) return;
+  const f = auth.form;
+  if (!validPin(f.pin)) { toast(t("auth.err.pin")); return; }
+  if (f.pin !== f.pin2) { toast(t("auth.err.pin2")); return; }
+  if (auth.lastPin && f.pin === auth.lastPin) { toast(t("auth.err.same")); return; }
+  auth.busy = true;
+  try {
+    await Supa.setPin(auth.forceId, f.pin);
+    auth.lastPin = "";
+    const target = auth.forceTarget;
+    clearAuthForm();
+    toast(t("pin.done"));
+    const s = await Supa.session();
+    if (s) await enterSupabase(s, target); else showAuth("login");
+  } catch (e) { toast(errText(sbErrKind(e))); }
+  finally { auth.busy = false; }
+}
+
+// Réglages : changer de PIN (ancien + nouveau + confirmation), dans les deux modes.
+function openChangePin() {
+  const f = { old: "", n1: "", n2: "" };
+  const wrap = el("div");
+  wrap.appendChild(formField(t("pin.old"), pinInput("", v => { f.old = v; })));
+  wrap.appendChild(formField(t("pin.new"), pinInput("", v => { f.n1 = v; })));
+  wrap.appendChild(formField(t("pin.new2"), pinInput("", v => { f.n2 = v; })));
+  let close = null, busy = false;
+  close = openModal(t("pin.title"), wrap, [
+    { label: t("cancel") },
+    { label: t("save"), kind: "primary", onClick: () => {
+      if (!busy) { busy = true; changePin(f).then(done => { busy = false; if (done && close) close(); }); }
+      return false;
+    } }
+  ]);
+}
+async function changePin(f) {
+  if (!validPin(f.n1)) { toast(t("auth.err.pin")); return false; }
+  if (f.n1 !== f.n2) { toast(t("auth.err.pin2")); return false; }
+  if (f.n1 === f.old) { toast(t("auth.err.same")); return false; }
+  const id = Storage.getUser();
+  if (!id) return false;
+  if (auth.mode === "supabase") {
+    try { await Supa.signIn(id, f.old); }        // vérifie l'ancien PIN
+    catch (e) { const k = sbErrKind(e); toast(k === "wrong" ? t("pin.err.old") : errText(k)); return false; }
+    try { await Supa.setPin(id, f.n1); }
+    catch (e) { toast(errText(sbErrKind(e))); return false; }
+  } else {
+    const reg = await Storage.loadAccounts();
+    const a = reg.accounts.find(x => x.id === id);
+    if (!a || !validPin(f.old) || (await hashPin(f.old, a.salt)) !== a.pinHash) { toast(t("pin.err.old")); return false; }
+    a.salt = uid();
+    a.pinHash = await hashPin(f.n1, a.salt);
+    await Storage.saveAccounts(reg);
+    auth.reg = reg;
+  }
+  toast(t("pin.done"));
+  return true;
+}
 
 // Proposition d'export de sécurité avant la migration.
 function askBackup() {
@@ -5136,54 +5962,106 @@ async function backupLegacy(thenCreate) {
   if (thenCreate && r === "saved") doCreate();
 }
 
-// Ouvre un compte, puis lance la vérification hebdomadaire (une fois les données du cloud arrivées).
-async function startUser(id, preset, target) {
-  await startUserData(id, preset, target);
+// Ouvre un compte, puis lance la vérification hebdomadaire (une fois les données en ligne arrivées).
+// sbUid : identifiant Supabase du compte (mode Supabase).
+async function startUser(id, preset, target, sbUid) {
+  await startUserData(id, preset, target, sbUid);
   autoWeeklyCheck(id);
 }
-// Données du compte : locales tout de suite, puis le cloud (la version la plus récente gagne).
-// Ancien format (un seul bloc) trouvé en local ou dans le cloud : export JSON de sécurité, puis enregistrement découpé.
-// Modèle de données version 1 (cartes ko/en/fr, sans dossiers) : export JSON de sécurité des données d'origine,
-// puis migration en version 2 (normalizeData). Rien n'est écrit tant que ce choix n'est pas fait (Storage.hold).
+// Données du compte : locales tout de suite (cache), puis comparaison avec les données en ligne (syncWithRemote).
 // target : langue apprise par défaut d'un nouveau compte (liste « Démo » dans cette langue).
-async function startUserData(id, preset, target) {
-  Storage.setUser(id);
+async function startUserData(id, preset, target, sbUid) {
+  Storage.setUser(id, sbUid);
   Storage.setSession(id);
   resetViews();
   Storage.hold();
-  let oldLocal = false, oldRemote = false, rawV1 = null;
+  const ctx = { oldLocal: false, rawV1: null, localChanged: !!preset };
   if (preset) state = preset;
   else {
     const local = Storage.readLocal();
-    if (local) { state = normalizeData(local.data); oldLocal = local.old; if (dataVersion(local.data) < 2) rawV1 = local.data; }
+    if (local) { state = normalizeData(local.data); ctx.oldLocal = local.old; if (dataVersion(local.data) < 2) ctx.rawV1 = local.data; }
     else {
-      state = addDemoList(emptyData(target)); // nouveau compte : liste "Démo"
-      state.updatedAt = 0;                    // 0 = une version cloud existante passe devant
+      const ui = state.settings.uiLang, theme = state.settings.theme; // choix de l'écran de connexion
+      state = addDemoList(emptyData(target)); // nouveau compte (ou nouvel appareil) : liste "Démo"
+      state.settings.uiLang = ui; state.settings.theme = theme;
+      state.updatedAt = 0;                    // 0 = une version en ligne existante passe devant
     }
   }
   document.body.classList.remove("auth");
   render();
   showScreen(screenFromHash());
+  await syncWithRemote(id, ctx, true);
+}
 
-  const remote = await Storage.initRemote();
-  if (Storage.getUser() !== id) return; // compte changé entre-temps
-  if (remote) {
-    const r = normalizeData(remote.data);
-    if (r.updatedAt >= state.updatedAt) { state = r; oldRemote = remote.old; rawV1 = dataVersion(remote.data) < 2 ? remote.data : null; render(); }
-  }
-  if (oldLocal || oldRemote || rawV1) {
-    // Sauvegarde de sécurité (on n'attend pas plus d'une minute une réponse à la demande d'enregistrement).
-    // Version 1 : on exporte les données d'origine, avant conversion.
-    const name = (rawV1 ? "sauvegarde-avant-v2-" : "sauvegarde-avant-migration-") + id + "-" + todayStr() + ".json";
-    try { await withTimeout(exportData(rawV1 || state, name), 60000); } catch (e) {}
+// Comparaison avec les données en ligne : au lancement (first = true : migrations puis Storage.release),
+// au retour de la connexion, et en cas de conflit détecté pendant un envoi (ctx.conflict).
+// Règles : identiques → rien ; en ligne plus récentes et pas de modification locale non envoyée → on les prend ;
+// en ligne plus récentes ET modifications locales non envoyées (ou conflit) → on demande lesquelles garder ;
+// locales plus récentes → envoi.
+// Ancien format (un seul bloc) ou modèle version 1 : export JSON de sécurité, puis enregistrement découpé en version 2.
+let syncBusy = false;
+async function syncWithRemote(id, ctx, first) {
+  if (syncBusy && !first) return;
+  syncBusy = true;
+  try {
+    ctx = ctx || {};
+    let oldRemote = false, rawV1 = ctx.rawV1 || null;
+    const remote = await Storage.initRemote();
     if (Storage.getUser() !== id) return;
-  }
-  if (!state.updatedAt) state.updatedAt = Date.now();
-  if (rawV1) state.updatedAt = Math.max(Date.now(), state.updatedAt + 1); // la version 2 passe devant la version 1 partout
-  Storage.release();
-  Storage.save(state);        // enregistrement au nouveau format (local tout de suite, cloud regroupé)
-  if (oldLocal && Storage.dropOldLocal(state)) toast(t(rawV1 ? "save.migratedV2" : "save.migrated"));
-  else if (oldRemote || rawV1) toast(t(rawV1 ? "save.migratedV2" : "save.migrated"));
+    if (remote) {
+      const r = normalizeData(remote.data);
+      const S = Storage.getSynced(), l = num(state.updatedAt, 0);
+      const legacyFmt = remote.old || dataVersion(remote.data) < 2;
+      let take = null, asked = false;            // "remote" | "local" | null (identiques)
+      if (legacyFmt) take = r.updatedAt >= l ? "remote" : "local";
+      else if (r.updatedAt !== l) {
+        const localDirty = !!ctx.localChanged || (l > 0 && (S === null || l > S));
+        if (ctx.conflict || (r.updatedAt > l && localDirty)) { take = await askConflict(state, r); asked = true; }
+        else take = r.updatedAt > l ? "remote" : "local";
+      }
+      Storage.setConflictOpen(false);
+      if (Storage.getUser() !== id) return;
+      if (take === "remote") {
+        state = r;
+        oldRemote = remote.old;
+        rawV1 = dataVersion(remote.data) < 2 ? remote.data : null;
+        if (!oldRemote && !rawV1) Storage.markSynced(state);
+        render();
+      } else if (take === null) Storage.markSynced(state);
+      else if (asked) {                          // « garder cet appareil » : tout renvoyer
+        Storage.forceFullPush(remote.keys, r.updatedAt);
+        state.updatedAt = Math.max(Date.now(), r.updatedAt + 1);
+      }
+    }
+    if (ctx.oldLocal || oldRemote || rawV1) {
+      // Sauvegarde de sécurité (on n'attend pas plus d'une minute une réponse à la demande d'enregistrement).
+      const name = (rawV1 ? "sauvegarde-avant-v2-" : "sauvegarde-avant-migration-") + id + "-" + todayStr() + ".json";
+      try { await withTimeout(exportData(rawV1 || state, name), 60000); } catch (e) {}
+      if (Storage.getUser() !== id) return;
+    }
+    if (!state.updatedAt) state.updatedAt = Date.now();
+    if (rawV1) state.updatedAt = Math.max(Date.now(), state.updatedAt + 1); // la version 2 passe devant la version 1 partout
+    if (first) Storage.release();
+    Storage.save(state);        // local tout de suite, en ligne regroupé (seulement si les données en ligne ont été lues)
+    if (ctx.oldLocal && Storage.dropOldLocal(state)) toast(t(rawV1 ? "save.migratedV2" : "save.migrated"));
+    else if (oldRemote || rawV1) toast(t(rawV1 ? "save.migratedV2" : "save.migrated"));
+    if (!first) render();
+  } finally { syncBusy = false; }
+}
+// Fenêtre de conflit (ne se ferme pas en touchant le fond). Renvoie "remote" ou "local".
+function askConflict(localData, remoteData) {
+  Storage.setConflictOpen(true);
+  const fmt = ts => { try { return ts ? new Date(ts).toLocaleString(state.settings.uiLang) : "—"; } catch (e) { return "—"; } };
+  return new Promise(res => {
+    const p = el("p", null, t("conflict.text", {
+      rdate: fmt(remoteData.updatedAt), rcards: remoteData.cards.length,
+      ldate: fmt(localData.updatedAt), lcards: localData.cards.length
+    }));
+    openModal(t("conflict.title"), p, [
+      { label: t("conflict.remote"), kind: "primary", onClick: () => res("remote") },
+      { label: t("conflict.local"), onClick: () => res("local") }
+    ], { locked: true });
+  });
 }
 
 // Vues en mémoire remises à zéro au changement de compte (aucune donnée touchée).
@@ -5193,19 +6071,25 @@ function resetViews() {
   stv.lang = ""; stv.scope = "";
   quizHideAnswer = false;
   pvReset();
+  adm.list = null; adm.error = false;
 }
 
 async function logout() {
   await Storage.flushWait();
   Storage.setUser(null);
   Storage.setSession(null);
+  if (auth.mode === "supabase") {
+    await Supa.signOut();
+    auth.isAdmin = false; auth.sbUid = null;
+    try { localStorage.removeItem(CONFIG.LS_SB_PROFILE); } catch (e) {}
+  }
   resetViews();
   const settings = state.settings; // garder langue et thème sur l'écran de connexion
   state = emptyData();
   state.settings = settings;
   clearAuthForm();
   showAuth("loading");
-  auth.reg = await Storage.loadAccounts();
+  if (auth.mode !== "supabase") auth.reg = await Storage.loadAccounts();
   showAuth("login");
 }
 
@@ -5218,9 +6102,11 @@ function renderScreen() {
   else if (currentScreen === "stats") renderStats();
   else if (currentScreen === "pending") renderPending();
   else if (currentScreen === "settings") renderSettings();
+  else if (currentScreen === "admin") renderAdmin();
   renderPendingBadge();
 }
 function render() {
+  if (Storage.getUser()) savePrefs(); // langue et thème repris sur l'écran de connexion
   applyTheme();
   applyI18n();
   renderSyncStatus(Storage.getMode());
@@ -5228,13 +6114,18 @@ function render() {
 }
 
 // === INIT ===
-// 1) Écran de chargement, 2) connexion au cloud et registre des comptes,
-// 3) session déjà ouverte sur l'appareil → on entre ; sinon écran de connexion (ou création du premier compte + migration).
+// 1) Écran de chargement.
+// 2) config.js rempli → Supabase : session gardée sur l'appareil → on entre (nouveau PIN obligatoire si demandé) ;
+//    sinon écran de connexion. Bibliothèque Supabase injoignable : dans Claude, repli sur le stockage de l'artifact ;
+//    dans le navigateur, message + « Réessayer » (pas de comptes locaux créés par erreur).
+// 3) Sans Supabase : cloud de l'artifact (sinon ce navigateur) et registre des comptes, comme avant.
 async function init() {
   initNav();
   initSettings();
   initLists();
   Storage.onMode(m => renderSyncStatus(m));
+  Storage.onConflict(() => { const id = Storage.getUser(); if (id) syncWithRemote(id, { conflict: true }, false); });
+  Storage.onRetryInit(() => { const id = Storage.getUser(); if (id) syncWithRemote(id, {}, false); });
   Speech.init(() => { if (!cardsBusy) renderScreen(); }); // affiche les haut-parleurs quand les voix sont prêtes
   AI.onChange(() => { if (Storage.getUser() && currentScreen === "settings") renderSettings(); });
   AI.init(); // Claude depuis la page (capacité "sample"), sinon repli « Préparer pour Claude »
@@ -5242,7 +6133,24 @@ async function init() {
   state = emptyData();
   const old = Storage.readLegacyLocal();
   if (looksLikeAppData(old)) state.settings = normalizeData(old).settings; // langue et thème pour l'écran de connexion
+  loadPrefs();
   showAuth("loading");
+
+  if (Supa.configured()) {
+    if (await Supa.init()) {
+      auth.mode = "supabase";
+      Storage.useSupabase(Supa.client());
+      let session = null;
+      try { session = await Supa.session(); } catch (e) {}
+      if (session) {
+        try { await enterSupabase(session); return; }
+        catch (e) { toast(errText(sbErrKind(e))); }
+      }
+      showAuth("login");
+      return;
+    }
+    if (!inClaude()) { showAuth("libError"); return; }
+  }
 
   await Storage.connect();
   auth.reg = await Storage.loadAccounts();
@@ -5258,7 +6166,7 @@ async function init() {
 
 init().catch(() => {
   // Filet de sécurité : l'appli affiche toujours l'écran de connexion.
-  try { showAuth(auth.reg.accounts.length ? "login" : "create"); } catch (e) {}
+  try { showAuth(auth.mode === "supabase" || auth.reg.accounts.length ? "login" : "create"); } catch (e) {}
 });
 </script>
 </body>
