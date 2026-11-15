@@ -1,9 +1,9 @@
 // Service worker : appli installable + fonctionnement hors connexion.
 // Pages et scripts du site : réseau d'abord (les mises à jour arrivent tout de suite), cache si hors ligne.
 // Supabase (données, connexion) : jamais mis en cache.
-const CACHE = "vocab-v2";
+const CACHE = "vocab-v3";
 const CORE = ["./", "./index.html", "./config.js", "./pwa.js", "./manifest.webmanifest",
-  "./icons/icon-192.png", "./icons/icon-512.png"];
+  "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE).catch(() => {})).then(() => self.skipWaiting()));
