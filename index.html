@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vocabulaire français</title>
+<title>Vocab</title>
 <style>
 /* === STYLES : THÈMES === */
 :root{
@@ -274,6 +274,78 @@ mark.wr-bad{background:rgba(196,60,60,.25);color:inherit;border-radius:3px;text-
 .term-row .input:first-child{flex:1;min-width:0}
 .term-row select.input{flex:none;width:118px;padding:8px 6px;font-size:15px}
 
+/* === STYLES : TYPES DE CARTES === */
+.type-badge{display:inline-block;font-size:12px;font-weight:600;font-style:normal;border-radius:6px;padding:1px 6px;margin-right:6px;vertical-align:2px;background:var(--surface2);color:var(--accent);white-space:nowrap}
+.tag.warn{color:var(--warn)}
+.ty-line{font-size:16px;color:var(--muted);overflow-wrap:anywhere;max-width:100%}
+.ty-big{font-size:18px;font-weight:600}
+.ty-tr{font-style:italic}
+.ty-note{font-size:14px}
+.ty-expl{color:var(--text)}
+.ty-lbl{font-weight:600}
+.ty-gap{display:inline-block;min-width:3em;border-bottom:3px solid var(--accent);color:transparent;line-height:1}
+mark.ty-fill{background:rgba(31,138,76,.22);color:inherit;border-radius:4px;padding:0 3px}
+.ty-wrong{font-size:16px;font-weight:500;color:var(--muted)}
+.ty-rbody{text-align:left;width:100%;font-size:16px;line-height:1.45}
+.ty-rbody p{margin:0 0 6px}
+.ty-rbody ul,.ty-ex{margin:4px 0 6px;padding-left:22px;text-align:left}
+.ty-ex{font-style:italic;color:var(--muted);width:100%}
+.ty-btn{min-height:40px;padding:6px 8px}
+.ty-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:17px}
+.ty-table td{padding:8px 6px;border-bottom:1px solid var(--border)}
+.ty-table td.muted{color:var(--muted);width:40%}
+.ty-table tr.cur td{font-weight:700;background:var(--surface2)}
+.conj-grid{display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:center}
+.conj-grid label{color:var(--muted);font-size:15px}
+.wr-full{font-size:20px;font-weight:600;margin-top:10px;overflow-wrap:anywhere}
+/* Phrases : texte plus petit que les mots seuls */
+.ty-face.ty-cloze .sw-main,.ty-face.ty-fix .sw-main{font-size:clamp(21px,6vw,28px);font-weight:600}
+.ty-face.ty-rule .sw-main{font-size:clamp(22px,6.5vw,30px)}
+.sw-face.sw-long .sw-body{justify-content:flex-start;align-items:stretch;text-align:left}
+.sw-face.sw-long .sw-main{font-size:20px;margin-top:22px}
+.qz-q.ty-cloze .qz-main,.qz-q.ty-fix .qz-main,.qz-q.ty-rule .qz-main{font-size:clamp(22px,6.5vw,30px)}
+.qz-ans.ty-cloze .qz-amain,.qz-ans.ty-fix .qz-amain,.qz-ans.ty-rule .qz-amain{font-size:20px}
+.wr-q.ty-cloze .sw-main,.wr-q.ty-fix .sw-main{font-size:clamp(20px,6vw,26px)}
+.wr-q .ty-line{margin-top:6px}
+
+/* === STYLES : MODE TABLEAU === */
+.rv-conj{border:1px solid var(--border);border-radius:12px;padding:10px 12px 2px;margin-bottom:14px;background:var(--surface2)}
+.rv-conj-hd{font-weight:700;margin-bottom:6px}
+.tb-head{text-align:center;padding:16px 14px}
+.tb-head .ty-line{margin-top:4px}
+.tb-verb{font-size:clamp(26px,8vw,36px);font-weight:700;overflow-wrap:anywhere}
+.tb-grid{padding:6px 12px}
+.tb-row{display:grid;grid-template-columns:minmax(72px,34%) 1fr;gap:6px 10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.tb-row:last-child{border-bottom:none}
+.tb-person{color:var(--muted);font-size:15px;overflow-wrap:anywhere}
+.tb-cell{position:relative}
+.tb-input{font-size:18px;min-height:48px;padding-right:34px}
+.tb-input[readonly]{opacity:.85}
+.tb-row.ok .tb-input{border-color:var(--ok)}
+.tb-row.bad .tb-input{border-color:var(--bad)}
+.tb-mark{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-weight:700;font-size:18px}
+.tb-row.ok .tb-mark{color:var(--ok)}
+.tb-row.bad .tb-mark{color:var(--bad)}
+.tb-fix{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;padding:2px 0 2px}
+.tb-fix .wr-diff{font-size:18px}
+.tb-note{width:100%;font-size:13px;color:var(--warn)}
+.tb-all{margin-top:8px;color:var(--text);font-size:17px}
+
+/* === STYLES : GÉNÉRER DES CARTES === */
+.gen-ta{min-height:76px}
+.gen-info{font-size:14px;color:var(--muted);margin:-4px 0 10px}
+.gen-chk{display:flex;gap:8px;align-items:center;font-size:15px;margin-bottom:10px}
+.gen-chk input{width:20px;height:20px}
+.pv-new{margin-top:4px}
+.pv-new .ty-table{font-size:15px;margin:4px 0}
+.pv-new .ty-table td{padding:4px 6px}
+.pv-new-t1{font-weight:600;overflow-wrap:anywhere}
+.pv-new-t2{color:var(--muted);font-size:14px;overflow-wrap:anywhere}
+.pv-type.newcard{background:rgba(31,138,76,.15);color:var(--ok)}
+.pv-edit{display:grid;gap:6px;margin-top:6px}
+.pv-edit label{font-size:12px;color:var(--muted);margin-bottom:-4px}
+.pv-edit textarea{min-height:64px}
+
 /* === STYLES : STATS === */
 .st-filters{display:grid;gap:8px;margin-bottom:14px}
 .st-tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -415,9 +487,10 @@ body.auth main{padding-bottom:24px}
         <button class="link-btn danger" id="lvDelete" data-i18n="lists.delete"></button>
       </div>
       <input type="search" class="input" id="lvSearch" autocomplete="off">
-      <div class="btns two" id="lvActions">
+      <div class="btns three" id="lvActions">
         <button class="btn primary" id="lvAdd"></button>
         <button class="btn" id="lvBulk" data-i18n="lists.importText"></button>
+        <button class="btn" id="lvGen" data-i18n="gen.btn"></button>
       </div>
       <div class="lv-links" id="lvMore">
         <button class="link-btn" id="lvNewFolder" data-i18n="folders.newBtn"></button>
@@ -686,7 +759,7 @@ const I18N = {
     "upd.btn": "업데이트", "upd.btnN": "업데이트 (보완 {n}개)", "upd.all": "전체 업데이트", "upd.badge": "보완 {n}개",
     "upd.title": "업데이트: {name}", "upd.allName": "모든 목록", "upd.launch": "시작", "upd.pickOne": "항목을 하나 이상 선택하세요",
     "upd.intro": "카드 {n}개를 분석했습니다. 아직 아무것도 바뀌지 않았습니다. 업데이트할 항목을 선택하세요. 제안은 « 검토 »로 갑니다.",
-    "upd.cards": "카드 {n}개", "upd.cat.tr": "번역 없음 — {lang}", "upd.cat.pos": "품사 없음", "upd.cat.gender": "그중 성이 없는 명사 {n}개 ({langs})",
+    "upd.cards": "카드 {n}개", "upd.card1": "카드 1개", "upd.cat.tr": "번역 없음 — {lang}", "upd.cat.pos": "품사 없음", "upd.cat.gender": "그중 성이 없는 명사 {n}개 ({langs})",
     "upd.cat.example": "예문 없음", "upd.cat.pending": "아직 확인하지 않은 항목", "upd.cat.pendingHint": "대기 중인 제안 또는 자동 입력 칸: 이 범위로 « 검토 »를 엽니다",
     "upd.cat.verify": "맞춤법 오류, 악센트, 의심스러운 번역", "upd.cat.verifyHint": "검사한 적 없거나 그 뒤 수정된 카드 · Claude가 검사", "upd.calls": "Claude 호출 {b}회",
     "upd.cat.dup": "중복", "upd.cat.legacy": "옛 형식 카드", "upd.formatOk": "카드 형식: 최신", "upd.legacyDone": "카드 {n}개를 새 형식으로 바꿨습니다.",
@@ -832,7 +905,7 @@ const I18N = {
     "upd.btn": "Mettre à jour", "upd.btnN": "Mettre à jour ({n} à compléter)", "upd.all": "Tout mettre à jour", "upd.badge": "{n} à compléter",
     "upd.title": "Mettre à jour : {name}", "upd.allName": "toutes les listes", "upd.launch": "Lancer", "upd.pickOne": "Cochez au moins une catégorie",
     "upd.intro": "{n} cartes analysées. Rien n'a été modifié. Cochez ce qu'il faut mettre à jour : les propositions iront dans « À valider ».",
-    "upd.cards": "{n} cartes", "upd.cat.tr": "Traduction manquante — {lang}", "upd.cat.pos": "Nature grammaticale manquante", "upd.cat.gender": "dont {n} noms sans genre ({langs})",
+    "upd.cards": "{n} cartes", "upd.card1": "1 carte", "upd.cat.tr": "Traduction manquante — {lang}", "upd.cat.pos": "Nature grammaticale manquante", "upd.cat.gender": "dont {n} noms sans genre ({langs})",
     "upd.cat.example": "Exemple manquant", "upd.cat.pending": "Champs encore à valider", "upd.cat.pendingHint": "Propositions en attente ou champs complétés automatiquement : ouvre « À valider » sur cette sélection",
     "upd.cat.verify": "Fautes possibles, accents, traductions douteuses", "upd.cat.verifyHint": "Cartes jamais vérifiées ou modifiées depuis · vérification par Claude", "upd.calls": "{b} appels à Claude",
     "upd.cat.dup": "Doublons", "upd.cat.legacy": "Cartes à l'ancien format", "upd.formatOk": "Format des cartes : à jour.", "upd.legacyDone": "{n} cartes converties au nouveau format.",
@@ -978,7 +1051,7 @@ const I18N = {
     "upd.btn": "Update", "upd.btnN": "Update ({n} to fill)", "upd.all": "Update all", "upd.badge": "{n} to fill",
     "upd.title": "Update: {name}", "upd.allName": "all lists", "upd.launch": "Start", "upd.pickOne": "Tick at least one category",
     "upd.intro": "{n} cards analysed. Nothing has changed yet. Tick what to update: suggestions will go to \"Pending\".",
-    "upd.cards": "{n} cards", "upd.cat.tr": "Missing translation — {lang}", "upd.cat.pos": "Missing part of speech", "upd.cat.gender": "including {n} nouns without gender ({langs})",
+    "upd.cards": "{n} cards", "upd.card1": "1 card", "upd.cat.tr": "Missing translation — {lang}", "upd.cat.pos": "Missing part of speech", "upd.cat.gender": "including {n} nouns without gender ({langs})",
     "upd.cat.example": "Missing example", "upd.cat.pending": "Fields still to approve", "upd.cat.pendingHint": "Pending suggestions or auto-filled fields: opens \"Pending\" for this selection",
     "upd.cat.verify": "Possible typos, accents, doubtful translations", "upd.cat.verifyHint": "Cards never checked or changed since · checked by Claude", "upd.calls": "{b} calls to Claude",
     "upd.cat.dup": "Duplicates", "upd.cat.legacy": "Cards in the old format", "upd.formatOk": "Card format: up to date.", "upd.legacyDone": "{n} cards converted to the new format.",
@@ -1099,6 +1172,163 @@ Object.assign(I18N.en, {
   "admin.err": "The action failed", "admin.noFolder": "No folder"
 });
 
+// --- Types de cartes (étape 16) ---
+Object.assign(I18N.fr, {
+  appTitle: "Vocab",
+  "save.migratedV3": "Données mises à jour (version 3 : types de cartes). Une sauvegarde a été exportée juste avant.",
+  "write.punct": "Juste ! (ponctuation différente)",
+  "type.vocab": "Vocabulaire", "type.conj": "Conjugaison", "type.cloze": "Texte à trous", "type.fix": "Corriger l'erreur", "type.rule": "Règle",
+  "type.label": "Type de carte", "type.tagsPh": "verbes, noms", "type.seeTable": "Voir le tableau", "type.seeRule": "Voir la règle",
+  "type.alsoOk": "Accepté aussi : {a}", "type.hint": "Indice :", "type.fixQ": "Corrigez la phrase", "type.ruleQ": "Quelle est la règle ?",
+  "type.incomplete": "incomplète", "type.optional": "optionnel",
+  "type.conj.verb": "Verbe (infinitif)", "type.conj.tense": "Temps / forme", "type.conj.mode": "Saisie",
+  "type.conj.modeTable": "Tableau entier", "type.conj.modeOne": "Une forme", "type.conj.forms": "Formes",
+  "type.conj.formsHint": "Une case par personne ; cases vides ignorées. Plusieurs réponses : séparez-les par /",
+  "type.conj.person": "Personne", "type.conj.answer": "Forme conjuguée", "type.conj.trHint": "Sens du verbe dans les langues d'appui (optionnel)",
+  "type.conj.saved": "{n} carte(s) ajoutée(s), {m} mise(s) à jour",
+  "type.translation": "Traduction", "type.translationSent": "Traduction de la phrase", "type.note": "Note", "type.explanation": "Explication",
+  "type.cloze.sentence": "Phrase", "type.cloze.sentenceHint": "Mettez ___ (au moins 2 tirets bas) à la place du trou",
+  "type.cloze.answer": "Réponse (mot manquant)",
+  "type.fix.wrong": "Phrase avec l'erreur", "type.fix.correct": "Phrase corrigée",
+  "type.rule.title": "Titre", "type.rule.body": "Règle", "type.rule.bodyHint": "Texte court. **gras** ; une ligne qui commence par « - » = liste.",
+  "type.rule.examples": "Exemples", "type.rule.examplesHint": "Un exemple par ligne", "type.rule.translation": "Résumé dans les langues d'appui",
+  "type.rule.link": "Règle liée (bouton « Voir la règle »)",
+  "type.err.verb": "Le verbe est obligatoire", "type.err.answer": "La réponse est obligatoire", "type.err.table": "Remplissez au moins une forme",
+  "type.err.gap": "La phrase doit contenir ___ à la place du trou", "type.err.wrong": "La phrase avec l'erreur est obligatoire",
+  "type.err.correct": "La phrase corrigée est obligatoire", "type.err.same": "Les deux phrases sont identiques",
+  "type.err.title": "Le titre est obligatoire", "type.err.body": "Le texte de la règle est obligatoire", "type.required": "Champ obligatoire",
+  "bulk.err.tense": "temps inconnu en {lang} : « {v} »", "bulk.err.person": "personne inconnue : « {v} »",
+  "bulk.err.forms": "{n} formes pour {m} personnes",
+  "bulk.formatTypes": "Autres types (1re colonne) : conj;verbe;temps;personne;forme;traduction;note — conjtab;verbe;temps;forme1|forme2|…;traduction;note — trou;phrase avec ___;réponse;indice;explication;traduction — erreur;phrase fautive;phrase corrigée;explication — regle;titre;texte;exemple1|exemple2;traduction."
+});
+Object.assign(I18N.ko, {
+  appTitle: "Vocab",
+  "save.migratedV3": "데이터가 새 형식(버전 3: 카드 종류)으로 바뀌었습니다. 그 전에 백업을 내보냈습니다.",
+  "write.punct": "정답! (문장 부호만 다름)",
+  "type.vocab": "단어", "type.conj": "동사 활용", "type.cloze": "빈칸 채우기", "type.fix": "틀린 곳 고치기", "type.rule": "문법 규칙",
+  "type.label": "카드 종류", "type.tagsPh": "동사, 명사", "type.seeTable": "활용표 보기", "type.seeRule": "규칙 보기",
+  "type.alsoOk": "이것도 정답: {a}", "type.hint": "힌트:", "type.fixQ": "문장을 고치세요", "type.ruleQ": "규칙은 무엇일까요?",
+  "type.incomplete": "미완성", "type.optional": "선택",
+  "type.conj.verb": "동사 (원형)", "type.conj.tense": "시제 / 형태", "type.conj.mode": "입력 방식",
+  "type.conj.modeTable": "활용표 전체", "type.conj.modeOne": "형태 하나", "type.conj.forms": "형태",
+  "type.conj.formsHint": "인칭마다 한 칸; 빈 칸은 무시됩니다. 답이 여러 개면 / 로 구분하세요",
+  "type.conj.person": "인칭", "type.conj.answer": "활용형", "type.conj.trHint": "도움 언어로 된 동사의 뜻 (선택)",
+  "type.conj.saved": "카드 {n}개 추가, {m}개 수정",
+  "type.translation": "번역", "type.translationSent": "문장 번역", "type.note": "메모", "type.explanation": "설명",
+  "type.cloze.sentence": "문장", "type.cloze.sentenceHint": "빈칸 자리에 ___ (밑줄 2개 이상)을 넣으세요",
+  "type.cloze.answer": "정답 (빠진 말)",
+  "type.fix.wrong": "틀린 문장", "type.fix.correct": "고친 문장",
+  "type.rule.title": "제목", "type.rule.body": "규칙", "type.rule.bodyHint": "짧게. **굵게**; « - »로 시작하는 줄 = 목록.",
+  "type.rule.examples": "예문", "type.rule.examplesHint": "한 줄에 예문 하나", "type.rule.translation": "도움 언어로 된 요약",
+  "type.rule.link": "연결된 규칙 (« 규칙 보기 » 버튼)",
+  "type.err.verb": "동사는 필수입니다", "type.err.answer": "정답은 필수입니다", "type.err.table": "형태를 하나 이상 입력하세요",
+  "type.err.gap": "문장에 빈칸 자리 ___ 가 있어야 합니다", "type.err.wrong": "틀린 문장은 필수입니다",
+  "type.err.correct": "고친 문장은 필수입니다", "type.err.same": "두 문장이 같습니다",
+  "type.err.title": "제목은 필수입니다", "type.err.body": "규칙 내용은 필수입니다", "type.required": "필수 항목입니다",
+  "bulk.err.tense": "{lang}에 없는 시제: « {v} »", "bulk.err.person": "알 수 없는 인칭: « {v} »",
+  "bulk.err.forms": "인칭 {m}개에 형태 {n}개",
+  "bulk.formatTypes": "다른 종류 (첫 번째 열): conj;동사;시제;인칭;형태;번역;메모 — conjtab;동사;시제;형태1|형태2|…;번역;메모 — trou;___ 가 있는 문장;정답;힌트;설명;번역 — erreur;틀린 문장;고친 문장;설명 — regle;제목;내용;예문1|예문2;번역."
+});
+Object.assign(I18N.en, {
+  appTitle: "Vocab",
+  "save.migratedV3": "Data updated (version 3: card types). A backup was exported just before.",
+  "write.punct": "Correct! (different punctuation)",
+  "type.vocab": "Vocabulary", "type.conj": "Conjugation", "type.cloze": "Fill in the blank", "type.fix": "Fix the mistake", "type.rule": "Rule",
+  "type.label": "Card type", "type.tagsPh": "verbs, nouns", "type.seeTable": "See the table", "type.seeRule": "See the rule",
+  "type.alsoOk": "Also accepted: {a}", "type.hint": "Hint:", "type.fixQ": "Fix the sentence", "type.ruleQ": "What is the rule?",
+  "type.incomplete": "incomplete", "type.optional": "optional",
+  "type.conj.verb": "Verb (infinitive)", "type.conj.tense": "Tense / form", "type.conj.mode": "Entry",
+  "type.conj.modeTable": "Whole table", "type.conj.modeOne": "One form", "type.conj.forms": "Forms",
+  "type.conj.formsHint": "One box per person; empty boxes are skipped. Several answers: separate them with /",
+  "type.conj.person": "Person", "type.conj.answer": "Conjugated form", "type.conj.trHint": "Meaning of the verb in the support languages (optional)",
+  "type.conj.saved": "{n} card(s) added, {m} updated",
+  "type.translation": "Translation", "type.translationSent": "Translation of the sentence", "type.note": "Note", "type.explanation": "Explanation",
+  "type.cloze.sentence": "Sentence", "type.cloze.sentenceHint": "Put ___ (at least 2 underscores) where the blank is",
+  "type.cloze.answer": "Answer (missing word)",
+  "type.fix.wrong": "Sentence with the mistake", "type.fix.correct": "Corrected sentence",
+  "type.rule.title": "Title", "type.rule.body": "Rule", "type.rule.bodyHint": "Short text. **bold**; a line starting with \"- \" = list.",
+  "type.rule.examples": "Examples", "type.rule.examplesHint": "One example per line", "type.rule.translation": "Summary in the support languages",
+  "type.rule.link": "Linked rule (\"See the rule\" button)",
+  "type.err.verb": "The verb is required", "type.err.answer": "The answer is required", "type.err.table": "Fill in at least one form",
+  "type.err.gap": "The sentence must contain ___ where the blank is", "type.err.wrong": "The sentence with the mistake is required",
+  "type.err.correct": "The corrected sentence is required", "type.err.same": "Both sentences are identical",
+  "type.err.title": "The title is required", "type.err.body": "The rule text is required", "type.required": "Required field",
+  "bulk.err.tense": "unknown tense in {lang}: \"{v}\"", "bulk.err.person": "unknown person: \"{v}\"",
+  "bulk.err.forms": "{n} forms for {m} persons",
+  "bulk.formatTypes": "Other types (1st column): conj;verb;tense;person;form;translation;note — conjtab;verb;tense;form1|form2|…;translation;note — trou;sentence with ___;answer;hint;explanation;translation — erreur;wrong sentence;corrected sentence;explanation — regle;title;text;example1|example2;translation."
+});
+
+// Étape 17 : filtres de session par type / temps / verbe / personne, mode Tableau, « Générer des cartes », stats par type et par temps.
+Object.assign(I18N.ko, {
+  "review.types": "카드 종류", "review.typesHint": "아무것도 선택하지 않으면 모든 종류", "review.conj": "활용",
+  "review.tenses": "시제 / 형태", "review.verbs": "동사", "review.persons": "인칭 / 높임 단계", "review.conjHint": "선택하면 활용 카드만 나옵니다. 아무것도 선택하지 않으면 전체",
+  "mode.table": "활용표", "table.modeHint": "동사 하나와 시제 하나: 모든 인칭을 한 번에 입력합니다 (활용 카드만).",
+  "table.available": "카드 {n}개 · 활용표 {m}개", "table.left": "남은 활용표 {n}개", "table.left1": "마지막 활용표", "table.cells": "{n}칸",
+  "table.check": "확인", "table.score": "{m}개 중 {n}개 정답", "table.showFix": "정답 보기", "table.hideFix": "정답 숨기기", "table.next": "계속",
+  "stats.byType": "카드 종류별", "stats.byTense": "시제별", "stats.verbs": "동사 {n}개", "stats.verb1": "동사 1개",
+  "gen.btn": "생성", "gen.title": "카드 생성", "gen.list": "추가할 목록", "gen.newList": "+ 새 목록…", "gen.newName": "예: 동사 현재",
+  "gen.verbs": "동사 (한 줄에 하나, 또는 쉼표로 구분)", "gen.verbsPh": "예: {ex}", "gen.personsHint": "아무것도 고르지 않으면 모든 인칭",
+  "gen.topic": "주제 / 지시", "gen.topicPh.vocab": "예: 부엌, 날씨 (선택)", "gen.topicPh.cloze": "예: à / au / à la",
+  "gen.topicPh.fix": "예: 명사의 성과 관사", "gen.topicPh.rule": "예: 관사 축약 (au, aux, du, des)",
+  "gen.count": "카드 수", "gen.countHint": "요청 한 번에 최대 {n}개", "gen.withRule": "규칙 카드도 하나 만들고 연결하기",
+  "gen.help": "Claude가 만든 카드는 바로 추가되지 않고 « 검토 »에 « 새 카드 »로 들어갑니다. 수정하거나 수락할 수 있습니다.",
+  "gen.needVerbs": "동사를 하나 이상 입력하세요", "gen.needTopic": "주제를 입력하세요",
+  "gen.run": "Claude로 생성", "gen.prepare": "Claude용으로 준비", "gen.working": "Claude가 카드를 만드는 중… ({i}/{n})",
+  "gen.error": "Claude에 연결하지 못했습니다 ({m}). « Claude용으로 준비 »를 사용할 수 있습니다.",
+  "gen.done": "카드 {n}개를 « 검토 »에 추가했습니다 (제안 {p}개).", "gen.none": "새 카드가 없습니다.",
+  "gen.skipped": "이미 목록에 있거나 제안된 카드 {n}개는 건너뛰었습니다.", "gen.badLines": "읽을 수 없는 줄 {n}개:",
+  "gen.prepTitle": "Claude용으로 준비: 카드 생성",
+  "gen.prepHelp": "이 텍스트를 복사해서 Claude 대화에 붙여넣으세요. 그다음 « 답 가져오기 »에 Claude의 답변을 붙여넣으세요.",
+  "gen.part": "{i}/{n} 부분: {v}", "gen.replyHelp": "Claude의 답변 전체를 붙여넣으세요 (한 줄에 카드 하나). 카드는 « 검토 »로 갑니다.",
+  "pv.type.newcard": "새 카드", "pv.newN": "카드 {n}개"
+});
+Object.assign(I18N.fr, {
+  "review.types": "Types de cartes", "review.typesHint": "Aucun choisi = tous les types", "review.conj": "Conjugaison",
+  "review.tenses": "Temps / formes", "review.verbs": "Verbes", "review.persons": "Personnes / niveaux de politesse", "review.conjHint": "Un choix ici limite la session aux cartes de conjugaison. Aucun choix = tout.",
+  "mode.table": "Tableau", "table.modeHint": "Un verbe et un temps : toutes les personnes à remplir d'un coup (cartes de conjugaison seulement).",
+  "table.available": "{n} cartes · {m} tableaux", "table.left": "{n} tableaux restants", "table.left1": "Dernier tableau", "table.cells": "{n} cases",
+  "table.check": "Valider", "table.score": "{n} / {m} justes", "table.showFix": "Voir la correction", "table.hideFix": "Masquer la correction", "table.next": "Continuer",
+  "stats.byType": "Par type de carte", "stats.byTense": "Par temps", "stats.verbs": "{n} verbes", "stats.verb1": "1 verbe",
+  "gen.btn": "Générer", "gen.title": "Générer des cartes", "gen.list": "Ajouter dans", "gen.newList": "+ Nouvelle liste…", "gen.newName": "ex. Verbes au présent",
+  "gen.verbs": "Verbes (un par ligne, ou séparés par des virgules)", "gen.verbsPh": "ex. {ex}", "gen.personsHint": "Aucune choisie = toutes les personnes",
+  "gen.topic": "Sujet / consigne", "gen.topicPh.vocab": "ex. la cuisine, la météo (facultatif)", "gen.topicPh.cloze": "ex. à / au / à la",
+  "gen.topicPh.fix": "ex. genre des noms et articles", "gen.topicPh.rule": "ex. articles contractés (au, aux, du, des)",
+  "gen.count": "Nombre de cartes", "gen.countHint": "{n} au maximum par demande", "gen.withRule": "Créer aussi une fiche de règle et la relier",
+  "gen.help": "Les cartes proposées par Claude ne sont pas ajoutées directement : elles arrivent dans « À valider » comme « Nouvelle carte », à modifier ou accepter.",
+  "gen.needVerbs": "Indiquez au moins un verbe", "gen.needTopic": "Indiquez un sujet",
+  "gen.run": "Générer avec Claude", "gen.prepare": "Préparer pour Claude", "gen.working": "Claude prépare les cartes… ({i}/{n})",
+  "gen.error": "Claude n'a pas répondu ({m}). Vous pouvez utiliser « Préparer pour Claude ».",
+  "gen.done": "{n} cartes ajoutées dans « À valider » ({p} propositions).", "gen.none": "Aucune nouvelle carte.",
+  "gen.skipped": "{n} cartes déjà dans la liste ou déjà proposées : ignorées.", "gen.badLines": "{n} lignes non comprises :",
+  "gen.prepTitle": "Préparer pour Claude : générer des cartes",
+  "gen.prepHelp": "Copiez ce texte dans une conversation avec Claude, puis collez sa réponse avec « Importer la réponse ».",
+  "gen.part": "Partie {i}/{n} : {v}", "gen.replyHelp": "Collez toute la réponse de Claude (une carte par ligne). Les cartes iront dans « À valider ».",
+  "pv.type.newcard": "Nouvelle carte", "pv.newN": "{n} cartes"
+});
+Object.assign(I18N.en, {
+  "review.types": "Card types", "review.typesHint": "None selected = all types", "review.conj": "Conjugation",
+  "review.tenses": "Tenses / forms", "review.verbs": "Verbs", "review.persons": "Persons / politeness levels", "review.conjHint": "Picking anything here limits the session to conjugation cards. Nothing picked = all.",
+  "mode.table": "Table", "table.modeHint": "One verb and one tense: fill in every person at once (conjugation cards only).",
+  "table.available": "{n} cards · {m} tables", "table.left": "{n} tables left", "table.left1": "Last table", "table.cells": "{n} cells",
+  "table.check": "Check", "table.score": "{n} / {m} correct", "table.showFix": "Show corrections", "table.hideFix": "Hide corrections", "table.next": "Continue",
+  "stats.byType": "By card type", "stats.byTense": "By tense", "stats.verbs": "{n} verbs", "stats.verb1": "1 verb",
+  "gen.btn": "Generate", "gen.title": "Generate cards", "gen.list": "Add to", "gen.newList": "+ New list…", "gen.newName": "e.g. Present tense verbs",
+  "gen.verbs": "Verbs (one per line, or comma-separated)", "gen.verbsPh": "e.g. {ex}", "gen.personsHint": "None selected = all persons",
+  "gen.topic": "Topic / instructions", "gen.topicPh.vocab": "e.g. kitchen, weather (optional)", "gen.topicPh.cloze": "e.g. à / au / à la",
+  "gen.topicPh.fix": "e.g. noun gender and articles", "gen.topicPh.rule": "e.g. contracted articles (au, aux, du, des)",
+  "gen.count": "Number of cards", "gen.countHint": "At most {n} per request", "gen.withRule": "Also create a rule card and link it",
+  "gen.help": "Cards suggested by Claude are not added directly: they go to \"Pending\" as \"New card\", to edit or accept.",
+  "gen.needVerbs": "Enter at least one verb", "gen.needTopic": "Enter a topic",
+  "gen.run": "Generate with Claude", "gen.prepare": "Prepare for Claude", "gen.working": "Claude is preparing the cards… ({i}/{n})",
+  "gen.error": "Claude did not answer ({m}). You can use \"Prepare for Claude\".",
+  "gen.done": "{n} cards added to \"Pending\" ({p} suggestions).", "gen.none": "No new cards.",
+  "gen.skipped": "{n} cards already in the list or already suggested: skipped.", "gen.badLines": "{n} lines not understood:",
+  "gen.prepTitle": "Prepare for Claude: generate cards",
+  "gen.prepHelp": "Copy this text into a conversation with Claude, then paste its answer with \"Import the reply\".",
+  "gen.part": "Part {i}/{n}: {v}", "gen.replyHelp": "Paste Claude's whole answer (one card per line). The cards will go to \"Pending\".",
+  "pv.type.newcard": "New card", "pv.newN": "{n} cards"
+});
+
 function t(key, vars) {
   const lang = (state && state.settings && state.settings.uiLang) || "ko";
   let s = (I18N[lang] && I18N[lang][key]) || I18N.fr[key] || key;
@@ -1127,25 +1357,208 @@ function withTimeout(p, ms) {
 }
 
 // === LANGUES ===
-// Toutes les langues de l'appli. Ajouter une langue = ajouter une entrée ici, rien d'autre.
-//   names     : nom de la langue dans chaque langue d'interface (sert aussi à reconnaître l'en-tête d'un import)
-//   tts       : voix de synthèse vocale
-//   normalize : règles de comparaison du mode Écrit (case : casse ignorée ; accents : accents tolérés ; spaces : espaces tolérés)
-//   gender    : les noms ont un genre (nm, nf, nmf, nmpl, nfpl obligatoires, jamais « n »)
-//   pos       : abréviation de chaque nature grammaticale, dans la convention des dictionnaires de cette langue
+// Toutes les langues apprises / d'appui. Ajouter une langue = ajouter une entrée ici, rien d'autre.
+//   names      : nom de la langue dans chaque langue d'interface (sert aussi à reconnaître l'en-tête d'un import)
+//   tts        : voix de synthèse vocale
+//   normalize  : règles de comparaison du mode Écrit (case : casse ignorée ; accents : accents tolérés ; spaces : espaces tolérés)
+//   gender     : les noms ont un genre (nm, nf, nmf, nmpl, nfpl obligatoires, jamais « n »)
+//   supportLast: langue mise en dernier dans les langues d'appui par défaut
+//   pos        : abréviation de chaque nature grammaticale, dans la convention des dictionnaires de cette langue
+//   grammar    : tenses [{ id, names { fr, ko, en }, persons? (personnes propres à ce temps), que? }]
+//                persons [{ id, label (texte, ou { fr, ko, en }), pronoun?, elide? }] — niveaux de politesse pour le coréen
+//                notes [{ fr, ko, en }] : aides proposées pour le champ « note » d'une carte de conjugaison
+//                join(forme, personne, temps) : forme affichée avec le pronom (« nous irons », « j'ai », « que j'aille »)
+//   demo       : liste « Démo » d'un compte qui apprend cette langue
+//                words [{ key, term, pos, ex, tags }] : mots ; key relie le même mot dans les autres langues (traductions)
+//                cards [...] : autres types de cartes ; les textes { fr, ko, en } sont pris dans la 1re langue d'appui disponible
+const LANG_DEFAULT = "fr"; // langue apprise par défaut d'un nouveau compte (si rien n'est choisi)
+const FR_VOWEL = /^[aeiouyhàâäéèêëîïôöûüœæ]/i;
 const LANGUAGES = {
   fr: { code: "fr", names: { fr: "Français", ko: "프랑스어", en: "French" }, tts: "fr-FR",
         normalize: { case: true, accents: true, spaces: false }, gender: true,
         pos: { nm: "n.m.", nf: "n.f.", nmf: "n.m. et f.", nmpl: "n.m.pl.", nfpl: "n.f.pl.", n: "n.", v: "v.", vpr: "v. pr.",
-               adj: "adj.", adv: "adv.", prep: "prép.", conj: "conj.", pron: "pron.", interj: "interj.", expr: "expr." } },
+               adj: "adj.", adv: "adv.", prep: "prép.", conj: "conj.", pron: "pron.", interj: "interj.", expr: "expr." },
+        grammar: {
+          tenses: [
+            { id: "present", names: { fr: "présent", ko: "직설법 현재", en: "present" } },
+            { id: "passe_compose", names: { fr: "passé composé", ko: "복합 과거", en: "passé composé (compound past)" } },
+            { id: "imparfait", names: { fr: "imparfait", ko: "반과거", en: "imperfect" } },
+            { id: "plus_que_parfait", names: { fr: "plus-que-parfait", ko: "대과거", en: "pluperfect" } },
+            { id: "futur_simple", names: { fr: "futur simple", ko: "단순 미래", en: "simple future" } },
+            { id: "futur_anterieur", names: { fr: "futur antérieur", ko: "전미래", en: "future perfect" } },
+            { id: "cond_present", names: { fr: "conditionnel présent", ko: "조건법 현재", en: "present conditional" } },
+            { id: "cond_passe", names: { fr: "conditionnel passé", ko: "조건법 과거", en: "past conditional" } },
+            { id: "subj_present", names: { fr: "subjonctif présent", ko: "접속법 현재", en: "present subjunctive" }, que: true },
+            { id: "imperatif", names: { fr: "impératif présent", ko: "명령법 현재", en: "imperative" },
+              persons: [{ id: "2s", label: "(tu)" }, { id: "1p", label: "(nous)" }, { id: "2p", label: "(vous)" }] },
+            { id: "passe_simple", names: { fr: "passé simple", ko: "단순 과거", en: "passé simple (simple past)" }, optional: true }
+          ],
+          persons: [
+            { id: "1s", label: "je", pronoun: "je", elide: "j'" }, { id: "2s", label: "tu", pronoun: "tu" },
+            { id: "3s", label: "il/elle/on", pronoun: "il/elle/on" }, { id: "1p", label: "nous", pronoun: "nous" },
+            { id: "2p", label: "vous", pronoun: "vous" }, { id: "3p", label: "ils/elles", pronoun: "ils/elles" }
+          ],
+          notes: [
+            { fr: "auxiliaire avoir", ko: "조동사 avoir", en: "auxiliary avoir" },
+            { fr: "auxiliaire être", ko: "조동사 être", en: "auxiliary être" },
+            { fr: "irrégulier", ko: "불규칙", en: "irregular" },
+            { fr: "1er groupe (-er)", ko: "1군 동사 (-er)", en: "1st group (-er)" },
+            { fr: "2e groupe (-ir)", ko: "2군 동사 (-ir)", en: "2nd group (-ir)" },
+            { fr: "3e groupe", ko: "3군 동사", en: "3rd group" }
+          ],
+          join(form, p, tense) {
+            if (!p || !p.pronoun) return form;
+            let pr = p.elide && FR_VOWEL.test(form) ? p.elide : p.pronoun;
+            if (tense && tense.que) pr = (FR_VOWEL.test(pr) ? "qu'" : "que ") + pr;
+            return pr.endsWith("'") ? pr + form : pr + " " + form;
+          }
+        },
+        demo: {
+          words: [
+            { key: "hello", term: "bonjour", pos: "interj", ex: "Bonjour, comment ça va ?", tags: ["salutations"] },
+            { key: "thanks", term: "merci", pos: "interj", ex: "Merci beaucoup !", tags: ["salutations"] },
+            { key: "fly", term: "voler / s'envoler", pos: "v", ex: "L'oiseau vole au-dessus de la maison.", tags: ["verbes"] },
+            { key: "eat", term: "manger", pos: "v", ex: "Je mange une pomme.", tags: ["verbes"] },
+            { key: "drink", term: "boire", pos: "v", ex: "Elle boit un café le matin.", tags: ["verbes"] },
+            { key: "water", term: "l'eau", pos: "nf", ex: "Un verre d'eau, s'il vous plaît.", tags: ["noms"] },
+            { key: "house", term: "la maison", pos: "nf", ex: "Je rentre à la maison.", tags: ["noms"] },
+            { key: "cat", term: "le chat", pos: "nm", ex: "Le chat dort sur le canapé.", tags: ["noms", "animaux"] },
+            { key: "school", term: "l'école", pos: "nf", ex: "Les enfants vont à l'école.", tags: ["noms"] },
+            { key: "beautiful", term: "beau / belle", pos: "adj", ex: "Quelle belle journée !", tags: ["adjectifs"] }
+          ],
+          cards: [
+            { type: "rule", key: "r1", title: "à + le = au · à + les = aux",
+              body: { ko: "**à + le** → **au**\n**à + les** → **aux**\n- à + la, à + l' : 그대로", fr: "**à + le** → **au**\n**à + les** → **aux**\n- à + la, à + l' : pas de changement", en: "**à + le** → **au**\n**à + les** → **aux**\n- à + la, à + l': no change" },
+              examples: ["Je vais au cinéma.", "Je parle aux enfants.", "Je vais à la plage."],
+              translation: { ko: "전치사 à 뒤에 le / les 가 오면 au / aux 로 줄여 씁니다.", en: "à + le becomes au, à + les becomes aux." } },
+            { type: "conjtab", verb: "aller", tense: "present", forms: ["vais", "vas", "va", "allons", "allez", "vont"],
+              translation: { ko: "가다", en: "to go" }, note: { ko: "불규칙", en: "irregular", fr: "irrégulier" } },
+            { type: "cloze", sentence: "Je vais ___ boulangerie.", answer: "à la", ruleKey: "r1",
+              hint: { ko: "전치사 + 관사", en: "preposition + article", fr: "préposition + article" },
+              explanation: { ko: "aller à + la (boulangerie 는 여성 명사)", en: "aller à + la (boulangerie is feminine)", fr: "aller à + la (boulangerie est féminin)" },
+              translation: { ko: "빵집에 가요.", en: "I'm going to the bakery." } },
+            { type: "fix", wrong: "Je suis allé au boulangerie.", correct: "Je suis allé à la boulangerie.", ruleKey: "r1",
+              explanation: { ko: "boulangerie 는 여성 명사 → à la", en: "boulangerie is feminine → à la", fr: "boulangerie est féminin → à la" } }
+          ]
+        } },
   ko: { code: "ko", names: { fr: "Coréen", ko: "한국어", en: "Korean" }, tts: "ko-KR",
         normalize: { case: true, accents: false, spaces: true }, gender: false,
         pos: { nm: "명", nf: "명", nmf: "명", nmpl: "명", nfpl: "명", n: "명", v: "동", vpr: "동",
-               adj: "형", adv: "부", prep: "조", conj: "접", pron: "대", interj: "감", expr: "구" } },
+               adj: "형", adv: "부", prep: "조", conj: "접", pron: "대", interj: "감", expr: "구" },
+        grammar: {
+          tenses: [
+            { id: "present", names: { fr: "présent", ko: "현재", en: "present" } },
+            { id: "past", names: { fr: "passé", ko: "과거", en: "past" } },
+            { id: "future", names: { fr: "futur", ko: "미래", en: "future" } },
+            { id: "progressive", names: { fr: "progressif (-고 있다)", ko: "진행 (-고 있다)", en: "progressive (-고 있다)" } },
+            { id: "e_go", names: { fr: "terminaison -고 (et)", ko: "-고", en: "ending -고 (and)" }, persons: "form" },
+            { id: "e_aseo", names: { fr: "terminaison -아서/어서 (donc, puis)", ko: "-아서/어서", en: "ending -아서/어서 (so, then)" }, persons: "form" },
+            { id: "e_myeon", names: { fr: "terminaison -(으)면 (si)", ko: "-(으)면", en: "ending -(으)면 (if)" }, persons: "form" },
+            { id: "e_jiman", names: { fr: "terminaison -지만 (mais)", ko: "-지만", en: "ending -지만 (but)" }, persons: "form" },
+            { id: "e_nikka", names: { fr: "terminaison -(으)니까 (parce que)", ko: "-(으)니까", en: "ending -(으)니까 (because)" }, persons: "form" }
+          ],
+          // Pas de personnes en coréen : niveaux de politesse. "form" = forme unique (terminaisons de liaison).
+          persons: [
+            { id: "formal", label: "합니다체", names: { fr: "formel", en: "formal" } },
+            { id: "polite", label: "해요체", names: { fr: "poli", en: "polite" } },
+            { id: "casual", label: "반말", names: { fr: "familier", en: "casual" } }
+          ],
+          personSets: { form: [{ id: "form", label: { fr: "forme", ko: "형태", en: "form" } }] },
+          notes: [
+            { fr: "irrégulier", ko: "불규칙", en: "irregular" },
+            { fr: "irrégulier en ㅂ", ko: "ㅂ 불규칙", en: "ㅂ irregular" },
+            { fr: "irrégulier en ㄷ", ko: "ㄷ 불규칙", en: "ㄷ irregular" },
+            { fr: "irrégulier en 르", ko: "르 불규칙", en: "르 irregular" }
+          ]
+        },
+        demo: {
+          words: [
+            { key: "hello", term: "안녕하세요", pos: "interj", ex: "안녕하세요, 만나서 반가워요.", tags: ["인사"] },
+            { key: "thanks", term: "감사합니다", pos: "interj", ex: "도와주셔서 감사합니다.", tags: ["인사"] },
+            { key: "fly", term: "날다", pos: "v", ex: "새가 하늘을 날아요.", tags: ["동사"] },
+            { key: "eat", term: "먹다", pos: "v", ex: "저는 사과를 먹어요.", tags: ["동사"] },
+            { key: "drink", term: "마시다", pos: "v", ex: "아침에 커피를 마셔요.", tags: ["동사"] },
+            { key: "water", term: "물", pos: "n", ex: "물 한 잔 주세요.", tags: ["명사"] },
+            { key: "house", term: "집", pos: "n", ex: "집에 가요.", tags: ["명사"] },
+            { key: "cat", term: "고양이", pos: "n", ex: "고양이가 소파에서 자요.", tags: ["명사", "동물"] },
+            { key: "school", term: "학교", pos: "n", ex: "아이들이 학교에 가요.", tags: ["명사"] },
+            { key: "beautiful", term: "아름답다", pos: "adj", ex: "정말 아름다운 날이에요.", tags: ["형용사"] }
+          ],
+          cards: [
+            { type: "rule", key: "r1", title: "N + 에 가다",
+              body: { fr: "Lieu où l'on va : **nom + 에** + 가다 / 오다.\n- 학교**에** 가요 : je vais à l'école\n- 집**에** 와요 : je viens à la maison", en: "Place you go to: **noun + 에** + 가다 / 오다.\n- 학교**에** 가요: I go to school\n- 집**에** 와요: I come home" },
+              examples: ["학교에 가요.", "한국에 가고 싶어요.", "집에 왔어요."],
+              translation: { fr: "에 marque la destination.", en: "에 marks the destination." } },
+            { type: "conjtab", verb: "가다", tense: "present", forms: ["갑니다", "가요", "가"], translation: { fr: "aller", en: "to go" } },
+            { type: "conjtab", verb: "먹다", tense: "past", forms: ["먹었습니다", "먹었어요", "먹었어"], translation: { fr: "manger", en: "to eat" } },
+            { type: "cloze", sentence: "저는 학교___ 가요.", answer: "에", ruleKey: "r1",
+              hint: { fr: "particule", en: "particle", ko: "조사" },
+              explanation: { fr: "Destination : nom + 에 + 가다", en: "Destination: noun + 에 + 가다", ko: "장소 + 에 + 가다" },
+              translation: { fr: "Je vais à l'école.", en: "I go to school." } },
+            { type: "fix", wrong: "저는 학교를 가요.", correct: "저는 학교에 가요.", ruleKey: "r1",
+              explanation: { fr: "Avec 가다, la destination prend 에.", en: "With 가다, the destination takes 에.", ko: "가다 앞의 장소에는 에를 씁니다." } }
+          ]
+        } },
   en: { code: "en", names: { fr: "Anglais", ko: "영어", en: "English" }, tts: "en-US",
-        normalize: { case: true, accents: true, spaces: false }, gender: false,
+        normalize: { case: true, accents: true, spaces: false }, gender: false, supportLast: true,
         pos: { nm: "n.", nf: "n.", nmf: "n.", nmpl: "n. pl.", nfpl: "n. pl.", n: "n.", v: "v.", vpr: "v.",
-               adj: "adj.", adv: "adv.", prep: "prep.", conj: "conj.", pron: "pron.", interj: "interj.", expr: "phr." } }
+               adj: "adj.", adv: "adv.", prep: "prep.", conj: "conj.", pron: "pron.", interj: "interj.", expr: "phr." },
+        grammar: {
+          tenses: [
+            { id: "present_simple", names: { fr: "présent simple", ko: "현재 단순", en: "present simple" } },
+            { id: "present_continuous", names: { fr: "présent continu", ko: "현재 진행", en: "present continuous" } },
+            { id: "past_simple", names: { fr: "prétérit (past simple)", ko: "과거 단순", en: "past simple" } },
+            { id: "past_continuous", names: { fr: "passé continu", ko: "과거 진행", en: "past continuous" } },
+            { id: "present_perfect", names: { fr: "present perfect", ko: "현재 완료", en: "present perfect" } },
+            { id: "future_will", names: { fr: "futur (will)", ko: "미래 (will)", en: "future (will)" } },
+            { id: "going_to", names: { fr: "futur proche (going to)", ko: "미래 (going to)", en: "going to" } },
+            { id: "conditional", names: { fr: "conditionnel (would)", ko: "조건 (would)", en: "conditional (would)" } },
+            { id: "irregular", names: { fr: "verbes irréguliers", ko: "불규칙 동사", en: "irregular verbs" }, persons: "irregular" }
+          ],
+          persons: [
+            { id: "1s", label: "I", pronoun: "I" }, { id: "2s", label: "you", pronoun: "you" },
+            { id: "3s", label: "he/she/it", pronoun: "he/she/it" }, { id: "1p", label: "we", pronoun: "we" },
+            { id: "2p", label: { fr: "you (pluriel)", ko: "you (복수)", en: "you (plural)" }, pronoun: "you" }, { id: "3p", label: "they", pronoun: "they" }
+          ],
+          personSets: { irregular: [
+            { id: "base", label: { fr: "base verbale", ko: "원형", en: "base form" } },
+            { id: "past", label: { fr: "prétérit", ko: "과거형", en: "past simple" } },
+            { id: "participle", label: { fr: "participe passé", ko: "과거분사", en: "past participle" } }
+          ] },
+          notes: [
+            { fr: "irrégulier", ko: "불규칙", en: "irregular" },
+            { fr: "régulier", ko: "규칙", en: "regular" }
+          ]
+        },
+        demo: {
+          words: [
+            { key: "hello", term: "hello", pos: "interj", ex: "Hello, how are you?", tags: ["greetings"] },
+            { key: "thanks", term: "thank you", pos: "expr", ex: "Thank you very much!", tags: ["greetings"] },
+            { key: "fly", term: "to fly", pos: "v", ex: "The bird flies over the house.", tags: ["verbs"] },
+            { key: "eat", term: "to eat", pos: "v", ex: "I eat an apple.", tags: ["verbs"] },
+            { key: "drink", term: "to drink", pos: "v", ex: "She drinks coffee in the morning.", tags: ["verbs"] },
+            { key: "water", term: "water", pos: "n", ex: "A glass of water, please.", tags: ["nouns"] },
+            { key: "house", term: "house / home", pos: "n", ex: "I'm going home.", tags: ["nouns"] },
+            { key: "cat", term: "cat", pos: "n", ex: "The cat sleeps on the sofa.", tags: ["nouns", "animals"] },
+            { key: "school", term: "school", pos: "n", ex: "The children go to school.", tags: ["nouns"] },
+            { key: "beautiful", term: "beautiful", pos: "adj", ex: "What a beautiful day!", tags: ["adjectives"] }
+          ],
+          cards: [
+            { type: "rule", key: "r1", title: "Present simple: he / she / it + -s",
+              body: { fr: "Avec **he / she / it**, on ajoute **-s** (ou **-es**) au verbe.\n- go → goes\n- do → does\n- have → has", ko: "**he / she / it** 뒤에서는 동사에 **-s**(또는 **-es**)를 붙입니다.\n- go → goes\n- do → does\n- have → has" },
+              examples: ["She works in Seoul.", "He goes to school.", "It has four legs."],
+              translation: { fr: "Au présent simple, -s à la 3e personne du singulier.", ko: "현재 단순 시제의 3인칭 단수에는 -s." } },
+            { type: "conjtab", verb: "to be", tense: "present_simple", forms: ["am", "are", "is", "are", "are", "are"],
+              translation: { fr: "être", ko: "이다 / 있다" }, note: { fr: "irrégulier", ko: "불규칙", en: "irregular" } },
+            { type: "conjtab", verb: "go", tense: "irregular", forms: ["go", "went", "gone"], translation: { fr: "aller", ko: "가다" } },
+            { type: "cloze", sentence: "She ___ to school every day.", answer: "goes", ruleKey: "r1",
+              hint: { fr: "go, présent simple", ko: "go, 현재 단순", en: "go, present simple" },
+              explanation: { fr: "she → go + -es = goes", ko: "she → go + -es = goes", en: "she → go + -es = goes" },
+              translation: { fr: "Elle va à l'école tous les jours.", ko: "그녀는 매일 학교에 가요." } },
+            { type: "fix", wrong: "He don't like coffee.", correct: "He doesn't like coffee.", ruleKey: "r1",
+              explanation: { fr: "he/she/it → does not (doesn't)", ko: "he/she/it → does not (doesn't)", en: "he/she/it → does not (doesn't)" } }
+          ]
+        } }
 };
 const LANG_CODES = Object.keys(LANGUAGES);
 
@@ -1161,10 +1574,10 @@ function langCodes(codes) { return arr(codes).map(c => String(c).toUpperCase()).
 // « KO·EN → FR » : langues d'appui → langue apprise
 function pairLabel(lg) { return langCodes(lg.support) + " → " + langCodes([lg.target]); }
 function langRules(code) { return (LANGUAGES[code] && LANGUAGES[code].normalize) || { case: true, accents: true, spaces: false }; }
-// Langues d'appui par défaut : toutes les autres, l'anglais en dernier (fr → ko, en ; ko → fr, en).
+// Langues d'appui par défaut : toutes les autres, celles marquées supportLast à la fin (fr → ko, en ; ko → fr, en).
 function defaultSupportFor(target) {
   const o = LANG_CODES.filter(c => c !== target);
-  return o.filter(c => c !== "en").concat(o.filter(c => c === "en"));
+  return o.filter(c => !LANGUAGES[c].supportLast).concat(o.filter(c => LANGUAGES[c].supportLast));
 }
 function cleanSupport(support, target) {
   const out = [];
@@ -1173,7 +1586,7 @@ function cleanSupport(support, target) {
 }
 // Héritage compte → dossier → liste : le dernier niveau qui a une langue apprise l'emporte (avec ses langues d'appui).
 function resolveLangs(levels) {
-  let target = "fr", support = null;
+  let target = isLang(LANG_DEFAULT) ? LANG_DEFAULT : LANG_CODES[0], support = null;
   levels.forEach(o => { if (o && isLang(o.target)) { target = o.target; support = o.support; } });
   support = cleanSupport(support, target);
   if (!support.length) support = defaultSupportFor(target);
@@ -1197,8 +1610,8 @@ function supportTerms(c, lg) {
   return (lg || cardLangs(c)).support.map(code => ({ code, text: term(c, code) })).filter(x => x.text.trim());
 }
 function supportText(c, lg) { return supportTerms(c, lg).map(x => x.text).join(" · "); }
-// Carte utilisable en révision : mot dans la langue apprise + au moins une langue d'appui.
-function cardUsable(c, lg) { lg = lg || cardLangs(c); return !!targetTerm(c, lg).trim() && supportTerms(c, lg).length > 0; }
+// Carte utilisable en révision : mot dans la langue apprise + au moins une langue d'appui (autres types : typedUsable).
+function cardUsable(c, lg) { if (!isVocab(c)) return typedUsable(c); lg = lg || cardLangs(c); return !!targetTerm(c, lg).trim() && supportTerms(c, lg).length > 0; }
 // Champ générique : code de langue, "example" ou "pos:<code>" (nature grammaticale dans cette langue).
 function fieldVal(c, f) {
   if (f === "example") return String(c.example || "");
@@ -1272,7 +1685,8 @@ function listLabel(l) { const f = l && getFolder(l.folderId); return l ? (f ? f.
 
 // === DATA MODEL ===
 // Version 2 : cartes multilingues (terms), dossiers, langue apprise et langues d'appui par compte / dossier / liste.
-const DATA_VERSION = 2;
+// Version 3 : types de cartes (champ type : vocab, conj, cloze, fix, rule — voir TYPES DE CARTES).
+const DATA_VERSION = 3;
 
 function defaultLang() {
   const l = (navigator.language || "").toLowerCase();
@@ -1282,7 +1696,7 @@ function defaultLang() {
 }
 
 function defaultSettings(target) {
-  const tg = isLang(target) ? target : "fr";
+  const tg = isLang(target) ? target : resolveLangs([]).target;
   return {
     uiLang: defaultLang(), theme: "auto", sessionSize: 20,
     defaultTarget: tg, defaultSupport: defaultSupportFor(tg),
@@ -1297,7 +1711,7 @@ function emptyData(target) {
     settings: defaultSettings(target),
     folders: [],     // { id, name, order, target?, support? }
     lists: [],       // { id, name, folderId|null, order, target?, support?, createdAt }
-    cards: [],
+    cards: [],       // { id, listId, type, ... } (voir newCard et TYPES DE CARTES)
     history: [],
     proposals: [],   // propositions « À valider » : { id, cardId, field (code de langue | example | pos:<code> | dup), type, oldValue, newValue, reason, createdAt }
     rejected: [],    // clés des propositions refusées (carte|champ|empreinte de la valeur) : jamais reproposées
@@ -1310,7 +1724,7 @@ function emptyData(target) {
 // terms : { fr: "...", ko: "...", ... } (une entrée par langue, vide permis)
 function newCard(listId, terms, example, tags, pos) {
   return {
-    id: uid(), listId,
+    id: uid(), listId, type: "vocab",
     terms: normTerms(terms),
     pos: normTerms(pos),
     example: example || "",
@@ -1338,13 +1752,17 @@ function normLangPair(o) {
   return { target: o.target, support: cleanSupport(o.support, o.target) };
 }
 
-// Carte v2, ou carte v1 ({ ko, en, fr }) convertie.
+// Carte v3 ; carte v2 (sans type → "vocab") ; carte v1 (un champ par langue : { ko, en, fr }) convertie.
 function normalizeCard(c) {
   const st = c.stats || {};
-  const terms = (c.terms && typeof c.terms === "object") ? normTerms(c.terms) : normTerms({ fr: c.fr, ko: c.ko, en: c.en });
-  return {
+  const v1 = {};
+  LANG_CODES.forEach(k => { v1[k] = c[k]; });
+  const terms = (c.terms && typeof c.terms === "object") ? normTerms(c.terms) : normTerms(v1);
+  const type = cardType(c);
+  const out = {
     id: String(c.id),
     listId: String(c.listId || ""),
+    type,
     terms,
     pos: normTerms(c.pos),
     example: String(c.example || ""),
@@ -1354,6 +1772,7 @@ function normalizeCard(c) {
     dueAt: num(c.dueAt, Date.now()),
     stats: { seen: num(st.seen, 0), correct: num(st.correct, 0), wrong: num(st.wrong, 0), lastSeen: num(st.lastSeen, null) }
   };
+  return type === "vocab" ? out : Object.assign(out, normTypedFields(type, c));
 }
 
 // Date de la dernière « Mise à jour » d'une liste ou d'un dossier (absente si jamais faite).
@@ -1361,12 +1780,13 @@ function lastUpdateOf(o) { const v = num(o && o.lastUpdate, 0); return v > 0 ? {
 
 function dataVersion(raw) { return (raw && typeof raw === "object") ? num(raw.version, 1) : DATA_VERSION; }
 
-// Rend n'importe quel objet (stockage, import, version 1) conforme au modèle version 2, sans planter.
+// Rend n'importe quel objet (stockage, import, version 1 ou 2) conforme au modèle version 3, sans planter.
 // Migration v1 → v2 : ko/en/fr → terms, listes dans « Sans dossier », langue apprise fr et langues d'appui ko, en par défaut.
+// Migration v2 → v3 : toutes les cartes existantes reçoivent type "vocab" (normalizeCard).
 function normalizeData(raw) {
   const d = (raw && typeof raw === "object") ? raw : {};
   const s = d.settings || {};
-  const tg = isLang(s.defaultTarget) ? s.defaultTarget : "fr";
+  const tg = isLang(s.defaultTarget) ? s.defaultTarget : resolveLangs([]).target;
   const sup = cleanSupport(s.defaultSupport, tg);
   const au = s.audio || {};
   const out = {
@@ -1383,14 +1803,15 @@ function normalizeData(raw) {
     folders: arr(d.folders).filter(f => f && f.id).map((f, i) => Object.assign(
       { id: String(f.id), name: String(f.name || ""), order: num(f.order, i) }, normLangPair(f), lastUpdateOf(f))),
     lists: [],
-    cards: arr(d.cards).filter(c => c && c.id).map(normalizeCard).filter(c => Object.keys(c.terms).length),
+    cards: arr(d.cards).filter(c => c && c.id).map(normalizeCard).filter(cardHasContent),
     history: arr(d.history)
       .filter(h => h && /^\d{4}-\d{2}-\d{2}$/.test(h.date))
       .map(h => ({ date: h.date, reviewed: num(h.reviewed, 0), correct: num(h.correct, 0) })),
     proposals: arr(d.proposals)
       .filter(p => p && p.id && p.cardId && (isLang(p.field) || isPosField(p.field) || ["example", "dup"].includes(p.field)) && ["completion", "correction"].includes(p.type))
       .map(p => ({ id: String(p.id), cardId: String(p.cardId), field: p.field, type: p.type,
-        oldValue: String(p.oldValue || ""), newValue: String(p.newValue || ""), reason: String(p.reason || ""), createdAt: num(p.createdAt, 0) })),
+        oldValue: String(p.oldValue || ""), newValue: String(p.newValue || ""), reason: String(p.reason || ""), createdAt: num(p.createdAt, 0) }))
+      .concat(arr(d.proposals).map(normNewProposal).filter(Boolean)),   // « Nouvelle carte » (étape 17)
     rejected: arr(d.rejected).map(String).slice(-CONFIG.REJECT_MAX),
     lastCheckAt: num(d.lastCheckAt, 0),
     checkedSig: {},
@@ -1408,7 +1829,8 @@ function normalizeData(raw) {
   [null].concat(out.folders.map(f => f.id)).forEach(fid => renum(out.lists.filter(l => l.folderId === fid)));
 
   const cardIds = new Set(out.cards.map(c => c.id));
-  out.proposals = out.proposals.filter(p => cardIds.has(p.cardId));
+  const listIds0 = new Set(out.lists.map(l => l.id));
+  out.proposals = out.proposals.filter(p => p.field === "new" ? listIds0.has(p.listId) : cardIds.has(p.cardId));
   if (d.aiResume && d.aiResume.kind === "complete") {
     const ids = arr(d.aiResume.ids).map(String).filter(id => cardIds.has(id));
     if (ids.length) out.aiResume = { kind: "complete", ids };
@@ -1424,44 +1846,364 @@ function normalizeData(raw) {
     out.lists.push(l);
     orphans.forEach(c => { c.listId = l.id; });
   }
+  // Cartes d'un autre type sans langue (JSON modifié à la main) : langue apprise de leur liste.
+  const acct = { target: out.settings.defaultTarget, support: out.settings.defaultSupport };
+  out.cards.forEach(c => {
+    if (isVocab(c) || isLang(c.lang)) return;
+    const l = out.lists.find(x => x.id === c.listId);
+    c.lang = resolveLangs([acct, l && out.folders.find(f => f.id === l.folderId), l]).target;
+  });
   return out;
 }
 
+// Proposition « Nouvelle carte » : { id, cardId: "", listId, field: "new", type: "newcard", cards: [{ type, fields, ruleRef }], reason, createdAt }.
+function normNewProposal(p) {
+  if (!p || !p.id || p.field !== "new" || p.type !== "newcard" || !p.listId) return null;
+  const cards = arr(p.cards).filter(d => d && CARD_TYPES.includes(d.type) && d.fields && typeof d.fields === "object").map(d => {
+    const f = d.type === "vocab"
+      ? { terms: normTerms(d.fields.terms), pos: normTerms(d.fields.pos), example: String(d.fields.example || "") }
+      : normTypedFields(d.type, d.fields);
+    return { type: d.type, fields: f, ruleRef: String(d.ruleRef || "") };
+  });
+  if (!cards.length) return null;
+  return { id: String(p.id), cardId: "", listId: String(p.listId), field: "new", type: "newcard", cards,
+    oldValue: "", newValue: "", reason: String(p.reason || "").slice(0, 300), createdAt: num(p.createdAt, 0) };
+}
 function looksLikeAppData(raw) {
   return raw && typeof raw === "object" && Array.isArray(raw.cards) && Array.isArray(raw.lists);
 }
 
+// === TYPES DE CARTES ===
+// Chaque carte a un champ type. Tous les types passent par le même Leitner, les mêmes listes, dossiers, stats et « À valider ».
+//   vocab : vocabulaire (terms, pos, example)
+//   conj  : conjugaison, une forme par carte (lang, verb, tense, person, answer, translation, note)
+//   cloze : texte à trous (lang, sentence avec ___, answer, hint, explanation, translation, ruleId)
+//   fix   : corriger l'erreur (lang, wrong, correct, explanation, ruleId)
+//   rule  : fiche de règle (lang, title, body, examples [liste], translation)
+// lang = langue apprise de la liste au moment de la création. Plusieurs réponses acceptées avec "/" (conj, cloze).
+// Toutes les cartes gardent terms / pos / example (vides hors vocabulaire) : le code commun ne plante jamais.
+const CARD_TYPES = ["vocab", "conj", "cloze", "fix", "rule"];
+const TYPE_FIELDS = {
+  conj: ["lang", "verb", "tense", "person", "answer", "translation", "note"],
+  cloze: ["lang", "sentence", "answer", "hint", "explanation", "translation", "ruleId"],
+  fix: ["lang", "wrong", "correct", "explanation", "ruleId"],
+  rule: ["lang", "title", "body", "translation"]           // + examples (liste)
+};
+const TYPE_ICON = { vocab: "Aa", conj: "⇄", cloze: "▁", fix: "✎", rule: "§" };
+const CLOZE_GAP = /_{2,}/;
+
+function cardType(c) { return c && CARD_TYPES.includes(c.type) ? c.type : "vocab"; }
+function isVocab(c) { return cardType(c) === "vocab"; }
+// Langue du contenu de la carte (langue apprise) : champ lang hors vocabulaire, sinon langue apprise de la liste.
+function cardLang(c) { return !isVocab(c) && isLang(c.lang) ? c.lang : cardLangs(c).target; }
+function splitAlts(s) { return String(s || "").split("/").map(x => x.trim()).filter(Boolean); }
+function uiOf() { return (state && state.settings && state.settings.uiLang) || "fr"; }
+// Texte simple, ou { fr, ko, en } (pris dans la langue de l'interface).
+function locText(v, ui) {
+  if (v == null) return "";
+  if (typeof v !== "object") return String(v);
+  ui = ui || uiOf();
+  return v[ui] || v.fr || v.en || Object.values(v)[0] || "";
+}
+
+// --- Grammaire (lue dans LANGUAGES[x].grammar) ---
+function grammarOf(lng) { return (LANGUAGES[lng] && LANGUAGES[lng].grammar) || { tenses: [], persons: [] }; }
+function tensesOf(lng) { return arr(grammarOf(lng).tenses); }
+function tenseOf(lng, id) { return tensesOf(lng).find(x => x.id === id) || null; }
+function personsOf(lng, tenseId) {
+  const g = grammarOf(lng), tn = tenseOf(lng, tenseId);
+  if (tn && Array.isArray(tn.persons)) return tn.persons;
+  if (tn && typeof tn.persons === "string") return arr((g.personSets || {})[tn.persons]);
+  return arr(g.persons);
+}
+function tenseName(lng, id) { const x = tenseOf(lng, id); return x ? locText(x.names) : String(id || ""); }
+function personLabel(lng, tenseId, pid) {
+  const p = personsOf(lng, tenseId).find(x => x.id === pid);
+  if (!p) return String(pid || "");
+  const n = p.names ? (p.names[uiOf()] || "") : "";
+  return locText(p.label) + (n ? " (" + n + ")" : "");
+}
+function conjPerson(c) { return personsOf(c.lang, c.tense).find(x => x.id === c.person) || null; }
+// Forme affichée avec le pronom (« nous irons ») ; telle quelle si la personne n'a pas de pronom (coréen, verbes irréguliers…).
+function conjFull(c, form) {
+  const f = form == null ? (splitAlts(c.answer)[0] || "") : form;
+  const p = conjPerson(c), g = grammarOf(c.lang);
+  if (!p || !p.pronoun || !f) return f;
+  return typeof g.join === "function" ? g.join(f, p, tenseOf(c.lang, c.tense)) : p.pronoun + " " + f;
+}
+// Reconnaissance d'un temps / d'une personne saisis (import) : id, ou nom dans n'importe quelle langue d'interface.
+function gKey(s) { return normText(s).replace(/\([^)]*\)/g, "").replace(/[\s.'’_-]+/g, ""); }
+function gKeys(v) {
+  const out = [];
+  const add = x => { if (x == null) return; if (typeof x === "object") Object.values(x).forEach(add); else { out.push(gKey(x)); out.push(normText(x).replace(/[\s.'’_()-]+/g, "")); } };
+  add(v);
+  return out.filter(Boolean);
+}
+function findTense(lng, raw) {
+  const k = gKey(raw), k2 = normText(raw).replace(/[\s.'’_()-]+/g, "");
+  if (!k && !k2) return null;
+  return tensesOf(lng).find(x => gKeys([x.id, x.names]).some(n => n === k || n === k2)) || null;
+}
+function findPerson(lng, tenseId, raw) {
+  const k = normText(raw).replace(/[\s.'’_()-]+/g, "");
+  if (!k) return null;
+  const ps = personsOf(lng, tenseId);
+  if (/^[1-9]$/.test(k) && ps[+k - 1]) return ps[+k - 1];          // numéro dans l'ordre des personnes
+  return ps.find(p => gKeys([p.id, p.label, p.names, p.pronoun]).includes(k))
+    || ps.find(p => [p.pronoun, typeof p.label === "string" ? p.label : ""].some(x => String(x || "").split("/").some(y => gKey(y) === k)))
+    || null;
+}
+
+// --- Modèle ---
+function normTypedFields(type, c) {
+  const out = {};
+  (TYPE_FIELDS[type] || []).forEach(f => { out[f] = c[f] == null ? "" : String(c[f]).trim(); });
+  if (type === "rule") out.examples = arr(c.examples).map(x => String(x).trim()).filter(Boolean);
+  return out;
+}
+function newTypedCard(listId, type, fields, tags) {
+  return Object.assign(newCard(listId, {}, "", tags || []), normTypedFields(type, fields || {}), { type });
+}
+function cardHasContent(c) {
+  if (isVocab(c)) return Object.keys(c.terms || {}).length > 0;
+  return (TYPE_FIELDS[c.type] || []).some(f => f !== "lang" && String(c[f] || "").trim()) || arr(c.examples).length > 0;
+}
+// Carte utilisable en révision (hors vocabulaire) : champs indispensables remplis, temps et personne connus.
+function typedUsable(c) {
+  if (!isLang(c.lang)) return false;
+  switch (c.type) {
+    case "conj": return !!(c.verb && splitAlts(c.answer).length && tenseOf(c.lang, c.tense) && conjPerson(c));
+    case "cloze": return CLOZE_GAP.test(c.sentence || "") && splitAlts(c.answer).length > 0;
+    case "fix": return !!(c.wrong && c.correct);
+    case "rule": return !!(c.title && (c.body || arr(c.examples).length));
+  }
+  return false;
+}
+function ruleOf(c) {
+  const r = c && c.ruleId ? state.cards.find(x => x.id === c.ruleId) : null;
+  return r && cardType(r) === "rule" ? r : null;
+}
+function clozeShow(sentence, fill) { return String(sentence || "").replace(CLOZE_GAP, fill); }
+
+// --- Textes courts (listes, résumé, stats) ---
+function cardTitle(c) {
+  switch (cardType(c)) {
+    case "conj": return c.verb + " — " + tenseName(c.lang, c.tense) + " — " + personLabel(c.lang, c.tense, c.person);
+    case "cloze": return clozeShow(c.sentence, "___");
+    case "fix": return c.wrong;
+    case "rule": return c.title;
+  }
+  return targetTerm(c) || "—";
+}
+function cardSubtitle(c) {
+  switch (cardType(c)) {
+    case "conj": return [conjFull(c), c.translation].filter(Boolean).join(" · ");
+    case "cloze": return clozeShow(c.sentence, splitAlts(c.answer)[0] || "___");
+    case "fix": return c.correct;
+    case "rule": return String(c.body || "").split("\n").map(x => x.replace(/\*\*/g, "").replace(/^\s*-\s*/, "")).filter(Boolean).join(" · ");
+  }
+  return supportText(c);
+}
+function typeBadge(type) { return el("span", "type-badge tb-" + type, TYPE_ICON[type] + " " + t("type." + type)); }
+// Texte de recherche (écran Listes)
+function cardSearchText(c) {
+  if (isVocab(c)) return Object.values(c.terms).concat([c.example]).join(" ");
+  return (TYPE_FIELDS[c.type] || []).filter(f => !["lang", "ruleId"].includes(f)).map(f => c[f]).concat(arr(c.examples)).join(" ");
+}
+
+// --- Affichage ---
+// Corps de règle : texte court ; **gras** et lignes « - … » (liste) autorisés. Construit sans innerHTML.
+function richLine(parent, s) {
+  String(s).split(/\*\*(.+?)\*\*/).forEach((part, i) => { if (part) parent.appendChild(i % 2 ? el("b", null, part) : document.createTextNode(part)); });
+}
+function ruleBodyNode(body, lng) {
+  const d = el("div", "ty-rbody");
+  d.lang = lng || "";
+  let ul = null;
+  String(body || "").split("\n").forEach(line => {
+    const m = line.match(/^\s*[-•]\s+(.*)$/);
+    if (m) { if (!ul) { ul = el("ul"); d.appendChild(ul); } const li = el("li"); richLine(li, m[1]); ul.appendChild(li); }
+    else if (line.trim()) { ul = null; const p = el("p"); richLine(p, line.trim()); d.appendChild(p); }
+  });
+  return d;
+}
+function tyLine(cls, text, lng) { const d = el("div", "ty-line " + (cls || ""), text); if (lng) d.lang = lng; return d; }
+function tyLabeled(label, text, lng) {
+  const d = el("div", "ty-line");
+  d.appendChild(el("span", "ty-lbl", label + " "));
+  const s = el("span", null, text); if (lng) s.lang = lng;
+  d.appendChild(s);
+  return d;
+}
+// Bouton dans une face de carte : ne retourne pas / ne fait pas glisser la carte.
+function faceBtn(label, onClick) {
+  const b = el("button", "link-btn ty-btn", label);
+  b.type = "button";
+  const stop = e => e.stopPropagation();
+  b.addEventListener("pointerdown", stop);
+  b.addEventListener("pointerup", stop);
+  b.addEventListener("keydown", stop);
+  b.addEventListener("click", e => { e.stopPropagation(); onClick(); });
+  return b;
+}
+// Phrase à trous : trou visible (question) ou réponse surlignée (réponse).
+function clozeNode(cls, c, fill) {
+  const d = el("div", cls); d.lang = c.lang;
+  const parts = String(c.sentence || "").split(CLOZE_GAP);
+  parts.forEach((p, i) => {
+    if (p) d.appendChild(document.createTextNode(p));
+    if (i < parts.length - 1) d.appendChild(fill ? el("mark", "ty-fill", fill) : el("span", "ty-gap", "＿＿＿"));
+  });
+  return d;
+}
+// Phrase corrigée avec les différences surlignées, et la phrase fautive avec les erreurs barrées.
+function fixDiffNodes(c) {
+  const r = wrLcs(c.wrong, c.correct);
+  const good = wrDiffNode(r.B, r.mb, "wr-miss"); good.classList.add("ty-sent"); good.lang = c.lang;
+  const bad = wrDiffNode(r.A, r.ma, "wr-bad"); bad.classList.add("ty-wrong"); bad.lang = c.lang;
+  return { good, bad };
+}
+function ruleBtn(c) { const r = ruleOf(c); return r ? faceBtn(t("type.seeRule"), () => openRuleModal(r)) : null; }
+
+// Faces question / réponse d'une carte hors vocabulaire (même forme que cardFaces) :
+//   { lang (titre), main (texte), lng, items (lecture audio), mainNode() (affichage riche), extras() (nœuds en plus), noSub, long }
+// Le sens de révision est ignoré pour ces types.
+function typedFaces(c) {
+  const L = c.lang, lg = cardLangs(c);
+  const head = t("type." + c.type) + " · " + langName(L);
+  const say = text => text ? [{ text, lng: L }] : [];
+  let q = {}, a = {};
+  if (c.type === "conj") {
+    const full = conjFull(c);
+    const info = tenseName(L, c.tense) + " — " + personLabel(L, c.tense, c.person);
+    q = { main: c.verb, items: say(c.verb), extras: () => [tyLine("ty-big", info)] };
+    a = { main: full, items: say(full), extras: () => [
+      tyLine("", c.verb + " — " + info, L),
+      splitAlts(c.answer).length > 1 ? tyLine("", t("type.alsoOk", { a: splitAlts(c.answer).join(" / ") }), L) : null,
+      c.translation ? tyLine("ty-tr", c.translation) : null,
+      c.note ? tyLine("ty-note", c.note) : null,
+      faceBtn(t("type.seeTable"), () => openConjTable(c))
+    ] };
+  } else if (c.type === "cloze") {
+    const ans = splitAlts(c.answer);
+    q = { main: clozeShow(c.sentence, "…"), items: say(clozeShow(c.sentence, "…")), mainNode: cls => clozeNode(cls, c, null),
+      extras: () => [c.hint ? tyLabeled(t("type.hint"), c.hint) : null] };
+    a = { main: clozeShow(c.sentence, ans[0] || ""), items: say(clozeShow(c.sentence, ans[0] || "")), mainNode: cls => clozeNode(cls, c, ans[0] || ""),
+      extras: () => [
+        ans.length > 1 ? tyLine("", t("type.alsoOk", { a: ans.join(" / ") }), L) : null,
+        c.explanation ? tyLine("ty-expl", c.explanation) : null,
+        c.translation ? tyLine("ty-tr", c.translation) : null,
+        ruleBtn(c)
+      ] };
+  } else if (c.type === "fix") {
+    q = { main: c.wrong, items: say(c.wrong), extras: () => [tyLine("ty-big", t("type.fixQ"))] };
+    a = { main: c.correct, items: say(c.correct), mainNode: cls => { const n = fixDiffNodes(c).good; n.classList.add(cls); return n; },
+      extras: () => [fixDiffNodes(c).bad, c.explanation ? tyLine("ty-expl", c.explanation) : null, ruleBtn(c)] };
+  } else {
+    q = { main: c.title, items: say(c.title), extras: () => [tyLine("ty-big", t("type.ruleQ"))] };
+    a = { main: c.title, items: say(arr(c.examples).join(". ")), long: true, extras: () => {
+      const out = [ruleBodyNode(c.body, "")];
+      if (arr(c.examples).length) { const ul = el("ul", "ty-ex"); ul.lang = L; c.examples.forEach(x => ul.appendChild(el("li", null, x))); out.push(ul); }
+      if (c.translation) out.push(tyLine("ty-tr", c.translation));
+      return out;
+    } };
+  }
+  const base = { lang: head, lng: L, sub: "", subLng: "", noSub: true };
+  return { q: Object.assign({}, base, q), a: Object.assign({}, base, a), target: L, lg: { target: L, support: lg.support }, typed: true };
+}
+// Nœuds en plus d'une face (null retirés).
+function faceExtras(f) { return f && f.extras ? f.extras().filter(Boolean) : []; }
+
+// « Voir le tableau » : toutes les cartes du même verbe + temps (même langue), dans l'ordre des personnes.
+function conjSiblings(c) {
+  const v = normText(c.verb);
+  return state.cards.filter(x => cardType(x) === "conj" && x.lang === c.lang && x.tense === c.tense && normText(x.verb) === v)
+    .sort((a, b) => (a.listId === c.listId ? 0 : 1) - (b.listId === c.listId ? 0 : 1));
+}
+function openConjTable(c) {
+  const sib = conjSiblings(c);
+  const wrap = el("div");
+  wrap.appendChild(tyLine("ty-big", tenseName(c.lang, c.tense)));
+  const tr0 = sib.map(x => x.translation).find(Boolean);
+  if (tr0) wrap.appendChild(tyLine("ty-tr", tr0));
+  const tb = el("table", "ty-table");
+  personsOf(c.lang, c.tense).forEach(p => {
+    const x = sib.find(y => y.person === p.id);
+    const tr = el("tr", x && x.id === c.id ? "cur" : null);
+    tr.append(el("td", "muted", personLabel(c.lang, c.tense, p.id)));
+    const td = el("td", null, x ? conjFull(x) : "—"); td.lang = c.lang;
+    tr.appendChild(td);
+    tb.appendChild(tr);
+  });
+  wrap.appendChild(tb);
+  const notes = [...new Set(sib.map(x => x.note).filter(Boolean))];
+  if (notes.length) wrap.appendChild(tyLine("ty-note", notes.join(" · ")));
+  openModal(c.verb, wrap, [{ label: t("close"), kind: "primary" }]);
+}
+// « Voir la règle »
+function openRuleModal(r) {
+  const wrap = el("div");
+  wrap.appendChild(ruleBodyNode(r.body, ""));
+  if (arr(r.examples).length) { const ul = el("ul", "ty-ex"); ul.lang = r.lang; r.examples.forEach(x => ul.appendChild(el("li", null, x))); wrap.appendChild(ul); }
+  if (r.translation) wrap.appendChild(tyLine("ty-tr", r.translation));
+  openModal(r.title, wrap, [{ label: t("close"), kind: "primary" }]);
+}
+
+// Réponses acceptées en mode Écrit (hors vocabulaire) : [{ text, lng, sentence? }].
+// conj : la forme seule ou avec le pronom ; cloze : le mot manquant ; fix : la phrase corrigée entière.
+function typedAlts(c) {
+  const out = [], add = (text, sentence) => { if (text && !out.some(x => x.text === text)) out.push({ text: wrClean(text), lng: c.lang, sentence: !!sentence }); };
+  if (c.type === "conj") splitAlts(c.answer).forEach(x => { add(x); add(conjFull(c, x)); });
+  else if (c.type === "cloze") splitAlts(c.answer).forEach(x => add(x));
+  else if (c.type === "fix") add(c.correct, true);
+  return out;
+}
+
 // === DEMO ===
-// Liste « Démo » d'un nouveau compte, dans sa langue apprise par défaut (phrase d'exemple dans cette langue).
-const DEMO_ROWS = [
-  { t: { fr: "bonjour", ko: "안녕하세요", en: "hello" }, tags: ["salutations"],
-    ex: { fr: "Bonjour, comment ça va ?", ko: "안녕하세요, 만나서 반가워요.", en: "Hello, how are you?" } },
-  { t: { fr: "merci", ko: "감사합니다", en: "thank you" }, tags: ["salutations"],
-    ex: { fr: "Merci beaucoup !", ko: "도와주셔서 감사합니다.", en: "Thank you very much!" } },
-  { t: { fr: "voler / s'envoler", ko: "날다", en: "to fly" }, tags: ["verbes"],
-    ex: { fr: "L'oiseau vole au-dessus de la maison.", ko: "새가 하늘을 날아요.", en: "The bird flies over the house." } },
-  { t: { fr: "manger", ko: "먹다", en: "to eat" }, tags: ["verbes"],
-    ex: { fr: "Je mange une pomme.", ko: "저는 사과를 먹어요.", en: "I eat an apple." } },
-  { t: { fr: "boire", ko: "마시다", en: "to drink" }, tags: ["verbes"],
-    ex: { fr: "Elle boit un café le matin.", ko: "아침에 커피를 마셔요.", en: "She drinks coffee in the morning." } },
-  { t: { fr: "l'eau", ko: "물", en: "water" }, tags: ["noms"],
-    ex: { fr: "Un verre d'eau, s'il vous plaît.", ko: "물 한 잔 주세요.", en: "A glass of water, please." } },
-  { t: { fr: "la maison", ko: "집", en: "house / home" }, tags: ["noms"],
-    ex: { fr: "Je rentre à la maison.", ko: "집에 가요.", en: "I'm going home." } },
-  { t: { fr: "le chat", ko: "고양이", en: "cat" }, tags: ["noms", "animaux"],
-    ex: { fr: "Le chat dort sur le canapé.", ko: "고양이가 소파에서 자요.", en: "The cat sleeps on the sofa." } },
-  { t: { fr: "l'école", ko: "학교", en: "school" }, tags: ["noms"],
-    ex: { fr: "Les enfants vont à l'école.", ko: "아이들이 학교에 가요.", en: "The children go to school." } },
-  { t: { fr: "beau / belle", ko: "아름답다", en: "beautiful" }, tags: ["adjectifs"],
-    ex: { fr: "Quelle belle journée !", ko: "정말 아름다운 날이에요.", en: "What a beautiful day!" } }
-];
+// Liste « Démo » d'un nouveau compte, dans sa langue apprise par défaut : tout vient de LANGUAGES[langue].demo.
+// Mots : traductions prises dans les mots de même key des autres langues ; phrase d'exemple dans la langue apprise.
+// Autres types : textes { fr, ko, en } pris dans la 1re langue d'appui qui les a (traductions : toutes les langues d'appui).
 function addDemoList(data) {
-  const target = data.settings.defaultTarget;
+  const lg = resolveLangs([{ target: data.settings.defaultTarget, support: data.settings.defaultSupport }]);
+  const D = (LANGUAGES[lg.target] && LANGUAGES[lg.target].demo) || {};
   const list = { id: uid(), name: "Démo", folderId: null, order: nextOrder(data.lists.filter(l => !l.folderId)), createdAt: Date.now() };
   data.lists.push(list);
-  DEMO_ROWS.forEach(r => data.cards.push(newCard(list.id, r.t, r.ex[target] || "", r.tags.slice())));
+  arr(D.words).forEach(w => {
+    const terms = {}, pos = {};
+    LANG_CODES.forEach(code => {
+      const x = arr((LANGUAGES[code].demo || {}).words).find(y => y.key === w.key);
+      if (x) { terms[code] = x.term; if (x.pos) pos[code] = x.pos; }
+    });
+    data.cards.push(newCard(list.id, terms, w.ex || "", arr(w.tags).slice(), pos));
+  });
+  const order = lg.support.concat([lg.target]);
+  const one = v => (v && typeof v === "object") ? (order.map(k => v[k]).find(Boolean) || locText(v, data.settings.uiLang)) : String(v || "");
+  const all = v => (v && typeof v === "object") ? lg.support.map(k => v[k]).filter(Boolean).join(" / ") : String(v || "");
+  const rules = {};
+  const cards = arr(D.cards);
+  cards.filter(x => x.type === "rule").concat(cards.filter(x => x.type !== "rule")).forEach(x => {
+    const base = { lang: lg.target };
+    if (x.type === "rule") {
+      const c = newTypedCard(list.id, "rule", Object.assign(base, { title: x.title, body: one(x.body), examples: x.examples, translation: all(x.translation) }));
+      rules[x.key] = c.id; data.cards.push(c);
+    } else if (x.type === "conjtab") {
+      personsOf(lg.target, x.tense).forEach((p, i) => {
+        if (!x.forms[i]) return;
+        data.cards.push(newTypedCard(list.id, "conj", Object.assign({}, base, { verb: x.verb, tense: x.tense, person: p.id, answer: x.forms[i],
+          translation: all(x.translation), note: one(x.note) })));
+      });
+    } else if (x.type === "cloze") {
+      data.cards.push(newTypedCard(list.id, "cloze", Object.assign(base, { sentence: x.sentence, answer: x.answer, hint: one(x.hint),
+        explanation: one(x.explanation), translation: all(x.translation), ruleId: rules[x.ruleKey] || "" })));
+    } else if (x.type === "fix") {
+      data.cards.push(newTypedCard(list.id, "fix", Object.assign(base, { wrong: x.wrong, correct: x.correct,
+        explanation: one(x.explanation), ruleId: rules[x.ruleKey] || "" })));
+    }
+  });
   return data;
 }
+// Exemple de saisie pour un champ de mot (éditeur de carte) : 3e mot de la démo de cette langue.
+function langSample(code) { const w = arr((LANGUAGES[code] && LANGUAGES[code].demo || {}).words); return (w[2] || w[0] || {}).term || ""; }
 
 // === STORAGE ===
 // Couche d'accès unique. Données du compte connecté (<id> = identifiant de l'appli) découpées en morceaux :
@@ -2426,8 +3168,14 @@ const NO_FOLDER = "__none__";
 
 function defaultSessionCfg() {
   return { scope: "all", folderIds: [], listIds: [], tags: [], cat: "unknown", lang: accountLangs().target,
+    types: [], tenses: [], verbs: [], persons: [],   // filtres en plus (vide = tout) : types de cartes ; conjugaison (clés « langue|… »)
     onlyDue: true, dir: "toT", count: state.settings.sessionSize, mode: "cards" };
 }
+// Clés des filtres de conjugaison (une session peut mélanger plusieurs langues).
+function tenseKey(c) { return c.lang + "|" + c.tense; }
+function verbKey(c) { return c.lang + "|" + normText(c.verb); }
+function personKey(c) { return c.lang + "|" + c.person; }
+function conjFilterOn(cfg) { return !!(arr(cfg.tenses).length || arr(cfg.verbs).length || arr(cfg.persons).length); }
 function allTags() {
   const s = new Set();
   state.cards.forEach(c => c.tags.forEach(tg => s.add(tg)));
@@ -2444,8 +3192,11 @@ function targetLangsInUse() {
   const s = new Set(state.lists.map(l => listLangs(l).target));
   return LANG_CODES.filter(c => s.has(c));
 }
-function sessionPool(cfg) {
+// stage : "base" = sans les filtres de type / conjugaison / mode (pour construire ces filtres) ;
+//         "types" = avec le filtre de type, sans ceux de conjugaison ; absent = tous les filtres.
+function sessionPool(cfg, stage) {
   const now = Date.now();
+  const types = arr(cfg.types), conjOn = conjFilterOn(cfg);
   const lgs = langsByList();
   const lists = new Map(state.lists.map(l => [l.id, l]));
   return state.cards.filter(c => {
@@ -2460,6 +3211,17 @@ function sessionPool(cfg) {
     if (cfg.scope === "cat" && Leitner.category(c) !== cfg.cat) return false;
     if (cfg.scope === "lang" && lg.target !== cfg.lang) return false;
     if (cfg.onlyDue && !Leitner.isDue(c, now)) return false;
+    if (stage === "base") return true;
+    if (types.length && !types.includes(cardType(c))) return false;
+    if (stage === "types") return true;
+    if (cfg.mode === "write" && cardType(c) === "rule") return false;   // fiche de règle : pas de mode Écrit
+    if (cfg.mode === "table" && cardType(c) !== "conj") return false;   // mode Tableau : conjugaison seulement
+    if (conjOn) {                                                        // filtres de conjugaison : seulement des cartes conj
+      if (cardType(c) !== "conj") return false;
+      if (cfg.tenses.length && !cfg.tenses.includes(tenseKey(c))) return false;
+      if (cfg.verbs.length && !cfg.verbs.includes(verbKey(c))) return false;
+      if (cfg.persons.length && !cfg.persons.includes(personKey(c))) return false;
+    }
     return true;
   });
 }
@@ -2478,6 +3240,7 @@ function renderReview() {
   if (rv.phase === "run" && rv.s) {
     if (rv.s.mode === "cards") renderCardsSession(root);
     else if (rv.s.mode === "write") renderWriteSession(root);
+    else if (rv.s.mode === "table") renderTableSession(root);
     else renderQuizSession(root);
   }
   else renderSessionConfig(root);
@@ -2549,6 +3312,44 @@ function renderSessionConfig(root) {
 
   box.appendChild(segField("review.which", [[true, "which.due"], [false, "which.all"]], cfg.onlyDue, v => { cfg.onlyDue = v; }));
 
+  // Types de cartes (plusieurs choix, aucun = tous), seulement les types présents dans le périmètre
+  const base = sessionPool(cfg, "base");
+  const present = CARD_TYPES.filter(ty => base.some(c => cardType(c) === ty));
+  cfg.types = cfg.types.filter(ty => present.includes(ty));
+  if (present.length > 1) {
+    const tf = chipsField(present.map(ty => ({ value: ty, label: TYPE_ICON[ty] + " " + t("type." + ty) })), cfg.types, v => toggleIn(cfg.types, v));
+    tf.insertBefore(el("label", null, t("review.types")), tf.firstChild);
+    tf.appendChild(el("div", "hint", t("review.typesHint")));
+    box.appendChild(tf);
+  }
+  // Conjugaison : temps, verbes, personnes (plusieurs choix, aucun = tous)
+  const conjCards = sessionPool(cfg, "types").filter(c => cardType(c) === "conj");
+  const keep = (sel, keys) => sel.filter(k => keys.has(k));
+  if (conjCards.length) {
+    const multi = new Set(conjCards.map(c => c.lang)).size > 1;
+    const suf = lng => multi ? " (" + lng.toUpperCase() + ")" : "";
+    const tens = new Map(), verbs = new Map(), pers = new Map();
+    conjCards.forEach(c => {
+      if (!tens.has(tenseKey(c))) tens.set(tenseKey(c), { label: tenseName(c.lang, c.tense) + suf(c.lang), o: [LANG_CODES.indexOf(c.lang), tensesOf(c.lang).findIndex(x => x.id === c.tense)] });
+      if (!verbs.has(verbKey(c))) verbs.set(verbKey(c), { label: c.verb + suf(c.lang), o: [LANG_CODES.indexOf(c.lang), 0] });
+      if (!pers.has(personKey(c))) {
+        const ps = personsOf(c.lang, c.tense);
+        pers.set(personKey(c), { label: personLabel(c.lang, c.tense, c.person) + suf(c.lang), o: [LANG_CODES.indexOf(c.lang), ps.findIndex(x => x.id === c.person) + (ps === grammarOf(c.lang).persons ? 0 : 100)] });
+      }
+    });
+    const items = m => [...m.entries()].sort((a, b) => a[1].o[0] - b[1].o[0] || a[1].o[1] - b[1].o[1] || a[1].label.localeCompare(b[1].label)).map(([value, x]) => ({ value, label: x.label }));
+    cfg.tenses = keep(cfg.tenses, tens); cfg.verbs = keep(cfg.verbs, verbs); cfg.persons = keep(cfg.persons, pers);
+    const cj = el("div", "rv-conj");
+    cj.appendChild(el("div", "rv-conj-hd", TYPE_ICON.conj + " " + t("review.conj")));
+    [["review.tenses", tens, cfg.tenses], ["review.verbs", verbs, cfg.verbs], ["review.persons", pers, cfg.persons]].forEach(([k, m, sel]) => {
+      if (m.size < 2 && !sel.length) return;
+      const f = chipsField(items(m), sel, v => toggleIn(sel, v));
+      f.insertBefore(el("label", null, t(k)), f.firstChild);
+      cj.appendChild(f);
+    });
+    if (cj.childNodes.length > 1) { cj.appendChild(el("div", "hint", t("review.conjHint"))); box.appendChild(cj); }
+  } else { cfg.tenses = []; cfg.verbs = []; cfg.persons = []; }
+
   // Sens : libellés concrets si toutes les cartes du périmètre ont les mêmes langues (ex. KO·EN → FR)
   const pool = sessionPool(cfg);
   const lgs = langsByList();
@@ -2566,10 +3367,13 @@ function renderSessionConfig(root) {
   cnt.addEventListener("change", () => { cfg.count = clampInt(cnt.value, 1, 500, state.settings.sessionSize); cnt.value = cfg.count; });
   box.appendChild(formField(t("review.count"), cnt));
 
-  box.appendChild(segField("review.mode", [["cards", "mode.cards"], ["write", "mode.write"], ["quiz", "mode.quiz"]], cfg.mode, v => { cfg.mode = v; }));
+  box.appendChild(segField("review.mode", [["cards", "mode.cards"], ["write", "mode.write"], ["quiz", "mode.quiz"], ["table", "mode.table"]], cfg.mode, v => { cfg.mode = v; }));
+  if (cfg.mode === "table") box.appendChild(el("div", "hint", t("table.modeHint")));
   root.appendChild(box);
 
-  root.appendChild(el("div", "avail", t("review.available", { n: pool.length })));
+  root.appendChild(el("div", "avail", cfg.mode === "table"
+    ? t("table.available", { n: pool.length, m: tableGroups(pool).length })
+    : t("review.available", { n: pool.length })));
   const start = el("button", "btn primary", t("review.start"));
   start.addEventListener("click", () => {
     cfg.count = clampInt(cnt.value, 1, 500, state.settings.sessionSize);
@@ -2583,6 +3387,7 @@ function renderSessionConfig(root) {
 // Construit la file : périmètre filtré, ordre aléatoire, coupé au nombre demandé, sens fixé par carte.
 function startSession() {
   const cfg = rv.cfg;
+  if (cfg.mode === "table") return startTableSession(cfg);
   const pool = shuffle(sessionPool(cfg)).slice(0, cfg.count);
   if (!pool.length) return false;
   const queue = pool.map(c => ({ id: c.id, dir: cfg.dir === "mix" ? (Math.random() < 0.5 ? "toT" : "fromT") : cfg.dir }));
@@ -2590,9 +3395,13 @@ function startSession() {
   return true;
 }
 // Lance une session à partir d'une file. first = première réponse par carte (résumé, ratés) ; dirs = sens par carte (rejouer).
+// Mode Tableau : la file contient des tableaux { ids } (une file de cartes { id } est regroupée par tableau).
 function newRun(queue, mode) {
   rv.s = { queue, mode, revealed: false, counts: { known: 0, review: 0, unknown: 0 }, log: [], first: {}, dirs: {} };
-  queue.forEach(q => { rv.s.dirs[q.id] = q.dir; });
+  if (mode === "table") {
+    if (queue.length && !queue[0].ids) rv.s.queue = tableGroups(queue.map(q => state.cards.find(c => c.id === q.id)).filter(Boolean));
+    rv.s.queue.forEach(g => g.ids.forEach(id => { rv.s.dirs[id] = "toT"; }));
+  } else queue.forEach(q => { rv.s.dirs[q.id] = q.dir; });
   rv.phase = "run";
   renderReview();
   window.scrollTo(0, 0);
@@ -2607,7 +3416,7 @@ function gradeCurrent(result) {
   const r = Leitner.grade(c, result);
   s.counts[result]++;
   if (!(item.id in s.first)) s.first[item.id] = result;
-  s.log.unshift({ word: targetTerm(c), result, from: r.from, to: r.to, dueAt: r.dueAt });
+  s.log.unshift({ word: cardTitle(c), result, from: r.from, to: r.to, dueAt: r.dueAt });
   if (result === "unknown") s.queue.push(item);
   s.revealed = false;
   commit();
@@ -2628,7 +3437,9 @@ let cardsBusy = false; // vrai pendant l'animation de sortie (évite une double 
 // Faces question / réponse selon le sens : face « langues d'appui » (traductions remplies, dans l'ordre)
 // et face « langue apprise ». target = langue apprise de la carte (langue de l'exemple).
 // items = mots de la face dans l'ordre ([{ text, lng }]) : lus à la suite, nature affichée à côté de chacun.
+// Autres types de cartes : typedFaces (sens ignoré).
 function cardFaces(c, dir) {
+  if (!isVocab(c)) return typedFaces(c);
   const lg = cardLangs(c);
   const sup = supportTerms(c, lg);
   const supFace = {
@@ -2644,6 +3455,7 @@ function cardFaces(c, dir) {
 }
 // Mot principal d'une face (+ nature si withPos).
 function faceMain(cls, f, c, withPos) {
+  if (f.mainNode) return f.mainNode(cls);           // affichage riche (phrase à trous, différences surlignées)
   const m = el("div", cls); m.lang = f.lng;
   m.appendChild(document.createTextNode(f.main));
   const p = withPos ? posTag(c, f.lng) : null;
@@ -2652,6 +3464,7 @@ function faceMain(cls, f, c, withPos) {
 }
 // Autres mots de la face (langues d'appui suivantes), chacun avec sa nature si withPos. null s'il n'y en a pas.
 function faceSub(cls, f, c, withPos) {
+  if (f.noSub) return null;
   const rest = f.items.slice(1);
   if (!rest.length) return null;
   const d = el("div", cls);
@@ -2665,7 +3478,7 @@ function faceSub(cls, f, c, withPos) {
   return d;
 }
 function faceNode(cls, f, c, example, exLng) {
-  const d = el("div", "sw-face " + cls);
+  const d = el("div", "sw-face " + cls + (isVocab(c) ? "" : " ty-face ty-" + cardType(c)) + (f.long ? " sw-long" : ""));
   d.appendChild(el("div", "sw-lang", f.lang));
   const sp = speakItemsBtn(f.items);
   if (sp) d.appendChild(sp);
@@ -2674,6 +3487,7 @@ function faceNode(cls, f, c, example, exLng) {
   const sub = faceSub("sw-sub", f, c, true);
   if (sub) b.appendChild(sub);
   if (example) { const e = el("div", "sw-ex", example); e.lang = exLng; b.appendChild(e); }
+  faceExtras(f).forEach(n => b.appendChild(n));
   d.appendChild(b);
   return d;
 }
@@ -2835,6 +3649,7 @@ function wrClean(s) {
 // Réponses acceptées : champ(s) de la face réponse, découpés sur "/" : [{ text, lng }].
 // Réponse attendue en langues d'appui : une réponse juste dans l'une d'elles suffit.
 function wrAlts(c, dir) {
+  if (!isVocab(c)) return typedAlts(c);              // autres types : forme / mot manquant / phrase corrigée
   const lg = cardLangs(c);
   const fields = dir === "fromT" ? supportTerms(c, lg).map(x => [x.text, x.code]) : [[term(c, lg.target), lg.target]];
   const out = [];
@@ -2865,7 +3680,7 @@ function wrLcs(a, b) {
   }
   return { A, B, ma, mb, len: L[0][0] };
 }
-// verdict : "exact" | "accents" (juste, accents faux) | "spaces" (juste, espaces faux) | "wrong".
+// verdict : "exact" | "accents" (juste, accents faux) | "spaces" (juste, espaces faux) | "punct" (juste, ponctuation) | "wrong".
 // best / bestLng = réponse acceptée la plus proche et sa langue.
 function wrCheck(typed, alts) {
   const tx = wrClean(typed);
@@ -2875,6 +3690,9 @@ function wrCheck(typed, alts) {
   for (const a of alts) if (a.text.toLowerCase() === low) return res("exact", a);
   for (const a of alts) { const r = langRules(a.lng); if (r.accents && wrKey(a.text, r) === wrKey(tx, r)) return res("accents", a); }
   for (const a of alts) { const r = langRules(a.lng); if (r.spaces && wrKey(a.text, r, true) === wrKey(tx, r, true)) return res("spaces", a); }
+  // Ponctuation différente seulement (point final oublié…) : compté juste
+  const np = (x, r) => wrKey(x, r, true).replace(/[.,!?;:«»"“”()¿¡…。、]/g, "").replace(/\s+/g, "");
+  for (const a of alts) { const r = langRules(a.lng); if (np(a.text, r) && np(a.text, r) === np(tx, r)) return res("punct", a); }
   let best = alts[0], score = -1;
   alts.forEach(a => {
     const r = wrLcs(tx, a.text);
@@ -2896,7 +3714,8 @@ function wrGrade(result) { rv.s.w = null; gradeCurrent(result); }
 
 function renderWriteSession(root) {
   const s = rv.s;
-  while (s.queue.length && !sessionCard(s.queue[0].id)) s.queue.shift(); // carte supprimée entre-temps
+  const skip = id => { const c = sessionCard(id); return !c || cardType(c) === "rule"; }; // supprimée entre-temps, ou fiche de règle
+  while (s.queue.length && skip(s.queue[0].id)) s.queue.shift();
   if (!s.queue.length) { renderSessionSummary(root); return; }
   const item = s.queue[0];
   const c = sessionCard(item.id);
@@ -2919,6 +3738,8 @@ function renderWriteSession(root) {
   q.appendChild(faceMain("sw-main", f.q, c, !!w.res));
   const qs = faceSub("sw-sub", f.q, c, !!w.res);
   if (qs) q.appendChild(qs);
+  faceExtras(f.q).forEach(n => q.appendChild(n));
+  if (!isVocab(c)) q.classList.add("ty-" + cardType(c));
   const qsp = spkItemsRow(f.q.items);
   if (qsp) q.appendChild(qsp);
   root.appendChild(q);
@@ -2944,9 +3765,9 @@ function renderWriteSession(root) {
   } else {
     inp.readOnly = true;
     const r = w.res;
-    const kind = { exact: "ok", accents: "acc", spaces: "acc", wrong: "bad" }[r.verdict];
+    const kind = { exact: "ok", accents: "acc", spaces: "acc", punct: "acc", wrong: "bad" }[r.verdict];
     const box = el("div", "card wr-res " + kind);
-    box.appendChild(el("div", "wr-head", t({ exact: "write.ok", accents: "write.accents", spaces: "write.spaces", wrong: "write.wrong" }[r.verdict])));
+    box.appendChild(el("div", "wr-head", t({ exact: "write.ok", accents: "write.accents", spaces: "write.spaces", punct: "write.punct", wrong: "write.wrong" }[r.verdict])));
     if (r.verdict === "exact") {
       box.appendChild(el("div", "wr-diff", r.best));
     } else if (!r.typed) {
@@ -2964,7 +3785,11 @@ function renderWriteSession(root) {
     const asp = spkItemsRow(f.a.items);
     if (asp) box.appendChild(asp);
     autoSpeak(s, "a", f.a.items, f.lg); // lecture auto de la réponse après validation
-    if (alts.length > 1) {
+    if (!isVocab(c)) {
+      // Autres types : phrase complète (texte à trous), forme avec pronom (conjugaison), explication, règle…
+      if (c.type !== "fix") { const full = faceMain("wr-full", f.a, c, false); full.classList.add("wr-full"); box.appendChild(full); }
+      faceExtras(f.a).forEach(n => box.appendChild(n));
+    } else if (alts.length > 1) {
       box.appendChild(el("div", "wr-lbl", t("write.all", { a: f.a.main + (f.a.sub ? " · " + f.a.sub : "") })));
     }
     if (c.example) { const ex = el("div", "wr-ex", c.example); ex.lang = f.target; box.appendChild(ex); }
@@ -3004,6 +3829,7 @@ function renderQuizSession(root) {
   const item = s.queue[0];
   const c = sessionCard(item.id);
   const f = cardFaces(c, item.dir);
+  let a0Class = "";
 
   audioCard(s, c);
   root.appendChild(audioToggle());
@@ -3017,6 +3843,8 @@ function renderQuizSession(root) {
   q.appendChild(faceMain("qz-main", f.q, c, true));
   const qs = faceSub("qz-sub", f.q, c, true);
   if (qs) q.appendChild(qs);
+  faceExtras(f.q).forEach(n => q.appendChild(n));
+  if (!isVocab(c)) { q.classList.add("ty-" + cardType(c)); a0Class = "ty-" + cardType(c); }
   const qsp = spkItemsRow(f.q.items);
   if (qsp) q.appendChild(qsp);
   root.appendChild(q);
@@ -3040,6 +3868,8 @@ function renderQuizSession(root) {
     a.appendChild(faceMain("qz-amain", f.a, c, true));
     const as = faceSub("qz-asub", f.a, c, true);
     if (as) a.appendChild(as);
+    faceExtras(f.a).forEach(n => a.appendChild(n));
+    if (a0Class) a.classList.add(a0Class);
     if (c.example) { const ex = el("div", "qz-ex", c.example); ex.lang = f.target; a.appendChild(ex); }
   }
   root.appendChild(a);
@@ -3056,6 +3886,176 @@ function renderQuizSession(root) {
   const quit = el("button", "link-btn", t("cards.quit"));
   quit.addEventListener("click", () => { s.queue = []; renderReview(); });
   root.appendChild(quit);
+}
+
+// === MODE TABLEAU ===
+// Conjugaison seulement : un verbe + un temps, une case par personne. Validation d'un coup :
+// chaque case juste → Su, fausse (ou vide) → Pas su, dans le Leitner de la carte conj correspondante.
+// Les cases fausses reviennent en fin de session (tableau réduit à ces personnes).
+// File : rv.s.queue = [{ ids }] ; état du tableau en cours : rv.s.tb = { vals: { id: saisie }, res: { id: verdict } | null, show }.
+function tableKey(c) { return c.listId + "|" + c.lang + "|" + normText(c.verb) + "|" + c.tense; }
+// Regroupe des cartes conj par tableau (liste + langue + verbe + temps), dans l'ordre d'arrivée des tableaux.
+function tableGroups(cards) {
+  const m = new Map();
+  cards.forEach(c => { if (cardType(c) !== "conj") return; const k = tableKey(c); if (!m.has(k)) m.set(k, []); m.get(k).push(c.id); });
+  return [...m.values()].map(ids => ({ ids }));
+}
+// Tableaux du périmètre. « À réviser aujourd'hui » : un tableau entre dès qu'une de ses cases est due,
+// avec toutes ses personnes (filtres de personnes respectés). Nombre de cartes : tableaux ajoutés jusqu'à l'atteindre.
+function startTableSession(cfg) {
+  const due = sessionPool(cfg);
+  if (!due.length) return false;
+  const keys = new Set(due.map(tableKey));
+  const full = cfg.onlyDue ? sessionPool(Object.assign({}, cfg, { onlyDue: false })).filter(c => keys.has(tableKey(c))) : due;
+  const groups = shuffle(tableGroups(full));
+  const queue = [];
+  let n = 0;
+  for (const g of groups) { if (queue.length && n >= cfg.count) break; queue.push(g); n += g.ids.length; }
+  newRun(queue, "table");
+  return true;
+}
+function tableCards(g) {
+  const cs = g.ids.map(sessionCard).filter(c => c && cardType(c) === "conj");
+  if (!cs.length) return [];
+  const ps = personsOf(cs[0].lang, cs[0].tense).map(p => p.id);
+  return cs.sort((a, b) => ps.indexOf(a.person) - ps.indexOf(b.person));
+}
+
+function renderTableSession(root) {
+  const s = rv.s;
+  while (s.queue.length && !tableCards(s.queue[0]).length) { s.queue.shift(); s.tb = null; }
+  if (!s.queue.length) { renderSessionSummary(root); return; }
+  const g = s.queue[0];
+  const cs = tableCards(g);
+  const c0 = cs[0], L = c0.lang;
+  if (!s.tb) s.tb = { vals: {}, res: null, show: false };
+  const tb = s.tb;
+
+  audioCard(s, c0);
+  root.appendChild(audioToggle());
+  const left = s.queue.length;
+  const meta = el("div", "meta-row");
+  meta.append(el("span", null, t(left > 1 ? "table.left" : "table.left1", { n: left })), el("span", null, t("table.cells", { n: cs.length })));
+  root.appendChild(meta);
+
+  // En-tête : verbe, temps, traduction, note
+  const head = el("div", "card tb-head ty-conj");
+  head.appendChild(el("div", "sw-lang", t("type.conj") + " · " + langName(L)));
+  const vb = el("div", "tb-verb", c0.verb); vb.lang = L;
+  head.appendChild(vb);
+  head.appendChild(tyLine("ty-big", tenseName(L, c0.tense)));
+  const tr0 = cs.map(x => x.translation).find(Boolean);
+  if (tr0) head.appendChild(tyLine("ty-tr", tr0));
+  const sp = spkItemsRow([{ text: c0.verb, lng: L }]);
+  if (sp) head.appendChild(sp);
+  root.appendChild(head);
+  autoSpeak(s, "q", [{ text: c0.verb, lng: L }], { target: L, support: cardLangs(c0).support });
+
+  // Tableau : une ligne par personne
+  const table = el("div", "card tb-grid");
+  const inputs = [];
+  cs.forEach((c, i) => {
+    const row = el("div", "tb-row");
+    const r = tb.res ? tb.res[c.id] : null;
+    if (r) row.classList.add(r.verdict === "wrong" ? "bad" : "ok");
+    row.appendChild(el("div", "tb-person", personLabel(L, c.tense, c.person)));
+    const cell = el("div", "tb-cell");
+    const inp = textInput(tb.vals[c.id] || "", "", L);
+    inp.classList.add("tb-input");
+    inp.spellcheck = false;
+    inp.setAttribute("autocapitalize", "off");
+    inp.setAttribute("autocorrect", "off");
+    inp.setAttribute("aria-label", personLabel(L, c.tense, c.person));
+    inp.enterKeyHint = i < cs.length - 1 ? "next" : "done";
+    if (tb.res) inp.readOnly = true;
+    else {
+      inp.addEventListener("input", () => { tb.vals[c.id] = inp.value; });
+      inp.addEventListener("keydown", e => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        if (inputs[i + 1]) inputs[i + 1].focus(); else tableCheck(cs);
+      });
+    }
+    inputs.push(inp);
+    cell.appendChild(inp);
+    if (r) cell.appendChild(el("span", "tb-mark", r.verdict === "wrong" ? "✗" : "✓"));
+    row.appendChild(cell);
+    // Correction : différences surlignées (case fausse) ou bonne orthographe (accents…)
+    if (r && tb.show && r.verdict !== "exact") {
+      const fix = el("div", "tb-fix");
+      if (r.typed) {
+        const d = wrLcs(r.typed, r.best);
+        fix.append(wrDiffNode(d.A, d.ma, "wr-bad"), el("span", "pv-arrow", "→"), wrDiffNode(d.B, d.mb, "wr-miss"));
+      } else fix.appendChild(el("div", "wr-diff", r.best));
+      fix.lang = L;
+      if (r.verdict !== "wrong") fix.appendChild(el("div", "tb-note", t({ accents: "write.accents", spaces: "write.spaces", punct: "write.punct" }[r.verdict])));
+      row.appendChild(fix);
+    }
+    table.appendChild(row);
+  });
+  root.appendChild(table);
+
+  if (!tb.res) {
+    const b = el("button", "btn primary", t("table.check"));
+    b.addEventListener("click", () => tableCheck(cs));
+    root.appendChild(b);
+    setTimeout(() => { try { const f = inputs.find(x => !x.value) || inputs[0]; if (f && !("ontouchstart" in window)) f.focus(); } catch (e) {} }, 60);
+  } else {
+    const ids = cs.map(c => c.id).filter(id => tb.res[id]);
+    const ok = ids.filter(id => tb.res[id].verdict !== "wrong").length;
+    const box = el("div", "card wr-res " + (ok === ids.length ? "ok" : ok ? "acc" : "bad"));
+    box.appendChild(el("div", "wr-head", t("table.score", { n: ok, m: ids.length })));
+    const notes = [...new Set(cs.map(x => x.note).filter(Boolean))];
+    if (notes.length) box.appendChild(tyLine("ty-note", notes.join(" · ")));
+    const full = cs.map(c => conjFull(c)).join(" · ");
+    box.appendChild(tyLine("tb-all", full, L));
+    const asp = spkItemsRow(cs.map(c => ({ text: conjFull(c), lng: L })));
+    if (asp) box.appendChild(asp);
+    root.appendChild(box);
+    autoSpeak(s, "a", cs.map(c => ({ text: conjFull(c), lng: L })), { target: L, support: cardLangs(c0).support });
+    const btns = el("div", "btns two");
+    const show = el("button", "btn", t(tb.show ? "table.hideFix" : "table.showFix"));
+    show.addEventListener("click", () => { tb.show = !tb.show; renderReview(); });
+    const next = el("button", "btn primary", t("table.next"));
+    next.addEventListener("click", tableNext);
+    btns.append(show, next);
+    root.appendChild(btns);
+    setTimeout(() => { try { next.focus(); } catch (e) {} }, 60);
+  }
+
+  const quit = el("button", "link-btn", t("cards.quit"));
+  quit.addEventListener("click", () => { s.tb = null; s.queue = []; renderReview(); });
+  root.appendChild(quit);
+}
+
+// Validation d'un coup : chaque case met à jour sa carte dans le Leitner (juste → Su, fausse → Pas su).
+function tableCheck(cs) {
+  const s = rv.s, tb = s.tb;
+  if (!tb || tb.res) return;
+  tb.res = {};
+  cs.forEach(c => {
+    const r = wrCheck(tb.vals[c.id] || "", typedAlts(c));
+    tb.res[c.id] = r;
+    const result = r.verdict === "wrong" ? "unknown" : "known";
+    const g = Leitner.grade(c, result);
+    s.counts[result]++;
+    if (!(c.id in s.first)) s.first[c.id] = result;
+    s.log.unshift({ word: cardTitle(c), result, from: g.from, to: g.to, dueAt: g.dueAt });
+  });
+  tb.show = cs.some(c => tb.res[c.id].verdict === "wrong");   // correction affichée d'office s'il y a des erreurs
+  commit();
+}
+// Tableau suivant ; les cases fausses reviennent en fin de session.
+function tableNext() {
+  const s = rv.s, tb = s.tb;
+  const g = s.queue.shift();
+  if (g && tb && tb.res) {
+    const wrong = g.ids.filter(id => tb.res[id] && tb.res[id].verdict === "wrong");
+    if (wrong.length) s.queue.push({ ids: wrong });
+  }
+  s.tb = null;
+  renderReview();
+  window.scrollTo(0, 0);
 }
 
 // === ÉCRAN : LISTES ===
@@ -3088,7 +4088,7 @@ function getList(id) { return state.lists.find(l => l.id === id) || null; }
 function cardsOf(listId) { return state.cards.filter(c => c.listId === listId); }
 function parseTags(s) { return String(s || "").split(",").map(x => x.trim()).filter(Boolean); }
 function cardMatches(c, q) {
-  return normText(Object.values(c.terms).concat([c.example, c.tags.join(" ")]).join(" ")).includes(q);
+  return normText(cardSearchText(c) + " " + c.tags.join(" ")).includes(q);
 }
 function dueCount(cards, now) { now = now || Date.now(); return cards.filter(c => Leitner.isDue(c, now)).length; }
 
@@ -3261,6 +4261,7 @@ function moveListTo(listId, folderId) {
 }
 
 function cardItem(c, showList) {
+  if (!isVocab(c)) return typedCardItem(c, showList);
   const lg = cardLangs(c);
   const b = el("button", "item");
   const m = el("div", "main");
@@ -3289,6 +4290,25 @@ function cardItem(c, showList) {
   return b;
 }
 
+// Carte d'un autre type dans une liste : badge du type, titre court, réponse en dessous.
+function typedCardItem(c, showList) {
+  const b = el("button", "item");
+  const m = el("div", "main");
+  const t1 = el("div", "t1"); t1.lang = c.lang;
+  t1.append(typeBadge(c.type), document.createTextNode(cardTitle(c)));
+  m.appendChild(t1);
+  const sub = cardSubtitle(c);
+  if (sub) { const t2 = el("div", "t2", sub); t2.lang = c.lang; m.appendChild(t2); }
+  const extra = el("div");
+  if (showList) { const l = getList(c.listId); if (l) extra.appendChild(el("span", "tag", "▸ " + l.name)); }
+  if (!typedUsable(c)) extra.appendChild(el("span", "tag warn", t("type.incomplete")));
+  c.tags.forEach(tg => extra.appendChild(el("span", "tag", "#" + tg)));
+  if (extra.childNodes.length) m.appendChild(extra);
+  b.append(m, el("span", "chev", "›"));
+  b.addEventListener("click", () => openCardEditor(c.id));
+  return b;
+}
+
 function openListView(id) {
   lv.listId = id; lv.query = ""; lv.reorder = false;
   renderLists();
@@ -3303,6 +4323,7 @@ function initLists() {
     const l = lv.listId ? getList(lv.listId) : null;
     openBulkImport({ text: "", target: l ? l.id : "__new__", newName: "", folder: l ? (l.folderId || "") : "" });
   });
+  $("#lvGen").addEventListener("click", () => openGenerate(lv.listId || null));
   $("#lvRename").addEventListener("click", () => openListName(lv.listId));
   $("#lvMove").addEventListener("click", () => openMoveList(lv.listId));
   $("#lvLangs").addEventListener("click", () => { const l = getList(lv.listId); if (l) openLangEditor("list", l); });
@@ -3418,7 +4439,7 @@ function openLangEditor(kind, obj) {
       wrap.appendChild(lab);
     }
     if (!inherit) wrap.appendChild(langPicker(target, support, (tg, sp) => { target = tg; support = sp; draw(); }));
-    const n = cardsUnder(kind, obj).filter(c => !term(c, inherit ? parent.target : target).trim()).length;
+    const n = cardsUnder(kind, obj).filter(c => isVocab(c) && !term(c, inherit ? parent.target : target).trim()).length;
     if (n) wrap.appendChild(el("div", "hint", t("langs.missing", { n, lang: langName(inherit ? parent.target : target) })));
   };
   draw();
@@ -3571,27 +4592,70 @@ function confirmDeleteList(id) {
 }
 
 // --- Cartes : ajouter, modifier, déplacer (choix de la liste), supprimer ---
-// Champs affichés selon les langues de la liste choisie : langue apprise (obligatoire) puis langues d'appui.
-// Les autres langues de la carte sont gardées telles quelles. Changer de liste garde ce qui a été tapé.
+// Formulaire adapté au type (nouvelle carte : menu « Type » ; carte existante : type fixe).
+// Vocabulaire : champs selon les langues de la liste choisie (langue apprise obligatoire, puis langues d'appui) ;
+// les autres langues de la carte sont gardées telles quelles. Changer de liste garde ce qui a été tapé.
+// Autres types : champs du type, dans la langue apprise de la liste (temps et personnes lus dans LANGUAGES.grammar).
+let lastNewType = "vocab";
 function openCardEditor(cardId, listId) {
   const c = cardId ? state.cards.find(x => x.id === cardId) : null;
   if (cardId && !c) return;
   if (!state.lists.length) { toast(t("lists.empty")); return; }
   const sel = listSelect(c ? c.listId : listId, false);
+  let type = c ? cardType(c) : lastNewType;
+  const tags = textInput(c ? c.tags.join(", ") : "", t("type.tagsPh"));
+  const body = el("div");
+  let form = null;
+  const build = () => {
+    body.textContent = "";
+    form = type === "vocab" ? vocabForm(c, sel) : typedForm(c, sel, type);
+    body.appendChild(form.node);
+  };
+  sel.addEventListener("change", () => form.redraw());
+  const wrap = el("div");
+  wrap.appendChild(formField(t("card.list"), sel));
+  if (!c) {
+    const ts = el("select", "input");
+    CARD_TYPES.forEach(x => { const o = el("option", null, TYPE_ICON[x] + "  " + t("type." + x)); o.value = x; ts.appendChild(o); });
+    ts.value = type;
+    ts.addEventListener("change", () => { type = lastNewType = ts.value; build(); });
+    wrap.appendChild(formField(t("type.label"), ts));
+  } else if (type !== "vocab") {
+    const f = el("div", "field"); f.appendChild(typeBadge(type)); wrap.appendChild(f);
+  }
+  build();
+  wrap.append(body, formField(t("card.tags"), tags));
+  const save = () => {
+    const r = form.save(parseTags(tags.value));
+    if (!r) return false;                          // champ manquant : message déjà affiché, fenêtre gardée
+    commit();
+    if (r.added && r.added.length && type === "vocab") offerCompletion(r.added); // champs vides : proposer de les compléter
+    if (r.msg) toast(r.msg);
+  };
+  openModal(t(c ? "card.editTitle" : "card.newTitle"), wrap, c
+    ? [ { label: t("save"), kind: "primary", onClick: save },
+        { label: t("card.delete"), kind: "danger", onClick: () => { confirmDeleteCard(c.id); } },
+        { label: t("cancel") } ]
+    : [ { label: t("cancel") }, { label: t("save"), kind: "primary", onClick: save } ]);
+}
+
+// Formulaire vocabulaire. save(tags) → { added: [ids] } ou null (champ manquant).
+function vocabForm(c, sel) {
   const vals = Object.assign({}, c ? c.terms : {});
   const posVals = Object.assign({}, c ? c.pos : {});
   let inputs = {}, posSels = {}, lg = null;
   const termsBox = el("div");
   const ex = el("textarea", "input"); ex.value = c ? c.example : "";
   const exField = formField("", ex);
-  const tags = textInput(c ? c.tags.join(", ") : "", "verbes, noms");
+  const node = el("div");
+  node.append(termsBox, exField);
   const draw = () => {
     Object.keys(inputs).forEach(k => { vals[k] = inputs[k].value; });
     Object.keys(posSels).forEach(k => { posVals[k] = posSels[k].value; });
     termsBox.textContent = ""; inputs = {}; posSels = {};
     lg = listLangs(sel.value);
     [lg.target].concat(lg.support).forEach((code, i) => {
-      const inp = textInput(vals[code] || "", DEMO_ROWS[2].t[code] || "", code);
+      const inp = textInput(vals[code] || "", langSample(code), code);
       inputs[code] = inp;
       // Nature grammaticale du mot dans cette langue (abréviation de la langue + nom dans la langue de l'interface)
       const ps = el("select", "input");
@@ -3610,42 +4674,177 @@ function openCardEditor(cardId, listId) {
     ex.lang = lg.target;
     exField.firstChild.textContent = t("card.exampleIn", { lang: langName(lg.target) });
   };
-  sel.addEventListener("change", draw);
   draw();
-  const wrap = el("div");
-  wrap.append(formField(t("card.list"), sel), termsBox, exField, formField(t("card.tags"), tags));
-  const save = () => {
+  const save = tagList => {
     Object.keys(inputs).forEach(k => { vals[k] = inputs[k].value.trim(); });
     Object.keys(posSels).forEach(k => { posVals[k] = posSels[k].value; });
-    if (!vals[lg.target]) { toast(t("card.targetRequired", { lang: langName(lg.target) })); return false; }
-    if (!lg.support.some(code => vals[code])) { toast(t("card.supportRequired", { langs: lg.support.map(x => langName(x)).join(", ") })); return false; }
+    if (!vals[lg.target]) { toast(t("card.targetRequired", { lang: langName(lg.target) })); return null; }
+    if (!lg.support.some(code => vals[code])) { toast(t("card.supportRequired", { langs: lg.support.map(x => langName(x)).join(", ") })); return null; }
     const terms = normTerms(vals);
     const pos = normTerms(posVals);
-    let addedId = null;
     if (c) {
       // Champ modifié à la main : il n'est plus « généré, non validé »
       c.auto = c.auto.filter(a => !(a.startsWith("terms.") && (terms[a.slice(6)] || "") !== (c.terms[a.slice(6)] || "")) && !(a === "example" && ex.value.trim() !== c.example)
         && !(a.startsWith("pos.") && (pos[a.slice(4)] || "") !== ((c.pos || {})[a.slice(4)] || "")));
       c.listId = sel.value; c.terms = terms; c.pos = pos;
-      c.example = ex.value.trim(); c.tags = parseTags(tags.value);
-    } else {
-      const nc = newCard(sel.value, terms, ex.value.trim(), parseTags(tags.value), pos);
-      state.cards.push(nc); addedId = nc.id;
+      c.example = ex.value.trim(); c.tags = tagList;
+      return { added: [] };
     }
-    commit();
-    if (addedId) offerCompletion([addedId]); // champs vides : proposer de les compléter
+    const nc = newCard(sel.value, terms, ex.value.trim(), tagList, pos);
+    state.cards.push(nc);
+    return { added: [nc.id] };
   };
-  openModal(t(c ? "card.editTitle" : "card.newTitle"), wrap, c
-    ? [ { label: t("save"), kind: "primary", onClick: save },
-        { label: t("card.delete"), kind: "danger", onClick: () => { confirmDeleteCard(c.id); } },
-        { label: t("cancel") } ]
-    : [ { label: t("cancel") }, { label: t("save"), kind: "primary", onClick: save } ]);
+  return { node, redraw: draw, save };
 }
+
+// Menu « Règle liée » : fiches de règle de la même langue (celles de la liste d'abord).
+function ruleSelect(lang, listId, current) {
+  const s = el("select", "input");
+  const o0 = el("option", null, "—"); o0.value = ""; s.appendChild(o0);
+  state.cards.filter(x => cardType(x) === "rule" && x.lang === lang)
+    .sort((a, b) => (a.listId === listId ? 0 : 1) - (b.listId === listId ? 0 : 1) || a.title.localeCompare(b.title))
+    .forEach(r => { const o = el("option", null, r.title + (r.listId !== listId ? " (" + ((getList(r.listId) || {}).name || "") + ")" : "")); o.value = r.id; s.appendChild(o); });
+  s.value = current && [...s.options].some(o => o.value === current) ? current : "";
+  return s;
+}
+function taInput(value, placeholder, lang, rows) {
+  const ta = el("textarea", "input"); ta.value = value || ""; ta.rows = rows || 2;
+  if (placeholder) ta.placeholder = placeholder;
+  if (lang) ta.lang = lang;
+  return ta;
+}
+
+// Formulaire des autres types (conj, cloze, fix, rule). save(tags) → { added: [ids], msg } ou null.
+function typedForm(c, sel, type) {
+  const node = el("div");
+  const v = Object.assign({}, c || {});           // valeurs en cours (gardées quand la liste change)
+  let ins = {};                                   // champs affichés : nom → élément
+  let conjMode = c ? "one" : "table";             // conjugaison : une forme, ou tableau entier (nouvelle carte)
+  let tableVals = {};                             // tableau : id de personne → forme tapée
+  let lang = null;
+  const keep = () => {
+    Object.keys(ins).forEach(k => { if (k.startsWith("p:")) tableVals[k.slice(2)] = ins[k].value; else v[k] = ins[k].value; });
+  };
+  const add = (key, label, input, required, hint) => { ins[key] = input; node.appendChild(formField(label, input, required, hint)); return input; };
+  const draw = () => {
+    keep();
+    node.textContent = ""; ins = {};
+    lang = listLangs(sel.value).target;
+    const ln = langName(lang), sup = listLangs(sel.value).support.map(x => langName(x)).join(", ");
+    if (type === "conj") {
+      add("verb", t("type.conj.verb") + " (" + ln + ")", textInput(v.verb, "", lang), true);
+      const ts = el("select", "input");
+      tensesOf(lang).forEach(x => { const o = el("option", null, locText(x.names) + (x.optional ? " — " + t("type.optional") : "")); o.value = x.id; ts.appendChild(o); });
+      if (tenseOf(lang, v.tense)) ts.value = v.tense; else v.tense = ts.value;
+      ts.addEventListener("change", () => { v.tense = ts.value; draw(); });
+      node.appendChild(formField(t("type.conj.tense"), ts, true));
+      if (!c) {
+        const seg = el("div", "seg");
+        [["table", "type.conj.modeTable"], ["one", "type.conj.modeOne"]].forEach(([m, k]) => {
+          const b = el("button", null, t(k)); b.type = "button";
+          b.setAttribute("aria-pressed", String(m === conjMode));
+          b.addEventListener("click", () => { keep(); conjMode = m; draw(); });
+          seg.appendChild(b);
+        });
+        node.appendChild(formField(t("type.conj.mode"), seg));
+      }
+      const ps = personsOf(lang, v.tense);
+      if (conjMode === "table") {
+        const box = el("div", "conj-grid");
+        ps.forEach(p => {
+          const inp = textInput(tableVals[p.id] || "", "", lang);
+          ins["p:" + p.id] = inp;
+          const lab = el("label", null, personLabel(lang, v.tense, p.id));
+          box.append(lab, inp);
+        });
+        node.appendChild(formField(t("type.conj.forms"), box, true, t("type.conj.formsHint")));
+      } else {
+        const psel = el("select", "input");
+        ps.forEach(p => { const o = el("option", null, personLabel(lang, v.tense, p.id)); o.value = p.id; psel.appendChild(o); });
+        if (ps.some(p => p.id === v.person)) psel.value = v.person;
+        add("person", t("type.conj.person"), psel, true);
+        add("answer", t("type.conj.answer"), textInput(v.answer, "", lang), true, t("card.frHint"));
+      }
+      add("translation", t("type.translation"), textInput(v.translation, sup), false, t("type.conj.trHint"));
+      const note = add("note", t("type.note"), textInput(v.note, "", ""), false);
+      const dl = el("datalist"); dl.id = "conjNotes-" + uid();
+      arr(grammarOf(lang).notes).forEach(n => { const o = el("option"); o.value = locText(n); dl.appendChild(o); });
+      note.setAttribute("list", dl.id); node.appendChild(dl);
+      if (c) { const b = el("button", "link-btn", t("type.seeTable")); b.type = "button"; b.addEventListener("click", () => openConjTable(c)); node.appendChild(b); }
+    } else if (type === "cloze") {
+      add("sentence", t("type.cloze.sentence") + " (" + ln + ")", taInput(v.sentence, langSampleCloze(lang), lang), true, t("type.cloze.sentenceHint"));
+      add("answer", t("type.cloze.answer"), textInput(v.answer, "", lang), true, t("card.frHint"));
+      add("hint", t("type.hint"), textInput(v.hint, "", ""), false);
+      add("explanation", t("type.explanation"), taInput(v.explanation, "", ""), false);
+      add("translation", t("type.translationSent"), textInput(v.translation, sup), false);
+      add("ruleId", t("type.rule.link"), ruleSelect(lang, sel.value, v.ruleId), false);
+    } else if (type === "fix") {
+      add("wrong", t("type.fix.wrong") + " (" + ln + ")", taInput(v.wrong, "", lang), true);
+      add("correct", t("type.fix.correct"), taInput(v.correct, "", lang), true);
+      add("explanation", t("type.explanation"), taInput(v.explanation, "", ""), false);
+      add("ruleId", t("type.rule.link"), ruleSelect(lang, sel.value, v.ruleId), false);
+    } else if (type === "rule") {
+      add("title", t("type.rule.title"), textInput(v.title, "", ""), true);
+      add("body", t("type.rule.body"), taInput(v.body, "", "", 5), true, t("type.rule.bodyHint"));
+      add("examples", t("type.rule.examples") + " (" + ln + ")", taInput(v.examples != null && Array.isArray(v.examples) ? v.examples.join("\n") : (v.examples || ""), "", lang, 3), false, t("type.rule.examplesHint"));
+      add("translation", t("type.rule.translation"), taInput(v.translation, sup, ""), false);
+    }
+  };
+  draw();
+  const need = (k, msgKey) => { if (!String(v[k] || "").trim()) { toast(t(msgKey || "type.required", { f: k })); return false; } return true; };
+  const save = tagList => {
+    keep();
+    const listId = sel.value;
+    if (type === "conj") {
+      if (!String(v.verb || "").trim()) { toast(t("type.err.verb")); return null; }
+      const base = { lang, verb: v.verb, tense: v.tense, translation: v.translation, note: v.note };
+      if (c) {
+        if (!String(v.answer || "").trim()) { toast(t("type.err.answer")); return null; }
+        Object.assign(c, normTypedFields("conj", Object.assign(base, { person: v.person, answer: v.answer })), { listId, tags: tagList });
+        return { added: [] };
+      }
+      if (conjMode === "one") {
+        if (!String(v.answer || "").trim()) { toast(t("type.err.answer")); return null; }
+        const nc = newTypedCard(listId, "conj", Object.assign(base, { person: v.person || personsOf(lang, v.tense)[0].id, answer: v.answer }), tagList);
+        state.cards.push(nc);
+        return { added: [nc.id] };
+      }
+      // Tableau : une carte par case remplie ; une carte existante (même liste, verbe, temps, personne) est mise à jour.
+      const ps = personsOf(lang, v.tense).filter(p => String(tableVals[p.id] || "").trim());
+      if (!ps.length) { toast(t("type.err.table")); return null; }
+      const added = []; let upd = 0;
+      const vk = normText(v.verb);
+      ps.forEach(p => {
+        const f = Object.assign({}, base, { person: p.id, answer: tableVals[p.id] });
+        const ex = state.cards.find(x => cardType(x) === "conj" && x.listId === listId && x.lang === lang && x.tense === v.tense && x.person === p.id && normText(x.verb) === vk);
+        if (ex) { Object.assign(ex, normTypedFields("conj", f)); upd++; }
+        else { const nc = newTypedCard(listId, "conj", f, tagList); state.cards.push(nc); added.push(nc.id); }
+      });
+      return { added, msg: t("type.conj.saved", { n: added.length, m: upd }) };
+    }
+    if (type === "cloze") {
+      if (!CLOZE_GAP.test(v.sentence || "")) { toast(t("type.err.gap")); return null; }
+      if (!need("answer", "type.err.answer")) return null;
+    }
+    if (type === "fix" && (!need("wrong", "type.err.wrong") || !need("correct", "type.err.correct"))) return null;
+    if (type === "fix" && wrClean(v.wrong) === wrClean(v.correct)) { toast(t("type.err.same")); return null; }
+    if (type === "rule" && (!need("title", "type.err.title") || !need("body", "type.err.body"))) return null;
+    const f = Object.assign({}, v, { lang });
+    if (type === "rule") f.examples = String(v.examples || "").split("\n");
+    if (c) { Object.assign(c, normTypedFields(type, f), { listId, tags: tagList }); return { added: [] }; }
+    const nc = newTypedCard(listId, type, f, tagList);
+    state.cards.push(nc);
+    return { added: [nc.id] };
+  };
+  return { node, redraw: draw, save };
+}
+// Exemple de phrase à trous pour une langue : celle de sa démo.
+function langSampleCloze(code) { const x = arr((LANGUAGES[code] && LANGUAGES[code].demo || {}).cards).find(y => y.type === "cloze"); return x ? x.sentence : "___"; }
 
 function confirmDeleteCard(id) {
   const c = state.cards.find(x => x.id === id);
   if (!c) return;
-  openModal(t("card.delete"), el("p", null, t("card.deleteConfirm", { fr: targetTerm(c) })), [
+  openModal(t("card.delete"), el("p", null, t("card.deleteConfirm", { fr: cardTitle(c) })), [
     { label: t("cancel") },
     { label: t("delete"), kind: "danger", onClick: () => { state.cards = state.cards.filter(x => x.id !== id); commit(); } }
   ]);
@@ -3726,11 +4925,88 @@ function rememberBulkMap(map) {
 }
 function bulkKindLabel(k) { return isLang(k) ? langName(k) : t("bulk.kind." + k); }
 
+// --- Lignes d'autres types de cartes ---
+// 1re colonne = vocab, conj, conjtab, trou, erreur ou regle (sinon : ligne de vocabulaire, format habituel).
+//   conj;verbe;temps;personne;forme;traduction;note
+//   conjtab;verbe;temps;forme1|forme2|…;traduction;note   → une carte par personne, dans l'ordre de la langue
+//   trou;phrase avec ___;réponse;indice;explication;traduction
+//   erreur;phrase fautive;phrase corrigée;explication
+//   regle;titre;texte;exemple1|exemple2|…;traduction       (\n dans le texte = retour à la ligne)
+// Temps et personnes : id de LANGUAGES.grammar ou nom dans n'importe quelle langue d'interface. Langue = langue apprise de la liste.
+const TYPE_PREFIX = { vocab: "vocab", conj: "conj", conjtab: "conjtab", trou: "cloze", cloze: "cloze", erreur: "fix", fix: "fix", regle: "rule", rule: "rule" };
+function linePrefix(cols) { return TYPE_PREFIX[normText(cols[0]).replace(/\s+/g, "")] || null; }
+function isTypedLine(line, sep) { const p = linePrefix(line.trim().split(sep)); return !!p && p !== "vocab"; }
+// Clé de doublon d'une carte d'un autre type (même liste).
+function typedKey(type, f) {
+  if (type === "conj") return "conj|" + f.lang + "|" + normText(f.verb) + "|" + f.tense + "|" + f.person;
+  if (type === "cloze") return "cloze|" + normText(f.sentence);
+  if (type === "fix") return "fix|" + normText(f.wrong);
+  if (type === "rule") return "rule|" + normText(f.title);
+  return "";
+}
+// → { rows: [{ type, fields }] } ou { err: texte }
+function parseTypedLine(kind, cols, lang) {
+  const c = i => String(cols[i] || "").trim();
+  if (kind === "conj" || kind === "conjtab") {
+    if (!c(1)) return { err: t("type.err.verb") };
+    const tn = findTense(lang, c(2));
+    if (!tn) return { err: t("bulk.err.tense", { v: c(2), lang: langName(lang) }) };
+    const ps = personsOf(lang, tn.id);
+    if (kind === "conj") {
+      const p = findPerson(lang, tn.id, c(3));
+      if (!p) return { err: t("bulk.err.person", { v: c(3) }) };
+      if (!c(4)) return { err: t("type.err.answer") };
+      return { rows: [{ type: "conj", fields: { lang, verb: c(1), tense: tn.id, person: p.id, answer: c(4), translation: c(5), note: c(6) } }] };
+    }
+    const forms = c(3).split("|").map(x => x.trim());
+    if (!forms.some(Boolean)) return { err: t("type.err.table") };
+    if (forms.length > ps.length) return { err: t("bulk.err.forms", { n: forms.length, m: ps.length }) };
+    return { rows: forms.map((f, i) => f ? { type: "conj", fields: { lang, verb: c(1), tense: tn.id, person: ps[i].id, answer: f, translation: c(4), note: c(5) } } : null).filter(Boolean) };
+  }
+  if (kind === "cloze") {
+    if (!CLOZE_GAP.test(c(1))) return { err: t("type.err.gap") };
+    if (!c(2)) return { err: t("type.err.answer") };
+    return { rows: [{ type: "cloze", fields: { lang, sentence: c(1), answer: c(2), hint: c(3), explanation: c(4), translation: c(5) } }] };
+  }
+  if (kind === "fix") {
+    if (!c(1)) return { err: t("type.err.wrong") };
+    if (!c(2)) return { err: t("type.err.correct") };
+    return { rows: [{ type: "fix", fields: { lang, wrong: c(1), correct: c(2), explanation: c(3) } }] };
+  }
+  if (kind === "rule") {
+    if (!c(1)) return { err: t("type.err.title") };
+    if (!c(2)) return { err: t("type.err.body") };
+    return { rows: [{ type: "rule", fields: { lang, title: c(1), body: c(2).replace(/\\n/g, "\n"), examples: c(3).split("|"), translation: c(4) } }] };
+  }
+  return { err: "?" };
+}
+// Exemple de saisie (zone de collage), construit depuis la démo des langues de l'import.
+function bulkPlaceholder(lg) {
+  const D = (LANGUAGES[lg.target] && LANGUAGES[lg.target].demo) || {};
+  const lines = arr(D.words).slice(2, 4).map(w => {
+    const tr = lg.support.map(code => { const x = arr((LANGUAGES[code].demo || {}).words).find(y => y.key === w.key); return x ? x.term : ""; });
+    return tr.concat([w.term, w.ex || "", arr(w.tags).join(",")]).join(";");
+  });
+  const cz = arr(D.cards).find(x => x.type === "cloze");
+  if (cz) lines.push("trou;" + cz.sentence + ";" + cz.answer);
+  const ct = arr(D.cards).find(x => x.type === "conjtab");
+  if (ct) lines.push("conjtab;" + ct.verb + ";" + tenseName(lg.target, ct.tense) + ";" + ct.forms.join("|"));
+  return lines.join("\n");
+}
+// Ligne d'aperçu d'une carte d'un autre type.
+function typedRowLine(row) {
+  const c = Object.assign({ type: row.typed }, row.fields);
+  return TYPE_ICON[row.typed] + " " + cardTitle(c) + " → " + (row.typed === "conj" ? conjFull(c) : cardSubtitle(c));
+}
+
 // Analyse par paquets (ne bloque pas l'écran). lg = langues de la liste cible ; map = association choisie (ou null).
 // Renvoie { fresh, dups, invalid, header, sep, ncols, map, sample }.
 async function parseBulk(text, targetId, lg, map, onProgress) {
   const existing = new Map();
-  if (targetId !== "__new__") cardsOf(targetId).forEach(c => { const k = dupKey(c.terms, lg); if (!existing.has(k)) existing.set(k, c); });
+  if (targetId !== "__new__") cardsOf(targetId).forEach(c => {
+    const k = isVocab(c) ? dupKey(c.terms, lg) : typedKey(c.type, c);
+    if (!existing.has(k)) existing.set(k, c);
+  });
   const seen = new Map();
   const res = { fresh: [], dups: [], invalid: [], header: false, sep: ";", ncols: 0, map: null, sample: [] };
   const lines = bulkLines(text);
@@ -3738,15 +5014,16 @@ async function parseBulk(text, targetId, lg, map, onProgress) {
   // En-tête et nombre de colonnes (sur les 200 premières lignes)
   let start = 0, headerMap = null;
   while (start < lines.length && !lines[start].trim()) start++;
-  if (start < lines.length) {
+  if (start < lines.length && !isTypedLine(lines[start], sep)) {
     headerMap = parseHeader(lines[start].trim().split(sep).map(s => s.trim()));
     if (headerMap) res.header = true;
   }
   let ncols = headerMap ? headerMap.length : 0;
   for (let i = start + (headerMap ? 1 : 0), n = 0; i < lines.length && n < 200; i++) {
-    if (!lines[i].trim()) continue;
+    if (!lines[i].trim() || isTypedLine(lines[i], sep)) continue;   // colonnes : lignes de vocabulaire seulement
     n++;
-    ncols = Math.max(ncols, lines[i].trim().split(sep).length);
+    const cs = lines[i].trim().split(sep);
+    ncols = Math.max(ncols, cs.length - (linePrefix(cs) === "vocab" ? 1 : 0));
   }
   res.ncols = ncols = Math.max(ncols, 1);
   let m = map && map.length === ncols ? map : (headerMap ? headerMap.concat(defaultBulkMap(ncols, lg).slice(headerMap.length).map(() => "ignore")) : (savedBulkMap(ncols, lg) || defaultBulkMap(ncols, lg)));
@@ -3758,7 +5035,23 @@ async function parseBulk(text, targetId, lg, map, onProgress) {
     const lineNo = i + 1;
     const line = lines[i].trim();
     if (!line) continue;
-    const cols = line.split(sep).map(s => s.trim());
+    let cols = line.split(sep).map(s => s.trim());
+    const pre = linePrefix(cols);
+    if (pre && pre !== "vocab") {
+      // Autre type de carte
+      const r = parseTypedLine(pre, cols, lg.target);
+      if (r.err) { res.invalid.push({ lineNo, raw: line, reason: r.err }); continue; }
+      r.rows.forEach(x => {
+        const k = typedKey(x.type, x.fields);
+        const row = { lineNo, raw: line, typed: x.type, fields: x.fields, tags: [] };
+        if (seen.has(k)) { res.invalid.push({ lineNo, raw: line, reason: t("bulk.err.repeat", { n: seen.get(k) }), repeat: true }); return; }
+        seen.set(k, lineNo);
+        if (existing.has(k)) { row.card = existing.get(k); res.dups.push(row); }
+        else res.fresh.push(row);
+      });
+      continue;
+    }
+    if (pre === "vocab") cols = cols.slice(1);
     if (res.sample.length < 3) res.sample.push(cols);
     if (cols.length > ncols) { res.invalid.push({ lineNo, raw: line, reason: t("bulk.err.cols", { n: ncols }) }); continue; }
     const row = { lineNo, raw: line, terms: {}, set: [], example: "", tags: [], pos: "" };
@@ -3824,6 +5117,7 @@ function openBulkImport(opts) {
   // Langues : pré-remplies depuis le dossier (nouvelle liste), ou celles de la liste existante (lecture seule).
   const drawLangs = () => {
     langBox.textContent = "";
+    try { ta.placeholder = bulkPlaceholder(sel.value !== "__new__" ? listLangs(sel.value) : (opts.lang || folderLangs(getFolder(fsel.value)))); } catch (e) {}
     if (sel.value !== "__new__") {
       const lg = listLangs(sel.value);
       langBox.appendChild(formField(t("langs.title"), el("div", "lang-ro", pairLabel(lg) + " — " + langName(lg.target)), false, t("bulk.langsOfList")));
@@ -3860,11 +5154,11 @@ function openBulkImport(opts) {
 
   const ta = el("textarea", "bulk-ta");
   ta.value = opts.text;
-  ta.placeholder = "날다;to fly;voler;L'oiseau vole.;verbes\n먹다;to eat;manger;;verbes";
+  ta.placeholder = bulkPlaceholder(bulkLangs({ target: opts.target, lang: opts.lang || accountLangs() }));
   ta.spellcheck = false;
   ta.setAttribute("autocapitalize", "off"); ta.setAttribute("autocorrect", "off");
   ta.addEventListener("input", () => autoGrow(ta));
-  const taField = formField(t("bulk.or"), ta, false, t("bulk.format"));
+  const taField = formField(t("bulk.or"), ta, false, t("bulk.format") + " " + t("bulk.formatTypes"));
 
   const showFile = () => {
     const f = opts.file;
@@ -3966,6 +5260,11 @@ async function openBulkPreview(opts) {
   if (opts.file) sum.appendChild(el("div", "muted", t("bulk.fileInfo", { name: opts.file.name, n: opts.file.lines }) + (r.header ? " · " + t("bulk.header") : "")));
   else if (r.header) sum.appendChild(el("div", "muted", t("bulk.header")));
   sum.appendChild(el("div", null, t("bulk.newCount", { n: r.fresh.length })));
+  const byType = {};
+  r.fresh.forEach(x => { const k = x.typed || "vocab"; byType[k] = (byType[k] || 0) + 1; });
+  if (Object.keys(byType).some(k => k !== "vocab")) {
+    sum.appendChild(el("div", "muted", CARD_TYPES.filter(k => byType[k]).map(k => t("type." + k) + " : " + byType[k]).join(" · ")));
+  }
   if (r.dups.length) sum.appendChild(el("div", null, t("bulk.dupCount", { n: r.dups.length })));
   if (r.invalid.length) sum.appendChild(el("div", null, t("bulk.invalidCount", { n: r.invalid.length })));
   wrap.appendChild(sum);
@@ -3976,7 +5275,7 @@ async function openBulkPreview(opts) {
     openBulkPreview(Object.assign({}, opts, { map: m }));
   }));
 
-  const cardLine = row => (row.terms[lg.target] || "—") + " — " + lg.support.map(c => row.terms[c]).filter(Boolean).join(" · ");
+  const cardLine = row => row.typed ? typedRowLine(row) : (row.terms[lg.target] || "—") + " — " + lg.support.map(c => row.terms[c]).filter(Boolean).join(" · ");
   // Section paginée (BULK_PAGE lignes par page) : supporte des milliers de lignes.
   const section = (title, rows, cls, fn) => {
     const f = el("div", "field");
@@ -4067,7 +5366,18 @@ async function runBulkImport(opts, r, nReplace, lg) {
     const undo = [], batchIds = [];
     let nAdd = 0, nRep = 0;
     batch.forEach(row => {
-      if (row.card) {
+      if (row.card && row.typed) {
+        // Autre type : les champs importés remplacent le contenu ; progression et règle liée conservées
+        const c = row.card;
+        undo.push([c, normTypedFields(c.type, c)]);
+        const keepRule = c.ruleId;
+        Object.assign(c, normTypedFields(row.typed, row.fields));
+        if (keepRule && "ruleId" in c) c.ruleId = keepRule;
+        nRep++;
+      } else if (row.typed) {
+        const nc = newTypedCard(listId, row.typed, Object.assign({}, row.fields, { lang: lg.target }), []);
+        state.cards.push(nc); batchIds.push(nc.id); nAdd++;
+      } else if (row.card) {
         const c = row.card;
         undo.push([c, { terms: Object.assign({}, c.terms), pos: Object.assign({}, c.pos), example: c.example, tags: c.tags }]);
         // Colonnes importées : remplacent le contenu existant ; progression conservée
@@ -4262,6 +5572,35 @@ function renderStats() {
   });
   root.appendChild(bx);
 
+  // Par type de carte (s'il y a plusieurs types dans le périmètre)
+  const typesIn = CARD_TYPES.filter(ty => cards.some(c => cardType(c) === ty));
+  if (typesIn.length > 1) {
+    const pt = el("div", "card");
+    pt.appendChild(el("h2", null, t("stats.byType")));
+    typesIn.forEach(ty => pt.appendChild(stGroupRow(TYPE_ICON[ty] + " " + t("type." + ty), cards.filter(c => cardType(c) === ty))));
+    root.appendChild(pt);
+  }
+
+  // Par temps (cartes de conjugaison), dans l'ordre des temps de chaque langue
+  const conj = cards.filter(c => cardType(c) === "conj");
+  if (conj.length) {
+    const multi = new Set(conj.map(c => c.lang)).size > 1;
+    const groups = new Map();
+    conj.forEach(c => { const k = tenseKey(c); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(c); });
+    const ord = k => { const [lng, id] = k.split("|"); return LANG_CODES.indexOf(lng) * 100 + tensesOf(lng).findIndex(x => x.id === id); };
+    const ptn = el("div", "card");
+    ptn.appendChild(el("h2", null, t("stats.byTense")));
+    [...groups.keys()].sort((a, b) => ord(a) - ord(b)).forEach(k => {
+      const [lng, id] = k.split("|");
+      const cs = groups.get(k);
+      const verbs = new Set(cs.map(verbKey)).size;
+      const row = stGroupRow(tenseName(lng, id) + (multi ? " (" + langName(lng) + ")" : ""), cs);
+      row.querySelector(".st-list-sub").textContent += " · " + t(verbs > 1 ? "stats.verbs" : "stats.verb1", { n: verbs });
+      ptn.appendChild(row);
+    });
+    root.appendChild(ptn);
+  }
+
   // Par dossier (vue « tout », s'il y a des dossiers)
   if (!stv.scope && state.folders.length) {
     const pf = el("div", "card");
@@ -4294,9 +5633,10 @@ function renderStats() {
     const lg = lgs.get(c.listId);
     const row = el("div", "st-miss");
     const m = el("div", "main");
-    const f = el("div", "t1", targetTerm(c, lg) || "—"); f.lang = lg.target;
+    const f = el("div", "t1", isVocab(c) ? (targetTerm(c, lg) || "—") : cardTitle(c)); f.lang = cardLang(c);
+    if (!isVocab(c)) f.insertBefore(typeBadge(c.type), f.firstChild);
     m.appendChild(f);
-    const sub = supportText(c, lg);
+    const sub = isVocab(c) ? supportText(c, lg) : cardSubtitle(c);
     if (sub) m.appendChild(el("div", "t2", sub));
     row.append(m, el("div", "cnt", t("stats.missedCount", { w: c.stats.wrong, s: c.stats.seen })));
     ms.appendChild(row);
@@ -4490,7 +5830,7 @@ const AI = (() => {
 let aiJob = null; // traitement en cours (un seul à la fois)
 
 function posFields(lg) { return [lg.target].concat(lg.support).map(posField); }
-function fillFields(c, lg) { lg = lg || cardLangs(c); return lg.support.concat(["example"], posFields(lg)); }
+function fillFields(c, lg) { if (!isVocab(c)) return []; lg = lg || cardLangs(c); return lg.support.concat(["example"], posFields(lg)); }
 function checkFields(c, lg) { lg = lg || cardLangs(c); return [lg.target].concat(lg.support, ["example"], posFields(lg)); }
 // Consignes « nature grammaticale » communes (accès direct et « Préparer pour Claude »).
 function posPromptLines(prefix) {
@@ -4520,7 +5860,7 @@ function missingFields(c) { return fillFields(c).filter(f => !fieldVal(c, f).tri
 function posNeedsGender(c, code) {
   if (!LANGUAGES[code] || !LANGUAGES[code].gender) return false;
   const v = String((c.pos || {})[code] || "").trim();
-  return !!v && !POS_GENDERED.includes(v) && (v === "n" || parsePos(v, "en") === "n");
+  return !!v && !POS_GENDERED.includes(v) && (v === "n" || parsePos(v, LANG_CODES.find(x => !LANGUAGES[x].gender) || "") === "n");
 }
 function genderFields(c, lg) { lg = lg || cardLangs(c); return posFields(lg).filter(f => posNeedsGender(c, f.slice(4))); }
 // Type de proposition pour un champ demandé à Claude : complétion (vide), correction (genre manquant), sinon rien.
@@ -4559,7 +5899,7 @@ function addProposal(p) {
 // cards : périmètre (par défaut toutes les cartes).
 function dupGroups(cards) {
   const groups = new Map();
-  (cards || state.cards).forEach(c => {
+  (cards || state.cards).filter(isVocab).forEach(c => {          // vocabulaire seulement
     const k = c.listId + "#" + dupKey(c.terms, cardLangs(c));
     if (!groups.has(k)) groups.set(k, []);
     groups.get(k).push(c);
@@ -4751,7 +6091,8 @@ async function startVerify() {
   if (!state.cards.length) { toast(t("ai.noCards")); return; }
   const nd = addDuplicateProposals();
   if (nd) commitQuiet();
-  const cards = state.cards.slice();
+  const cards = state.cards.filter(isVocab); // complétion et vérification : vocabulaire seulement
+  if (!cards.length) { toast(t("ai.noCards")); return; }
   if (!AI.isOn()) { if (nd) toast(t("ai.autoDone", { n: nd })); openPrepare("verify", cards); return; }
   const b = Math.ceil(cards.length / CONFIG.AI_BATCH);
   if (b <= 3) { runAiJob("verify", cards, { extra: nd }); return; }
@@ -4774,7 +6115,7 @@ async function autoWeeklyCheck(id) {
     state.lastCheckAt = Date.now();
     const nd = addDuplicateProposals();
     commitQuiet();
-    const todo = AI.isOn() ? state.cards.filter(c => state.checkedSig[c.id] !== cardSig(c)) : [];
+    const todo = AI.isOn() ? state.cards.filter(c => isVocab(c) && state.checkedSig[c.id] !== cardSig(c)) : [];
     if (!todo.length) { if (nd) toast(t("ai.autoDone", { n: nd })); return; }
     toast(t("ai.autoStart"));
     await runAiJob("verify", todo, { silent: true, extra: nd });
@@ -4975,6 +6316,420 @@ function openReplyImport() {
   setTimeout(() => { try { ta.focus(); } catch (e) {} }, 50);
 }
 
+// === GÉNÉRER DES CARTES ===
+// Écran (fenêtre) « Générer des cartes » : liste de destination, type de carte, paramètres
+// (conjugaison : verbes, temps, personnes ; autres types : sujet + nombre), puis :
+//   - « Générer avec Claude » si la capacité sample de l'artifact est disponible (pas d'API payante),
+//   - « Préparer pour Claude » sinon (ou en plus) : consignes à copier dans une conversation, réponse à recoller.
+// Claude répond dans le format de l'import en masse (une ligne par carte, ";") : un seul analyseur (parseTypedLine).
+//   vocab;<langue apprise>;<langues d'appui…>;exemple;nature
+//   conjtab;verbe;temps;forme1|forme2|…;traduction;note   ou   conj;verbe;temps;personne;forme;traduction;note
+//   trou;phrase avec ___;réponse;indice;explication;traduction;titre de la règle
+//   erreur;phrase fautive;phrase corrigée;explication;titre de la règle
+//   regle;titre;texte;exemple1|exemple2|…;traduction
+// Rien n'est écrit dans les listes : chaque carte (ou tableau de conjugaison) devient une proposition
+// « Nouvelle carte » dans « À valider » : { id, cardId: "", listId, field: "new", type: "newcard", cards: [{ type, fields, ruleRef }], key, reason, createdAt }.
+const GEN_TYPES = ["vocab", "conj", "cloze", "fix", "rule"];
+const GEN_MAX = 30;          // cartes max par demande (sujet libre)
+const GEN_VERBS_PER_CALL = 5; // conjugaison : verbes par appel à Claude
+let gv = null;               // réglages de la fenêtre, gardés tant que l'appli est ouverte
+
+function genDefaults(listId) {
+  const l = listId ? getList(listId) : null;
+  return { listId: l ? l.id : (state.lists[0] ? orderedLists()[0].id : "__new__"), newName: "", folder: l ? (l.folderId || "") : "",
+    newTarget: accountLangs().target, type: "conj", verbs: "", tenses: [], persons: [], topic: "", count: 10, withRule: false };
+}
+// Langues de la destination (liste existante, ou nouvelle liste : langue choisie + langues d'appui par défaut).
+function genLangs(o) {
+  if (o.listId !== "__new__" && getList(o.listId)) return listLangs(o.listId);
+  const fl = folderLangs(getFolder(o.folder));
+  return fl.target === o.newTarget ? fl : { target: o.newTarget, support: defaultSupportFor(o.newTarget) };
+}
+function genVerbs(o) { return [...new Set(String(o.verbs || "").split(/[\n,;]+/).map(x => x.trim()).filter(Boolean))]; }
+// Temps choisis (ids) encore valables pour la langue ; par défaut le 1er temps.
+function genTenses(o, lng) {
+  const ids = tensesOf(lng).map(x => x.id);
+  const sel = o.tenses.filter(id => ids.includes(id));
+  return sel.length ? sel : ids.slice(0, 1);
+}
+// Personnes demandées pour un temps : filtre seulement sur les personnes habituelles de la langue.
+function genPersons(o, lng, tenseId) {
+  const ps = personsOf(lng, tenseId);
+  if (ps !== arr(grammarOf(lng).persons) || !o.persons.length) return ps;
+  const sel = ps.filter(p => o.persons.includes(p.id));
+  return sel.length ? sel : ps;
+}
+
+function openGenerate(listId) {
+  if (!gv) gv = genDefaults(listId);
+  else if (listId && getList(listId)) { gv.listId = listId; gv.folder = getList(listId).folderId || ""; }
+  if (gv.listId !== "__new__" && !getList(gv.listId)) gv.listId = state.lists.length ? orderedLists()[0].id : "__new__";
+  const o = gv;
+  const wrap = el("div");
+  let close = null;
+  const redraw = () => { if (close) close(); openGenerate(); };
+
+  // Destination
+  const ls = el("select", "input");
+  orderedLists().forEach(l => { const op = el("option", null, listLabel(l)); op.value = l.id; ls.appendChild(op); });
+  const nw = el("option", null, t("gen.newList")); nw.value = "__new__"; ls.appendChild(nw);
+  ls.value = o.listId;
+  ls.addEventListener("change", () => { o.listId = ls.value; redraw(); });   // temps / personnes non valables pour la langue : ignorés
+  wrap.appendChild(formField(t("gen.list"), ls));
+  if (o.listId === "__new__") {
+    const nm = textInput(o.newName, t("gen.newName"));
+    nm.addEventListener("input", () => { o.newName = nm.value; });
+    wrap.appendChild(formField(t("lists.name"), nm, true));
+    const fs = el("select", "input");
+    [["", t("folders.none")]].concat(sortedFolders().map(f => [f.id, f.name])).forEach(([v, l]) => { const op = el("option", null, l); op.value = v; fs.appendChild(op); });
+    fs.value = getFolder(o.folder) ? o.folder : "";
+    fs.addEventListener("change", () => { o.folder = fs.value; redraw(); });
+    wrap.appendChild(formField(t("folders.folder"), fs));
+    const tg = el("select", "input");
+    LANG_CODES.forEach(c => { const op = el("option", null, langName(c)); op.value = c; tg.appendChild(op); });
+    tg.value = o.newTarget;
+    tg.addEventListener("change", () => { o.newTarget = tg.value; redraw(); });
+    wrap.appendChild(formField(t("langs.target"), tg));
+  }
+  const lg = genLangs(o), L = lg.target;
+  wrap.appendChild(el("div", "gen-info", pairLabel(lg)));
+
+  // Type de carte
+  const ts = el("select", "input");
+  GEN_TYPES.forEach(ty => { const op = el("option", null, TYPE_ICON[ty] + " " + t("type." + ty)); op.value = ty; ts.appendChild(op); });
+  ts.value = o.type;
+  ts.addEventListener("change", () => { o.type = ts.value; redraw(); });
+  wrap.appendChild(formField(t("type.label"), ts));
+
+  if (o.type === "conj") {
+    const vb = el("textarea", "input gen-ta");
+    vb.value = o.verbs;
+    vb.lang = L;
+    vb.placeholder = t("gen.verbsPh", { ex: genVerbExample(L) });
+    vb.addEventListener("input", () => { o.verbs = vb.value; });
+    wrap.appendChild(formField(t("gen.verbs"), vb, true));
+    const tens = genTenses(o, L);
+    const tw = el("div", "chips");
+    tensesOf(L).forEach(tn => {
+      const b = el("button", null, locText(tn.names));
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(tens.includes(tn.id)));
+      b.addEventListener("click", () => { o.tenses = genTenses(o, L).slice(); toggleIn(o.tenses, tn.id); if (!o.tenses.length) o.tenses = [tn.id]; redraw(); });
+      tw.appendChild(b);
+    });
+    wrap.appendChild(formField(t("review.tenses"), tw));
+    // Personnes (seulement si un temps choisi utilise les personnes habituelles de la langue)
+    const base = arr(grammarOf(L).persons);
+    if (base.length > 1 && tens.some(id => personsOf(L, id) === base)) {
+      const pw = el("div", "chips");
+      base.forEach(p => {
+        const b = el("button", null, personLabel(L, "", p.id));
+        b.type = "button";
+        b.setAttribute("aria-pressed", String(!o.persons.length || o.persons.includes(p.id)));
+        b.addEventListener("click", () => {
+          if (!o.persons.length) o.persons = base.map(x => x.id);
+          toggleIn(o.persons, p.id);
+          if (!o.persons.length || o.persons.length === base.length) o.persons = [];
+          redraw();
+        });
+        pw.appendChild(b);
+      });
+      wrap.appendChild(formField(t("review.persons"), pw, false, t("gen.personsHint")));
+    }
+  } else {
+    const tp = textInput(o.topic, t("gen.topicPh." + o.type), L);
+    tp.addEventListener("input", () => { o.topic = tp.value; });
+    wrap.appendChild(formField(t("gen.topic"), tp, o.type !== "vocab"));
+    const n = el("input", "input");
+    n.type = "number"; n.min = "1"; n.max = String(GEN_MAX); n.inputMode = "numeric"; n.value = o.count;
+    n.addEventListener("change", () => { o.count = clampInt(n.value, 1, GEN_MAX, 10); n.value = o.count; });
+    wrap.appendChild(formField(t("gen.count"), n, false, t("gen.countHint", { n: GEN_MAX })));
+    if (o.type === "cloze" || o.type === "fix") {
+      const lab = el("label", "gen-chk");
+      const cb = el("input"); cb.type = "checkbox"; cb.checked = !!o.withRule;
+      cb.addEventListener("change", () => { o.withRule = cb.checked; });
+      lab.append(cb, document.createTextNode(t("gen.withRule")));
+      wrap.appendChild(lab);
+    }
+  }
+  wrap.appendChild(el("p", "hint", t("gen.help")));
+
+  const check = () => {
+    if (o.listId === "__new__" && !o.newName.trim()) { toast(t("lists.nameRequired")); return null; }
+    const req = genRequest(o);
+    if (req.type === "conj" && !req.verbs.length) { toast(t("gen.needVerbs")); return null; }
+    if (req.type !== "conj" && req.type !== "vocab" && !req.topic) { toast(t("gen.needTopic")); return null; }
+    return req;
+  };
+  const acts = [];
+  if (AI.isOn()) acts.push({ label: t("gen.run"), kind: "primary", onClick: () => { const r = check(); if (!r) return false; runGenerate(r); } });
+  acts.push({ label: t("gen.prepare"), kind: AI.isOn() ? "" : "primary", onClick: () => { const r = check(); if (!r) return false; openGenPrepare(r); } });
+  acts.push({ label: t("cancel") });
+  close = openModal(t("gen.title"), wrap, acts);
+}
+// Exemple de verbes pour le champ (depuis la démo de la langue).
+function genVerbExample(lng) {
+  const D = (LANGUAGES[lng] && LANGUAGES[lng].demo) || {};
+  const v = arr(D.cards).filter(x => x.type === "conjtab").map(x => x.verb);
+  return (v.length ? v : arr(D.words).filter(w => w.pos === "v").map(w => w.term)).slice(0, 3).join(", ") || "…";
+}
+// Demande figée au moment du clic (la fenêtre peut changer ensuite).
+function genRequest(o) {
+  const lg = genLangs(o);
+  const req = { listId: o.listId, newName: o.newName.trim(), folder: getFolder(o.folder) ? o.folder : null, lg, lang: lg.target, type: o.type,
+    verbs: genVerbs(o), topic: String(o.topic || "").trim(), count: clampInt(o.count, 1, GEN_MAX, 10), withRule: !!o.withRule };
+  req.tenses = req.type === "conj" ? genTenses(o, req.lang) : [];
+  req.persons = o.persons.slice();
+  return req;
+}
+// Liste de destination (créée au premier ajout si c'est une nouvelle liste ; même liste pour les morceaux suivants).
+function genListId(req) {
+  if (req.listId !== "__new__" && getList(req.listId)) return req.listId;
+  if (req.createdId && getList(req.createdId)) return req.createdId;
+  const folderId = req.folder && getFolder(req.folder) ? req.folder : null;
+  const nl = { id: uid(), name: req.newName || t("gen.title"), folderId, order: nextOrder(listsIn(folderId)), createdAt: Date.now() };
+  if (!sameLangs(req.lg, folderLangs(getFolder(folderId)))) { nl.target = req.lg.target; nl.support = req.lg.support.slice(); }
+  state.lists.push(nl);
+  req.createdId = nl.id;
+  return nl.id;
+}
+function genLabel(req) {
+  if (req.type === "conj") return t("type.conj") + " · " + req.tenses.map(id => tenseName(req.lang, id)).join(", ");
+  return t("type." + req.type) + (req.topic ? " · " + req.topic : "");
+}
+
+// --- Consignes envoyées à Claude ---
+function genSupportNames(lg) { return lg.support.map(c => LANGUAGES[c].names.fr.toLowerCase()).join(", "); }
+// Cartes déjà présentes du même type (à ne pas refaire), 40 max.
+function genExisting(req) {
+  const lid = req.listId !== "__new__" ? req.listId : req.createdId;
+  if (!lid || !getList(lid) || req.type === "conj") return [];   // conjugaison : doublons retirés à la réception (même verbe, autre temps permis)
+  const pend = state.proposals.filter(p => p.field === "new" && p.listId === lid).flatMap(p => p.cards).filter(d => d.type === req.type).map(d => draftCard(d, lid));
+  const out = cardsOf(lid).filter(c => cardType(c) === req.type).concat(pend).map(c => isVocab(c) ? term(c, req.lang) : cardTitle(c)).filter(Boolean);
+  return [...new Set(out)].slice(0, 40);              // cartes de la liste + nouvelles cartes encore à valider
+}
+function genPrompt(req, verbs) {
+  const L = req.lang, Ln = LANGUAGES[L].names.fr.toLowerCase(), sup = genSupportNames(req.lg);
+  const head = [
+    "Tu crées des cartes de révision pour des apprenants en langues. Langue apprise : " + Ln + " (" + L + "). Langues d'appui : " + sup + " (" + req.lg.support.join(", ") + ").",
+    "Niveau débutant à intermédiaire, phrases courtes et naturelles, orthographe et accents exacts."
+  ];
+  const tail = [
+    "Une ligne par carte, colonnes séparées par « ; », jamais de « ; » à l'intérieur d'une colonne. Pas de titre, pas de numéro, pas d'autre texte.",
+  ];
+  const trNote = "traduction = le sens dans les langues d'appui (" + sup + "), séparées par « / », dans cet ordre";
+  let body = [];
+  if (req.type === "conj") {
+    body.push("Conjugue ces verbes (" + Ln + ") : " + verbs.join(", ") + ".");
+    body.push("Temps et personnes demandés (utilise exactement ces identifiants de temps et de personne) :");
+    req.tenses.forEach(id => {
+      const ps = genPersons(req, L, id), all = personsOf(L, id);
+      const tn = tenseOf(L, id), nm = tn ? tn.names.fr : id;
+      if (ps.length === all.length) body.push("- temps " + id + " (" + nm + ") : une ligne conjtab par verbe, formes dans cet ordre : " + all.map(p => p.id + " = " + locText(p.label, "fr") + (p.names && p.names.fr ? " (" + p.names.fr + ")" : "")).join(" | "));
+      else body.push("- temps " + id + " (" + nm + ") : une ligne conj par verbe et par personne, personnes : " + ps.map(p => p.id + " = " + locText(p.label, "fr") + (p.names && p.names.fr ? " (" + p.names.fr + ")" : "")).join(", "));
+    });
+    body.push("Formats :");
+    body.push("conjtab;verbe à l'infinitif;identifiant du temps;forme1|forme2|forme3|…;traduction;note");
+    body.push("conj;verbe à l'infinitif;identifiant du temps;identifiant de la personne;forme;traduction;note");
+    body.push("- forme = la forme conjuguée SANS le pronom sujet (ex. « allons », pas « nous allons ») ; temps composés avec l'auxiliaire (ex. « suis allé ») ; plusieurs formes correctes séparées par « / ».");
+    if (personsOf(L, req.tenses[0]).some(p => !p.pronoun)) body.push("- pour une personne sans pronom (niveau de politesse, forme…), la forme complète du verbe.");
+    body.push("- " + trNote + " ; note = très courte (ex. « auxiliaire être », « irrégulier ») ou vide.");
+    body.push("Exemple : " + genConjExample(L, req.tenses[0]));
+  } else if (req.type === "vocab") {
+    body.push("Crée " + req.count + " cartes de vocabulaire" + (req.topic ? " sur le thème : " + req.topic : "") + ".");
+    body.push("Format : vocab;mot en " + Ln + ";" + req.lg.support.map(c => "traduction en " + LANGUAGES[c].names.fr.toLowerCase()).join(";") + ";exemple;nature");
+    body.push("- exemple = une phrase courte en " + Ln + " qui utilise le mot ; nature = un code : nm, nf, nmf, nmpl, nfpl, n (nom sans genre), v, vpr, adj, adv, prep, conj, pron, interj, expr.");
+    if (LANGUAGES[L].gender) body.push("- en " + Ln + ", un nom a toujours son genre (nm, nf…) ; le mot sans article (ex. « étagère »).");
+  } else if (req.type === "cloze") {
+    body.push("Crée " + req.count + " textes à trous en " + Ln + " sur : " + req.topic + ".");
+    body.push("Format : trou;phrase avec ___ à la place du trou;réponse;indice;explication;traduction;titre de la règle");
+    body.push("- un seul trou « ___ » par phrase ; réponse = le texte exact du trou (plusieurs réponses correctes séparées par « / ») ; indice = très court (ex. « préposition + article »), en " + Ln + " ;");
+    body.push("- explication = une phrase courte et simple en " + Ln + " ; traduction = la phrase complète dans les langues d'appui (" + sup + "), séparées par « / ».");
+  } else if (req.type === "fix") {
+    body.push("Crée " + req.count + " phrases à corriger en " + Ln + " sur : " + req.topic + ".");
+    body.push("Format : erreur;phrase avec UNE erreur typique d'apprenant;phrase corrigée;explication;titre de la règle");
+    body.push("- la phrase corrigée est la phrase entière sans erreur ; explication = une phrase courte et simple en " + Ln + ".");
+  } else {
+    body.push("Crée " + req.count + " fiches de règle de grammaire ou d'orthographe en " + Ln + " sur : " + req.topic + ".");
+    body.push("Format : regle;titre court;texte de la règle;exemple1|exemple2|exemple3;traduction");
+    body.push("- texte = 2 à 4 lignes en " + Ln + " simple, \\n pour aller à la ligne, « - » en début de ligne pour une liste, **gras** permis ; exemples en " + Ln + " ; traduction = résumé de la règle en " + sup + ".");
+  }
+  if (req.type === "cloze" || req.type === "fix") {
+    if (req.withRule) body.push("Ajoute aussi UNE fiche de règle qui explique la notion (format : regle;titre court;texte;exemple1|exemple2|exemple3;traduction — texte en " + Ln + " simple, \\n pour aller à la ligne, traduction = résumé en " + sup + "), et mets son titre exact dans la dernière colonne des autres lignes.");
+    else body.push("- titre de la règle : laisse vide.");
+  }
+  const ex = genExisting(req);
+  if (ex.length) body.push("Ne refais pas ces cartes déjà présentes : " + ex.join(" | "));
+  return head.concat(body, tail);
+}
+function genConjExample(lng, tenseId) {
+  const D = (LANGUAGES[lng] && LANGUAGES[lng].demo) || {};
+  const ct = arr(D.cards).find(x => x.type === "conjtab" && x.tense === tenseId);   // exemple seulement si c'est le même temps
+  if (ct) return "conjtab;" + ct.verb + ";" + ct.tense + ";" + ct.forms.join("|") + ";…;";
+  return "conjtab;…;" + tenseId + ";" + personsOf(lng, tenseId).map(() => "…").join("|") + ";…;";
+}
+// Accès direct : réponse JSON { lines: [...] }.
+function genPromptJson(req, verbs) {
+  return genPrompt(req, verbs).concat(["",
+    "Réponds uniquement avec un objet JSON de la forme {\"lines\": [\"ligne 1\", \"ligne 2\", …]}, une chaîne par ligne au format ci-dessus."]).join("\n");
+}
+// Repli : texte à copier.
+function genPromptText(req, verbs) { return genPrompt(req, verbs).join("\n"); }
+
+// --- Lecture de la réponse ---
+// → { drafts: [{ type, fields, ruleRef }], errors: [texte], lines }
+function parseGenReply(text, req) {
+  const out = { drafts: [], errors: [], lines: 0 };
+  const L = req.lang, sup = req.lg.support;
+  bulkLines(text).forEach(raw => {
+    const line = raw.trim().replace(/^[-*•]\s+/, "").replace(/^\d+[.)]\s+/, "");
+    if (!line || line.startsWith("```") || !line.includes(";")) return;
+    const cols = line.split(";").map(x => x.trim());
+    const kind = linePrefix(cols);
+    if (!kind) return;                                   // texte d'accompagnement ignoré
+    out.lines++;
+    if (kind === "vocab") {
+      const terms = {}; terms[L] = cols[1] || "";
+      sup.forEach((c, i) => { if (cols[2 + i]) terms[c] = cols[2 + i]; });
+      const example = cols[2 + sup.length] || "";
+      const pv = parsePos(cols[3 + sup.length] || "", L);
+      if (!terms[L] || !sup.some(c => terms[c])) { out.errors.push(line); return; }
+      out.drafts.push({ type: "vocab", fields: { terms, example, pos: pv ? { [L]: pv } : {} } });
+      return;
+    }
+    const r = parseTypedLine(kind, cols, L);
+    if (r.err) { out.errors.push(line + " — " + r.err); return; }
+    const ruleRef = kind === "cloze" ? cols[6] : kind === "fix" ? cols[4] : "";
+    r.rows.forEach(row => out.drafts.push({ type: row.type, fields: row.fields, ruleRef: ruleRef || "" }));
+  });
+  return out;
+}
+// Clé de doublon d'un brouillon (même règle que l'import).
+function draftKey(d, lg) { return d.type === "vocab" ? "vocab|" + dupKey(d.fields.terms, lg) : typedKey(d.type, d.fields); }
+// Regroupe les formes d'un même verbe + temps (un tableau = une proposition), le reste une carte par proposition.
+function draftGroups(drafts) {
+  const out = [], tabs = new Map();
+  drafts.forEach(d => {
+    if (d.type !== "conj") { out.push([d]); return; }
+    const k = normText(d.fields.verb) + "|" + d.fields.tense;
+    if (!tabs.has(k)) { const g = []; tabs.set(k, g); out.push(g); }
+    tabs.get(k).push(d);
+  });
+  return out;
+}
+// Ajoute les propositions « Nouvelle carte ». Cartes déjà dans la liste, déjà proposées ou refusées : ignorées.
+// Renvoie { added (propositions), cards (cartes), skipped }.
+function addGenProposals(drafts, req) {
+  const res = { added: 0, cards: 0, skipped: 0 };
+  if (!drafts.length) return res;
+  const listId = genListId(req);
+  const lg = listLangs(listId);
+  const have = new Set(cardsOf(listId).map(c => isVocab(c) ? "vocab|" + dupKey(c.terms, lg) : typedKey(c.type, c)));
+  state.proposals.filter(p => p.field === "new" && p.listId === listId).forEach(p => p.cards.forEach(d => have.add(draftKey(d, lg))));
+  draftGroups(drafts).forEach(g => {
+    const fresh = g.filter(d => {
+      const k = draftKey(d, lg);
+      if (have.has(k) || state.rejected.includes(rejectKey(listId, "new", k))) { res.skipped++; return false; }
+      have.add(k);
+      return true;
+    });
+    if (!fresh.length) return;
+    state.proposals.push({ id: uid(), cardId: "", listId, field: "new", type: "newcard", cards: fresh,
+      oldValue: "", newValue: "", reason: genLabel(req), createdAt: Date.now() });
+    res.added++; res.cards += fresh.length;
+  });
+  return res;
+}
+
+// --- Accès direct (capacité sample) ---
+async function runGenerate(req) {
+  if (aiJob) { toast(t("ai.busy")); return; }
+  const parts = req.type === "conj" ? chunks(req.verbs, GEN_VERBS_PER_CALL) : [null];
+  const ctrl = new AbortController();
+  aiJob = { kind: "generate", ctrl };
+  let stopped = false;
+  const pg = openProgress(t("gen.title"), t("gen.working", { i: 1, n: parts.length }), [
+    { label: t("ai.stop"), onClick: () => { stopped = true; try { ctrl.abort(); } catch (e) {} return false; } }
+  ]);
+  const tot = { added: 0, cards: 0, skipped: 0, errors: [] };
+  let error = null;
+  try {
+    for (let i = 0; i < parts.length && !stopped; i++) {
+      pg.set(i / parts.length, t("gen.working", { i: i + 1, n: parts.length }));
+      let res;
+      try { res = await AI.ask(genPromptJson(req, parts[i]), ctrl.signal); }
+      catch (e) { if (!stopped) error = e; break; }
+      const lines = Array.isArray(res) ? res : res && Array.isArray(res.lines) ? res.lines : [];
+      const r = parseGenReply(lines.map(String).join("\n"), req);
+      const a = addGenProposals(r.drafts, req);
+      tot.added += a.added; tot.cards += a.cards; tot.skipped += a.skipped; tot.errors.push(...r.errors);
+      if (a.added) commitQuiet();
+    }
+  } finally { aiJob = null; pg.close(); }
+  if (tot.added) commit();
+  genDone(tot, req, error);
+}
+function genDone(tot, req, error) {
+  const wrap = el("div");
+  if (error) wrap.appendChild(el("p", "muted", t("gen.error", { m: (error && (error.message || error.code)) || "?" })));
+  wrap.appendChild(el("p", null, tot.cards ? t("gen.done", { n: tot.cards, p: tot.added }) : t("gen.none")));
+  if (tot.skipped) wrap.appendChild(el("p", "muted", t("gen.skipped", { n: tot.skipped })));
+  if (tot.errors.length) {
+    wrap.appendChild(el("p", "muted", t("gen.badLines", { n: tot.errors.length })));
+    const ul = el("ul", "hint");
+    tot.errors.slice(0, 5).forEach(x => ul.appendChild(el("li", null, x)));
+    wrap.appendChild(ul);
+  }
+  const acts = [{ label: t("close") }];
+  if (error) acts.unshift({ label: t("gen.prepare"), onClick: () => { openGenPrepare(req); } });
+  if (tot.added) acts.push({ label: t("ai.see"), kind: "primary", onClick: () => { goPendingFor({ kind: "list", id: genListId(req) }); } });
+  openModal(t("gen.title"), wrap, acts);
+}
+
+// --- Repli : « Préparer pour Claude » ---
+function openGenPrepare(req) {
+  const parts = req.type === "conj" ? chunks(req.verbs, GEN_VERBS_PER_CALL) : [null];
+  let idx = 0;
+  const wrap = el("div");
+  wrap.appendChild(el("p", "muted", t("gen.prepHelp")));
+  const ta = el("textarea");
+  ta.readOnly = true;
+  const fill = () => { ta.value = genPromptText(req, parts[idx]); };
+  if (parts.length > 1) {
+    const sel = el("select", "input");
+    sel.style.marginBottom = "10px";
+    parts.forEach((p, i) => { const op = el("option", null, t("gen.part", { i: i + 1, n: parts.length, v: p.join(", ") })); op.value = String(i); sel.appendChild(op); });
+    sel.addEventListener("change", () => { idx = +sel.value || 0; fill(); });
+    wrap.appendChild(sel);
+  }
+  fill();
+  wrap.appendChild(ta);
+  openModal(t("gen.prepTitle"), wrap, [
+    { label: t("copy"), kind: "primary", onClick: () => { copyText(ta.value, ta); return false; } },
+    { label: t("prep.import"), onClick: () => { openGenReply(req); } },
+    { label: t("close") }
+  ]);
+}
+function openGenReply(req) {
+  const wrap = el("div");
+  wrap.appendChild(el("p", "muted", t("gen.replyHelp")));
+  const ta = el("textarea");
+  ta.spellcheck = false;
+  ta.setAttribute("autocapitalize", "off"); ta.setAttribute("autocorrect", "off");
+  wrap.appendChild(ta);
+  openModal(t("reply.title"), wrap, [
+    { label: t("cancel") },
+    { label: t("reply.analyze"), kind: "primary", onClick: () => {
+      const r = parseGenReply(ta.value, req);
+      if (!r.drafts.length) { toast(r.errors.length ? t("gen.badLines", { n: r.errors.length }) : t("reply.none")); return false; }
+      const a = addGenProposals(r.drafts, req);
+      if (a.added) commit();
+      genDone({ added: a.added, cards: a.cards, skipped: a.skipped, errors: r.errors }, req, null);
+    } }
+  ]);
+  setTimeout(() => { try { ta.focus(); } catch (e) {} }, 50);
+}
+
 // === MISE À JOUR DES LISTES ===
 // « Mettre à jour » une liste, un dossier ou tout (scope = { kind: "list"|"folder"|"all", id }).
 // 1. Analyse : rien n'est modifié, bilan par catégorie avec le nombre de cartes concernées.
@@ -4998,10 +6753,11 @@ function updDate(ts) {
   try { return t("upd.last", { d: new Date(ts).toLocaleDateString(state.settings.uiLang) }); } catch (e) { return t("upd.never"); }
 }
 
+// Mise à jour (traductions, nature, exemple, vérification, doublons) : cartes de vocabulaire seulement.
 function updScopeCards(scope) {
-  if (scope.kind === "list") return getList(scope.id) ? cardsOf(scope.id) : [];
-  if (scope.kind === "folder") { const f = getFolder(scope.id); return f ? cardsUnder("folder", f) : []; }
-  return state.cards;
+  if (scope.kind === "list") return getList(scope.id) ? cardsOf(scope.id).filter(isVocab) : [];
+  if (scope.kind === "folder") { const f = getFolder(scope.id); return f ? cardsUnder("folder", f).filter(isVocab) : []; }
+  return state.cards.filter(isVocab);
 }
 function updScopeObj(scope) { return scope.kind === "list" ? getList(scope.id) : scope.kind === "folder" ? getFolder(scope.id) : null; }
 // Ancien format (la migration v1 → v2 est faite au lancement : normalement aucune).
@@ -5085,7 +6841,7 @@ async function openUpdate(scope) {
     const l = el("div", "upd-l");
     l.appendChild(el("div", null, label));
     if (hint) l.appendChild(el("div", "upd-h", hint));
-    r.append(cb, l, el("span", "upd-n", n ? t("upd.cards", { n }) : "✓"));
+    r.append(cb, l, el("span", "upd-n", n ? t(n === 1 ? "upd.card1" : "upd.cards", { n }) : "✓"));
     wrap.appendChild(r);
   };
   LANG_CODES.filter(code => code in a.tr).forEach(code => row("tr:" + code, t("upd.cat.tr", { lang: langName(code) }), a.tr[code], "", true));
@@ -5184,8 +6940,10 @@ function pvFieldLabel(f) {
 }
 function liveProposals() {
   const ids = new Set(state.cards.map(c => c.id));
-  return state.proposals.filter(p => ids.has(p.cardId));
+  return state.proposals.filter(p => p.field === "new" ? !!getList(p.listId) : ids.has(p.cardId));
 }
+// Liste d'une proposition (« Nouvelle carte » : liste de destination).
+function pvListOf(p, cards) { if (p.field === "new") return p.listId; const c = cards.get(p.cardId); return c ? c.listId : ""; }
 function renderPendingBadge() {
   const b = $("#pendingBadge");
   if (!b) return;
@@ -5200,13 +6958,14 @@ function renderPending() {
   const all = liveProposals();
   if (!all.length) { pvClearSel(); root.appendChild(el("div", "empty", t("pv.empty"))); return; }
   const cards = new Map(state.cards.map(c => [c.id, c]));
-  const listIds = new Set(all.map(p => cards.get(p.cardId).listId));
+  const listIds = new Set(all.map(p => pvListOf(p, cards)));
   if (pv.list && !listIds.has(pv.list)) pv.list = "";
   const folderIds = new Set([...listIds].map(pvFolderOf));
   if (pv.folder && !folderIds.has(pv.folder)) pv.folder = "";
   if (pv.list && pv.folder && pvFolderOf(pv.list) !== pv.folder) pv.list = "";
   if (pv.field && !all.some(p => pvFieldMatch(p, pv.field))) pv.field = "";
-  const vis = all.filter(p => (!pv.folder || pvFolderOf(cards.get(p.cardId).listId) === pv.folder) && (!pv.list || cards.get(p.cardId).listId === pv.list) && (!pv.type || p.type === pv.type) && (!pv.field || pvFieldMatch(p, pv.field)));
+  if (pv.type && !all.some(p => p.type === pv.type)) pv.type = "";
+  const vis = all.filter(p => (!pv.folder || pvFolderOf(pvListOf(p, cards)) === pv.folder) && (!pv.list || pvListOf(p, cards) === pv.list) && (!pv.type || p.type === pv.type) && (!pv.field || pvFieldMatch(p, pv.field)));
   const visIds = new Set(vis.map(p => p.id));
   [...pv.sel].forEach(id => { if (!visIds.has(id)) pv.sel.delete(id); });
   [...pv.editing].forEach(id => { if (!visIds.has(id)) pv.editing.delete(id); });
@@ -5228,7 +6987,8 @@ function renderPending() {
   }
   f.append(
     mkSel(pv.list, [["", t("pv.allLists")]].concat(orderedLists().filter(l => listIds.has(l.id) && (!pv.folder || pvFolderOf(l.id) === pv.folder)).map(l => [l.id, l.name])), v => { pv.list = v; }),
-    mkSel(pv.type, [["", t("pv.allTypes")], ["completion", t("pv.type.completion")], ["correction", t("pv.type.correction")]], v => { pv.type = v; }),
+    mkSel(pv.type, [["", t("pv.allTypes")], ["completion", t("pv.type.completion")], ["correction", t("pv.type.correction")]]
+      .concat(all.some(p => p.type === "newcard") ? [["newcard", t("pv.type.newcard")]] : []), v => { pv.type = v; }),
     mkSel(pv.field, [["", t("pv.allFields")]].concat(PV_FIELDS.filter(x => all.some(p => pvFieldMatch(p, x))).map(x => [x, pvFieldLabel(x)])), v => { pv.field = v; })
   );
   root.appendChild(f);
@@ -5259,7 +7019,7 @@ function renderPending() {
 
   if (!vis.length) { root.appendChild(el("div", "empty", t("lists.noResults"))); return; }
   const items = el("div", "items");
-  vis.forEach(p => items.appendChild(pvRow(p, cards.get(p.cardId))));
+  vis.forEach(p => items.appendChild(p.field === "new" ? pvNewRow(p) : pvRow(p, cards.get(p.cardId))));
   root.appendChild(items);
 }
 
@@ -5319,6 +7079,126 @@ function pvRow(p, c) {
   return row;
 }
 
+// --- Propositions « Nouvelle carte » (écran « Générer des cartes ») ---
+function pvNewRank(p) { return p.cards.some(d => d.type === "rule") ? 0 : 1; }
+// Carte temporaire pour l'affichage (titres, sous-titres) d'un brouillon.
+function draftCard(d, listId) {
+  if (d.type === "vocab") return Object.assign(newCard(listId, d.fields.terms, d.fields.example, [], d.fields.pos), { id: "" });
+  return Object.assign({ type: d.type, listId, id: "", examples: [] }, d.fields);
+}
+function pvNewRow(p) {
+  const row = el("label", "pv-row" + (pv.sel.has(p.id) ? " sel" : ""));
+  const cb = el("input", "pv-cb");
+  cb.type = "checkbox";
+  cb.checked = pv.sel.has(p.id);
+  cb.addEventListener("change", () => { if (cb.checked) pv.sel.add(p.id); else pv.sel.delete(p.id); renderPending(); });
+  const m = el("div", "main");
+  const top = el("div", "pv-top");
+  const l = getList(p.listId);
+  const ty = p.cards[0].type;
+  top.append(el("span", "tag", "▸ " + (l ? l.name : "")), el("span", "pv-type newcard", t("pv.type.newcard")), typeBadge(ty));
+  if (p.cards.length > 1) top.appendChild(el("span", "pv-field", t("pv.newN", { n: p.cards.length })));
+  m.appendChild(top);
+  const lg = listLangs(p.listId);
+  const editing = pv.editing.has(p.id);
+  const ds = editing ? pv.edits[p.id] : p.cards;
+  const box = el("div", "pv-new");
+  if (ty === "conj") {
+    const c0 = draftCard(ds[0], p.listId);
+    const h = el("div", "pv-new-t1", c0.verb + " — " + tenseName(c0.lang, c0.tense)); h.lang = c0.lang;
+    box.appendChild(h);
+    const tb = el("table", "ty-table");
+    ds.forEach((d, i) => {
+      const c = draftCard(d, p.listId);
+      const tr = el("tr");
+      tr.appendChild(el("td", "muted", personLabel(c.lang, c.tense, c.person)));
+      const td = el("td"); td.lang = c.lang;
+      if (editing) { const inp = textInput(d.fields.answer, "", c.lang); inp.addEventListener("input", () => { d.fields.answer = inp.value; }); td.appendChild(inp); }
+      else td.textContent = conjFull(c);
+      tr.appendChild(td);
+      tb.appendChild(tr);
+    });
+    box.appendChild(tb);
+    if (editing) pvNewInputs(box, ds, ["translation", "note"], lg);
+    else {
+      const extra = [ds[0].fields.translation, ds[0].fields.note].filter(Boolean).join(" · ");
+      if (extra) box.appendChild(el("div", "pv-new-t2", extra));
+    }
+  } else if (editing) {
+    pvNewInputs(box, ds, ty === "vocab" ? ["t:" + lg.target].concat(lg.support.map(x => "t:" + x), ["example"]) : (TYPE_FIELDS[ty] || []).filter(f => !["lang", "ruleId"].includes(f)).concat(ty === "rule" ? ["examples"] : []), lg);
+  } else {
+    const d = ds[0], c = draftCard(d, p.listId);
+    const t1 = el("div", "pv-new-t1", ty === "vocab" ? (term(c, lg.target) + (d.fields.pos && d.fields.pos[lg.target] ? "  " + posLabel(d.fields.pos[lg.target], lg.target) : "")) : cardTitle(c));
+    t1.lang = ty === "vocab" ? lg.target : c.lang;
+    box.appendChild(t1);
+    const sub = ty === "vocab" ? supportText(c, lg) : cardSubtitle(c);
+    if (sub) box.appendChild(el("div", "pv-new-t2", sub));
+    const more = ty === "vocab" ? [d.fields.example] : [d.fields.hint ? t("type.hint") + " " + d.fields.hint : "", d.fields.explanation, ty === "rule" ? arr(d.fields.examples).join(" · ") : "", d.fields.translation];
+    more.filter(Boolean).forEach(x => box.appendChild(el("div", "pv-new-t2", x)));
+    if (d.ruleRef) box.appendChild(el("div", "pv-new-t2", "§ " + d.ruleRef));
+  }
+  m.appendChild(box);
+  if (p.reason) m.appendChild(el("div", "pv-reason", p.reason));
+  row.append(cb, m);
+  return row;
+}
+// Champs modifiables d'un brouillon (la ligne reste un <label> : les clics sur les champs ne cochent pas la case).
+function pvNewInputs(box, ds, fields, lg) {
+  const w = el("div", "pv-edit");
+  const d = ds[0];
+  const stop = e => { e.stopPropagation(); };
+  fields.forEach(f => {
+    let label, get, set, multi = false, lng = d.fields.lang || lg.target;
+    if (f.startsWith("t:")) { const code = f.slice(2); label = langName(code); lng = code; get = () => (d.fields.terms || {})[code] || ""; set = v => { d.fields.terms = Object.assign({}, d.fields.terms, { [code]: v }); }; }
+    else if (f === "examples") { label = t("type.rule.examples"); multi = true; get = () => arr(d.fields.examples).join("\n"); set = v => { d.fields.examples = v.split("\n").map(x => x.trim()).filter(Boolean); }; }
+    else {
+      const LBL = { example: "card.example", sentence: "type.cloze.sentence", answer: "type.cloze.answer", hint: "type.hint", explanation: "type.explanation",
+        translation: "type.translation", wrong: "type.fix.wrong", correct: "type.fix.correct", title: "type.rule.title", body: "type.rule.body", note: "type.note" };
+      label = t(LBL[f] || "type." + f).replace(/\s*:\s*$/, "");
+      multi = f === "body";
+      get = () => d.fields[f] || "";
+      set = v => { ds.forEach(x => { x.fields[f] = v; }); };   // conjugaison : traduction / note communes au tableau
+    }
+    w.appendChild(el("label", null, label));
+    const inp = multi ? el("textarea", "input") : textInput(get(), "", ["translation", "explanation", "hint", "note"].includes(f) ? "" : lng);
+    if (multi) inp.value = get();
+    inp.addEventListener("input", () => set(inp.value));
+    inp.addEventListener("click", stop);
+    w.appendChild(inp);
+  });
+  box.appendChild(w);
+}
+// Crée les cartes d'une proposition dans sa liste. Renvoie { added, dupOnly }.
+function pvAcceptNew(p, edited) {
+  const listId = p.listId;
+  if (!getList(listId)) return { added: 0, dupOnly: true };
+  const lg = listLangs(listId);
+  const ds = edited || p.cards;
+  const have = new Set(cardsOf(listId).map(c => isVocab(c) ? "vocab|" + dupKey(c.terms, lg) : typedKey(c.type, c)));
+  const fresh = [];
+  let dups = 0, bad = 0;
+  ds.forEach(d => {
+    let c;
+    if (d.type === "vocab") {
+      const terms = {}; Object.keys(d.fields.terms || {}).forEach(k => { const v = String(d.fields.terms[k] || "").replace(/\s+/g, " ").trim(); if (v) terms[k] = v; });
+      c = newCard(listId, terms, String(d.fields.example || "").trim(), [], d.fields.pos || {});
+    } else c = newTypedCard(listId, d.type, Object.assign({}, d.fields, { lang: d.fields.lang || lg.target }));
+    const k = isVocab(c) ? "vocab|" + dupKey(c.terms, lg) : typedKey(c.type, c);
+    if (have.has(k)) { dups++; return; }
+    if (!cardUsable(c, lg)) { bad++; return; }
+    if (d.ruleRef) {
+      const r = state.cards.concat(fresh).find(x => x.listId === listId && cardType(x) === "rule" && normText(x.title) === normText(d.ruleRef));
+      if (r) c.ruleId = r.id;
+    }
+    have.add(k);
+    fresh.push(c);
+  });
+  if (bad) return { added: 0, dupOnly: false };            // une case non valide : rien n'est créé, la ligne reste (à modifier)
+  state.cards.push(...fresh);
+  fresh.forEach(c => { if (isVocab(c)) state.checkedSig[c.id] = cardSig(c); });
+  return { added: fresh.length, dupOnly: !fresh.length && dups > 0 };
+}
+
 function pvSelected() { return liveProposals().filter(p => pv.sel.has(p.id)); }
 function pvSnapshot() {
   return { st: state, cards: JSON.stringify(state.cards), proposals: JSON.stringify(state.proposals),
@@ -5331,7 +7211,14 @@ function pvAccept() {
   const snap = pvSnapshot();
   let ok = 0, skipped = 0;
   const done = new Set();
-  sel.forEach(p => {
+  // Nouvelles cartes : fiches de règle d'abord (pour relier les textes à trous / phrases à corriger acceptés en même temps)
+  sel.filter(p => p.field === "new").sort((a, b) => pvNewRank(a) - pvNewRank(b)).forEach(p => {
+    const r = pvAcceptNew(p, pv.editing.has(p.id) ? pv.edits[p.id] : null);
+    if (r.added) { ok++; done.add(p.id); }
+    else if (r.dupOnly) { skipped++; done.add(p.id); }   // déjà dans la liste : la proposition disparaît
+    else skipped++;                                      // non valide : la ligne reste
+  });
+  sel.filter(p => p.field !== "new").forEach(p => {
     const c = state.cards.find(x => x.id === p.cardId);
     if (!c) { done.add(p.id); return; }
     if (p.field === "dup") {
@@ -5355,7 +7242,7 @@ function pvAccept() {
     done.add(p.id); ok++;
   });
   const ids = new Set(state.cards.map(c => c.id));
-  state.proposals = state.proposals.filter(p => !done.has(p.id) && ids.has(p.cardId));
+  state.proposals = state.proposals.filter(p => !done.has(p.id) && (p.field === "new" ? !!getList(p.listId) : ids.has(p.cardId)));
   pvClearSel();
   commit();
   showUndo(t("pv.accepted", { n: ok }) + (skipped ? t("pv.skipped", { n: skipped }) : ""), snap);
@@ -5366,7 +7253,12 @@ function pvReject() {
   if (!sel.length) { toast(t("pv.pickOne")); return; }
   const snap = pvSnapshot();
   const done = new Set(sel.map(p => p.id));
-  sel.forEach(p => { const k = rejectKey(p.cardId, p.field, p.newValue); if (!state.rejected.includes(k)) state.rejected.push(k); });
+  sel.forEach(p => {
+    const ks = p.field === "new"
+      ? p.cards.map(d => rejectKey(p.listId, "new", draftKey(d, listLangs(p.listId))))   // ne sera plus proposée par « Générer »
+      : [rejectKey(p.cardId, p.field, p.newValue)];
+    ks.forEach(k => { if (!state.rejected.includes(k)) state.rejected.push(k); });
+  });
   if (state.rejected.length > CONFIG.REJECT_MAX) state.rejected = state.rejected.slice(-CONFIG.REJECT_MAX);
   state.proposals = state.proposals.filter(p => !done.has(p.id));
   pvClearSel();
@@ -5377,7 +7269,7 @@ function pvReject() {
 function pvEdit() {
   const sel = pvSelected().filter(p => p.field !== "dup");
   if (!sel.length) { toast(t("pv.pickOne")); return; }
-  sel.forEach(p => { pv.editing.add(p.id); if (pv.edits[p.id] == null) pv.edits[p.id] = p.newValue; });
+  sel.forEach(p => { pv.editing.add(p.id); if (pv.edits[p.id] == null) pv.edits[p.id] = p.field === "new" ? JSON.parse(JSON.stringify(p.cards)) : p.newValue; });
   renderPending();
   setTimeout(() => { try { const i = $("#screen-pending .pv-row .input"); if (i) i.focus(); } catch (e) {} }, 50);
 }
@@ -5607,13 +7499,16 @@ async function runAdminCopy(d, dest, selF, selL) {
       lMap[l.id] = nl.id; out.lists.push(nl);
     });
     let n = 0;
+    const idMap = {};
     d.cards.forEach(c => {
       if (!lMap[c.listId]) return;
       const nc = JSON.parse(JSON.stringify(c));
       nc.id = uid(); nc.listId = lMap[c.listId];
       nc.box = 0; nc.dueAt = now; nc.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null };
       out.cards.push(nc); n++;
+      idMap[c.id] = nc.id;
     });
+    out.cards.forEach(c => { if (c.ruleId && idMap[c.ruleId]) c.ruleId = idMap[c.ruleId]; }); // lien vers la règle copiée
     out = normalizeData(out);
     await admWrite(dest, out);
     toast(t("admin.copyDone", { folders: Object.keys(fMap).length, lists: Object.keys(lMap).length, cards: n, id: dest.identifiant }));
@@ -5633,7 +7528,7 @@ async function runAdminCopy(d, dest, selF, selL) {
 const auth = {
   mode: "local", view: "loading", reg: { accounts: [], migrated: false }, legacy: null, backupAsked: false, busy: false,
   msg: "", isAdmin: false, sbUid: null, lastPin: "", forceId: "", forceTarget: null,
-  form: { id: "", pin: "", pin2: "", target: "fr" }
+  form: { id: "", pin: "", pin2: "", target: LANG_DEFAULT }
 };
 
 function rememberMe() { try { return localStorage.getItem(CONFIG.LS_REMEMBER) !== "0"; } catch (e) { return true; } }
@@ -5641,7 +7536,7 @@ function setRememberMe(v) { try { localStorage.setItem(CONFIG.LS_REMEMBER, v ? "
 function normId(s) { return String(s || "").replace(/\s+/g, "").toLowerCase(); }
 function validId(s) { return /^[a-z0-9-]{2,20}$/.test(s); }
 function validPin(s) { return /^\d{4,6}$/.test(s); }
-function clearAuthForm() { auth.form = { id: "", pin: "", pin2: "", target: (auth.form && auth.form.target) || "fr" }; auth.msg = ""; }
+function clearAuthForm() { auth.form = { id: "", pin: "", pin2: "", target: (auth.form && auth.form.target) || LANG_DEFAULT }; auth.msg = ""; }
 async function hashPin(pin, salt) {
   const txt = salt + ":" + pin;
   try {
@@ -5988,7 +7883,7 @@ async function startUserData(id, preset, target, sbUid) {
   if (preset) state = preset;
   else {
     const local = Storage.readLocal();
-    if (local) { state = normalizeData(local.data); ctx.oldLocal = local.old; if (dataVersion(local.data) < 2) ctx.rawV1 = local.data; }
+    if (local) { state = normalizeData(local.data); ctx.oldLocal = local.old; if (dataVersion(local.data) < DATA_VERSION) ctx.rawV1 = local.data; }
     else {
       const ui = state.settings.uiLang, theme = state.settings.theme; // choix de l'écran de connexion
       state = addDemoList(emptyData(target)); // nouveau compte (ou nouvel appareil) : liste "Démo"
@@ -6007,7 +7902,8 @@ async function startUserData(id, preset, target, sbUid) {
 // Règles : identiques → rien ; en ligne plus récentes et pas de modification locale non envoyée → on les prend ;
 // en ligne plus récentes ET modifications locales non envoyées (ou conflit) → on demande lesquelles garder ;
 // locales plus récentes → envoi.
-// Ancien format (un seul bloc) ou modèle version 1 : export JSON de sécurité, puis enregistrement découpé en version 2.
+// Ancien format (un seul bloc) ou modèle plus ancien que DATA_VERSION (v1, v2) : export JSON de sécurité, puis enregistrement
+// découpé dans la version actuelle (v3 : toutes les cartes existantes en type "vocab").
 let syncBusy = false;
 async function syncWithRemote(id, ctx, first) {
   if (syncBusy && !first) return;
@@ -6033,7 +7929,7 @@ async function syncWithRemote(id, ctx, first) {
       if (take === "remote") {
         state = r;
         oldRemote = remote.old;
-        rawV1 = dataVersion(remote.data) < 2 ? remote.data : null;
+        rawV1 = dataVersion(remote.data) < DATA_VERSION ? remote.data : null;
         if (!oldRemote && !rawV1) Storage.markSynced(state);
         render();
       } else if (take === null) Storage.markSynced(state);
@@ -6044,16 +7940,17 @@ async function syncWithRemote(id, ctx, first) {
     }
     if (ctx.oldLocal || oldRemote || rawV1) {
       // Sauvegarde de sécurité (on n'attend pas plus d'une minute une réponse à la demande d'enregistrement).
-      const name = (rawV1 ? "sauvegarde-avant-v2-" : "sauvegarde-avant-migration-") + id + "-" + todayStr() + ".json";
+      const name = (rawV1 ? "sauvegarde-avant-v" + DATA_VERSION + "-" : "sauvegarde-avant-migration-") + id + "-" + todayStr() + ".json";
       try { await withTimeout(exportData(rawV1 || state, name), 60000); } catch (e) {}
       if (Storage.getUser() !== id) return;
     }
     if (!state.updatedAt) state.updatedAt = Date.now();
-    if (rawV1) state.updatedAt = Math.max(Date.now(), state.updatedAt + 1); // la version 2 passe devant la version 1 partout
+    if (rawV1) state.updatedAt = Math.max(Date.now(), state.updatedAt + 1); // la nouvelle version du modèle passe devant l'ancienne partout
     if (first) Storage.release();
     Storage.save(state);        // local tout de suite, en ligne regroupé (seulement si les données en ligne ont été lues)
-    if (ctx.oldLocal && Storage.dropOldLocal(state)) toast(t(rawV1 ? "save.migratedV2" : "save.migrated"));
-    else if (oldRemote || rawV1) toast(t(rawV1 ? "save.migratedV2" : "save.migrated"));
+    const migKey = rawV1 ? (dataVersion(rawV1) < 2 ? "save.migratedV2" : "save.migratedV3") : "save.migrated";
+    if (ctx.oldLocal && Storage.dropOldLocal(state)) toast(t(migKey));
+    else if (oldRemote || rawV1) toast(t(migKey));
     if (!first) render();
   } finally { syncBusy = false; }
 }
