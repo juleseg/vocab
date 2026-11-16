@@ -149,6 +149,7 @@ div.item{cursor:pointer}
 .file-input{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;opacity:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
 label.file-pick{cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 label.file-pick:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fx-sum .fx-line{margin:4px 0}.fx-sum .ok{font-weight:600}.fx-sum .warn{color:var(--warn)}.fx-detail{font-size:13px;color:var(--muted);margin:2px 0 0 10px;overflow-wrap:anywhere}.fx-corr{margin-top:10px;padding:8px 10px;border:1px solid var(--border);border-radius:12px}.fx-check{display:flex;gap:8px;align-items:flex-start;margin-top:8px}.fx-chips{display:flex;flex-direction:column;gap:6px;margin-top:8px}.fx-chips:empty{display:none}.fx-links{margin-top:12px}
 .drop-zone.over{border-color:var(--accent);background:var(--surface2)}
 .drop-hint{font-size:13px;color:var(--muted);margin-top:8px}
 @media (hover:none){.drop-hint{display:none}}
@@ -414,8 +415,7 @@ body.auth main{padding-bottom:24px}
 .pv-filters.four{grid-template-columns:1fr 1fr}
 .pv-sticky{position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0 10px}
 .pv-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
-.pv-all{display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer;font-weight:600}
-.pv-all input,.pv-cb{width:22px;height:22px;flex:none;accent-color:var(--accent)}
+.pv-cb{width:22px;height:22px;flex:none;accent-color:var(--accent)}
 .pv-count{font-size:14px;color:var(--muted)}
 .pv-hint{font-size:13px;color:var(--muted);text-align:center;margin-top:8px}
 .pv-row{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer}
@@ -440,7 +440,7 @@ body.auth main{padding-bottom:24px}
 .undo-bar.show{display:flex}
 .undo-bar button{border:0;background:var(--bg);color:var(--text);font-weight:700;border-radius:9px;padding:8px 12px;min-height:40px;cursor:pointer}
 @media (max-width:360px){.pv-filters{grid-template-columns:1fr 1fr}}
-.pv-sel2{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.pv-selmenu{width:auto;min-width:150px;min-height:44px;padding:8px;font-size:15px;font-weight:600}
 .pv-pager{display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0}
 .pv-pager .btn{width:auto;min-width:48px;padding:8px 14px}
 .pv-pager span{font-size:14px;color:var(--muted)}
@@ -510,6 +510,8 @@ body.auth main{padding-bottom:24px}
         <button class="link-btn" id="lvLangs" data-i18n="folders.langs"></button>
         <button class="link-btn" id="lvUpdate" data-i18n="upd.btn"></button>
         <button class="link-btn" id="lvAsk" data-i18n="queue.ask" hidden></button>
+        <button class="link-btn" id="lvFxOut" data-i18n="fx.exportBtn"></button>
+        <button class="link-btn" id="lvFxIn" data-i18n="ai.importReply"></button>
         <button class="link-btn danger" id="lvDelete" data-i18n="lists.delete"></button>
       </div>
       <input type="search" class="input" id="lvSearch" autocomplete="off">
@@ -523,6 +525,8 @@ body.auth main{padding-bottom:24px}
         <button class="link-btn" id="lvReorder"></button>
         <button class="link-btn" id="lvUpdateAll" data-i18n="upd.all"></button>
         <button class="link-btn" id="lvAskAll" data-i18n="queue.ask" hidden></button>
+        <button class="link-btn" id="lvFxOutAll" data-i18n="fx.exportBtn"></button>
+        <button class="link-btn" id="lvFxInAll" data-i18n="ai.importReply"></button>
       </div>
       <div id="lvContent"></div>
     </section>
@@ -754,7 +758,7 @@ const I18N = {
     "reply.analyze": "분석", "reply.done": "제안 {n}개 추가, 인식하지 못한 줄 {m}개", "reply.none": "새 제안이 없습니다",
     "pv.empty": "검토할 항목이 없습니다", "pv.allLists": "모든 목록", "pv.allTypes": "모든 종류", "pv.allFields": "모든 칸",
     "pv.selectAll": "모두 선택", "pv.selected": "{n}개 선택됨",
-    "pv.selectPage": "이 페이지 선택", "pv.selectAllN": "모두 선택 ({n})", "pv.unselectAll": "모두 선택 해제",
+    "pv.selMenu": "선택", "pv.selN": "{n}개", "pv.selAll": "전체 ({n})", "pv.selNone": "선택 안 함", "pv.selectedOf": "{n} / {total}개 선택됨",
     "pv.page": "{i} / {n} 페이지", "pv.prev": "이전 페이지", "pv.next": "다음 페이지",
     "pv.progressTitle.accept": "수락 중…", "pv.progressTitle.reject": "거절 중…", "pv.progress": "제안 {i} / {n}개",
     "pv.stop": "중지", "pv.busy": "이미 처리 중입니다.",
@@ -797,6 +801,7 @@ const I18N = {
     "pos.n": "명사", "pos.v": "동사", "pos.vpr": "대명동사", "pos.adj": "형용사", "pos.adv": "부사", "pos.prep": "전치사",
     "pos.conj": "접속사", "pos.pron": "대명사", "pos.interj": "감탄사", "pos.expr": "표현",
     "pv.field.pos": "품사 ({lang})", "pv.field.posAll": "품사",
+    "pv.field.typed": "다른 유형", "fx.exportBtn": "Claude용 파일 내려받기", "fx.exportTitle": "Claude용 파일", "fx.help": "파일 안에 Claude를 위한 지시가 들어 있습니다. 대화에서 Claude에게 파일을 주고, Claude가 돌려준 파일을 'Claude 답 가져오기'로 가져오세요.", "fx.what": "채울 항목 (빈 칸이 있는 카드만)", "fx.f.tr": "번역 (도움 언어)", "fx.f.pos": "품사", "fx.f.example": "예문 (단어)", "fx.f.other": "다른 카드 유형의 칸 (번역, 힌트, 설명, 규칙 예문)", "fx.count": "빈 칸이 있는 카드 {n}개 · 파일 {f}개 (파일당 최대 200장)", "fx.count0": "이 선택에는 빈 칸이 있는 카드가 없습니다.", "fx.download": "내려받기", "fx.partsTitle": "파일 {n}개", "fx.partsHelp": "카드가 {max}장을 넘어 {n}개 파일로 나뉩니다. Claude에게 하나씩 (또는 한꺼번에) 주세요.", "fx.zip": ".zip 파일 하나", "fx.separate": "파일 {n}개 따로", "fx.done": "내려받았습니다. 대화에서 Claude에게 파일을 준 다음 'Claude 답 가져오기'를 누르세요.", "fx.textFallback": "여기서는 내려받을 수 없습니다. 각 부분의 텍스트를 복사해 .txt 파일이나 Claude와의 대화에 붙여넣으세요.", "fx.importHelp": "Claude가 돌려준 파일을 하나 이상 고르거나 텍스트를 붙여넣으세요. 바로 바뀌는 것은 없습니다. 결과를 확인한 뒤 모두 '검토'로 갑니다.", "fx.files": "파일 선택 (.txt, .csv)", "fx.drop": "또는 파일을 여기로 끌어 놓으세요", "fx.paste": "또는 텍스트 붙여넣기", "fx.pasted": "붙여넣은 텍스트", "fx.readErr": "파일을 읽을 수 없습니다: {name}", "fx.empty": "파일을 고르거나 텍스트를 붙여넣으세요.", "fx.noHeader": "'id;type;…' 머리글 줄이 없습니다. Claude용 파일에 대한 답이 아닙니다.", "fx.sumTitle": "확인 전 결과", "fx.sum.files": "읽은 파일: {n} · 카드 줄: {m}", "fx.sum.found": "찾은 카드: {n}", "fx.sum.filled": "채운 칸: {n}", "fx.sum.already": "이미 '검토'에 있거나 거절된 값 (무시): {n}", "fx.sum.invalid": "올바르지 않은 값 (무시): {n}", "fx.sum.empty": "아직 빈 칸이 있는 카드: {n}", "fx.sum.unknown": "모르는 id 또는 삭제된 카드: {n}", "fx.sum.bad": "읽을 수 없는 줄: {n}", "fx.sum.badLine": "{file} {line}번째 줄", "fx.sum.modified": "내보낸 뒤 바뀐 카드: {n} (아직 비어 있는 칸만 반영)", "fx.sum.dupRows": "중복된 줄 (같은 카드, 무시): {n}", "fx.sum.corr": "수정 제안 (Claude가 바꾼 이미 채워진 칸, 적용되지 않음): {n}", "fx.sum.corrSend": "이 수정 {n}개도 '검토'로 보내기 (수정 유형)", "fx.send": "'검토'로 보내기", "fx.nothing": "'검토'로 보낼 새 내용이 없습니다.", "fx.sent": "'검토'에 제안 {n}개를 추가했습니다.", "fx.reason": "Claude의 답 (파일)", "fx.corrReason": "이미 채워진 칸을 Claude가 바꿈",
     "pv.allFolders": "모든 폴더",
     "upd.btn": "업데이트", "upd.btnN": "업데이트 (보완 {n}개)", "upd.all": "전체 업데이트", "upd.badge": "보완 {n}개",
     "upd.title": "업데이트: {name}", "upd.allName": "모든 목록", "upd.launch": "시작", "upd.pickOne": "항목을 하나 이상 선택하세요",
@@ -907,7 +912,7 @@ const I18N = {
     "reply.analyze": "Analyser", "reply.done": "{n} propositions ajoutées, {m} lignes non reconnues", "reply.none": "Aucune nouvelle proposition",
     "pv.empty": "Rien à valider", "pv.allLists": "Toutes les listes", "pv.allTypes": "Tous les types", "pv.allFields": "Tous les champs",
     "pv.selectAll": "Tout sélectionner", "pv.selected": "{n} sélectionnées",
-    "pv.selectPage": "Sélectionner la page", "pv.selectAllN": "Tout sélectionner ({n})", "pv.unselectAll": "Tout désélectionner",
+    "pv.selMenu": "Sélectionner", "pv.selN": "{n}", "pv.selAll": "Tout ({n})", "pv.selNone": "Aucune", "pv.selectedOf": "{n} sélectionnées sur {total}",
     "pv.page": "Page {i} / {n}", "pv.prev": "Page précédente", "pv.next": "Page suivante",
     "pv.progressTitle.accept": "Acceptation…", "pv.progressTitle.reject": "Refus…", "pv.progress": "{i} / {n} propositions",
     "pv.stop": "Arrêter", "pv.busy": "Un traitement est déjà en cours.",
@@ -950,6 +955,7 @@ const I18N = {
     "pos.n": "nom", "pos.v": "verbe", "pos.vpr": "verbe pronominal", "pos.adj": "adjectif", "pos.adv": "adverbe", "pos.prep": "préposition",
     "pos.conj": "conjonction", "pos.pron": "pronom", "pos.interj": "interjection", "pos.expr": "expression",
     "pv.field.pos": "Nature ({lang})", "pv.field.posAll": "Nature",
+    "pv.field.typed": "Autres types", "fx.exportBtn": "Télécharger le fichier pour Claude", "fx.exportTitle": "Fichier pour Claude", "fx.help": "Le fichier contient les consignes pour Claude. Donnez-le à Claude dans une conversation, puis importez le fichier qu'il rend avec « Importer la réponse de Claude ».", "fx.what": "À compléter (cartes incomplètes seulement)", "fx.f.tr": "Traductions (langues d'appui)", "fx.f.pos": "Nature grammaticale", "fx.f.example": "Exemples (vocabulaire)", "fx.f.other": "Champs des autres types (traduction, indice, explication, exemples de règle)", "fx.count": "{n} carte(s) incomplète(s) · {f} fichier(s) de 200 cartes max", "fx.count0": "Aucune carte incomplète pour ce choix.", "fx.download": "Télécharger", "fx.partsTitle": "{n} fichiers", "fx.partsHelp": "Plus de {max} cartes : le travail est découpé en {n} fichiers. Donnez-les à Claude un par un (ou tous ensemble).", "fx.zip": "Un seul fichier .zip", "fx.separate": "{n} fichiers séparés", "fx.done": "Téléchargé. Donnez le fichier à Claude dans une conversation, puis « Importer la réponse de Claude ».", "fx.textFallback": "Téléchargement impossible ici : copiez le texte (chaque partie) dans un fichier .txt ou directement dans la conversation avec Claude.", "fx.importHelp": "Choisissez le ou les fichiers rendus par Claude, ou collez le texte. Rien n'est modifié : tout va dans « À valider » après le bilan.", "fx.files": "Choisir des fichiers (.txt, .csv)", "fx.drop": "ou glissez-déposez les fichiers ici", "fx.paste": "Ou collez le texte", "fx.pasted": "texte collé", "fx.readErr": "Fichier illisible : {name}", "fx.empty": "Choisissez un fichier ou collez du texte.", "fx.noHeader": "Aucune ligne d'en-tête « id;type;… » trouvée : ce n'est pas une réponse au fichier pour Claude.", "fx.sumTitle": "Bilan avant validation", "fx.sum.files": "Fichiers lus : {n} · lignes de cartes : {m}", "fx.sum.found": "Cartes trouvées : {n}", "fx.sum.filled": "Cases complétées : {n}", "fx.sum.already": "Déjà dans « À valider » ou déjà refusées (ignorées) : {n}", "fx.sum.invalid": "Valeurs non valides (ignorées) : {n}", "fx.sum.empty": "Cartes avec des cases encore vides : {n}", "fx.sum.unknown": "Ids inconnus ou cartes supprimées : {n}", "fx.sum.bad": "Lignes illisibles : {n}", "fx.sum.badLine": "{file}, ligne {line}", "fx.sum.modified": "Cartes modifiées depuis l'export : {n} (seules leurs cases encore vides sont prises)", "fx.sum.dupRows": "Lignes en double (même carte, ignorées) : {n}", "fx.sum.corr": "Corrections proposées (cases déjà remplies changées par Claude, jamais appliquées) : {n}", "fx.sum.corrSend": "Envoyer aussi ces {n} corrections dans « À valider » (type Correction)", "fx.send": "Envoyer dans « À valider »", "fx.nothing": "Rien de nouveau à envoyer dans « À valider ».", "fx.sent": "{n} proposition(s) ajoutée(s) dans « À valider ».", "fx.reason": "Réponse de Claude (fichier)", "fx.corrReason": "Case déjà remplie, modifiée par Claude",
     "pv.allFolders": "Tous les dossiers",
     "upd.btn": "Mettre à jour", "upd.btnN": "Mettre à jour ({n} à compléter)", "upd.all": "Tout mettre à jour", "upd.badge": "{n} à compléter",
     "upd.title": "Mettre à jour : {name}", "upd.allName": "toutes les listes", "upd.launch": "Lancer", "upd.pickOne": "Cochez au moins une catégorie",
@@ -1060,7 +1066,7 @@ const I18N = {
     "reply.analyze": "Analyze", "reply.done": "{n} suggestions added, {m} lines not recognized", "reply.none": "No new suggestions",
     "pv.empty": "Nothing pending", "pv.allLists": "All lists", "pv.allTypes": "All types", "pv.allFields": "All fields",
     "pv.selectAll": "Select all", "pv.selected": "{n} selected",
-    "pv.selectPage": "Select page", "pv.selectAllN": "Select all ({n})", "pv.unselectAll": "Unselect all",
+    "pv.selMenu": "Select", "pv.selN": "{n}", "pv.selAll": "All ({n})", "pv.selNone": "None", "pv.selectedOf": "{n} selected of {total}",
     "pv.page": "Page {i} / {n}", "pv.prev": "Previous page", "pv.next": "Next page",
     "pv.progressTitle.accept": "Accepting…", "pv.progressTitle.reject": "Rejecting…", "pv.progress": "{i} / {n} suggestions",
     "pv.stop": "Stop", "pv.busy": "Already processing.",
@@ -1103,6 +1109,7 @@ const I18N = {
     "pos.n": "noun", "pos.v": "verb", "pos.vpr": "pronominal verb", "pos.adj": "adjective", "pos.adv": "adverb", "pos.prep": "preposition",
     "pos.conj": "conjunction", "pos.pron": "pronoun", "pos.interj": "interjection", "pos.expr": "expression",
     "pv.field.pos": "Part of speech ({lang})", "pv.field.posAll": "Part of speech",
+    "pv.field.typed": "Other types", "fx.exportBtn": "Download the file for Claude", "fx.exportTitle": "File for Claude", "fx.help": "The file contains the instructions for Claude. Give it to Claude in a conversation, then import the file it returns with \"Import Claude's reply\".", "fx.what": "To fill in (incomplete cards only)", "fx.f.tr": "Translations (support languages)", "fx.f.pos": "Part of speech", "fx.f.example": "Examples (vocabulary)", "fx.f.other": "Fields of other card types (translation, hint, explanation, rule examples)", "fx.count": "{n} incomplete card(s) · {f} file(s) of 200 cards max", "fx.count0": "No incomplete card for this choice.", "fx.download": "Download", "fx.partsTitle": "{n} files", "fx.partsHelp": "More than {max} cards: the work is split into {n} files. Give them to Claude one by one (or all together).", "fx.zip": "One .zip file", "fx.separate": "{n} separate files", "fx.done": "Downloaded. Give the file to Claude in a conversation, then \"Import Claude's reply\".", "fx.textFallback": "Download isn't possible here: copy the text (each part) into a .txt file or straight into the conversation with Claude.", "fx.importHelp": "Choose the file(s) Claude returned, or paste the text. Nothing is changed: everything goes to \"Pending\" after the summary.", "fx.files": "Choose files (.txt, .csv)", "fx.drop": "or drag and drop the files here", "fx.paste": "Or paste the text", "fx.pasted": "pasted text", "fx.readErr": "Unreadable file: {name}", "fx.empty": "Choose a file or paste some text.", "fx.noHeader": "No \"id;type;…\" header line found: this isn't a reply to the file for Claude.", "fx.sumTitle": "Summary before sending", "fx.sum.files": "Files read: {n} · card lines: {m}", "fx.sum.found": "Cards found: {n}", "fx.sum.filled": "Cells filled: {n}", "fx.sum.already": "Already in \"Pending\" or already rejected (ignored): {n}", "fx.sum.invalid": "Invalid values (ignored): {n}", "fx.sum.empty": "Cards with cells still empty: {n}", "fx.sum.unknown": "Unknown ids or deleted cards: {n}", "fx.sum.bad": "Unreadable lines: {n}", "fx.sum.badLine": "{file}, line {line}", "fx.sum.modified": "Cards changed since the export: {n} (only their still-empty cells are used)", "fx.sum.dupRows": "Duplicate lines (same card, ignored): {n}", "fx.sum.corr": "Suggested corrections (filled cells Claude changed, never applied): {n}", "fx.sum.corrSend": "Also send these {n} corrections to \"Pending\" (Correction type)", "fx.send": "Send to \"Pending\"", "fx.nothing": "Nothing new to send to \"Pending\".", "fx.sent": "{n} suggestion(s) added to \"Pending\".", "fx.reason": "Claude's reply (file)", "fx.corrReason": "Filled cell changed by Claude",
     "pv.allFolders": "All folders",
     "upd.btn": "Update", "upd.btnN": "Update ({n} to fill)", "upd.all": "Update all", "upd.badge": "{n} to fill",
     "upd.title": "Update: {name}", "upd.allName": "all lists", "upd.launch": "Start", "upd.pickOne": "Tick at least one category",
@@ -1748,14 +1755,20 @@ function supportTerms(c, lg) {
 function supportText(c, lg) { return supportTerms(c, lg).map(x => x.text).join(" · "); }
 // Carte utilisable en révision : mot dans la langue apprise + au moins une langue d'appui (autres types : typedUsable).
 function cardUsable(c, lg) { if (!isVocab(c)) return typedUsable(c); lg = lg || cardLangs(c); return !!targetTerm(c, lg).trim() && supportTerms(c, lg).length > 0; }
-// Champ générique : code de langue, "example" ou "pos:<code>" (nature grammaticale dans cette langue).
+// Champ générique : code de langue, "example", "pos:<code>" (nature grammaticale dans cette langue)
+// ou "f:<champ>" (champ d'un autre type de carte : translation, hint, explanation, note, examples ; exemples séparés par « | »).
+const TYPED_FILL_FIELDS = ["translation", "hint", "explanation", "note", "examples"];
+function typedField(name) { return "f:" + name; }
+function isTypedField(f) { return typeof f === "string" && f.startsWith("f:") && TYPED_FILL_FIELDS.includes(f.slice(2)); }
 function fieldVal(c, f) {
   if (f === "example") return String(c.example || "");
+  if (isTypedField(f)) { const k = f.slice(2); return k === "examples" ? arr(c.examples).join(" | ") : String(c[k] || ""); }
   if (isPosField(f)) return (c.pos && typeof c.pos[f.slice(4)] === "string") ? c.pos[f.slice(4)] : "";
   return term(c, f);
 }
 function setFieldVal(c, f, v) {
   if (f === "example") c.example = v;
+  else if (isTypedField(f)) { const k = f.slice(2); if (k === "examples") c.examples = String(v || "").split("|").map(x => x.trim()).filter(Boolean); else c[k] = v; }
   else if (isPosField(f)) { c.pos = Object.assign({}, c.pos); if (v) c.pos[f.slice(4)] = v; else delete c.pos[f.slice(4)]; }
   else { c.terms[f] = v; }
 }
@@ -1945,7 +1958,7 @@ function normalizeData(raw) {
       .filter(h => h && /^\d{4}-\d{2}-\d{2}$/.test(h.date))
       .map(h => ({ date: h.date, reviewed: num(h.reviewed, 0), correct: num(h.correct, 0) })),
     proposals: arr(d.proposals)
-      .filter(p => p && p.id && p.cardId && (isLang(p.field) || isPosField(p.field) || ["example", "dup"].includes(p.field)) && ["completion", "correction"].includes(p.type))
+      .filter(p => p && p.id && p.cardId && (isLang(p.field) || isPosField(p.field) || isTypedField(p.field) || ["example", "dup"].includes(p.field)) && ["completion", "correction"].includes(p.type))
       .map(p => ({ id: String(p.id), cardId: String(p.cardId), field: p.field, type: p.type,
         oldValue: String(p.oldValue || ""), newValue: String(p.newValue || ""), reason: String(p.reason || ""), createdAt: num(p.createdAt, 0) }))
       .concat(arr(d.proposals).map(normNewProposal).filter(Boolean)),   // « Nouvelle carte » (étape 17)
@@ -4543,6 +4556,10 @@ function initLists() {
   $("#lvUpdateAll").addEventListener("click", () => openUpdate({ kind: "all" }));
   $("#lvAsk").addEventListener("click", () => { if (lv.listId) openAskClaude({ kind: "list", id: lv.listId }); });
   $("#lvAskAll").addEventListener("click", () => openAskClaude({ kind: "all" }));
+  $("#lvFxOut").addEventListener("click", () => { if (lv.listId) openFxExport("list:" + lv.listId); });
+  $("#lvFxIn").addEventListener("click", openFxImport);
+  $("#lvFxOutAll").addEventListener("click", () => openFxExport("all"));
+  $("#lvFxInAll").addEventListener("click", openFxImport);
 }
 
 // --- Petits constructeurs de formulaire ---
@@ -4702,6 +4719,8 @@ function openFolderMenu(id) {
   p.appendChild(el("div", "upd-last", updDate(f.lastUpdate)));
   openModal(f.name, p, [
     { label: t("upd.btn"), onClick: () => { openUpdate({ kind: "folder", id }); } },
+    { label: t("fx.exportBtn"), onClick: () => { openFxExport("folder:" + id); } },
+    { label: t("ai.importReply"), onClick: () => { openFxImport(); } },
     { label: t("folders.rename"), onClick: () => { openFolderName(id); } },
     { label: t("folders.langs"), onClick: () => { openLangEditor("folder", f); } },
     { label: t("folders.delete"), kind: "danger", onClick: () => { confirmDeleteFolder(id); } },
@@ -6042,7 +6061,7 @@ let aiJob = null; // traitement en cours (un seul à la fois)
 
 function posFields(lg) { return [lg.target].concat(lg.support).map(posField); }
 function fillFields(c, lg) { if (!isVocab(c)) return []; lg = lg || cardLangs(c); return lg.support.concat(["example"], posFields(lg)); }
-function checkFields(c, lg) { lg = lg || cardLangs(c); return [lg.target].concat(lg.support, ["example"], posFields(lg)); }
+function checkFields(c, lg) { if (!isVocab(c)) return TYPED_FILL_FIELDS.filter(k => (TYPE_FIELDS[c.type] || []).includes(k) || (k === "examples" && c.type === "rule")).map(typedField); lg = lg || cardLangs(c); return [lg.target].concat(lg.support, ["example"], posFields(lg)); }
 // Consignes « nature grammaticale » communes (accès direct et « Préparer pour Claude »).
 function posPromptLines(prefix) {
   const g = LANG_CODES.filter(c => LANGUAGES[c].gender), ng = LANG_CODES.filter(c => !LANGUAGES[c].gender);
@@ -6385,12 +6404,16 @@ function renderAiCard() {
     br.addEventListener("click", () => startCompletion(state.aiResume.ids.slice(), null, true));
     btns.appendChild(br);
   }
-  if (st === "off") {
-    const b3 = el("button", "btn", t("ai.importReply"));
-    b3.addEventListener("click", openReplyImport);
-    btns.appendChild(b3);
-  }
   box.appendChild(btns);
+  // Échange par fichier avec Claude (toujours disponible ; l'import lit aussi l'ancien format « Préparer pour Claude »)
+  const fxb = el("div", "btns");
+  const b4 = el("button", "btn", t("fx.exportBtn"));
+  const b3 = el("button", "btn", t("ai.importReply"));
+  b4.addEventListener("click", () => openFxExport("all"));
+  b3.addEventListener("click", openFxImport);
+  fxb.append(b4, b3);
+  fxb.style.marginTop = "8px";
+  box.appendChild(fxb);
   if (Queue.usable()) box.appendChild(queueAiCardBlock());   // file d'attente Claude (mode Supabase)
   let last = t("ai.never");
   try { if (state.lastCheckAt) last = t("ai.lastCheck", { d: new Date(state.lastCheckAt).toLocaleDateString(state.settings.uiLang) }); } catch (e) {}
@@ -6563,6 +6586,483 @@ function openReplyImport() {
     } }
   ]);
   setTimeout(() => { try { ta.focus(); } catch (e) {} }, 50);
+}
+
+// === ÉCHANGE PAR FICHIER AVEC CLAUDE ===
+// Troisième voie de complétion (en plus du copier-coller et de la file d'attente) :
+// 1. « Télécharger le fichier pour Claude » : périmètre (tout / dossier / liste) + champs à compléter ; seulement les cartes
+//    avec au moins un champ choisi vide ; fichiers de FX_MAX cartes max (plusieurs parties → un .zip, ou fichiers séparés).
+//    Contenu : consignes « # » pour Claude, puis une section par type de carte (ligne d'en-tête + une ligne par carte),
+//    séparateur « ; », 1re colonne = id de la carte, 2e = type, dernière = sig (empreinte de la carte à l'export).
+//    Case vide = à remplir ; case « - » = ne pas remplir (champ non choisi ou hors langues de la liste).
+// 2. « Importer la réponse de Claude » : un ou plusieurs fichiers .txt / .csv, ou texte collé ; lignes « # » et texte avant
+//    la 1re ligne d'en-tête ignorés ; correspondance par id uniquement ; seulement les cases vides dans l'appli
+//    (case remplie changée par Claude = « Correction proposée », signalée à part, envoyée seulement si on coche la case) ;
+//    bilan avant validation ; tout va dans « À valider » (addProposal) : importer deux fois le même fichier ne crée rien.
+// Lecture : bulkLines / bulkSeparator / readTextFile (import en masse). Sans en-tête « id;type » : ancien format
+// « Préparer pour Claude » (importReply).
+const FX_MAX = 200;                  // cartes max par fichier
+const FX_EMPTY = "-";                // case à ne pas remplir
+// Champs des autres types de cartes que Claude peut compléter.
+const FX_TYPED = { conj: ["translation"], cloze: ["hint", "explanation", "translation"], fix: ["explanation"], rule: ["examples", "translation"] };
+// Colonnes de chaque section : [nom de colonne, clé] ; clé = champ (fieldVal) ou info (lecture seule).
+const FX_TYPED_COLS = {
+  conj: [["verbe", "i:verb"], ["temps", "i:tense"], ["personne", "i:person"], ["forme", "i:answer"], ["traduction", "f:translation"], ["note", "f:note"]],
+  cloze: [["phrase", "i:sentence"], ["reponse", "i:answer"], ["indice", "f:hint"], ["explication", "f:explanation"], ["traduction", "f:translation"]],
+  fix: [["phrase_fautive", "i:wrong"], ["phrase_corrigee", "i:correct"], ["explication", "f:explanation"]],
+  rule: [["titre", "i:title"], ["texte", "i:body"], ["exemples", "f:examples"], ["traduction", "f:translation"]]
+};
+const FX_CHOICES = ["tr", "pos", "example", "other"];
+
+function fxCell(s) { return String(s == null ? "" : s).replace(/[;\t\r\n]+/g, " ").replace(/\s+/g, " ").trim(); }
+// Empreinte du contenu d'une carte (changement entre l'export et l'import).
+function fxSig(c) {
+  const o = isVocab(c)
+    ? { t: Object.keys(c.terms || {}).sort().map(k => [k, c.terms[k]]), p: Object.keys(c.pos || {}).sort().map(k => [k, c.pos[k]]), e: c.example || "" }
+    : normTypedFields(c.type, c);
+  return strHash(cardType(c) + "\u0001" + JSON.stringify(o));
+}
+// Champs qu'une carte peut recevoir par ce fichier (cases à compléter, jamais la langue apprise).
+function fxFillable(c, lg) {
+  if (!isVocab(c)) return (FX_TYPED[c.type] || []).map(typedField);
+  lg = lg || cardLangs(c);
+  return lg.support.concat(posFields(lg), ["example"]);
+}
+// Cases demandées (vides) pour les choix cochés.
+function fxWanted(c, choice, lg) {
+  const out = [];
+  if (!isVocab(c)) {
+    if (choice.other) (FX_TYPED[c.type] || []).forEach(n => { const f = typedField(n); if (!fieldVal(c, f).trim()) out.push(f); });
+    return out;
+  }
+  lg = lg || cardLangs(c);
+  if (choice.tr) lg.support.forEach(code => { if (!term(c, code).trim()) out.push(code); });
+  if (choice.pos) [lg.target].concat(lg.support).forEach(code => {
+    const f = posField(code);
+    if (fieldVal(c, f).trim()) return;
+    if (term(c, code).trim() || (choice.tr && code !== lg.target)) out.push(f);   // nature d'un mot présent ou demandé
+  });
+  if (choice.example && !String(c.example || "").trim()) out.push("example");
+  return out;
+}
+function fxScopeCards(scope) {
+  const [k, id] = String(scope || "all").split(":");
+  if (k === "list") return getList(id) ? cardsOf(id) : [];
+  if (k === "folder") { const f = getFolder(id); return f ? cardsUnder("folder", f) : []; }
+  return state.cards.slice();
+}
+function fxScopeName(scope) {
+  const [k, id] = String(scope || "all").split(":");
+  const o = k === "list" ? getList(id) : k === "folder" ? getFolder(id) : null;
+  return o ? o.name : "tout";
+}
+function fxSlug(s) { return String(s || "").normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "liste"; }
+function fxFileName(scope, i, n) { return "vocab-completion-" + fxSlug(fxScopeName(scope)) + (n > 1 ? "-partie-" + i + "-sur-" + n : "") + ".txt"; }
+
+// En-tête des colonnes d'une section.
+function fxHeader(type, langs) {
+  if (type === "vocab") return ["id", "type", "liste", "target"].concat(langs, langs.map(x => "pos_" + x), ["exemple", "sig"]);
+  return ["id", "type", "liste", "target"].concat(FX_TYPED_COLS[type].map(x => x[0]), ["sig"]);
+}
+// Texte d'un fichier (une partie).
+function fxFileText(cards, choice, i, n) {
+  const lgs = new Map(), lgOf = c => { let x = lgs.get(c.listId); if (!x) { x = cardLangs(c); lgs.set(c.listId, x); } return x; };
+  const langs = LANG_CODES.filter(code => cards.some(c => isVocab(c) && (lgOf(c).target === code || lgOf(c).support.includes(code))));
+  const seenL = new Set(), perList = [];
+  cards.forEach(c => {
+    if (seenL.has(c.listId)) return; seenL.add(c.listId);
+    const lg = lgOf(c), nm = code => code + " (" + LANGUAGES[code].names.fr.toLowerCase() + ")";
+    perList.push("#   - " + prepListName(c.listId) + " : langue apprise " + nm(lg.target) + " ; langues d'appui " + lg.support.map(nm).join(", "));
+  });
+  const types = CARD_TYPES.filter(ty => cards.some(c => cardType(c) === ty));
+  const g = LANG_CODES.filter(c => LANGUAGES[c].gender), ng = LANG_CODES.filter(c => !LANGUAGES[c].gender);
+  const head = [
+    "# FICHIER DE COMPLÉTION — appli Vocab" + (n > 1 ? " — partie " + i + " sur " + n : "") + " — " + todayStr(),
+    "# Rôle : tu complètes des cartes de révision de langues pour des apprenants.",
+    "# Codes de langue : " + langLegend() + ".",
+    "# Langues de chaque liste (colonne « liste ») :"
+  ].concat(perList, [
+    "# Règles :",
+    "# - Remplis seulement les cases VIDES (rien entre deux « ; »).",
+    "# - Une case qui contient seulement « - » ne doit pas être remplie : laisse « - ».",
+    "# - Ne modifie jamais une case déjà remplie, ni les colonnes id, type, liste, target et sig.",
+    "# - Garde toutes les lignes, dans le même ordre, avec le même nombre de colonnes.",
+    "# - N'utilise jamais « ; » à l'intérieur d'une case (ni retour à la ligne).",
+    "# - Colonne d'une langue (" + LANG_CODES.join(", ") + ") : traduction courte et naturelle du mot de la langue apprise (target). Plusieurs sens : séparés par « / ».",
+    "# - Colonnes pos_<langue> : nature grammaticale du mot de cette langue, avec UN de ces codes : nm, nf, nmf, nmpl, nfpl, n, v, vpr, adj, adv, prep, conj, pron, interj, expr.",
+    "#   Langues avec genre (" + g.join(", ") + ") : un nom a toujours son genre (nm, nf, nmf, nmpl, nfpl), jamais n. Langues sans genre (" + ng.join(", ") + ") : n pour un nom.",
+    "# - Colonne exemple : une phrase courte et simple DANS LA LANGUE APPRISE (target), niveau débutant, qui utilise le mot."
+  ]);
+  if (types.some(ty => ty !== "vocab")) head.push(
+    "# - Autres types de cartes : traduction = sens dans les langues d'appui de la liste ; explication = explication courte de la réponse (dans la 1re langue d'appui) ;",
+    "#   indice = indice court (ex. « article + nom ») ; exemples (fiche de règle) = 2 ou 3 phrases courtes dans la langue apprise, séparées par « | »."
+  );
+  head.push(
+    "# Format de réponse : « Rends exactement le même fichier, avec les cases vides remplies, sous forme de fichier .txt téléchargeable, sans autre texte. »",
+    ""
+  );
+  const out = head.slice();
+  types.forEach(ty => {
+    out.push(fxHeader(ty, langs).join(";"));
+    cards.filter(c => cardType(c) === ty).forEach(c => {
+      const lg = lgOf(c), want = new Set(fxWanted(c, choice, lg));
+      const cell = f => { const v = fxCell(fieldVal(c, f)); return v || (want.has(f) ? "" : FX_EMPTY); };
+      let row = [c.id, ty, prepListName(c.listId), isVocab(c) ? lg.target : cardLang(c)];
+      if (ty === "vocab") row = row.concat(langs.map(cell), langs.map(x => cell(posField(x))), [cell("example")]);
+      else row = row.concat(FX_TYPED_COLS[ty].map(([, k]) => k.startsWith("f:") ? cell(k) :
+        fxCell(k === "i:tense" ? tenseName(c.lang, c.tense) : k === "i:person" ? personLabel(c.lang, c.tense, c.person) : c[k.slice(2)])));
+      row.push(fxSig(c));
+      out.push(row.map(fxCell).join(";"));
+    });
+    out.push("");
+  });
+  return out.join("\n");
+}
+
+// --- Téléchargement : un fichier (capacité downloads dans Claude, sinon lien), ou false ---
+async function fxSave(filename, data) {
+  try {
+    const dl = inClaude() ? await window.claude.use("downloads") : null;
+    if (dl) { await dl.save({ filename, data }); return true; }
+  } catch (e) { if (e && e.code === "declined") return "declined"; }
+  if (inClaude()) return false;
+  try {
+    const blob = data instanceof Blob ? data : new Blob([data], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+    return true;
+  } catch (e) { return false; }
+}
+// Archive .zip sans compression (format « stored »), sans bibliothèque : [{ name, text }] → Blob.
+let fxCrcTable = null;
+function fxCrc32(bytes) {
+  if (!fxCrcTable) { fxCrcTable = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; fxCrcTable[n] = c >>> 0; } }
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) crc = fxCrcTable[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+function fxZip(files) {
+  const enc = new TextEncoder(), parts = [], central = [];
+  let offset = 0;
+  const d = new Date(), time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1),
+    date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  files.forEach(f => {
+    const name = enc.encode(f.name), data = enc.encode(f.text), crc = fxCrc32(data);
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+    h.setUint16(10, time, true); h.setUint16(12, date, true); h.setUint32(14, crc, true);
+    h.setUint32(18, data.length, true); h.setUint32(22, data.length, true); h.setUint16(26, name.length, true); h.setUint16(28, 0, true);
+    parts.push(h.buffer, name, data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true);
+    c.setUint16(12, time, true); c.setUint16(14, date, true); c.setUint32(16, crc, true); c.setUint32(20, data.length, true); c.setUint32(24, data.length, true);
+    c.setUint16(28, name.length, true); c.setUint16(30, 0, true); c.setUint16(32, 0, true); c.setUint16(34, 0, true); c.setUint16(36, 0, true);
+    c.setUint32(38, 0, true); c.setUint32(42, offset, true);
+    central.push(c.buffer, name);
+    offset += 30 + name.length + data.length;
+  });
+  const csize = central.reduce((n, x) => n + x.byteLength, 0);
+  const e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true);
+  e.setUint32(12, csize, true); e.setUint32(16, offset, true);
+  return new Blob(parts.concat(central, [e.buffer]), { type: "application/zip" });
+}
+// Repli (téléchargement impossible) : texte de chaque partie à copier.
+function fxShowText(files) {
+  let idx = 0;
+  const wrap = el("div");
+  wrap.appendChild(el("p", "muted", t("fx.textFallback")));
+  const ta = el("textarea"); ta.readOnly = true;
+  const fill = () => { ta.value = files[idx].text; };
+  if (files.length > 1) {
+    const sel = el("select", "input"); sel.style.marginBottom = "10px";
+    files.forEach((f, i) => { const o = el("option", null, f.name); o.value = String(i); sel.appendChild(o); });
+    sel.addEventListener("change", () => { idx = +sel.value || 0; fill(); });
+    wrap.appendChild(sel);
+  }
+  fill();
+  wrap.appendChild(ta);
+  openModal(t("fx.exportTitle"), wrap, [
+    { label: t("copy"), kind: "primary", onClick: () => { copyText(ta.value, ta); return false; } },
+    { label: t("close") }
+  ]);
+}
+async function fxDeliver(files, mode) {
+  let ok = true;
+  if (files.length === 1) ok = await fxSave(files[0].name, files[0].text);
+  else if (mode === "zip") ok = await fxSave(files[0].name.replace(/-partie-\d+-sur-\d+\.txt$/, ".zip"), fxZip(files));
+  else for (const f of files) { const r = await fxSave(f.name, f.text); if (r !== true) { ok = r; break; } await new Promise(r2 => setTimeout(r2, 400)); }
+  if (ok === true) openModal(t("fx.exportTitle"), el("p", null, t("fx.done", { n: files.length })), [{ label: t("close"), kind: "primary" }]);
+  else if (ok !== "declined") fxShowText(files);
+}
+
+// Fenêtre « Télécharger le fichier pour Claude ». scope : "all" | "folder:<id>" | "list:<id>".
+function openFxExport(scope) {
+  const o = { scope: scope || "all", choice: { tr: true, pos: true, example: true, other: true } };
+  const wrap = el("div");
+  wrap.appendChild(el("p", "muted", t("fx.help")));
+  const sc = el("select", "input");
+  [["all", t("queue.scope.all")]].concat(
+    sortedFolders().map(f => ["folder:" + f.id, "▸ " + f.name]),
+    orderedLists().map(l => ["list:" + l.id, listLabel(l)])
+  ).forEach(([v, l]) => { const op = el("option", null, l); op.value = v; sc.appendChild(op); });
+  sc.value = o.scope;
+  if (sc.value !== o.scope) sc.value = o.scope = "all";
+  wrap.appendChild(formField(t("queue.scope"), sc));
+  const box = el("div", "fx-choices");
+  FX_CHOICES.forEach(k => {
+    const r = el("label", "upd-row");
+    const cb = el("input"); cb.type = "checkbox"; cb.checked = o.choice[k];
+    cb.addEventListener("change", () => { o.choice[k] = cb.checked; upd(); });
+    const l = el("div", "upd-l"); l.appendChild(el("div", null, t("fx.f." + k)));
+    const n = el("span", "upd-n");
+    r.append(cb, l, n);
+    r._n = n; r._k = k;
+    box.appendChild(r);
+  });
+  wrap.appendChild(formField(t("fx.what"), box));
+  const info = el("p", "muted fx-info");
+  wrap.appendChild(info);
+  const pick = () => fxScopeCards(o.scope).filter(c => fxWanted(c, o.choice).length);
+  function upd() {
+    const all = fxScopeCards(o.scope);
+    box.querySelectorAll(".upd-row").forEach(r => {
+      const one = { [r._k]: true };
+      if (r._k === "pos") one.tr = false;
+      const n = all.filter(c => fxWanted(c, one).length).length;
+      r._n.textContent = n ? t(n === 1 ? "upd.card1" : "upd.cards", { n }) : "✓";
+    });
+    const n = pick().length;
+    info.textContent = n ? t("fx.count", { n, f: Math.ceil(n / FX_MAX) }) : t("fx.count0");
+  }
+  sc.addEventListener("change", () => { o.scope = sc.value; upd(); });
+  upd();
+  openModal(t("fx.exportTitle"), wrap, [
+    { label: t("cancel") },
+    { label: t("fx.download"), kind: "primary", onClick: () => {
+      const cards = pick();
+      if (!cards.length) { toast(t("fx.count0")); return false; }
+      const parts = chunks(cards, FX_MAX);
+      const files = parts.map((p, i) => ({ name: fxFileName(o.scope, i + 1, parts.length), text: fxFileText(p, o.choice, i + 1, parts.length) }));
+      if (files.length === 1) { fxDeliver(files, "one"); return; }
+      openModal(t("fx.partsTitle", { n: files.length }), el("p", "muted", t("fx.partsHelp", { n: files.length, max: FX_MAX })), [
+        { label: t("fx.zip"), kind: "primary", onClick: () => { fxDeliver(files, "zip"); } },
+        { label: t("fx.separate", { n: files.length }), onClick: () => { fxDeliver(files, "separate"); } },
+        { label: t("cancel") }
+      ]);
+    } }
+  ]);
+}
+
+// --- Lecture de la réponse ---
+// Clé d'une colonne d'en-tête : "id", "type", "liste", "target", "sig", code de langue, "pos:<code>", "example", "f:<champ>",
+// "i:<info>" (lecture seule) ou "ignore".
+function fxColKey(cell) {
+  const n = normText(cell).replace(/[\s-]+/g, "_");
+  if (["id", "type", "liste", "target", "sig"].includes(n)) return n;
+  if (n === "list") return "liste";
+  const m = /^(?:pos|nature)[_:]([a-z]{2,3})$/.exec(n);
+  if (m && isLang(m[1])) return posField(m[1]);
+  if (["exemple", "example"].includes(n)) return "example";
+  for (const ty of Object.keys(FX_TYPED_COLS)) { const x = FX_TYPED_COLS[ty].find(([nm]) => nm === n); if (x) return x[1]; }
+  if (n === "examples") return "f:examples";
+  return isLang(n) ? n : "ignore";
+}
+// texts : [{ name, text }]. Renvoie { rows: Map(id → { cells, file, line }), bad: [{ file, line }], dupRows, files, headers }.
+function fxParse(texts) {
+  const rows = new Map(), bad = [];
+  let headers = 0, dupRows = 0, total = 0;
+  texts.forEach(src => {
+    const lines = bulkLines(src.text);
+    const sep = bulkSeparator(lines.filter(l => !/^\s*#/.test(l)));
+    let head = null;
+    lines.forEach((raw, i) => {
+      const line = raw.trim();
+      if (!line || line.startsWith("#") || line.startsWith("```")) return;
+      const cells = line.split(sep).map(s => s.trim().replace(/^"(.*)"$/, "$1"));
+      if (normText(cells[0]) === "id" && normText(cells[1]) === "type") { head = cells.map(fxColKey); headers++; return; }
+      if (!head) return;                                   // texte avant la ligne d'en-tête : ignoré
+      total++;
+      const ty = TYPE_PREFIX[normText(cells[1] || "").replace(/\s+/g, "")];
+      if (cells.length !== head.length || !cells[0] || !ty || ty === "conjtab") { bad.push({ file: src.name, line: i + 1 }); return; }
+      if (rows.has(cells[0])) { dupRows++; return; }       // même carte dans deux fichiers : la première ligne compte
+      const v = {};
+      head.forEach((k, j) => { if (k !== "ignore") v[k] = cells[j]; });
+      rows.set(cells[0], { v, type: ty, file: src.name, line: i + 1 });
+    });
+  });
+  return { rows, bad, dupRows, headers, total };
+}
+function fxSame(c, f, a, b) {
+  if (isPosField(f)) return parsePos(a, f.slice(4)) === parsePos(b, f.slice(4));
+  const n = s => String(s || "").replace(/\s+/g, " ").replace(/\s*\|\s*/g, " | ").trim();
+  return n(a) === n(b);
+}
+// Pourquoi une proposition ne serait pas ajoutée (mêmes règles qu'addProposal) : "pending", "rejected", "invalid" ou null.
+function fxBlock(c, f, v) {
+  let nv = String(v || "").replace(/\s+/g, " ").trim();
+  if (isPosField(f)) nv = parsePos(nv, f.slice(4));
+  if (!nv) return "invalid";
+  if (state.proposals.some(x => x.cardId === c.id && x.field === f)) return "pending";
+  if (state.rejected.includes(rejectKey(c.id, f, nv))) return "rejected";
+  return null;
+}
+// Analyse sans rien modifier. Renvoie le bilan + les propositions à créer.
+function fxAnalyze(parsed) {
+  const byId = new Map(state.cards.map(c => [c.id, c]));
+  const r = { found: 0, unknown: 0, bad: parsed.bad.slice(), modified: 0, fills: [], already: 0, invalid: 0, corrs: [], corrBlocked: 0, empty: 0 };
+  parsed.rows.forEach((row, id) => {
+    const c = byId.get(id);
+    if (!c) { r.unknown++; return; }
+    if (cardType(c) !== row.type) { r.bad.push({ file: row.file, line: row.line }); return; }
+    r.found++;
+    const modified = !!row.v.sig && row.v.sig !== fxSig(c);
+    if (modified) r.modified++;
+    const lg = cardLangs(c), fill = new Set(fxFillable(c, lg)), check = new Set(isVocab(c) ? checkFields(c, lg) : fxFillable(c, lg).concat([typedField("note")]));
+    let gap = false;
+    Object.keys(row.v).forEach(k => {
+      const f = k;
+      if (!check.has(f) && !fill.has(f)) return;
+      const v = String(row.v[k] || "").trim(), cur = fieldVal(c, f).trim();
+      if (!cur && fill.has(f) && (!v || v === FX_EMPTY)) { if (!v) gap = true; return; }
+      if (!v || v === FX_EMPTY) return;
+      if (!cur) {
+        if (!fill.has(f)) return;
+        const b = fxBlock(c, f, v);
+        if (b === "invalid") r.invalid++;
+        else if (b) r.already++;
+        else r.fills.push({ c, f, v });
+      } else if (!fxSame(c, f, v, cur) && !modified) {   // case déjà remplie changée par Claude : jamais appliquée d'office
+        const b = fxBlock(c, f, v);
+        if (b === "invalid") r.invalid++;
+        else if (b) r.corrBlocked++;
+        else r.corrs.push({ c, f, v, cur });
+      }
+    });
+    if (gap) r.empty++;
+  });
+  return r;
+}
+function fxSummary(parsed, r, nFiles) {
+  const wrap = el("div", "fx-sum");
+  const line = (txt, cls) => { const d = el("div", "fx-line" + (cls ? " " + cls : ""), txt); wrap.appendChild(d); return d; };
+  line(t("fx.sum.files", { n: nFiles, m: parsed.total }), "muted");
+  line(t("fx.sum.found", { n: r.found }));
+  line(t("fx.sum.filled", { n: r.fills.length }), r.fills.length ? "ok" : "");
+  if (r.already) line(t("fx.sum.already", { n: r.already }), "muted");
+  if (r.invalid) line(t("fx.sum.invalid", { n: r.invalid }), "warn");
+  if (r.empty) line(t("fx.sum.empty", { n: r.empty }), "muted");
+  line(t("fx.sum.unknown", { n: r.unknown }), r.unknown ? "warn" : "muted");
+  const b = line(t("fx.sum.bad", { n: r.bad.length }), r.bad.length ? "warn" : "muted");
+  if (r.bad.length) b.appendChild(el("div", "fx-detail", r.bad.slice(0, 8).map(x => t("fx.sum.badLine", { file: x.file, line: x.line })).join(" · ") + (r.bad.length > 8 ? " …" : "")));
+  line(t("fx.sum.modified", { n: r.modified }), r.modified ? "warn" : "muted");
+  if (parsed.dupRows) line(t("fx.sum.dupRows", { n: parsed.dupRows }), "muted");
+  const sendCorr = { on: false };
+  if (r.corrs.length || r.corrBlocked) {
+    const box = el("div", "fx-corr");
+    box.appendChild(el("div", "fx-line warn", t("fx.sum.corr", { n: r.corrs.length + r.corrBlocked })));
+    r.corrs.slice(0, 5).forEach(x => box.appendChild(el("div", "fx-detail", "• " + cardTitle(x.c) + " — " + pvFieldLabel(x.f) + " : " + x.cur + " → " + x.v)));
+    if (r.corrs.length > 5) box.appendChild(el("div", "fx-detail", "…"));
+    if (r.corrs.length) {
+      const lab = el("label", "fx-check");
+      const cb = el("input"); cb.type = "checkbox";
+      cb.addEventListener("change", () => { sendCorr.on = cb.checked; });
+      lab.append(cb, el("span", null, t("fx.sum.corrSend", { n: r.corrs.length })));
+      box.appendChild(lab);
+    }
+    wrap.appendChild(box);
+  }
+  return { node: wrap, sendCorr };
+}
+// Ajoute les propositions (complétions, + corrections si demandé). Renvoie le nombre ajouté.
+function fxApply(r, withCorr) {
+  let n = 0;
+  r.fills.forEach(x => { if (state.cards.includes(x.c) && addProposal({ cardId: x.c.id, field: x.f, type: "completion", newValue: x.v, reason: t("fx.reason") })) n++; });
+  if (withCorr) r.corrs.forEach(x => { if (state.cards.includes(x.c) && addProposal({ cardId: x.c.id, field: x.f, type: "correction", newValue: x.v, reason: t("fx.corrReason") })) n++; });
+  return n;
+}
+
+// Fenêtre « Importer la réponse de Claude » : fichiers (plusieurs) et / ou texte collé.
+function openFxImport() {
+  const files = [];
+  const wrap = el("div");
+  wrap.appendChild(el("p", "muted", t("fx.importHelp")));
+  const fileInp = el("input", "file-input"); fileInp.type = "file"; fileInp.id = "fxFile-" + uid();
+  fileInp.accept = ".txt,.csv,.tsv,text/plain,text/csv"; fileInp.multiple = true; fileInp.tabIndex = -1;
+  const pick = el("label", "btn file-pick", t("fx.files")); pick.htmlFor = fileInp.id;
+  pick.tabIndex = 0; pick.setAttribute("role", "button");
+  pick.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInp.click(); } });
+  const zone = el("div", "drop-zone");
+  const chips = el("div", "fx-chips");
+  zone.append(fileInp, pick, chips, el("div", "drop-hint", t("fx.drop")));
+  wrap.appendChild(zone);
+  const ta = el("textarea", "bulk-ta");
+  ta.spellcheck = false;
+  ta.setAttribute("autocapitalize", "off"); ta.setAttribute("autocorrect", "off");
+  ta.addEventListener("input", () => autoGrow(ta));
+  wrap.appendChild(formField(t("fx.paste"), ta));
+  const drawChips = () => {
+    chips.textContent = "";
+    files.forEach((f, i) => {
+      const chip = el("div", "file-chip");
+      const rm = el("button", "link-btn", t("bulk.fileRemove")); rm.type = "button";
+      rm.addEventListener("click", () => { files.splice(i, 1); drawChips(); });
+      chip.append(el("span", null, t("bulk.fileInfo", { name: f.name, n: countBulkLines(f.text) })), rm);
+      chips.appendChild(chip);
+    });
+  };
+  const load = async list => {
+    for (const f of Array.from(list || [])) {
+      if (!/\.(txt|csv|tsv)$/i.test(f.name || "") && !/^text\//.test(f.type || "")) { toast(t("bulk.fileType")); continue; }
+      try { const text = await readTextFile(f); if (!files.some(x => x.name === f.name && x.text === text)) files.push({ name: f.name, text }); }
+      catch (e) { toast(t("fx.readErr", { name: f.name })); }
+    }
+    drawChips();
+  };
+  fileInp.addEventListener("change", () => { const l = Array.from(fileInp.files || []); fileInp.value = ""; load(l); });
+  zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("over"); });
+  zone.addEventListener("dragleave", () => zone.classList.remove("over"));
+  zone.addEventListener("drop", e => { e.preventDefault(); zone.classList.remove("over"); load(e.dataTransfer && e.dataTransfer.files); });
+  openModal(t("ai.importReply"), wrap, [
+    { label: t("cancel") },
+    { label: t("reply.analyze"), kind: "primary", onClick: () => {
+      const texts = files.slice();
+      if (ta.value.trim()) texts.push({ name: t("fx.pasted"), text: ta.value });
+      if (!texts.length) { toast(t("fx.empty")); return false; }
+      fxImportTexts(texts);
+    } }
+  ]);
+}
+// Analyse puis bilan avant validation. Sans en-tête « id;type » : ancien format « Préparer pour Claude ».
+function fxImportTexts(texts) {
+  const parsed = fxParse(texts);
+  if (!parsed.headers) {
+    const res = importReply(texts.map(x => x.text).join("\n"));
+    if (!res.added) { toast(t("fx.noHeader")); return; }
+    commit();
+    openModal(t("ai.doneTitle"), el("p", null, t("reply.done", { n: res.added, m: res.unknown })), [
+      { label: t("close") }, { label: t("ai.see"), kind: "primary", onClick: () => { goPending(); } }
+    ]);
+    return;
+  }
+  const st = state;
+  const r = fxAnalyze(parsed);
+  const s = fxSummary(parsed, r, texts.length);
+  const acts = [{ label: t("cancel") }];
+  if (r.fills.length || r.corrs.length) acts.push({ label: t("fx.send"), kind: "primary", onClick: () => {
+    if (state !== st) return;
+    const n = fxApply(r, s.sendCorr.on);
+    if (!n) { toast(t("fx.nothing")); return; }
+    commit();
+    openModal(t("ai.doneTitle"), el("p", null, t("fx.sent", { n })), [
+      { label: t("close") }, { label: t("ai.see"), kind: "primary", onClick: () => { goPending(); } }
+    ]);
+  } });
+  else s.node.appendChild(el("p", "fx-line warn", t("fx.nothing")));
+  openModal(t("fx.sumTitle"), s.node, acts);
 }
 
 // === GÉNÉRER DES CARTES ===
@@ -7520,7 +8020,16 @@ async function openUpdate(scope) {
   else wrap.appendChild(el("div", "upd-last", t("upd.formatOk")));
   if (obj) wrap.appendChild(el("div", "upd-last", updDate(obj.lastUpdate)));
   const name = scope.kind === "all" ? t("upd.allName") : obj.name;
-  openModal(t("upd.title", { name }), wrap, [
+  // Échange par fichier avec Claude (même périmètre)
+  let closeUpd = null;
+  const fxl = el("div", "lv-links fx-links");
+  const lo = el("button", "link-btn", t("fx.exportBtn")), li = el("button", "link-btn", t("ai.importReply"));
+  lo.type = li.type = "button";
+  lo.addEventListener("click", () => { if (closeUpd) closeUpd(); openFxExport(scope.kind === "all" ? "all" : scope.kind + ":" + scope.id); });
+  li.addEventListener("click", () => { if (closeUpd) closeUpd(); openFxImport(); });
+  fxl.append(lo, li);
+  wrap.appendChild(fxl);
+  closeUpd = openModal(t("upd.title", { name }), wrap, [
     { label: t("cancel") },
     { label: t("upd.launch"), kind: "primary", onClick: () => {
       if (!checked.size) { toast(t("upd.pickOne")); return false; }
@@ -7584,7 +8093,9 @@ async function runUpdate(scope, cats) {
 // Une ligne par proposition : case à cocher, liste, mot de la langue apprise, champ, ancienne → nouvelle valeur (différences surlignées), type.
 // Filtres (liste, type, champ) ; la sélection est limitée aux lignes filtrées.
 // Pages de CONFIG.PV_PAGE lignes : seule la page affichée est dans le DOM. Sélection = ensemble d'ids en mémoire (pv.sel) :
-// « Sélectionner la page » et « Tout sélectionner (N) » ne créent ni ne cochent les lignes une par une.
+// menu « Sélectionner » : 50 · 100 · 200 · 500 (les N premières lignes filtrées, dans l'ordre affiché, à partir de la page
+// en cours) · Tout (N) (toutes les lignes filtrées, sans les afficher) · Aucune. Un choix remplace la sélection précédente.
+// Seules les 50 cases de la page affichée reflètent l'ensemble ; aucune boucle sur des cases à cocher.
 // Accepter / Refuser : par paquets de CONFIG.PV_CHUNK, barre de progression, l'écran reste fluide ; reste à faire gardé
 // sur l'appareil après chaque paquet (reprise par le bandeau si l'appli est rechargée ou si on arrête).
 // Modifier (édition dans la ligne, puis Accepter) ; « Annuler » quelques secondes après une action groupée.
@@ -7592,8 +8103,8 @@ const pv = { folder: "", list: "", type: "", field: "", page: 0, sel: new Set(),
 // Dossier : id, "__none__" (sans dossier) ou "" (tous).
 function pvFolderOf(listId) { const l = getList(listId); return l && l.folderId ? l.folderId : "__none__"; }
 // Filtre par champ : une traduction (code de langue), l'exemple, la nature (« pos » = toutes les langues) ou les doublons.
-const PV_FIELDS = LANG_CODES.concat(["example", "pos", "dup"]);
-function pvFieldMatch(p, f) { return f === "pos" ? isPosField(p.field) : p.field === f; }
+const PV_FIELDS = LANG_CODES.concat(["example", "pos", "typed", "dup"]);
+function pvFieldMatch(p, f) { return f === "pos" ? isPosField(p.field) : f === "typed" ? isTypedField(p.field) : p.field === f; }
 // Nature affichée : « n.f. — nom féminin » (abréviation dans la langue du mot, nom dans la langue de l'interface).
 function pvPosText(code, lng) { return code ? posLabel(code, lng) + (POS_CODES.includes(code) ? " — " + t("pos." + code) : "") : ""; }
 let undoTimer = null;
@@ -7604,6 +8115,8 @@ function pvFieldLabel(f) {
   if (f === "dup") return t("pv.field.dup");
   if (f === "example") return t("card.example");
   if (f === "pos") return t("pv.field.posAll");
+  if (f === "typed") return t("pv.field.typed");
+  if (isTypedField(f)) { const k = f.slice(2); return t(k === "examples" ? "type.rule.examples" : k === "hint" ? "type.hint" : "type." + k).replace(/\s*:\s*$/, ""); }
   if (isPosField(f)) return t("pv.field.pos", { lang: langName(f.slice(4)) });
   return langName(f);
 }
@@ -7619,6 +8132,20 @@ function renderPendingBadge() {
   const n = Storage.getUser() ? liveProposals().length : 0;
   b.hidden = !n;
   b.textContent = n > 99 ? "99+" : String(n);
+}
+
+// Menu « Sélectionner » : tailles proposées.
+const PV_SEL_SIZES = [50, 100, 200, 500];
+// Remplace la sélection : "none", "all" (toutes les lignes filtrées) ou N lignes à partir de la 1re ligne de la page en cours.
+function pvSelect(vis, v) {
+  pv.sel.clear();
+  if (v === "none") return;
+  if (v === "all") { for (let i = 0; i < vis.length; i++) pv.sel.add(vis[i].id); return; }
+  const n = parseInt(v, 10);
+  if (!(n > 0)) return;
+  const start = Math.min(Math.max(0, pv.page | 0) * CONFIG.PV_PAGE, vis.length);
+  const end = Math.min(start + n, vis.length);
+  for (let i = start; i < end; i++) pv.sel.add(vis[i].id);
 }
 
 function renderPending() {
@@ -7672,35 +8199,22 @@ function renderPending() {
   // Sélection + actions (collées en haut pendant le défilement)
   const sticky = el("div", "pv-sticky");
   const bar = el("div", "pv-bar");
-  const lab = el("label", "pv-all");
-  const cb = el("input");
-  cb.type = "checkbox";
-  cb.addEventListener("change", () => {
-    pageItems.forEach(p => { if (cb.checked) pv.sel.add(p.id); else pv.sel.delete(p.id); });
-    root.querySelectorAll(".pv-row").forEach(r => { r.classList.toggle("sel", cb.checked); const x = r.querySelector(".pv-cb"); if (x) x.checked = cb.checked; });
-    refresh();
-  });
-  lab.append(cb, document.createTextNode(t("pv.selectPage")));
-  const count = el("span", "pv-count");
-  bar.append(lab, count);
-  sticky.appendChild(bar);
-  const bAll = el("button", "link-btn");
-  bAll.addEventListener("click", () => {
-    if (vis.length && pv.sel.size >= vis.length) pv.sel.clear();     // la sélection ne contient que des lignes filtrées
-    else vis.forEach(p => pv.sel.add(p.id));                         // ids en mémoire seulement
+  const menu = el("select", "input pv-selmenu");
+  menu.setAttribute("aria-label", t("pv.selMenu"));
+  [["", t("pv.selMenu")]].concat(PV_SEL_SIZES.map(n => [String(n), t("pv.selN", { n })]), [["all", t("pv.selAll", { n: vis.length })], ["none", t("pv.selNone")]])
+    .forEach(([v, l]) => { const o = el("option", null, l); o.value = v; menu.appendChild(o); });
+  menu.addEventListener("change", () => {
+    const v = menu.value;
+    menu.value = "";
+    if (!v) return;
+    pvSelect(vis, v);
     renderPending();
   });
-  const sel2 = el("div", "pv-sel2");
-  sel2.appendChild(bAll);
-  sticky.appendChild(sel2);
-  // Case de la page, compteur et bouton « Tout sélectionner » sans réafficher les lignes.
-  const refresh = () => {
-    const onPage = pageItems.filter(p => pv.sel.has(p.id)).length;
-    cb.checked = pageItems.length > 0 && onPage === pageItems.length;
-    cb.indeterminate = onPage > 0 && !cb.checked;
-    count.textContent = t("pv.selected", { n: pv.sel.size });
-    bAll.textContent = vis.length && pv.sel.size >= vis.length ? t("pv.unselectAll") : t("pv.selectAllN", { n: vis.length });
-  };
+  const count = el("span", "pv-count");
+  bar.append(menu, count);
+  sticky.appendChild(bar);
+  // Compteur sans réafficher les lignes (appelé aussi quand on coche une ligne).
+  const refresh = () => { count.textContent = t("pv.selectedOf", { n: pv.sel.size, total: vis.length }); };
   pv.refreshBar = refresh;
   refresh();
   const acts = el("div", "btns three");
@@ -8042,7 +8556,7 @@ function pvAcceptPart(ids, edits) {
     if (!nv || !cardUsable(next)) { skipped++; return; } // valeur non valide : la ligne reste
     setFieldVal(c, p.field, nv);
     c.auto = c.auto.filter(a => a !== (p.field === "example" ? "example" : isPosField(p.field) ? "pos." + p.field.slice(4) : "terms." + p.field)); // validé à la main
-    state.checkedSig[c.id] = cardSig(c);
+    if (isVocab(c)) state.checkedSig[c.id] = cardSig(c);
     done.add(p.id); ok++;
   });
   if (removed.size) state.cards = state.cards.filter(c => !removed.has(c.id));
