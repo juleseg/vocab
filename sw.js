@@ -1,12 +1,15 @@
 // Service worker : appli installable + fonctionnement hors connexion.
 // Pages et scripts du site : réseau d'abord (les mises à jour arrivent tout de suite), cache si hors ligne.
 // Supabase (données, connexion) : jamais mis en cache.
-const CACHE = "vocab-v11";
+const CACHE = "vocab-v12";
 const CORE = ["./", "./index.html", "./config.js", "./pwa.js", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE).catch(() => {})).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE).catch(() => {})
+    .then(() => fetch("./index.html", { cache: "no-cache" })).then((r) => r.text())
+    .then((html) => c.addAll([...html.matchAll(/(?:src|href)="((?:css|js)\/[^"]+)"/g)].map((m) => "./" + m[1])))
+    .catch(() => {})).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (e) => {
@@ -36,4 +39,45 @@ self.addEventListener("fetch", (e) => {
     if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
     return res;
   }).catch(() => caches.match(req).then((hit) => hit || caches.match("./index.html"))));
+});
+
+// === NOTIFICATIONS PUSH (étape 32) ===
+// Message envoyé par la fonction Supabase « send-push » (chiffré, déchiffré par le navigateur) :
+// { id, title, body, url, icon, badge, image, lang, click, tag }
+//   url   : écran à ouvrir (ex. https://juleseg.github.io/vocab/?n=<id>#review) ; ?n=<id> permet à l'appli d'enregistrer le clic
+//   click : adresse qui enregistre le clic même si l'appli n'est pas connectée
+self.addEventListener("push", (e) => {
+  let m = {};
+  try { m = e.data ? e.data.json() : {}; } catch (err) { m = { body: e.data ? e.data.text() : "" }; }
+  const title = m.title || "Vocab";
+  const opts = {
+    body: m.body || "",
+    icon: m.icon || "icons/icon-192.png",
+    badge: m.badge || "icons/icon-192.png",
+    tag: m.tag || undefined,
+    lang: m.lang || undefined,
+    data: { id: m.id || null, url: m.url || "./", click: m.click || null }
+  };
+  if (m.image) opts.image = m.image;
+  e.waitUntil(self.registration.showNotification(title, opts));
+});
+
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const d = e.notification.data || {};
+  const target = new URL(d.url || "./", self.registration.scope);
+  e.waitUntil((async () => {
+    // Clic enregistré (sans attendre de réponse ; sans effet si hors ligne)
+    if (d.click) { try { await fetch(d.click, { method: "GET", mode: "no-cors", keepalive: true }); } catch (err) {} }
+    // Onglet de l'appli déjà ouvert : on le réutilise (écran changé par un message), sinon nouvel onglet.
+    const list = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    const scope = self.registration.scope;
+    const tab = list.find((c) => c.url.startsWith(scope));
+    if (tab) {
+      try { await tab.focus(); } catch (err) {}
+      tab.postMessage({ type: "push-open", id: d.id, hash: target.hash || "#home" });
+      return;
+    }
+    if (self.clients.openWindow) await self.clients.openWindow(target.href);
+  })());
 });
