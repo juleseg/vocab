@@ -754,6 +754,20 @@ span.fc-day{display:inline-block;width:12px;height:12px;aspect-ratio:auto;cursor
 .am-switch .au-lbl{font-weight:500}
 .am-fc-list{display:flex;flex-wrap:wrap;gap:0 12px}
 .am-fc-who{padding:4px 0;min-height:32px;font-weight:500;text-align:left}
+/* === PARTAGE (étape 30) === */
+.sh-friends{display:flex;flex-direction:column;gap:6px}
+.sh-friend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:space-between}
+.sh-friend .check-row{flex:1 1 auto;min-width:0;margin:0}
+.sh-role{width:auto;min-width:0;flex:0 0 auto;padding:6px 8px;font-size:14px}
+.sh-members .am-btns{flex-wrap:wrap}
+.sh-line{color:var(--accent)}
+.sh-mark{font-size:13px}
+.sh-flag{color:var(--warn);font-size:12px;font-weight:600}
+.tag.sh-flag{border-color:var(--warn)}
+.sh-prog{display:flex;flex-direction:column;gap:2px}
+.sh-prog-row{font-size:14px;overflow-wrap:anywhere}
+.sh-prog-name{font-weight:600}
+.sh-fc-row{padding:6px 0;border-bottom:1px solid var(--border);overflow-wrap:anywhere}
 </style>
 <!-- === PWA (appli installable) === -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -805,6 +819,7 @@ span.fc-day{display:inline-block;width:12px;height:12px;aspect-ratio:auto;cursor
       <div class="lv-links" id="lvLinks" hidden>
         <button class="link-btn" id="lvRename" data-i18n="lists.rename"></button>
         <button class="link-btn" id="lvMove" data-i18n="folders.moveBtn"></button>
+        <button class="link-btn" id="lvShare"></button>
         <button class="link-btn" id="lvLangs" data-i18n="folders.langs"></button>
         <button class="link-btn" id="lvUpdate" data-i18n="upd.btn"></button>
         <button class="link-btn" id="lvAsk" data-i18n="queue.ask" hidden></button>
@@ -981,7 +996,7 @@ const CONFIG = {
   PV_CHUNK: 200          // « À valider » : propositions acceptées / refusées par paquet
 };
 // Numéro de la dernière étape réalisée : affiché en bas des Réglages, envoyé au journal d'activité et dans la fiche appareil.
-const APP_VERSION = "29";
+const APP_VERSION = "31";
 
 // === I18N ===
 const I18N = {
@@ -1131,6 +1146,7 @@ const I18N = {
     "pv.field.typed": "다른 유형", "fx.exportBtn": "Claude용 파일 내려받기", "fx.exportTitle": "Claude용 파일", "fx.help": "파일 안에 Claude를 위한 지시가 들어 있습니다. 대화에서 Claude에게 파일을 주고, Claude가 돌려준 파일을 'Claude 답 가져오기'로 가져오세요.", "fx.what": "채울 항목 (빈 칸이 있는 카드만)", "fx.f.tr": "번역 (도움 언어)", "fx.f.pos": "품사", "fx.f.example": "예문 (단어)", "fx.f.other": "다른 카드 유형의 칸 (번역, 힌트, 설명, 규칙 예문)", "fx.count": "빈 칸이 있는 카드 {n}개 · 파일 {f}개 (파일당 최대 200장)", "fx.count0": "이 선택에는 빈 칸이 있는 카드가 없습니다.", "fx.download": "내려받기", "fx.partsTitle": "파일 {n}개", "fx.partsHelp": "카드가 {max}장을 넘어 {n}개 파일로 나뉩니다. Claude에게 하나씩 (또는 한꺼번에) 주세요.", "fx.zip": ".zip 파일 하나", "fx.separate": "파일 {n}개 따로", "fx.done": "내려받았습니다. 대화에서 Claude에게 파일을 준 다음 'Claude 답 가져오기'를 누르세요.", "fx.textFallback": "여기서는 내려받을 수 없습니다. 각 부분의 텍스트를 복사해 .txt 파일이나 Claude와의 대화에 붙여넣으세요.", "fx.importHelp": "Claude가 돌려준 파일을 하나 이상 고르거나 텍스트를 붙여넣으세요. 바로 바뀌는 것은 없습니다. 결과를 확인한 뒤 모두 '검토'로 갑니다.", "fx.files": "파일 선택 (.txt, .csv)", "fx.drop": "또는 파일을 여기로 끌어 놓으세요", "fx.paste": "또는 텍스트 붙여넣기", "fx.pasted": "붙여넣은 텍스트", "fx.readErr": "파일을 읽을 수 없습니다: {name}", "fx.empty": "파일을 고르거나 텍스트를 붙여넣으세요.", "fx.noHeader": "'id;type;…' 머리글 줄이 없습니다. Claude용 파일에 대한 답이 아닙니다.", "fx.sumTitle": "확인 전 결과", "fx.sum.files": "읽은 파일: {n} · 카드 줄: {m}", "fx.sum.found": "찾은 카드: {n}", "fx.sum.filled": "채운 칸: {n}", "fx.sum.already": "이미 '검토'에 있거나 거절된 값 (무시): {n}", "fx.sum.invalid": "올바르지 않은 값 (무시): {n}", "fx.sum.empty": "아직 빈 칸이 있는 카드: {n}", "fx.sum.unknown": "모르는 id 또는 삭제된 카드: {n}", "fx.sum.bad": "읽을 수 없는 줄: {n}", "fx.sum.badLine": "{file} {line}번째 줄", "fx.sum.modified": "내보낸 뒤 바뀐 카드: {n} (아직 비어 있는 칸만 반영)", "fx.sum.dupRows": "중복된 줄 (같은 카드, 무시): {n}", "fx.sum.corr": "수정 제안 (Claude가 바꾼 이미 채워진 칸, 적용되지 않음): {n}", "fx.sum.corrSend": "이 수정 {n}개도 '검토'로 보내기 (수정 유형)", "fx.send": "'검토'로 보내기", "fx.nothing": "'검토'로 보낼 새 내용이 없습니다.", "fx.sent": "'검토'에 제안 {n}개를 추가했습니다.", "fx.reason": "Claude의 답 (파일)", "fx.corrReason": "이미 채워진 칸을 Claude가 바꿈",
     "pv.allFolders": "모든 폴더",
     "upd.btn": "업데이트", "upd.btnN": "업데이트 (보완 {n}개)", "upd.all": "전체 업데이트", "upd.badge": "보완 {n}개",
+    "card.toFill": "보완 필요: {langs}", "card.toFillOne": "보완 필요", "langs.supportAutoHint": "앱 언어에 따라 자동으로 정해지며, 앱 언어를 바꾸면 함께 바뀝니다.",
     "upd.title": "업데이트: {name}", "upd.allName": "모든 목록", "upd.launch": "시작", "upd.pickOne": "항목을 하나 이상 선택하세요",
     "upd.intro": "카드 {n}개를 분석했습니다. 아직 아무것도 바뀌지 않았습니다. 업데이트할 항목을 선택하세요. 제안은 « 검토 »로 갑니다.",
     "upd.cards": "카드 {n}개", "upd.card1": "카드 1개", "upd.cat.tr": "번역 없음 — {lang}", "upd.cat.pos": "품사 없음", "upd.cat.gender": "그중 성이 없는 명사 {n}개 ({langs})",
@@ -1285,6 +1301,7 @@ const I18N = {
     "pv.field.typed": "Autres types", "fx.exportBtn": "Télécharger le fichier pour Claude", "fx.exportTitle": "Fichier pour Claude", "fx.help": "Le fichier contient les consignes pour Claude. Donnez-le à Claude dans une conversation, puis importez le fichier qu'il rend avec « Importer la réponse de Claude ».", "fx.what": "À compléter (cartes incomplètes seulement)", "fx.f.tr": "Traductions (langues d'appui)", "fx.f.pos": "Nature grammaticale", "fx.f.example": "Exemples (vocabulaire)", "fx.f.other": "Champs des autres types (traduction, indice, explication, exemples de règle)", "fx.count": "{n} carte(s) incomplète(s) · {f} fichier(s) de 200 cartes max", "fx.count0": "Aucune carte incomplète pour ce choix.", "fx.download": "Télécharger", "fx.partsTitle": "{n} fichiers", "fx.partsHelp": "Plus de {max} cartes : le travail est découpé en {n} fichiers. Donnez-les à Claude un par un (ou tous ensemble).", "fx.zip": "Un seul fichier .zip", "fx.separate": "{n} fichiers séparés", "fx.done": "Téléchargé. Donnez le fichier à Claude dans une conversation, puis « Importer la réponse de Claude ».", "fx.textFallback": "Téléchargement impossible ici : copiez le texte (chaque partie) dans un fichier .txt ou directement dans la conversation avec Claude.", "fx.importHelp": "Choisissez le ou les fichiers rendus par Claude, ou collez le texte. Rien n'est modifié : tout va dans « À valider » après le bilan.", "fx.files": "Choisir des fichiers (.txt, .csv)", "fx.drop": "ou glissez-déposez les fichiers ici", "fx.paste": "Ou collez le texte", "fx.pasted": "texte collé", "fx.readErr": "Fichier illisible : {name}", "fx.empty": "Choisissez un fichier ou collez du texte.", "fx.noHeader": "Aucune ligne d'en-tête « id;type;… » trouvée : ce n'est pas une réponse au fichier pour Claude.", "fx.sumTitle": "Bilan avant validation", "fx.sum.files": "Fichiers lus : {n} · lignes de cartes : {m}", "fx.sum.found": "Cartes trouvées : {n}", "fx.sum.filled": "Cases complétées : {n}", "fx.sum.already": "Déjà dans « À valider » ou déjà refusées (ignorées) : {n}", "fx.sum.invalid": "Valeurs non valides (ignorées) : {n}", "fx.sum.empty": "Cartes avec des cases encore vides : {n}", "fx.sum.unknown": "Ids inconnus ou cartes supprimées : {n}", "fx.sum.bad": "Lignes illisibles : {n}", "fx.sum.badLine": "{file}, ligne {line}", "fx.sum.modified": "Cartes modifiées depuis l'export : {n} (seules leurs cases encore vides sont prises)", "fx.sum.dupRows": "Lignes en double (même carte, ignorées) : {n}", "fx.sum.corr": "Corrections proposées (cases déjà remplies changées par Claude, jamais appliquées) : {n}", "fx.sum.corrSend": "Envoyer aussi ces {n} corrections dans « À valider » (type Correction)", "fx.send": "Envoyer dans « À valider »", "fx.nothing": "Rien de nouveau à envoyer dans « À valider ».", "fx.sent": "{n} proposition(s) ajoutée(s) dans « À valider ».", "fx.reason": "Réponse de Claude (fichier)", "fx.corrReason": "Case déjà remplie, modifiée par Claude",
     "pv.allFolders": "Tous les dossiers",
     "upd.btn": "Mettre à jour", "upd.btnN": "Mettre à jour ({n} à compléter)", "upd.all": "Tout mettre à jour", "upd.badge": "{n} à compléter",
+    "card.toFill": "À compléter : {langs}", "card.toFillOne": "À compléter", "langs.supportAutoHint": "Calculées automatiquement selon la langue de l'interface ; elles changent avec elle.",
     "upd.title": "Mettre à jour : {name}", "upd.allName": "toutes les listes", "upd.launch": "Lancer", "upd.pickOne": "Cochez au moins une catégorie",
     "upd.intro": "{n} cartes analysées. Rien n'a été modifié. Cochez ce qu'il faut mettre à jour : les propositions iront dans « À valider ».",
     "upd.cards": "{n} cartes", "upd.card1": "1 carte", "upd.cat.tr": "Traduction manquante — {lang}", "upd.cat.pos": "Nature grammaticale manquante", "upd.cat.gender": "dont {n} noms sans genre ({langs})",
@@ -1439,6 +1456,7 @@ const I18N = {
     "pv.field.typed": "Other types", "fx.exportBtn": "Download the file for Claude", "fx.exportTitle": "File for Claude", "fx.help": "The file contains the instructions for Claude. Give it to Claude in a conversation, then import the file it returns with \"Import Claude's reply\".", "fx.what": "To fill in (incomplete cards only)", "fx.f.tr": "Translations (support languages)", "fx.f.pos": "Part of speech", "fx.f.example": "Examples (vocabulary)", "fx.f.other": "Fields of other card types (translation, hint, explanation, rule examples)", "fx.count": "{n} incomplete card(s) · {f} file(s) of 200 cards max", "fx.count0": "No incomplete card for this choice.", "fx.download": "Download", "fx.partsTitle": "{n} files", "fx.partsHelp": "More than {max} cards: the work is split into {n} files. Give them to Claude one by one (or all together).", "fx.zip": "One .zip file", "fx.separate": "{n} separate files", "fx.done": "Downloaded. Give the file to Claude in a conversation, then \"Import Claude's reply\".", "fx.textFallback": "Download isn't possible here: copy the text (each part) into a .txt file or straight into the conversation with Claude.", "fx.importHelp": "Choose the file(s) Claude returned, or paste the text. Nothing is changed: everything goes to \"Pending\" after the summary.", "fx.files": "Choose files (.txt, .csv)", "fx.drop": "or drag and drop the files here", "fx.paste": "Or paste the text", "fx.pasted": "pasted text", "fx.readErr": "Unreadable file: {name}", "fx.empty": "Choose a file or paste some text.", "fx.noHeader": "No \"id;type;…\" header line found: this isn't a reply to the file for Claude.", "fx.sumTitle": "Summary before sending", "fx.sum.files": "Files read: {n} · card lines: {m}", "fx.sum.found": "Cards found: {n}", "fx.sum.filled": "Cells filled: {n}", "fx.sum.already": "Already in \"Pending\" or already rejected (ignored): {n}", "fx.sum.invalid": "Invalid values (ignored): {n}", "fx.sum.empty": "Cards with cells still empty: {n}", "fx.sum.unknown": "Unknown ids or deleted cards: {n}", "fx.sum.bad": "Unreadable lines: {n}", "fx.sum.badLine": "{file}, line {line}", "fx.sum.modified": "Cards changed since the export: {n} (only their still-empty cells are used)", "fx.sum.dupRows": "Duplicate lines (same card, ignored): {n}", "fx.sum.corr": "Suggested corrections (filled cells Claude changed, never applied): {n}", "fx.sum.corrSend": "Also send these {n} corrections to \"Pending\" (Correction type)", "fx.send": "Send to \"Pending\"", "fx.nothing": "Nothing new to send to \"Pending\".", "fx.sent": "{n} suggestion(s) added to \"Pending\".", "fx.reason": "Claude's reply (file)", "fx.corrReason": "Filled cell changed by Claude",
     "pv.allFolders": "All folders",
     "upd.btn": "Update", "upd.btnN": "Update ({n} to fill)", "upd.all": "Update all", "upd.badge": "{n} to fill",
+    "card.toFill": "To fill: {langs}", "card.toFillOne": "To fill", "langs.supportAutoHint": "Set automatically from the interface language; they change with it.",
     "upd.title": "Update: {name}", "upd.allName": "all lists", "upd.launch": "Start", "upd.pickOne": "Tick at least one category",
     "upd.intro": "{n} cards analysed. Nothing has changed yet. Tick what to update: suggestions will go to \"Pending\".",
     "upd.cards": "{n} cards", "upd.card1": "1 card", "upd.cat.tr": "Missing translation — {lang}", "upd.cat.pos": "Missing part of speech", "upd.cat.gender": "including {n} nouns without gender ({langs})",
@@ -3287,6 +3305,356 @@ Object.assign(I18N.en, {
   "al.k.friend_block": "Account blocked (friends)"
 });
 
+// Étape 30 : partage de listes et de dossiers (copie, liste commune, invitations, gestion, journal, fiche admin).
+Object.assign(I18N.fr, {
+  "sh.share": "Partager",
+  "sh.manageBtn": "Partage…",
+  "sh.title": "Partager",
+  "sh.titleName": "Partager « {name} »",
+  "sh.close": "Fermer",
+  "sh.offline": "Le partage marche seulement avec la connexion en ligne (Supabase).",
+  "sh.missing": "Lancez le script SQL de l'étape 30 (supabase-etape30.sql) dans Supabase pour partager des listes.",
+  "sh.noFriends": "Ajoute d'abord des amis (écran Amis) pour partager une liste.",
+  "sh.whatList": "Liste « {name} » · {n} cartes",
+  "sh.whatFolder": "Dossier « {name} » · {l} listes · {n} cartes",
+  "sh.mode": "Mode",
+  "sh.modeCopy": "Envoyer une copie",
+  "sh.modeCommon": "Liste commune",
+  "sh.copyHint": "Ton ami reçoit sa propre copie (progression à zéro). Tes modifications suivantes ne changent rien chez lui.",
+  "sh.commonHint": "Une seule version des cartes pour tous ; chacun garde sa progression. Choisis pour chaque ami : lecture seule ou modifiable.",
+  "sh.childHint": "Cette liste est dans un dossier commun : pour la partager en commun, partage le dossier.",
+  "sh.notOwnerHint": "Seul le propriétaire peut inviter dans la liste commune. Tu peux envoyer une copie.",
+  "sh.friends": "Amis",
+  "sh.alreadyMember": "déjà membre",
+  "sh.roleFor": "Droit de {id}",
+  "sh.role.read": "lecture seule",
+  "sh.role.write": "modifiable",
+  "sh.role.owner": "propriétaire",
+  "sh.send": "Envoyer",
+  "sh.pickFriend": "Choisis au moins un ami.",
+  "sh.sending": "Partage en cours…",
+  "sh.sent": "Invitation envoyée à {ids}",
+  "sh.refused": "impossible pour {ids} (pas ami ou compte indisponible)",
+  "sh.manageTitle": "Partage · {name}",
+  "sh.ownList": "Liste commune dont tu es propriétaire.",
+  "sh.ownFolder": "Dossier commun dont tu es propriétaire (toutes ses listes, même celles ajoutées plus tard).",
+  "sh.memberOf": "Liste commune de {id} · {role}",
+  "sh.inFolder": "Partagée avec le dossier « {name} ».",
+  "sh.members": "Membres ({n})",
+  "sh.notFriend": "plus amis : sans accès",
+  "sh.removeMember": "Retirer",
+  "sh.removeAsk": "Retirer {id} de « {name} » ? Il ne verra plus la liste.",
+  "sh.removed": "{id} a été retiré.",
+  "sh.roleDone": "{id} : {role}.",
+  "sh.pendingInv": "Invitations en attente",
+  "sh.invCanceled": "Invitation à {id} annulée.",
+  "sh.pendingSend": "{n} modification(s) pas encore envoyée(s) (envoi au retour de la connexion).",
+  "sh.inviteMore": "Inviter des amis",
+  "sh.copyOnly": "Envoyer une copie à un ami",
+  "sh.deleteList": "Supprimer la liste commune",
+  "sh.deleteFolder": "Supprimer le dossier commun",
+  "sh.deleteAsk": "Supprimer la liste commune « {name} » pour tout le monde ? Les membres ne la verront plus.",
+  "sh.deleteFolderAsk": "Supprimer le dossier commun « {name} » ({l} listes) pour tout le monde ? Les membres ne le verront plus.",
+  "sh.keepMine": "Garder ma liste (redevient une liste normale)",
+  "sh.deleted": "« {name} » n'est plus partagée.",
+  "sh.leave": "Quitter",
+  "sh.leaveFolder": "Quitter le dossier commun",
+  "sh.leaveAsk": "Quitter « {name} » (partagée par {id}) ?",
+  "sh.keepCopy": "Garder une copie (liste normale, avec ma progression)",
+  "sh.left": "Tu as quitté « {name} ».",
+  "sh.leftKept": "Tu as quitté « {name} » ; tu en gardes une copie.",
+  "sh.keptOut": "{n} liste(s) commune(s) sortie(s) du dossier (pas supprimée(s)).",
+  "sh.readOnly": "Liste commune en lecture seule : modification impossible.",
+  "sh.readOnlyReverted": "Liste commune en lecture seule : modification annulée.",
+  "sh.byMe": "partagée par moi",
+  "sh.byOwner": "partagée par {id}",
+  "sh.folderWord": "dossier",
+  "sh.flagTitle": "Modifiée par {id}",
+  "sh.gone": "« {name} » n'est plus partagée avec toi.",
+  "sh.backPrivate": "« {name} » n'est plus partagée (liste gardée).",
+  "sh.arrived": "Nouvelle liste commune : « {name} » ({id}).",
+  "sh.invTitle": "Invitations de partage ({n})",
+  "sh.invOut": "Invitations envoyées ({n})",
+  "sh.inv.copyList": "{id} te propose la liste « {name} »",
+  "sh.inv.copyFolder": "{id} te propose le dossier « {name} »",
+  "sh.inv.commonList": "{id} t'invite dans la liste commune « {name} »",
+  "sh.inv.commonFolder": "{id} t'invite dans le dossier commun « {name} »",
+  "sh.nLists": "{n} listes",
+  "sh.add": "Ajouter",
+  "sh.whereTo": "Ranger dans le dossier",
+  "sh.declined": "Invitation « {name} » refusée.",
+  "sh.addedCopy": "« {name} » ajoutée (progression à zéro).",
+  "sh.addedCommon": "« {name} » ajoutée à tes listes.",
+  "sh.noProgress": "rien de partagé (ou caché)",
+  "sh.progVal": "{su}/{n} sues · {rev} à revoir · {ps} pas sues",
+  "sh.err.sh_gone": "Liste commune ou invitation introuvable (supprimée ?).",
+  "sh.err.sh_owner": "Réservé au propriétaire de la liste.",
+  "sh.err.sh_limit": "Limite atteinte (invitations en attente ou listes communes).",
+  "sh.err.sh_big": "Trop de cartes à envoyer en une fois (20 000 max).",
+  "sh.err.sh_unavailable": "Partage impossible avec ce compte.",
+  "sh.err.sh_bad": "Partage invalide.",
+  "sh.err.net": "Pas de connexion. Réessaie plus tard.",
+  "sh.err.other": "Erreur du serveur. Réessaie plus tard.",
+  "sh.fc.title": "Partages",
+  "sh.fc.owned": "Listes et dossiers communs créés ({n})",
+  "sh.fc.ownedOne": "Propriétaire",
+  "sh.fc.member": "Membre de ({n})",
+  "sh.fc.memberOne": "Membre",
+  "sh.fc.noMember": "aucun membre",
+  "sh.fc.sent": "Invitations envoyées ({n})",
+  "sh.fc.received": "Invitations reçues ({n})",
+  "sh.fc.date": "Date",
+  "sh.fc.to": "À",
+  "sh.fc.from": "De",
+  "sh.fc.what": "Quoi",
+  "sh.fc.status": "État",
+  "sh.st.pending": "en attente",
+  "sh.st.accepted": "acceptée",
+  "sh.st.declined": "refusée",
+  "sh.st.cancelled": "annulée",
+  "sh.al.n": "{n} ami(s)",
+  "sh.al.keep": "copie gardée",
+  "am.priv.shared": "Progression sur les listes partagées",
+  "al.k.share_sent": "Partage : invitation envoyée",
+  "al.k.share_accepted": "Partage : invitation acceptée",
+  "al.k.share_declined": "Partage : invitation refusée",
+  "al.k.share_member_removed": "Partage : membre retiré",
+  "al.k.share_left": "Partage : liste quittée",
+  "al.k.share_deleted": "Partage : liste commune supprimée"
+});
+Object.assign(I18N.ko, {
+  "sh.share": "공유",
+  "sh.manageBtn": "공유 관리…",
+  "sh.title": "공유",
+  "sh.titleName": "「{name}」 공유",
+  "sh.close": "닫기",
+  "sh.offline": "공유는 온라인 연결(Supabase)에서만 사용할 수 있어요.",
+  "sh.missing": "목록을 공유하려면 Supabase에서 30단계 SQL 스크립트(supabase-etape30.sql)를 실행하세요.",
+  "sh.noFriends": "목록을 공유하려면 먼저 친구를 추가하세요 (친구 화면).",
+  "sh.whatList": "목록 「{name}」 · 카드 {n}개",
+  "sh.whatFolder": "폴더 「{name}」 · 목록 {l}개 · 카드 {n}개",
+  "sh.mode": "방식",
+  "sh.modeCopy": "복사본 보내기",
+  "sh.modeCommon": "공동 목록",
+  "sh.copyHint": "친구는 자기만의 복사본을 받아요 (진도 0부터). 이후에 내가 고쳐도 친구 쪽은 바뀌지 않아요.",
+  "sh.commonHint": "모두가 같은 카드를 쓰고, 진도는 각자 따로예요. 친구마다 읽기 전용 / 수정 가능을 고르세요.",
+  "sh.childHint": "이 목록은 공동 폴더 안에 있어요. 공동으로 공유하려면 폴더를 공유하세요.",
+  "sh.notOwnerHint": "공동 목록 초대는 소유자만 할 수 있어요. 복사본은 보낼 수 있어요.",
+  "sh.friends": "친구",
+  "sh.alreadyMember": "이미 멤버",
+  "sh.roleFor": "{id}의 권한",
+  "sh.role.read": "읽기 전용",
+  "sh.role.write": "수정 가능",
+  "sh.role.owner": "소유자",
+  "sh.send": "보내기",
+  "sh.pickFriend": "친구를 한 명 이상 고르세요.",
+  "sh.sending": "공유하는 중…",
+  "sh.sent": "{ids}에게 초대를 보냈어요",
+  "sh.refused": "{ids}에게는 보낼 수 없어요 (친구가 아니거나 사용할 수 없는 계정)",
+  "sh.manageTitle": "공유 · {name}",
+  "sh.ownList": "내가 소유한 공동 목록이에요.",
+  "sh.ownFolder": "내가 소유한 공동 폴더예요 (나중에 추가한 목록도 포함).",
+  "sh.memberOf": "{id}의 공동 목록 · {role}",
+  "sh.inFolder": "폴더 「{name}」와 함께 공유돼요.",
+  "sh.members": "멤버 ({n})",
+  "sh.notFriend": "친구 아님: 접근 불가",
+  "sh.removeMember": "내보내기",
+  "sh.removeAsk": "{id}를 「{name}」에서 내보낼까요? 더 이상 목록을 볼 수 없어요.",
+  "sh.removed": "{id}를 내보냈어요.",
+  "sh.roleDone": "{id}: {role}.",
+  "sh.pendingInv": "대기 중인 초대",
+  "sh.invCanceled": "{id}에게 보낸 초대를 취소했어요.",
+  "sh.pendingSend": "아직 보내지 않은 수정 {n}개 (연결되면 보내요).",
+  "sh.inviteMore": "친구 초대",
+  "sh.copyOnly": "친구에게 복사본 보내기",
+  "sh.deleteList": "공동 목록 삭제",
+  "sh.deleteFolder": "공동 폴더 삭제",
+  "sh.deleteAsk": "공동 목록 「{name}」를 모두에게서 삭제할까요? 멤버들은 더 이상 볼 수 없어요.",
+  "sh.deleteFolderAsk": "공동 폴더 「{name}」(목록 {l}개)를 모두에게서 삭제할까요? 멤버들은 더 이상 볼 수 없어요.",
+  "sh.keepMine": "내 목록은 남기기 (일반 목록으로)",
+  "sh.deleted": "「{name}」는 더 이상 공유되지 않아요.",
+  "sh.leave": "나가기",
+  "sh.leaveFolder": "공동 폴더 나가기",
+  "sh.leaveAsk": "「{name}」({id}의 공유)에서 나갈까요?",
+  "sh.keepCopy": "복사본 남기기 (내 진도와 함께 일반 목록으로)",
+  "sh.left": "「{name}」에서 나갔어요.",
+  "sh.leftKept": "「{name}」에서 나갔어요. 복사본은 남겼어요.",
+  "sh.keptOut": "공동 목록 {n}개는 폴더 밖으로 옮겼어요 (삭제하지 않음).",
+  "sh.readOnly": "읽기 전용 공동 목록이라 수정할 수 없어요.",
+  "sh.readOnlyReverted": "읽기 전용 공동 목록이라 수정이 취소됐어요.",
+  "sh.byMe": "내가 공유함",
+  "sh.byOwner": "{id}가 공유함",
+  "sh.folderWord": "폴더",
+  "sh.flagTitle": "{id}가 수정함",
+  "sh.gone": "「{name}」는 더 이상 나와 공유되지 않아요.",
+  "sh.backPrivate": "「{name}」는 더 이상 공유되지 않아요 (목록은 남음).",
+  "sh.arrived": "새 공동 목록: 「{name}」 ({id}).",
+  "sh.invTitle": "공유 초대 ({n})",
+  "sh.invOut": "보낸 초대 ({n})",
+  "sh.inv.copyList": "{id}가 목록 「{name}」를 보냈어요",
+  "sh.inv.copyFolder": "{id}가 폴더 「{name}」를 보냈어요",
+  "sh.inv.commonList": "{id}가 공동 목록 「{name}」에 초대했어요",
+  "sh.inv.commonFolder": "{id}가 공동 폴더 「{name}」에 초대했어요",
+  "sh.nLists": "목록 {n}개",
+  "sh.add": "추가",
+  "sh.whereTo": "넣을 폴더",
+  "sh.declined": "「{name}」 초대를 거절했어요.",
+  "sh.addedCopy": "「{name}」를 추가했어요 (진도 0부터).",
+  "sh.addedCommon": "「{name}」를 내 목록에 추가했어요.",
+  "sh.noProgress": "공유된 것 없음 (또는 숨김)",
+  "sh.progVal": "{su}/{n} 앎 · {rev} 다시 보기 · {ps} 모름",
+  "sh.err.sh_gone": "공동 목록이나 초대를 찾을 수 없어요 (삭제됐나요?).",
+  "sh.err.sh_owner": "목록 소유자만 할 수 있어요.",
+  "sh.err.sh_limit": "한도에 도달했어요 (대기 중인 초대 또는 공동 목록).",
+  "sh.err.sh_big": "한 번에 보내기에는 카드가 너무 많아요 (최대 20,000개).",
+  "sh.err.sh_unavailable": "이 계정과는 공유할 수 없어요.",
+  "sh.err.sh_bad": "잘못된 공유예요.",
+  "sh.err.net": "연결이 없어요. 나중에 다시 시도하세요.",
+  "sh.err.other": "서버 오류예요. 나중에 다시 시도하세요.",
+  "sh.fc.title": "공유",
+  "sh.fc.owned": "만든 공동 목록·폴더 ({n})",
+  "sh.fc.ownedOne": "소유자",
+  "sh.fc.member": "참여 중 ({n})",
+  "sh.fc.memberOne": "멤버",
+  "sh.fc.noMember": "멤버 없음",
+  "sh.fc.sent": "보낸 초대 ({n})",
+  "sh.fc.received": "받은 초대 ({n})",
+  "sh.fc.date": "날짜",
+  "sh.fc.to": "받는 사람",
+  "sh.fc.from": "보낸 사람",
+  "sh.fc.what": "내용",
+  "sh.fc.status": "상태",
+  "sh.st.pending": "대기 중",
+  "sh.st.accepted": "수락됨",
+  "sh.st.declined": "거절됨",
+  "sh.st.cancelled": "취소됨",
+  "sh.al.n": "친구 {n}명",
+  "sh.al.keep": "복사본 남김",
+  "am.priv.shared": "공유 목록 진도",
+  "al.k.share_sent": "공유: 초대 보냄",
+  "al.k.share_accepted": "공유: 초대 수락",
+  "al.k.share_declined": "공유: 초대 거절",
+  "al.k.share_member_removed": "공유: 멤버 내보냄",
+  "al.k.share_left": "공유: 목록 나감",
+  "al.k.share_deleted": "공유: 공동 목록 삭제"
+});
+Object.assign(I18N.en, {
+  "sh.share": "Share",
+  "sh.manageBtn": "Sharing…",
+  "sh.title": "Share",
+  "sh.titleName": "Share “{name}”",
+  "sh.close": "Close",
+  "sh.offline": "Sharing only works with the online connection (Supabase).",
+  "sh.missing": "Run the step 30 SQL script (supabase-etape30.sql) in Supabase to share lists.",
+  "sh.noFriends": "Add friends first (Friends screen) to share a list.",
+  "sh.whatList": "List “{name}” · {n} cards",
+  "sh.whatFolder": "Folder “{name}” · {l} lists · {n} cards",
+  "sh.mode": "Mode",
+  "sh.modeCopy": "Send a copy",
+  "sh.modeCommon": "Shared list",
+  "sh.copyHint": "Your friend gets their own copy (progress at zero). Your later changes don't affect it.",
+  "sh.commonHint": "One version of the cards for everyone; each person keeps their own progress. Pick for each friend: read-only or can edit.",
+  "sh.childHint": "This list is in a shared folder: to share it as a shared list, share the folder.",
+  "sh.notOwnerHint": "Only the owner can invite to the shared list. You can send a copy.",
+  "sh.friends": "Friends",
+  "sh.alreadyMember": "already a member",
+  "sh.roleFor": "Rights for {id}",
+  "sh.role.read": "read-only",
+  "sh.role.write": "can edit",
+  "sh.role.owner": "owner",
+  "sh.send": "Send",
+  "sh.pickFriend": "Pick at least one friend.",
+  "sh.sending": "Sharing…",
+  "sh.sent": "Invitation sent to {ids}",
+  "sh.refused": "not possible for {ids} (not a friend or account unavailable)",
+  "sh.manageTitle": "Sharing · {name}",
+  "sh.ownList": "Shared list you own.",
+  "sh.ownFolder": "Shared folder you own (all its lists, including ones added later).",
+  "sh.memberOf": "Shared list from {id} · {role}",
+  "sh.inFolder": "Shared with the folder “{name}”.",
+  "sh.members": "Members ({n})",
+  "sh.notFriend": "no longer friends: no access",
+  "sh.removeMember": "Remove",
+  "sh.removeAsk": "Remove {id} from “{name}”? They won't see the list anymore.",
+  "sh.removed": "{id} was removed.",
+  "sh.roleDone": "{id}: {role}.",
+  "sh.pendingInv": "Pending invitations",
+  "sh.invCanceled": "Invitation to {id} canceled.",
+  "sh.pendingSend": "{n} change(s) not sent yet (sent when back online).",
+  "sh.inviteMore": "Invite friends",
+  "sh.copyOnly": "Send a copy to a friend",
+  "sh.deleteList": "Delete the shared list",
+  "sh.deleteFolder": "Delete the shared folder",
+  "sh.deleteAsk": "Delete the shared list “{name}” for everyone? Members won't see it anymore.",
+  "sh.deleteFolderAsk": "Delete the shared folder “{name}” ({l} lists) for everyone? Members won't see it anymore.",
+  "sh.keepMine": "Keep my list (back to a normal list)",
+  "sh.deleted": "“{name}” is no longer shared.",
+  "sh.leave": "Leave",
+  "sh.leaveFolder": "Leave the shared folder",
+  "sh.leaveAsk": "Leave “{name}” (shared by {id})?",
+  "sh.keepCopy": "Keep a copy (normal list, with my progress)",
+  "sh.left": "You left “{name}”.",
+  "sh.leftKept": "You left “{name}”; you kept a copy.",
+  "sh.keptOut": "{n} shared list(s) moved out of the folder (not deleted).",
+  "sh.readOnly": "Read-only shared list: it can't be changed.",
+  "sh.readOnlyReverted": "Read-only shared list: change undone.",
+  "sh.byMe": "shared by me",
+  "sh.byOwner": "shared by {id}",
+  "sh.folderWord": "folder",
+  "sh.flagTitle": "Changed by {id}",
+  "sh.gone": "“{name}” is no longer shared with you.",
+  "sh.backPrivate": "“{name}” is no longer shared (list kept).",
+  "sh.arrived": "New shared list: “{name}” ({id}).",
+  "sh.invTitle": "Sharing invitations ({n})",
+  "sh.invOut": "Invitations sent ({n})",
+  "sh.inv.copyList": "{id} offers you the list “{name}”",
+  "sh.inv.copyFolder": "{id} offers you the folder “{name}”",
+  "sh.inv.commonList": "{id} invites you to the shared list “{name}”",
+  "sh.inv.commonFolder": "{id} invites you to the shared folder “{name}”",
+  "sh.nLists": "{n} lists",
+  "sh.add": "Add",
+  "sh.whereTo": "Put in folder",
+  "sh.declined": "Invitation “{name}” declined.",
+  "sh.addedCopy": "“{name}” added (progress at zero).",
+  "sh.addedCommon": "“{name}” added to your lists.",
+  "sh.noProgress": "nothing shared (or hidden)",
+  "sh.progVal": "{su}/{n} known · {rev} to review · {ps} not known",
+  "sh.err.sh_gone": "Shared list or invitation not found (deleted?).",
+  "sh.err.sh_owner": "Only the list owner can do this.",
+  "sh.err.sh_limit": "Limit reached (pending invitations or shared lists).",
+  "sh.err.sh_big": "Too many cards to send at once (20,000 max).",
+  "sh.err.sh_unavailable": "Sharing with this account isn't possible.",
+  "sh.err.sh_bad": "Invalid share.",
+  "sh.err.net": "No connection. Try again later.",
+  "sh.err.other": "Server error. Try again later.",
+  "sh.fc.title": "Sharing",
+  "sh.fc.owned": "Shared lists and folders created ({n})",
+  "sh.fc.ownedOne": "Owner",
+  "sh.fc.member": "Member of ({n})",
+  "sh.fc.memberOne": "Member",
+  "sh.fc.noMember": "no members",
+  "sh.fc.sent": "Invitations sent ({n})",
+  "sh.fc.received": "Invitations received ({n})",
+  "sh.fc.date": "Date",
+  "sh.fc.to": "To",
+  "sh.fc.from": "From",
+  "sh.fc.what": "What",
+  "sh.fc.status": "Status",
+  "sh.st.pending": "pending",
+  "sh.st.accepted": "accepted",
+  "sh.st.declined": "declined",
+  "sh.st.cancelled": "canceled",
+  "sh.al.n": "{n} friend(s)",
+  "sh.al.keep": "copy kept",
+  "am.priv.shared": "Progress on shared lists",
+  "al.k.share_sent": "Sharing: invitation sent",
+  "al.k.share_accepted": "Sharing: invitation accepted",
+  "al.k.share_declined": "Sharing: invitation declined",
+  "al.k.share_member_removed": "Sharing: member removed",
+  "al.k.share_left": "Sharing: list left",
+  "al.k.share_deleted": "Sharing: shared list deleted"
+});
+
 function t(key, vars) {
   const lang = (state && state.settings && state.settings.uiLang) || defaultLang();
   let s = (I18N[lang] && I18N[lang][key]) || I18N.fr[key] || key;
@@ -3320,7 +3688,7 @@ function withTimeout(p, ms) {
 //   tts        : voix de synthèse vocale
 //   normalize  : règles de comparaison du mode Écrit (case : casse ignorée ; accents : accents tolérés ; spaces : espaces tolérés)
 //   gender     : les noms ont un genre (nm, nf, nmf, nmpl, nfpl obligatoires, jamais « n »)
-//   supportLast: langue mise en dernier dans les langues d'appui par défaut
+//   bridge     : langue « pont » ajoutée aux langues d'appui (anglais) : voir supportLangs (étape 31)
 //   pos        : abréviation de chaque nature grammaticale, dans la convention des dictionnaires de cette langue
 //   grammar    : tenses [{ id, names { fr, ko, en }, persons? (personnes propres à ce temps), que? }]
 //                persons [{ id, label (texte, ou { fr, ko, en }), pronoun?, elide? }] — niveaux de politesse pour le coréen
@@ -3458,7 +3826,7 @@ const LANGUAGES = {
           ]
         } },
   en: { code: "en", names: { fr: "Anglais", ko: "영어", en: "English" }, tts: "en-US",
-        normalize: { case: true, accents: true, spaces: false }, gender: false, supportLast: true,
+        normalize: { case: true, accents: true, spaces: false }, gender: false, bridge: true,
         pos: { nm: "n.", nf: "n.", nmf: "n.", nmpl: "n. pl.", nfpl: "n. pl.", n: "n.", v: "v.", vpr: "v.",
                adj: "adj.", adv: "adv.", prep: "prep.", conj: "conj.", pron: "pron.", interj: "interj.", expr: "phr." },
         grammar: {
@@ -3532,23 +3900,47 @@ function langCodes(codes) { return arr(codes).map(c => String(c).toUpperCase()).
 // « KO·EN → FR » : langues d'appui → langue apprise
 function pairLabel(lg) { return langCodes(lg.support) + " → " + langCodes([lg.target]); }
 function langRules(code) { return (LANGUAGES[code] && LANGUAGES[code].normalize) || { case: true, accents: true, spaces: false }; }
-// Langues d'appui par défaut : toutes les autres, celles marquées supportLast à la fin (fr → ko, en ; ko → fr, en).
-function defaultSupportFor(target) {
-  const o = LANG_CODES.filter(c => c !== target);
-  return o.filter(c => !LANGUAGES[c].supportLast).concat(o.filter(c => LANGUAGES[c].supportLast));
+// --- Langues d'appui (étape 31) ---
+// Plus choisies à la main : calculées depuis la langue apprise et la langue de l'interface.
+//   - toujours la langue de l'interface ;
+//   - plus la langue « pont » (bridge : anglais), sauf si c'est la langue apprise ou déjà la langue de l'interface ;
+//   - si l'interface est dans la langue apprise : la langue pont seule (ou, si on apprend la langue pont, la 1re autre langue).
+// Ordre : interface, puis pont. Les champs support des dossiers / listes / compte restent dans les données, ignorés.
+// Toutes les autres langues d'une carte sont cachées partout (gardées dans terms, elles réapparaissent si l'interface change).
+function bridgeLang() { return LANG_CODES.find(c => LANGUAGES[c].bridge) || ""; }
+function uiLangNow() {
+  let u = "";
+  try { u = (state && state.settings && state.settings.uiLang) || ""; } catch (e) {}   // state pas encore créé au chargement
+  if (!isLang(u)) { try { u = defaultLang(); } catch (e) { u = ""; } }                  // langue de l'appareil (écran de connexion)
+  return isLang(u) ? u : (bridgeLang() || LANG_CODES[0]);
 }
+function supportLangs(target, uiLang) {
+  const ui = isLang(uiLang) ? uiLang : uiLangNow();
+  const br = bridgeLang();
+  if (ui === target) {
+    if (br && br !== target) return [br];
+    const o = LANG_CODES.find(c => c !== target);
+    return o ? [o] : [];
+  }
+  const out = [ui];
+  if (br && br !== target && br !== ui) out.push(br);
+  return out;
+}
+// Langues visibles d'une carte de vocabulaire : langue apprise + langues d'appui (dans l'ordre d'affichage).
+function visibleLangs(lg) { return [lg.target].concat(lg.support); }
+// Ancien nom gardé : langues d'appui calculées pour l'interface actuelle.
+function defaultSupportFor(target) { return supportLangs(target); }
 function cleanSupport(support, target) {
   const out = [];
   arr(support).forEach(c => { if (isLang(c) && c !== target && !out.includes(c)) out.push(c); });
   return out;
 }
-// Héritage compte → dossier → liste : le dernier niveau qui a une langue apprise l'emporte (avec ses langues d'appui).
-function resolveLangs(levels) {
-  let target = isLang(LANG_DEFAULT) ? LANG_DEFAULT : LANG_CODES[0], support = null;
-  levels.forEach(o => { if (o && isLang(o.target)) { target = o.target; support = o.support; } });
-  support = cleanSupport(support, target);
-  if (!support.length) support = defaultSupportFor(target);
-  return { target, support };
+// Héritage compte → dossier → liste : le dernier niveau qui a une langue apprise l'emporte.
+// Langues d'appui : toujours calculées (supportLangs), jamais lues dans les données.
+function resolveLangs(levels, uiLang) {
+  let target = isLang(LANG_DEFAULT) ? LANG_DEFAULT : LANG_CODES[0];
+  levels.forEach(o => { if (o && isLang(o.target)) target = o.target; });
+  return { target, support: supportLangs(target, uiLang) };
 }
 function accountLangs() { return resolveLangs([{ target: state.settings.defaultTarget, support: state.settings.defaultSupport }]); }
 function folderLangs(folder) { return resolveLangs([accountLangs(), folder]); }
@@ -3567,6 +3959,8 @@ function targetTerm(c, lg) { return term(c, (lg || cardLangs(c)).target); }
 function supportTerms(c, lg) {
   return (lg || cardLangs(c)).support.map(code => ({ code, text: term(c, code) })).filter(x => x.text.trim());
 }
+// Langues d'appui sans traduction (case « à compléter »).
+function missingSupport(c, lg) { lg = lg || cardLangs(c); return isVocab(c) ? lg.support.filter(code => !term(c, code).trim()) : []; }
 function supportText(c, lg) { return supportTerms(c, lg).map(x => x.text).join(" · "); }
 // Carte utilisable en révision : mot dans la langue apprise + au moins une langue d'appui (autres types : typedUsable).
 function cardUsable(c, lg) { if (!isVocab(c)) return typedUsable(c); lg = lg || cardLangs(c); return !!targetTerm(c, lg).trim() && supportTerms(c, lg).length > 0; }
@@ -3652,7 +4046,7 @@ function listLabel(l) { const f = l && getFolder(l.folderId); return l ? (f ? f.
 // Version 3 : types de cartes (champ type : vocab, conj, cloze, fix, rule — voir TYPES DE CARTES).
 // Version 4 : séries façon Duolingo (settings.dailyGoal, settings.privacy, streak — voir SÉRIES).
 const DATA_VERSION = 4;
-const PRIVACY_KEYS = ["streak", "today", "week", "success", "badges", "ranking"];   // ce que mes amis voient (étape 29)
+const PRIVACY_KEYS = ["streak", "today", "week", "success", "badges", "ranking", "shared"];   // ce que mes amis voient (étape 29 ; shared : étape 30)
 function defaultPrivacy() { const o = {}; PRIVACY_KEYS.forEach(k => { o[k] = true; }); return o; }
 function normPrivacy(p) { const o = defaultPrivacy(); if (p && typeof p === "object") PRIVACY_KEYS.forEach(k => { if (p[k] === false) o[k] = false; }); return o; }
 
@@ -3776,7 +4170,7 @@ function normalizeData(raw) {
       privacy: normPrivacy(s.privacy)
     },
     folders: arr(d.folders).filter(f => f && f.id).map((f, i) => Object.assign(
-      { id: String(f.id), name: String(f.name || ""), order: num(f.order, i) }, normLangPair(f), lastUpdateOf(f))),
+      { id: String(f.id), name: String(f.name || ""), order: num(f.order, i) }, normLangPair(f), lastUpdateOf(f), normSharedMark(f))),
     lists: [],
     cards: arr(d.cards).filter(c => c && c.id).map(normalizeCard).filter(cardHasContent),
     history: arr(d.history)
@@ -3791,7 +4185,8 @@ function normalizeData(raw) {
     rejected: arr(d.rejected).map(String).slice(-CONFIG.REJECT_MAX),
     lastCheckAt: num(d.lastCheckAt, 0),
     checkedSig: {},
-    aiResume: null
+    aiResume: null,
+    sharedProgress: normSharedProgress(d.sharedProgress)   // étape 30 : progression sur les listes communes
   };
   out.streak = normStreak(d.streak, out.history);
   const folderIds = new Set(out.folders.map(f => f.id));
@@ -3799,7 +4194,7 @@ function normalizeData(raw) {
     id: String(l.id), name: String(l.name || ""),
     folderId: l.folderId && folderIds.has(String(l.folderId)) ? String(l.folderId) : null,
     order: num(l.order, i), createdAt: num(l.createdAt, Date.now())
-  }, normLangPair(l), lastUpdateOf(l)));
+  }, normLangPair(l), lastUpdateOf(l), normSharedMark(l)));
   // Ordres renumérotés 0, 1, 2… (dossiers, puis listes de chaque dossier)
   const renum = items => items.map((x, i) => [x, i]).sort((a, b) => a[0].order - b[0].order || a[1] - b[1]).forEach(([x], i) => { x.order = i; });
   renum(out.folders);
@@ -3807,7 +4202,9 @@ function normalizeData(raw) {
 
   const cardIds = new Set(out.cards.map(c => c.id));
   const listIds0 = new Set(out.lists.map(l => l.id));
-  out.proposals = out.proposals.filter(p => p.field === "new" ? listIds0.has(p.listId) : cardIds.has(p.cardId));
+  // Listes communes (étape 30) : leurs cartes arrivent après (cache du partage), les propositions sont gardées.
+  const keepUnknown = out.lists.some(isSharedList);
+  out.proposals = out.proposals.filter(p => p.field === "new" ? listIds0.has(p.listId) : (cardIds.has(p.cardId) || keepUnknown));
   if (d.aiResume && d.aiResume.kind === "complete") {
     const ids = arr(d.aiResume.ids).map(String).filter(id => cardIds.has(id));
     if (ids.length) out.aiResume = { kind: "complete", ids };
@@ -4218,9 +4615,9 @@ function cardSubtitle(c) {
   return supportText(c);
 }
 function typeBadge(type) { return el("span", "type-badge tb-" + type, TYPE_ICON[type] + " " + t("type." + type)); }
-// Texte de recherche (écran Listes)
+// Texte de recherche (écran Listes) : langues visibles seulement (langue apprise + langues d'appui, étape 31)
 function cardSearchText(c) {
-  if (isVocab(c)) return Object.values(c.terms).concat([c.example]).join(" ");
+  if (isVocab(c)) return visibleLangs(cardLangs(c)).map(code => term(c, code)).concat([c.example]).join(" ");
   return (TYPE_FIELDS[c.type] || []).filter(f => !["lang", "ruleId"].includes(f)).map(f => c[f]).concat(arr(c.examples)).join(" ");
 }
 
@@ -4427,6 +4824,9 @@ function langSample(code) { const w = arr((LANGUAGES[code] && LANGUAGES[code].de
 //   user:<id>:proposals:<n>         propositions « À valider » (500 max par morceau)
 //   user:<id>:cards:<listId>:<n>    { cards: [200 max], sig: { idCarte: empreinte vérifiée } }
 //   user:<id>:resume:<n>            ids des cartes restant à compléter (complétion en pause, 2000 max par morceau)
+//   user:<id>:sharedprogress:<listeCommune>[:<n>]  progression personnelle sur une liste commune (étape 30) :
+//                                   { idCarte: [boîte, dueAt, vues, sues, ratées, dernière vue] }, 2000 cartes max par morceau.
+//                                   Les cartes d'une liste commune ne sont pas ici : table shared_cards (voir PARTAGE).
 // Seuls les morceaux modifiés sont écrits (comparaison avec ce qui a déjà été écrit).
 //  - local : localStorage "vocabfr." + clé (écriture tout-ou-rien : en cas d'échec, les morceaux déjà écrits sont restaurés)
 //  - cloud : document data/users/<idClaude>/<clé> = { json, updatedAt } (adaptateur claudeDbBackend)
@@ -4494,6 +4894,7 @@ const Storage = (() => {
   let localSaved = new Map();  // clé → JSON déjà présent dans localStorage
   let remoteSaved = new Map(); // clé → JSON déjà présent dans le cloud
   let localFullWarned = false;
+  let beforeSaveFn = null;     // étape 30 : modifications des listes communes repérées avant chaque sauvegarde
   const listeners = [];
 
   function setMode(m) { mode = m; listeners.forEach(fn => { try { fn(m); } catch (e) {} }); }
@@ -4643,8 +5044,10 @@ const Storage = (() => {
     put("history", data.history);
     put("streak", data.streak);
     // Cartes : par liste, morceaux de 200 cartes max (et taille limitée, pour les cartes avec de longs exemples).
+    // Listes communes (étape 30) : cartes dans shared_cards, ici seulement la progression personnelle (sharedprogress).
+    const shIds = new Set(arr(data.lists).filter(isSharedList).map(l => l.id));
     const byList = new Map();
-    data.cards.forEach(c => { if (!byList.has(c.listId)) byList.set(c.listId, []); byList.get(c.listId).push(c); });
+    data.cards.forEach(c => { if (shIds.has(c.listId)) return; if (!byList.has(c.listId)) byList.set(c.listId, []); byList.get(c.listId).push(c); });
     const sigs = data.checkedSig || {};
     byList.forEach((cards, listId) => {
       let n = 0, cur = [], curSig = {}, bytes = 0;
@@ -4656,6 +5059,11 @@ const Storage = (() => {
         if (sigs[c.id]) curSig[c.id] = sigs[c.id];
       });
       if (cur.length) out();
+    });
+    const sp = sharedProgressOf(data);
+    Object.keys(sp).forEach(U => {
+      const ent = Object.entries(sp[U]);
+      slices(ent, SH_PROG_CHUNK).forEach((s, i) => put("sharedprogress:" + U + (i ? ":" + i : ""), Object.fromEntries(s)));
     });
     slices(data.proposals, CONFIG.PROPOSALS_PER_PIECE).forEach((s, i) => put("proposals:" + i, s));
     slices(ids, CONFIG.IDS_PER_PIECE).forEach((s, i) => put("resume:" + i, s));
@@ -4687,7 +5095,7 @@ const Storage = (() => {
       settings: s.settings, rejected: s.rejected, lastCheckAt: s.lastCheckAt,
       folders: arr(getPiece(P + "folders")), lists: arr(getPiece(P + "lists")), history: arr(getPiece(P + "history")),
       streak: getPiece(P + "streak"),   // absent (version 3 et moins) : calculé par normalizeData
-      cards: [], proposals: [], checkedSig: {}, aiResume: null
+      cards: [], proposals: [], checkedSig: {}, aiResume: null, sharedProgress: {}
     };
     const ids = [];
     let missing = 0;
@@ -4697,6 +5105,10 @@ const Storage = (() => {
       if (k.startsWith(P + "cards:")) { out.cards.push(...arr(v.cards)); Object.assign(out.checkedSig, v.sig || {}); }
       else if (k.startsWith(P + "proposals:")) out.proposals.push(...arr(v));
       else if (k.startsWith(P + "resume:")) ids.push(...arr(v));
+      else if (k.startsWith(P + "sharedprogress:") && v && typeof v === "object") {   // étape 30
+        const U = k.slice((P + "sharedprogress:").length).split(":")[0];
+        out.sharedProgress[U] = Object.assign(out.sharedProgress[U] || {}, v);
+      }
     });
     if (s.aiResume && s.aiResume.kind) out.aiResume = { kind: s.aiResume.kind, ids };
     return { data: out, missing };
@@ -4883,8 +5295,11 @@ const Storage = (() => {
 
   // Sauvegarde du compte connecté : immédiate en local (morceaux modifiés), différée (regroupée) vers le cloud.
   // Renvoie false si l'appareil n'a pas pu enregistrer.
+  function onBeforeSave(fn) { beforeSaveFn = fn; }
+  function beforeSave(data) { if (beforeSaveFn) { try { beforeSaveFn(data); } catch (e) {} } }
   function save(data) {
     if (!userId) return false;
+    beforeSave(data);
     lastData = data;
     if (held) return true;
     const ok = writeLocal(data);
@@ -4899,6 +5314,7 @@ const Storage = (() => {
   // Sauvegarde complète tout de suite (import par lots). Renvoie { local, remote } (true = réussi ou sans objet).
   async function saveNow(data) {
     if (!userId) return { local: false, remote: false };
+    beforeSave(data);
     lastData = data;
     clearTimeout(timer); timer = null;
     const local = writeLocal(data);
@@ -4924,7 +5340,7 @@ const Storage = (() => {
     connect, isCloud, isSupabase, useSupabase, onMode, getMode,
     loadAccounts, saveAccounts, readLegacy, readLegacyLocal, getSession, setSession,
     setUser, getUser, hold, release, readLocal, writeLocal, dropOldLocal, initRemote, save, saveNow, flushNow, flushWait,
-    getSynced, markSynced, forceFullPush, onConflict, onRetryInit, onSyncError, setConflictOpen, packRows, unpackRows
+    getSynced, markSynced, forceFullPush, onConflict, onRetryInit, onSyncError, setConflictOpen, packRows, unpackRows, onBeforeSave
   };
 })();
 
@@ -5921,6 +6337,7 @@ function renderSessionSummary(root) {
   ids.forEach(id => n[s.first[id]]++);
   Activity.session(s, ids, n);   // journal : une fois par session
   Friends.publish();             // résumé public pour mes amis (étape 29)
+  Shared.publishProgress();      // progression sur les listes communes (étape 30)
 
   const box = el("div", "card");
   box.appendChild(el("h2", null, t("sum.title")));
@@ -6424,9 +6841,18 @@ function renderLists() {
   $("#lvMore").hidden = !!list;
   $("#lvBack").textContent = "‹ " + t("nav.lists");
   $("#lvTitle").textContent = list ? list.name : "";
-  $("#lvSub").textContent = list ? (getFolder(list.folderId) ? "▸ " + getFolder(list.folderId).name + " · " : "") + pairLabel(listLangs(list)) + " · " + updDate(list.lastUpdate) : "";
+  $("#lvSub").textContent = list ? (getFolder(list.folderId) ? "▸ " + getFolder(list.folderId).name + " · " : "") + pairLabel(listLangs(list)) + " · " + updDate(list.lastUpdate)
+    + (isSharedList(list) ? " · " + shTag(list) : "") : "";
   if (list) { const g = listGapCount(list); $("#lvUpdate").textContent = g ? t("upd.btnN", { n: g }) : t("upd.btn"); }
   $("#lvAsk").hidden = $("#lvAskAll").hidden = !Queue.usable();
+  // Listes communes (étape 30) : lecture seule = pas d'ajout ni de mise à jour ; nom et langues : propriétaire seulement.
+  const shL = list && isSharedList(list), ro = !!list && !canEditList(list);
+  $("#lvShare").textContent = t(shL ? "sh.manageBtn" : "sh.share");
+  $("#lvRename").hidden = $("#lvLangs").hidden = !!shL && !shIsOwner(list);
+  $("#lvUpdate").hidden = $("#lvFxOut").hidden = $("#lvFxIn").hidden = ro;
+  if (ro) $("#lvAsk").hidden = true;
+  $("#lvActions").hidden = ro;
+  $("#lvDelete").textContent = t(shL && !shIsOwner(list) ? "sh.leave" : "lists.delete");
   $("#lvReorder").textContent = t(lv.reorder ? "folders.reorderDone" : "folders.reorder");
   const search = $("#lvSearch");
   search.placeholder = t("lists.search");
@@ -6480,9 +6906,11 @@ function folderSection(f, idx, total, isCollapsed, now) {
   tg.setAttribute("aria-expanded", String(!isCollapsed));
   const nm = el("div", "fd-name");
   nm.append(el("span", "fd-caret", isCollapsed ? "▸" : "▾"), document.createTextNode(f.name));
+  if (isSharedFolder(f)) nm.append(document.createTextNode(" "), el("span", "sh-mark", "👥"));
   const fb = updBadge(folderGapCount(f));
   if (fb) nm.append(document.createTextNode(" "), fb);
-  const meta = el("div", "fd-meta", t("folders.meta", { l: lists.length, c: cards.length, d: dueCount(cards, now) }) + " · " + pairLabel(folderLangs(f)));
+  const meta = el("div", "fd-meta", t("folders.meta", { l: lists.length, c: cards.length, d: dueCount(cards, now) }) + " · " + pairLabel(folderLangs(f))
+    + (isSharedFolder(f) ? " · " + shTag(f) : ""));
   tg.append(nm, meta);
   tg.addEventListener("click", () => { toggleCollapsed(f.id); renderLists(); });
   hd.appendChild(tg);
@@ -6510,8 +6938,11 @@ function listItems(lists, now) {
     const t1 = el("div", "t1", l.name);
     const lb = updBadge(listGapCount(l));
     if (lb) t1.append(document.createTextNode(" "), lb);
+    const fl = isSharedList(l) ? Shared.flagCount(l.id) : 0;
+    if (fl) t1.append(document.createTextNode(" "), el("span", "sh-flag", "✎ " + fl));
     m.append(t1,
       el("div", "t2", t("lists.count", { n: cards.length }) + (due ? " · " + t("lists.due", { n: due }) : "") + " · " + pairLabel(listLangs(l))));
+    if (isSharedList(l)) m.appendChild(el("div", "t2 sh-line", shTag(l)));
     b.appendChild(m);
     if (lv.reorder) b.appendChild(orderBtns(lists, i, lists.length));
     else {
@@ -6597,11 +7028,19 @@ function cardItem(c, showList) {
   }
   const extra = el("div");
   if (showList) { const l = getList(c.listId); if (l) extra.appendChild(el("span", "tag", "▸ " + l.name)); }
+  const miss = missingSupport(c, lg);               // traduction manquante dans une langue d'appui (étape 31)
+  if (miss.length) extra.appendChild(el("span", "tag warn", t("card.toFill", { langs: miss.map(x => langName(x)).join(", ") })));
+  shFlagTag(c, extra);
   c.tags.forEach(tg => extra.appendChild(el("span", "tag", "#" + tg)));
   if (extra.childNodes.length) m.appendChild(extra);
   b.append(m, el("span", "chev", "›"));
   b.addEventListener("click", () => openCardEditor(c.id));
   return b;
+}
+// Carte d'une liste commune modifiée par quelqu'un d'autre (étape 30) : petite marque discrète.
+function shFlagTag(c, box) {
+  const f = Shared.flagOf(c.id);
+  if (f) { const s = el("span", "tag sh-flag", "✎ " + f.by); s.title = t("sh.flagTitle", { id: f.by }); box.appendChild(s); }
 }
 
 // Carte d'un autre type dans une liste : badge du type, titre court, réponse en dessous.
@@ -6616,6 +7055,7 @@ function typedCardItem(c, showList) {
   const extra = el("div");
   if (showList) { const l = getList(c.listId); if (l) extra.appendChild(el("span", "tag", "▸ " + l.name)); }
   if (!typedUsable(c)) extra.appendChild(el("span", "tag warn", t("type.incomplete")));
+  shFlagTag(c, extra);
   c.tags.forEach(tg => extra.appendChild(el("span", "tag", "#" + tg)));
   if (extra.childNodes.length) m.appendChild(extra);
   b.append(m, el("span", "chev", "›"));
@@ -6642,6 +7082,7 @@ function initLists() {
   $("#lvMove").addEventListener("click", () => openMoveList(lv.listId));
   $("#lvLangs").addEventListener("click", () => { const l = getList(lv.listId); if (l) openLangEditor("list", l); });
   $("#lvDelete").addEventListener("click", () => confirmDeleteList(lv.listId));
+  $("#lvShare").addEventListener("click", () => { const l = getList(lv.listId); if (!l) return; if (isSharedList(l)) openShareManage("list", l.id); else openShare("list", l.id); });
   $("#lvNewFolder").addEventListener("click", () => openFolderName(null));
   $("#lvReorder").addEventListener("click", () => { lv.reorder = !lv.reorder; renderLists(); });
   $("#lvUpdate").addEventListener("click", () => { if (lv.listId) openUpdate({ kind: "list", id: lv.listId }); });
@@ -6675,14 +7116,15 @@ function listSelect(selectedId, withNew) {
   const s = el("select", "input");
   const add = (parent, l) => { const o = el("option", null, l.name); o.value = l.id; parent.appendChild(o); };
   const folders = sortedFolders();
+  const editable = fid => listsIn(fid).filter(l => canEditList(l) || l.id === selectedId);   // listes communes en lecture seule exclues (étape 30)
   folders.forEach(f => {
-    const ls = listsIn(f.id);
+    const ls = editable(f.id);
     if (!ls.length) return;
     const g = el("optgroup"); g.label = f.name;
     ls.forEach(l => add(g, l));
     s.appendChild(g);
   });
-  const loose = listsIn(null);
+  const loose = editable(null);
   if (loose.length) {
     if (folders.length) { const g = el("optgroup"); g.label = t("folders.none"); loose.forEach(l => add(g, l)); s.appendChild(g); }
     else loose.forEach(l => add(s, l));
@@ -6714,6 +7156,8 @@ function warnUnusable(before) {
   const n = state.cards.filter(c => !before.has(c.id) && !cardUsable(c)).length;
   if (n) setTimeout(() => toast(t("langs.unusable", { n })), 2300);
 }
+// Choix de la langue apprise ; langues d'appui affichées en lecture seule (calculées : supportLangs, étape 31).
+// onChange(target, support) : support = langues d'appui calculées pour la nouvelle langue apprise.
 function langPicker(target, support, onChange) {
   const wrap = el("div");
   const seg = el("div", "seg");
@@ -6721,26 +7165,18 @@ function langPicker(target, support, onChange) {
     const b = el("button", null, langName(code));
     b.type = "button";
     b.setAttribute("aria-pressed", String(code === target));
-    b.addEventListener("click", () => {
-      // La nouvelle langue apprise prend la place de l'ancienne dans les langues d'appui (fr ← ko, en  ⇒  ko ← fr, en).
-      let sp = support.map(x => x === code ? target : x);
-      sp = cleanSupport(sp, code);
-      if (!sp.length) sp = defaultSupportFor(code);
-      onChange(code, sp);
-    });
+    b.addEventListener("click", () => onChange(code, supportLangs(code)));
     seg.appendChild(b);
   });
   wrap.appendChild(formField(t("langs.target"), seg));
-  const chips = el("div", "chips");
-  LANG_CODES.filter(c => c !== target).forEach(code => {
-    const b = el("button", null, langName(code));
-    b.type = "button";
-    b.setAttribute("aria-pressed", String(support.includes(code)));
-    b.addEventListener("click", () => { const sp = support.slice(); toggleIn(sp, code); onChange(target, sp); });
-    chips.appendChild(b);
-  });
-  wrap.appendChild(formField(t("langs.support"), chips, false, t("langs.supportHint")));
+  wrap.appendChild(supportInfo(target));
   return wrap;
+}
+// Langues d'appui calculées pour une langue apprise (lecture seule).
+function supportInfo(target) {
+  const sup = supportLangs(target);
+  return formField(t("langs.support"), el("div", "lang-ro", sup.map(x => langName(x)).join(" · ") || "—"), false,
+    t("langs.supportAutoHint"));
 }
 function openLangEditor(kind, obj) {
   const parent = kind === "list" ? folderLangs(getFolder(obj.folderId)) : kind === "folder" ? accountLangs() : null;
@@ -6759,6 +7195,7 @@ function openLangEditor(kind, obj) {
       wrap.appendChild(lab);
     }
     if (!inherit) wrap.appendChild(langPicker(target, support, (tg, sp) => { target = tg; support = sp; draw(); }));
+    else wrap.appendChild(supportInfo(parent.target));
     const n = cardsUnder(kind, obj).filter(c => isVocab(c) && !term(c, inherit ? parent.target : target).trim()).length;
     if (n) wrap.appendChild(el("div", "hint", t("langs.missing", { n, lang: langName(inherit ? parent.target : target) })));
   };
@@ -6766,11 +7203,11 @@ function openLangEditor(kind, obj) {
   openModal(t("langs.title"), wrap, [
     { label: t("cancel") },
     { label: t("save"), kind: "primary", onClick: () => {
-      if (!inherit && !support.length) { toast(t("langs.supportRequired")); return false; }
       const before = unusableIds();
-      if (kind === "account") { state.settings.defaultTarget = target; state.settings.defaultSupport = support.slice(); }
-      else if (inherit) { delete obj.target; delete obj.support; }
-      else { obj.target = target; obj.support = support.slice(); }
+      // Langues d'appui calculées : les champs support existants sont gardés tels quels (ignorés, étape 31).
+      if (kind === "account") state.settings.defaultTarget = target;
+      else if (inherit) delete obj.target;
+      else obj.target = target;
       commit();
       warnUnusable(before);
     } }
@@ -6809,20 +7246,25 @@ function openFolderMenu(id) {
   const fb = updBadge(folderGapCount(f));
   if (fb) p.appendChild(fb);
   p.appendChild(el("div", "upd-last", updDate(f.lastUpdate)));
+  if (isSharedFolder(f)) p.appendChild(el("div", "upd-last", shTag(f)));
+  // Dossier commun (étape 30) : membre en lecture seule = pas de mise à jour ; nom et langues : propriétaire seulement.
+  const shF = isSharedFolder(f), roF = shF && f.shared.role === "read", notOwner = shF && !shIsOwner(f);
   openModal(f.name, p, [
-    { label: t("upd.btn"), onClick: () => { openUpdate({ kind: "folder", id }); } },
-    { label: t("fx.exportBtn"), onClick: () => { openFxExport("folder:" + id); } },
-    { label: t("ai.importReply"), onClick: () => { openFxImport(); } },
-    { label: t("folders.rename"), onClick: () => { openFolderName(id); } },
-    { label: t("folders.langs"), onClick: () => { openLangEditor("folder", f); } },
-    { label: t("folders.delete"), kind: "danger", onClick: () => { confirmDeleteFolder(id); } },
+    { label: t(shF ? "sh.manageBtn" : "sh.share"), onClick: () => { if (shF) openShareManage("folder", id); else openShare("folder", id); } },
+    roF ? null : { label: t("upd.btn"), onClick: () => { openUpdate({ kind: "folder", id }); } },
+    roF ? null : { label: t("fx.exportBtn"), onClick: () => { openFxExport("folder:" + id); } },
+    roF ? null : { label: t("ai.importReply"), onClick: () => { openFxImport(); } },
+    notOwner ? null : { label: t("folders.rename"), onClick: () => { openFolderName(id); } },
+    notOwner ? null : { label: t("folders.langs"), onClick: () => { openLangEditor("folder", f); } },
+    { label: t(notOwner ? "sh.leaveFolder" : "folders.delete"), kind: "danger", onClick: () => { confirmDeleteFolder(id); } },
     { label: t("cancel") }
-  ]);
+  ].filter(Boolean));
 }
 // Supprimer un dossier : au choix, supprimer ses listes (et leurs cartes) ou les sortir du dossier.
 function confirmDeleteFolder(id) {
   const f = getFolder(id);
   if (!f) return;
+  if (isSharedFolder(f)) { openShareManage("folder", id); return; }   // dossier commun : supprimer / quitter (étape 30)
   const lists = listsIn(id);
   const ids = new Set(lists.map(l => l.id));
   const n = state.cards.filter(c => ids.has(c.listId)).length;
@@ -6848,9 +7290,14 @@ function confirmDeleteFolder(id) {
       openModal(t("folders.delete"), el("p", null, t("folders.deleteListsConfirm", { name: f.name, l: lists.length, c: n })), [
         { label: t("cancel") },
         { label: t("delete"), kind: "danger", onClick: () => {
+          // Listes communes (étape 30) : jamais supprimées ici, sorties du dossier (supprimer / quitter : menu Partage).
+          const keepSh = lists.filter(isSharedList);
+          let o = nextOrder(listsIn(null));
+          keepSh.forEach(l => { ids.delete(l.id); l.folderId = null; l.order = o++; });
           state.lists = state.lists.filter(l => !ids.has(l.id));
           state.cards = state.cards.filter(c => !ids.has(c.listId));
           drop(); commit();
+          if (keepSh.length) toast(t("sh.keptOut", { n: keepSh.length }));
         } }
       ]);
     } },
@@ -6901,6 +7348,7 @@ function openMoveList(id) {
 function confirmDeleteList(id) {
   const l = getList(id);
   if (!l) return;
+  if (isSharedList(l)) { openShareManage("list", id); return; }   // liste commune : supprimer (propriétaire) / quitter (étape 30)
   const p = el("p", null, t("lists.deleteConfirm", { name: l.name, n: cardsOf(id).length }));
   openModal(t("lists.delete"), p, [
     { label: t("cancel") },
@@ -6922,6 +7370,8 @@ let lastNewType = "vocab";
 function openCardEditor(cardId, listId) {
   const c = cardId ? state.cards.find(x => x.id === cardId) : null;
   if (cardId && !c) return;
+  if (c) Shared.clearFlag(c.id);   // marque « modifiée par … » vue (étape 30)
+  if (!canEditList(c ? c.listId : listId)) { toast(t("sh.readOnly")); if (c) renderLists(); return; }
   if (!state.lists.length) { toast(t("lists.empty")); return; }
   const sel = listSelect(c ? c.listId : listId, false);
   let type = c ? cardType(c) : lastNewType;
@@ -6996,7 +7446,8 @@ function vocabForm(c, sel) {
       posSels[code] = ps;
       const row = el("div", "term-row");
       row.append(inp, ps);
-      termsBox.appendChild(i === 0 ? formField(langName(code), row, true, t("card.frHint")) : formField(langName(code), row));
+      termsBox.appendChild(i === 0 ? formField(langName(code), row, true, t("card.frHint"))
+        : formField(langName(code), row, false, (vals[code] || "").trim() ? "" : t("card.toFillOne")));   // case « à compléter » (étape 31)
     });
     ex.lang = lg.target;
     exField.firstChild.textContent = t("card.exampleIn", { lang: langName(lg.target) });
@@ -7390,7 +7841,8 @@ async function parseBulk(text, targetId, lg, map, onProgress) {
       else if (k === "pos") { row.set.push(k); row.pos = parsePos(v, lg.target) || v; } // code reconnu, sinon texte gardé tel quel
     });
     if (tgCol < 0 || !row.terms[lg.target]) { res.invalid.push({ lineNo, raw: line, reason: t("bulk.err.target", { lang: langName(lg.target) }) }); continue; }
-    if (!lg.support.some(c => row.terms[c])) {
+    // Au moins une traduction : langue d'appui, ou autre langue (gardée, cachée ; la carte est alors « à compléter », étape 31).
+    if (!Object.keys(row.terms).some(c => c !== lg.target && row.terms[c])) {
       res.invalid.push({ lineNo, raw: line, reason: t("bulk.err.support", { langs: lg.support.map(x => langName(x)).join(", ") }) }); continue;
     }
     const k = dupKey(row.terms, lg);
@@ -7529,7 +7981,6 @@ function openBulkImport(opts) {
       if (!src.trim()) { toast(t("bulk.nothing")); return false; }
       if (o.target === "__new__" && !o.newName) { toast(t("lists.nameRequired")); return false; }
       if (o.target === "__new__" && o.folder === "__new__" && !o.newFolder) { toast(t("folders.nameRequired")); return false; }
-      if (o.target === "__new__" && (!o.lang || !o.lang.support.length)) { toast(t("langs.supportRequired")); return false; }
       if (o.map && opts.target !== o.target) o.map = null;
       openBulkPreview(o);
     } }
@@ -7542,10 +7993,13 @@ function bulkColumns(r, lg, onChange) {
   const scroller = el("div", "col-map");
   const table = el("table");
   const hr = el("tr");
-  const kinds = LANG_CODES.concat(BULK_KINDS);
+  // Langues proposées : langue apprise + langues d'appui calculées (étape 31). Une colonne déjà associée à une autre
+  // langue (en-tête reconnu) garde son choix : importée, mais cachée.
+  const shown = visibleLangs(lg);
   r.map.forEach((k, i) => {
     const th = el("th");
     const s = el("select", "input");
+    const kinds = LANG_CODES.filter(x => shown.includes(x) || x === k).concat(BULK_KINDS);
     kinds.forEach(x => { const o = el("option", null, bulkKindLabel(x) + (x === lg.target ? " ★" : "")); o.value = x; s.appendChild(o); });
     s.value = k;
     s.addEventListener("change", () => {
@@ -7682,7 +8136,7 @@ async function runBulkImport(opts, r, nReplace, lg) {
       state.folders.push(newFolder); folderId = newFolder.id;
     } else if (folderId && !getFolder(folderId)) folderId = null;
     newList = { id: uid(), name: opts.newName, folderId, order: nextOrder(listsIn(folderId)), createdAt: Date.now() };
-    if (!sameLangs(lg, folderLangs(getFolder(folderId)))) { newList.target = lg.target; newList.support = lg.support.slice(); }
+    if (lg.target !== folderLangs(getFolder(folderId)).target) newList.target = lg.target;   // langues d'appui calculées (étape 31)
     state.lists.push(newList); listId = newList.id;
   }
   const st = state;
@@ -8157,7 +8611,7 @@ function importFromText(text) {
     { label: t("cancel") },
     { label: t("confirm"), kind: "primary", onClick: () => {
       if (tg) { tg.apply(data).then(() => toast(t("admin.importDone", { id: tg.id })), () => toast(t("admin.err"))); return; }
-      state = data; applyTheme(); commit(); toast(t("import.done"));
+      state = data; Shared.attach(state); applyTheme(); commit(); toast(t("import.done"));
     } }
   ]);
   return true;
@@ -8211,18 +8665,26 @@ function posFields(lg) { return [lg.target].concat(lg.support).map(posField); }
 function fillFields(c, lg) { if (!isVocab(c)) return []; lg = lg || cardLangs(c); return lg.support.concat(["example"], posFields(lg)); }
 function checkFields(c, lg) { if (!isVocab(c)) return TYPED_FILL_FIELDS.filter(k => (TYPE_FIELDS[c.type] || []).includes(k) || (k === "examples" && c.type === "rule")).map(typedField); lg = lg || cardLangs(c); return [lg.target].concat(lg.support, ["example"], posFields(lg)); }
 // Consignes « nature grammaticale » communes (accès direct et « Préparer pour Claude »).
-function posPromptLines(prefix) {
-  const g = LANG_CODES.filter(c => LANGUAGES[c].gender), ng = LANG_CODES.filter(c => !LANGUAGES[c].gender);
+function posPromptLines(prefix, codes) {
+  const L = codes || LANG_CODES;
+  const g = L.filter(c => LANGUAGES[c].gender), ng = L.filter(c => !LANGUAGES[c].gender);
   return [
     prefix + "pos:<code de langue> : nature grammaticale du mot dans cette langue (celui de la carte, ou la traduction que tu proposes), avec UN de ces codes : " +
       "nm (nom masculin), nf (nom féminin), nmf (nom masculin et féminin), nmpl (nom masculin pluriel), nfpl (nom féminin pluriel), n (nom, langue sans genre), " +
       "v (verbe), vpr (verbe pronominal), adj, adv, prep, conj, pron, interj, expr (expression).",
-    prefix + "Langues avec genre (" + g.join(", ") + ") : un nom a TOUJOURS son genre (nm, nf, nmf, nmpl ou nfpl), jamais n. Langues sans genre (" + ng.join(", ") + ") : n pour un nom."
-  ];
+    g.length ? prefix + "Langues avec genre (" + g.join(", ") + ") : un nom a TOUJOURS son genre (nm, nf, nmf, nmpl ou nfpl), jamais n." : "",
+    ng.length ? prefix + "Langues sans genre (" + ng.join(", ") + ") : n pour un nom." : ""
+  ].filter(Boolean);
 }
 function uiLangNameFr() { return langName(state.settings.uiLang, "fr").toLowerCase(); }
-// « fr = français, ko = coréen, en = anglais » (consignes envoyées à Claude)
-function langLegend() { return LANG_CODES.map(c => c + " = " + LANGUAGES[c].names.fr.toLowerCase()).join(", "); }
+// « fr = français, ko = coréen, en = anglais » (consignes envoyées à Claude) ; codes : langues concernées seulement (étape 31).
+function langLegend(codes) { return (codes || LANG_CODES).map(c => c + " = " + LANGUAGES[c].names.fr.toLowerCase()).join(", "); }
+// Langues visibles (apprise + appui) des cartes de vocabulaire données, dans l'ordre de LANGUAGES.
+function cardsLangs(cards) {
+  const set = new Set();
+  cards.forEach(c => { if (isVocab(c)) visibleLangs(cardLangs(c)).forEach(x => set.add(x)); });
+  return LANG_CODES.filter(x => set.has(x));
+}
 
 function strHash(s) {
   let h = 2166136261;
@@ -8255,6 +8717,7 @@ function chunks(a, n) { const out = []; for (let i = 0; i < a.length; i += n) ou
 function addProposal(p) {
   const c = state.cards.find(x => x.id === p.cardId);
   if (!c) return false;
+  if (!canEditList(c.listId)) return false;   // liste commune en lecture seule : pas de proposition (étape 30)
   let nv = String(p.newValue || "").replace(/\s+/g, " ").trim();
   if (isPosField(p.field)) nv = parsePos(nv, p.field.slice(4)); // code valide pour la langue, sinon refusé
   if (p.field !== "dup") {
@@ -8320,12 +8783,12 @@ function aiItems(batch, withMissing, want) {
 // want(carte) → champs demandés (par défaut : tous les champs vides). Un champ « pos: » déjà rempli = genre à préciser.
 function completionPrompt(batch, want) {
   return [
-    "Tu aides des apprenants en langues. Voici des cartes de vocabulaire. Codes de langue : " + langLegend() + ".",
+    "Tu aides des apprenants en langues. Voici des cartes de vocabulaire. Codes de langue : " + langLegend(cardsLangs(batch)) + ".",
     "Pour chaque carte, \"target\" est la langue apprise ; le champ de cette langue est la référence : ne le change pas.",
     "Complète UNIQUEMENT les champs listés dans \"missing\" (un champ pos: listé alors que le nom n'a pas de genre : donne le code avec le genre) :",
     "- un code de langue : traduction courte et naturelle du mot de la langue apprise dans cette langue ;",
     "- example : une phrase d'exemple courte et simple DANS LA LANGUE APPRISE (niveau débutant) qui utilise le mot.",
-  ].concat(posPromptLines("- "), [
+  ].concat(posPromptLines("- ", cardsLangs(batch)), [
     "Si le mot de la langue apprise contient plusieurs sens séparés par \"/\", tu peux donner plusieurs traductions séparées par \" / \".",
     "Réponds uniquement avec un tableau JSON, un objet par carte, avec l'id et seulement les champs demandés.",
     "Exemple : [{\"id\":\"k0\",\"en\":\"shelf\",\"example\":\"Le livre est sur l'étagère.\",\"pos:fr\":\"nf\",\"pos:en\":\"n\"}]",
@@ -8336,7 +8799,7 @@ function completionPrompt(batch, want) {
 }
 function verifyPrompt(batch) {
   return [
-    "Tu vérifies des cartes de vocabulaire d'apprenants en langues. Codes de langue : " + langLegend() + ".",
+    "Tu vérifies des cartes de vocabulaire d'apprenants en langues. Codes de langue : " + langLegend(cardsLangs(batch)) + ".",
     "Pour chaque carte, \"target\" est la langue apprise. Champs : un code de langue par mot (celui de la langue apprise est la réponse attendue ; plusieurs réponses séparées par \"/\"), example (phrase d'exemple dans la langue apprise).",
     "Signale seulement les vraies erreurs : fautes d'orthographe, accents manquants ou faux, traductions fausses ou douteuses, exemple incorrect. Pas de remarques de style. Rien pour un champ absent.",
     "Pour chaque erreur : field = le code de langue ou example, la valeur corrigée COMPLÈTE du champ, et une raison très courte en " + uiLangNameFr() + ".",
@@ -8499,7 +8962,7 @@ async function startVerify() {
   if (!state.cards.length) { toast(t("ai.noCards")); return; }
   const nd = addDuplicateProposals();
   if (nd) commitQuiet();
-  const cards = state.cards.filter(isVocab); // complétion et vérification : vocabulaire seulement
+  const cards = state.cards.filter(c => isVocab(c) && canEditList(c.listId)); // vocabulaire seulement, pas les listes communes en lecture seule
   if (!cards.length) { toast(t("ai.noCards")); return; }
   if (!AI.isOn()) { if (nd) toast(t("ai.autoDone", { n: nd })); openPrepare("verify", cards); return; }
   const b = Math.ceil(cards.length / CONFIG.AI_BATCH);
@@ -8585,9 +9048,11 @@ function fieldAlias(s) {
 }
 function prepCell(s) { return String(s || "").replace(/[;\r\n]+/g, " ").trim(); }
 function prepListName(id) { const l = getList(id); return prepCell(l ? l.name : ""); }
+// Colonnes de langue : langues visibles des cartes (apprise + appui, étape 31) ; case d'une langue cachée pour une carte : vide.
 function prepText(kind, cards) {
-  const posCols = kind === "complete" ? LANG_CODES.map(posField) : [];
-  const cols = ["liste"].concat(LANG_CODES, ["example"], posCols);
+  const langs = cardsLangs(cards);
+  const posCols = kind === "complete" ? langs.map(posField) : [];
+  const cols = ["liste"].concat(langs, ["example"], posCols);
   // Langue apprise et langues d'appui de chaque liste présente
   const seen = new Set(), perList = [];
   cards.forEach(c => {
@@ -8598,31 +9063,35 @@ function prepText(kind, cards) {
   });
   const head = kind === "complete" ? [
     "Complète les champs vides de ces cartes de vocabulaire, pour des apprenants en langues.",
-    "Codes de langue : " + langLegend() + ".",
+    "Codes de langue : " + langLegend(langs) + ".",
     "Langues de chaque liste :"
   ].concat(perList, [
     "Colonnes (voir la ligne d'en-tête) : " + cols.join(";"),
-    "- Remplis seulement les champs vides des langues d'appui, l'exemple et la nature (colonnes pos:) des mots présents ou que tu ajoutes. Ne change jamais la liste, le mot de la langue apprise, ni un champ déjà rempli.",
+    "- Remplis seulement les champs vides des langues d'appui de la liste, l'exemple et la nature (colonnes pos:) des mots présents ou que tu ajoutes. Ne change jamais la liste, le mot de la langue apprise, ni un champ déjà rempli. Une colonne de langue qui n'est ni la langue apprise ni une langue d'appui de la liste reste vide.",
     "- Seule exception : une nature « n » (nom sans genre) dans une langue avec genre : remplace-la par le code avec le genre.",
     "- Traductions courtes ; exemple : une phrase courte et simple DANS LA LANGUE APPRISE de la liste (niveau débutant) qui utilise le mot."
-  ], posPromptLines("- "), [
+  ], posPromptLines("- ", langs), [
     "- Pas de « ; » à l'intérieur d'un champ.",
     "Réponds uniquement avec la ligne d'en-tête puis les lignes complétées, dans le même format, une par ligne, sans autre texte."
   ]) : [
     "Vérifie ces cartes de vocabulaire d'apprenants en langues.",
-    "Codes de langue : " + langLegend() + ".",
+    "Codes de langue : " + langLegend(langs) + ".",
     "Langues de chaque liste :"
   ].concat(perList, [
     "Colonnes (voir la ligne d'en-tête) : " + cols.join(";"),
     "Repère seulement les vraies erreurs : fautes d'orthographe, accents manquants ou faux, traductions fausses ou douteuses, exemple incorrect.",
     "Réponds uniquement avec une ligne par erreur, au format : liste;mot;champ;valeur corrigée;raison",
     "- mot = le mot de la langue apprise de la liste, tel qu'il est écrit ci-dessous, même s'il contient l'erreur.",
-    "- champ = le code de langue (" + LANG_CODES.join(", ") + ") ou example.",
+    "- champ = le code de langue (" + langs.join(", ") + ") ou example.",
     "- valeur corrigée = le contenu complet du champ corrigé, sans « ; ».",
     "- raison = très courte, en " + uiLangNameFr() + ".",
     "Si tout est correct, réponds seulement : RAS"
   ]);
-  const lines = cards.map(c => [prepListName(c.listId)].concat(LANG_CODES.map(code => term(c, code)), [c.example], posCols.map(f => fieldVal(c, f))).map(prepCell).join(";"));
+  const lines = cards.map(c => {
+    const vis = visibleLangs(cardLangs(c));
+    const own = f => vis.includes(isPosField(f) ? f.slice(4) : f) ? fieldVal(c, f) : "";   // langue cachée : jamais envoyée
+    return [prepListName(c.listId)].concat(langs.map(own), [c.example], posCols.map(own)).map(prepCell).join(";");
+  });
   return head.concat([""], [cols.join(";")], lines).join("\n");
 }
 function copyText(text, ta) {
@@ -8795,9 +9264,10 @@ function fxWanted(c, choice, lg) {
 }
 function fxScopeCards(scope) {
   const [k, id] = String(scope || "all").split(":");
-  if (k === "list") return getList(id) ? cardsOf(id) : [];
-  if (k === "folder") { const f = getFolder(id); return f ? cardsUnder("folder", f) : []; }
-  return state.cards.slice();
+  const ok = c => canEditList(c.listId);   // listes communes en lecture seule exclues (étape 30)
+  if (k === "list") return getList(id) ? cardsOf(id).filter(ok) : [];
+  if (k === "folder") { const f = getFolder(id); return f ? cardsUnder("folder", f).filter(ok) : []; }
+  return state.cards.filter(ok);
 }
 function fxScopeName(scope) {
   const [k, id] = String(scope || "all").split(":");
@@ -8815,7 +9285,7 @@ function fxHeader(type, langs) {
 // Texte d'un fichier (une partie).
 function fxFileText(cards, choice, i, n) {
   const lgs = new Map(), lgOf = c => { let x = lgs.get(c.listId); if (!x) { x = cardLangs(c); lgs.set(c.listId, x); } return x; };
-  const langs = LANG_CODES.filter(code => cards.some(c => isVocab(c) && (lgOf(c).target === code || lgOf(c).support.includes(code))));
+  const langs = LANG_CODES.filter(code => cards.some(c => isVocab(c) && visibleLangs(lgOf(c)).includes(code)));   // langues visibles seulement (étape 31)
   const seenL = new Set(), perList = [];
   cards.forEach(c => {
     if (seenL.has(c.listId)) return; seenL.add(c.listId);
@@ -8823,11 +9293,11 @@ function fxFileText(cards, choice, i, n) {
     perList.push("#   - " + prepListName(c.listId) + " : langue apprise " + nm(lg.target) + " ; langues d'appui " + lg.support.map(nm).join(", "));
   });
   const types = CARD_TYPES.filter(ty => cards.some(c => cardType(c) === ty));
-  const g = LANG_CODES.filter(c => LANGUAGES[c].gender), ng = LANG_CODES.filter(c => !LANGUAGES[c].gender);
+  const g = langs.filter(c => LANGUAGES[c].gender), ng = langs.filter(c => !LANGUAGES[c].gender);
   const head = [
     "# FICHIER DE COMPLÉTION — appli Vocab" + (n > 1 ? " — partie " + i + " sur " + n : "") + " — " + todayStr(),
     "# Rôle : tu complètes des cartes de révision de langues pour des apprenants.",
-    "# Codes de langue : " + langLegend() + ".",
+    "# Codes de langue : " + langLegend(langs.length ? langs : null) + ".",
     "# Langues de chaque liste (colonne « liste ») :"
   ].concat(perList, [
     "# Règles :",
@@ -8836,9 +9306,10 @@ function fxFileText(cards, choice, i, n) {
     "# - Ne modifie jamais une case déjà remplie, ni les colonnes id, type, liste, target et sig.",
     "# - Garde toutes les lignes, dans le même ordre, avec le même nombre de colonnes.",
     "# - N'utilise jamais « ; » à l'intérieur d'une case (ni retour à la ligne).",
-    "# - Colonne d'une langue (" + LANG_CODES.join(", ") + ") : traduction courte et naturelle du mot de la langue apprise (target). Plusieurs sens : séparés par « / ».",
+    "# - Colonne d'une langue (" + langs.join(", ") + ") : traduction courte et naturelle du mot de la langue apprise (target). Plusieurs sens : séparés par « / ».",
     "# - Colonnes pos_<langue> : nature grammaticale du mot de cette langue, avec UN de ces codes : nm, nf, nmf, nmpl, nfpl, n, v, vpr, adj, adv, prep, conj, pron, interj, expr.",
-    "#   Langues avec genre (" + g.join(", ") + ") : un nom a toujours son genre (nm, nf, nmf, nmpl, nfpl), jamais n. Langues sans genre (" + ng.join(", ") + ") : n pour un nom.",
+    "#   " + [g.length ? "Langues avec genre (" + g.join(", ") + ") : un nom a toujours son genre (nm, nf, nmf, nmpl, nfpl), jamais n." : "",
+      ng.length ? "Langues sans genre (" + ng.join(", ") + ") : n pour un nom." : ""].filter(Boolean).join(" "),
     "# - Colonne exemple : une phrase courte et simple DANS LA LANGUE APPRISE (target), niveau débutant, qui utilise le mot."
   ]);
   if (types.some(ty => ty !== "vocab")) head.push(
@@ -8854,7 +9325,10 @@ function fxFileText(cards, choice, i, n) {
     out.push(fxHeader(ty, langs).join(";"));
     cards.filter(c => cardType(c) === ty).forEach(c => {
       const lg = lgOf(c), want = new Set(fxWanted(c, choice, lg));
-      const cell = f => { const v = fxCell(fieldVal(c, f)); return v || (want.has(f) ? "" : FX_EMPTY); };
+      const vis = isVocab(c) ? visibleLangs(lg) : null;
+      const hidden = f => !!vis && (isLang(f) || isPosField(f)) && !vis.includes(isPosField(f) ? f.slice(4) : f);
+      // Langue cachée pour cette carte (ni apprise ni d'appui) : jamais envoyée, case « - » (étape 31).
+      const cell = f => { if (hidden(f)) return FX_EMPTY; const v = fxCell(fieldVal(c, f)); return v || (want.has(f) ? "" : FX_EMPTY); };
       let row = [c.id, ty, prepListName(c.listId), isVocab(c) ? lg.target : cardLang(c)];
       if (ty === "vocab") row = row.concat(langs.map(cell), langs.map(x => cell(posField(x))), [cell("example")]);
       else row = row.concat(FX_TYPED_COLS[ty].map(([, k]) => k.startsWith("f:") ? cell(k) :
@@ -9387,7 +9861,7 @@ function genListId(req) {
   if (req.createdId && getList(req.createdId)) return req.createdId;
   const folderId = req.folder && getFolder(req.folder) ? req.folder : null;
   const nl = { id: uid(), name: req.newName || t("gen.title"), folderId, order: nextOrder(listsIn(folderId)), createdAt: Date.now() };
-  if (!sameLangs(req.lg, folderLangs(getFolder(folderId)))) { nl.target = req.lg.target; nl.support = req.lg.support.slice(); }
+  if (req.lg.target !== folderLangs(getFolder(folderId)).target) nl.target = req.lg.target;   // langues d'appui calculées (étape 31)
   state.lists.push(nl);
   req.createdId = nl.id;
   return nl.id;
@@ -9532,7 +10006,7 @@ function addGenProposals(drafts, req) {
       have.add(k);
       return true;
     });
-    if (!fresh.length) return;
+    if (!fresh.length || !canEditList(listId)) return;
     state.proposals.push({ id: uid(), cardId: "", listId, field: "new", type: "newcard", cards: fresh,
       oldValue: "", newValue: "", reason: genLabel(req), createdAt: Date.now() });
     res.added++; res.cards += fresh.length;
@@ -9969,7 +10443,7 @@ function queueNormItems(res, ids) {
 function queueGenReq(saved) {
   if (!saved || !saved.lg || !LANGUAGES[saved.lang]) return null;
   const req = Object.assign({}, saved, { verbs: arr(saved.verbs), tenses: arr(saved.tenses), persons: arr(saved.persons) });
-  req.lg = { target: saved.lg.target, support: arr(saved.lg.support).filter(c => LANGUAGES[c]) };
+  req.lg = { target: saved.lg.target, support: supportLangs(saved.lg.target) };   // langues d'appui calculées (étape 31)
   if (!getList(req.listId)) { req.listId = "__new__"; req.folder = getFolder(req.folder) ? req.folder : null; }
   return req;
 }
@@ -10429,7 +10903,7 @@ const Activity = (() => {
 // - Journal : friend_request, friend_accept, friend_remove, friend_block (data.target = identifiant de l'autre).
 const FRIENDS_MAX_PENDING = 20;
 const FRIENDS_POLL_MS = 300000;   // badge des demandes reçues : toutes les 5 min (et au retour au premier plan)
-const PRIVACY_ORDER = ["streak", "today", "week", "success", "badges", "ranking"];
+const PRIVACY_ORDER = ["streak", "today", "week", "success", "badges", "ranking", "shared"];
 
 // Lundi de la semaine du jour day ("YYYY-MM-DD").
 function frMonday(day) {
@@ -10517,7 +10991,7 @@ const Friends = (() => {
   function renderBadge() {
     const b = $("#friendsBadge");
     if (!b) return;
-    const n = on() ? incoming : 0;
+    const n = on() ? incoming + Shared.inviteCount() : 0;   // demandes d'amis + invitations de partage (étape 30)
     b.hidden = !n;
     b.textContent = n > 99 ? "99+" : String(n);
   }
@@ -10531,7 +11005,8 @@ const Friends = (() => {
     await publish(false);   // mes chiffres à jour avant le classement
     try {
       const today = todayStr();
-      const [d, s, r] = await Promise.all([rpc("my_friends"), rpc("friends_stats", { p_today: today }), rpc("friends_ranking", { p_today: today })]);
+      const [d, s, r] = await Promise.all([rpc("my_friends"), rpc("friends_stats", { p_today: today }), rpc("friends_ranking", { p_today: today }),
+        Shared.loadFriendsView()]);   // invitations de partage et progression sur les listes partagées (étape 30)
       if (my !== token) return;
       data = d || { incoming: [], outgoing: [], friends: [], blocked: [] };
       stats = arr(s); ranking = r || null; status = "ok"; loadedAt = Date.now();
@@ -10654,6 +11129,8 @@ function renderFriends() {
     ])));
     root.appendChild(c);
   }
+  const shc = shInvitesCard();   // invitations de partage reçues / envoyées (étape 30)
+  if (shc) root.appendChild(shc);
   const out = arr(d.outgoing);
   if (out.length) {
     const c = el("div", "card");
@@ -10739,7 +11216,7 @@ function amFriendBlock(x, s) {
     }
     add(t("am.badges"), bd);
   }
-  add(t("am.shared"), "—");   // listes partagées : étape 30
+  add(t("am.shared"), shFriendProgress(x.user_id));   // progression sur les listes partagées avec moi (étape 30)
   box.appendChild(dl);
   const btns = el("div", "am-btns am-btns-end");
   [[t("am.remove"), "", () => Friends.remove(x)], [t("am.block"), "danger", () => Friends.block(x)]].forEach(([label, kind, fn]) => {
@@ -10824,6 +11301,1075 @@ function renderFriendsPrivCard() {
   });
 }
 
+// === PARTAGE (LISTES COMMUNES ET COPIES) ===
+// Étape 30. Mode Supabase seulement (script supabase-etape30.sql). Sans le script : « Partager » affiche
+// « Lancez le script SQL de l'étape 30 », le reste de l'appli marche comme avant.
+// Deux façons de partager une liste ou un dossier avec des amis (menu de la liste ou du dossier → « Partager ») :
+//  - Copie : les données sont copiées au moment de l'envoi dans l'invitation (shared_invites.payload, sans progression) ;
+//    si l'ami accepte, elles sont ajoutées à ses données (nouvelles cartes, boîte 0), indépendantes ensuite.
+//  - Liste commune : une seule version des cartes, dans shared_cards ; chacun garde sa progression.
+//    · Dans l'appli, une liste commune est une liste normale de state.lists avec l.shared = { id (shared_lists),
+//      role (owner | read | write), owner, ownerName, folder (dossier commun) } ; un dossier commun : f.shared.
+//    · Ses cartes sont ajoutées à state.cards (attach) depuis un cache local (localStorage "vocabfr.shared:<identifiant>"),
+//      mais jamais enregistrées dans user_data : seule la progression l'est (clé sharedprogress:<id>, voir STORAGE).
+//    · Avant chaque sauvegarde (capture), les cartes des listes communes sont comparées au cache : les différences
+//      partent dans une file d'envoi (gardée hors connexion, envoyée au retour). Lecture seule : changements annulés.
+//    · Synchro toutes les 2 min (et au retour au premier plan / de la connexion) : envoi de la file, liste des partages
+//      (my_shared_lists), puis cartes modifiées depuis la dernière synchro (pas pendant une session de révision).
+//    · Conflit : la dernière modification envoyée gagne ; une carte modifiée par quelqu'un d'autre est marquée « ✎ nom ».
+// Journal : share_sent, share_accepted, share_declined, share_member_removed, share_left, share_deleted.
+const SH_POLL_MS = 120000;      // synchro des listes communes : toutes les 2 min
+const SH_BATCH = 200;           // cartes envoyées par requête
+const SH_PROG_CHUNK = 2000;     // progression : cartes max par morceau user:<id>:sharedprogress:<liste>[:<n>]
+const SH_FLAG_DAYS = 7;         // « modifiée par … » affiché 7 jours au plus (ou jusqu'à l'ouverture de la carte)
+const SH_SKIP = ["id", "listId", "box", "dueAt", "stats"];   // jamais dans la version commune
+
+function isSharedList(l) { return !!(l && l.shared && typeof l.shared.id === "string" && l.shared.id); }
+function isSharedFolder(f) { return !!(f && f.shared && typeof f.shared.id === "string" && f.shared.id); }
+// Liste modifiable par moi ? (liste normale, ou liste commune dont je suis propriétaire / membre « modifiable »)
+function canEditList(x) {
+  const l = typeof x === "string" ? getList(x) : x;
+  return !isSharedList(l) || l.shared.role !== "read";
+}
+function shIsOwner(o) { return !!(o && o.shared && o.shared.role === "owner"); }
+// Marque de partage gardée par normalizeData (liste ou dossier).
+function normSharedMark(o) {
+  const out = {};
+  const s = o && o.shared;
+  if (s && typeof s === "object" && typeof s.id === "string" && /^[0-9a-f-]{36}$/i.test(s.id)) {
+    out.shared = { id: s.id, role: ["owner", "read", "write"].includes(s.role) ? s.role : "read",
+      owner: String(s.owner || ""), ownerName: String(s.ownerName || "").slice(0, 40) };
+    if (typeof s.folder === "string" && /^[0-9a-f-]{36}$/i.test(s.folder)) out.shared.folder = s.folder;
+  }
+  if (o && typeof o.copiedFrom === "string" && o.copiedFrom) out.copiedFrom = o.copiedFrom.slice(0, 40);
+  return out;
+}
+function normSharedProgress(p) {
+  const out = {};
+  if (!p || typeof p !== "object" || Array.isArray(p)) return out;
+  Object.keys(p).forEach(U => {
+    if (!/^[0-9a-f-]{36}$/i.test(U) || !p[U] || typeof p[U] !== "object") return;
+    const m = {};
+    Object.keys(p[U]).forEach(cid => { const v = p[U][cid]; if (Array.isArray(v)) m[cid] = v.slice(0, 6); });
+    out[U] = m;
+  });
+  return out;
+}
+// JSON aux clés triées (jsonb ne garde pas l'ordre des champs).
+function shStable(v) {
+  if (Array.isArray(v)) return "[" + v.map(shStable).join(",") + "]";
+  if (v && typeof v === "object") return "{" + Object.keys(v).filter(k => v[k] !== undefined).sort().map(k => JSON.stringify(k) + ":" + shStable(v[k])).join(",") + "}";
+  return JSON.stringify(v === undefined ? null : v);
+}
+// Contenu d'une carte (sans progression), sous forme normalisée.
+function shContent(c) {
+  const n = normalizeCard(Object.assign({}, c, { id: String(c.id || "x"), listId: "x" }));
+  const o = {};
+  Object.keys(n).forEach(k => { if (!SH_SKIP.includes(k)) o[k] = n[k]; });
+  return o;
+}
+function shProg(c) { const s = c.stats || {}; return [c.box, c.dueAt, num(s.seen, 0), num(s.correct, 0), num(s.wrong, 0), s.lastSeen == null ? null : s.lastSeen]; }
+function shWithProg(c, p) {
+  if (Array.isArray(p)) {
+    c.box = clampInt(p[0], 0, 5, 0); c.dueAt = num(p[1], Date.now());
+    c.stats = { seen: num(p[2], 0), correct: num(p[3], 0), wrong: num(p[4], 0), lastSeen: num(p[5], null) };
+  } else { c.box = 0; c.dueAt = Date.now(); c.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null }; }
+  return c;
+}
+// Progression à enregistrer dans user_data : depuis les cartes pour les listes chargées, sinon telle qu'elle a été lue.
+function sharedProgressOf(data) {
+  const out = {};
+  const sh = arr(data && data.lists).filter(isSharedList);
+  if (!sh.length) return out;
+  const loaded = data.__shLoaded instanceof Set ? data.__shLoaded : null;
+  const byLocal = new Map();
+  sh.forEach(l => {
+    const U = l.shared.id;
+    if (loaded && loaded.has(U)) { out[U] = {}; byLocal.set(l.id, out[U]); }
+    else out[U] = Object.assign({}, (data.sharedProgress || {})[U] || {});
+  });
+  if (byLocal.size) arr(data.cards).forEach(c => { const m = byLocal.get(c.listId); if (m) m[c.id] = shProg(c); });
+  Object.keys(out).forEach(U => { if (!Object.keys(out[U]).length) delete out[U]; });
+  return out;
+}
+
+const Shared = (() => {
+  let status = "unknown";          // unknown | ok | missing (script de l'étape 30 pas lancé)
+  let cache = null, cacheUser = null;
+  let busy = false, timer = null, saveTimer = null, flushTimer = null, revertWarned = 0;
+  let invites = null, invitesAt = 0, inviteCount = 0, friendsProg = null, lastProgKey = "";
+  const view = { busy: false };
+
+  function on() { return auth.mode === "supabase" && !!auth.sbUid && !!Supa.client() && !!Storage.getUser(); }
+  function me() { return auth.sbUid || ""; }
+  function myName() { return Storage.getUser() || ""; }
+  function isMissing(e) { return alIsMissing(e); }
+  async function rpc(name, args) {
+    const r = await withTimeout(Supa.client().rpc(name, args || {}), 20000);
+    if (r && r.error) throw r.error;
+    return r ? r.data : null;
+  }
+  function errText(e) {
+    const hint = String((e && e.hint) || "");
+    if (I18N.fr["sh.err." + hint]) return t("sh.err." + hint);
+    if (isMissing(e)) return t("sh.missing");
+    if (sbErrKind(e) === "net") return t("sh.err.net");
+    if (String((e && e.code) || "") === "42501" || /compte bloqué/i.test(String((e && e.message) || ""))) return t("am.err.account_blocked");
+    return t("sh.err.other");
+  }
+
+  // --- Cache local : { lists: [lignes my_shared_lists], cards: { U: { since, items: { idCarte: { d, s, del, by } } } },
+  //     out: { "U|idCarte": { l, c, d, s, del } } (file d'envoi), meta: { U: { name, target, support } }, flags: { idCarte: { by, at } } }
+  function key() { return CONFIG.LS_USER_PREFIX + "shared:" + (Storage.getUser() || ""); }
+  function emptyCache() { return { v: 1, lists: [], cards: {}, out: {}, meta: {}, flags: {} }; }
+  function loadCache() {
+    const u = Storage.getUser();
+    if (cache && cacheUser === u) return cache;
+    cacheUser = u; cache = emptyCache();
+    try {
+      const c = JSON.parse(localStorage.getItem(key()) || "null");
+      if (c && typeof c === "object") {
+        cache.lists = arr(c.lists);
+        ["cards", "out", "meta", "flags"].forEach(k => { if (c[k] && typeof c[k] === "object" && !Array.isArray(c[k])) cache[k] = c[k]; });
+      }
+    } catch (e) {}
+    return cache;
+  }
+  function saveCache(now) {
+    clearTimeout(saveTimer); saveTimer = null;
+    const write = () => { try { if (cache && cacheUser === Storage.getUser()) localStorage.setItem(key(), JSON.stringify(cache)); } catch (e) {} };
+    if (now) write(); else saveTimer = setTimeout(write, 500);
+  }
+  function eff(U) {           // état connu d'une liste : cache + file d'envoi (idCarte → { d, s, del })
+    const lc = cache.cards[U], m = {};
+    if (lc) Object.keys(lc.items).forEach(cid => { m[cid] = lc.items[cid]; });
+    Object.keys(cache.out).forEach(k => { const o = cache.out[k]; if (o.l === U) m[o.c] = o; });
+    return m;
+  }
+  function defHidden(o, k, v) { try { Object.defineProperty(o, k, { value: v, enumerable: false, configurable: true, writable: true }); } catch (e) {} }
+  function cardFrom(U, cid, item, localId, prog) {
+    return shWithProg(normalizeCard(Object.assign({}, item.d, { id: cid, listId: localId })), prog);
+  }
+
+  // --- Cartes des listes communes ajoutées aux données (au lancement, après une synchro qui remplace les données, import JSON) ---
+  function attach(data) {
+    data = data || state;
+    if (!data || !Array.isArray(data.lists) || !Array.isArray(data.cards)) return;
+    loadCache();
+    const sh = data.lists.filter(isSharedList);
+    const ids = new Set(sh.map(l => l.id));
+    if (ids.size) data.cards = data.cards.filter(c => !ids.has(c.listId));
+    const loaded = new Set();
+    sh.forEach(l => {
+      const U = l.shared.id;
+      if (!cache.cards[U]) return;
+      loaded.add(U);
+      const prog = (data.sharedProgress || {})[U] || {}, m = eff(U);
+      Object.keys(m).forEach(cid => { if (!m[cid].del) data.cards.push(cardFrom(U, cid, m[cid], l.id, prog[cid])); });
+    });
+    defHidden(data, "__shLoaded", loaded);
+    defHidden(data, "__sh", true);
+    pruneProposals(data);
+  }
+  // Propositions « À valider » sur des cartes qui n'existent plus (une fois toutes les listes communes chargées).
+  function pruneProposals(data) {
+    const sh = data.lists.filter(isSharedList);
+    if (sh.some(l => !data.__shLoaded.has(l.shared.id))) return;
+    const ids = new Set(data.cards.map(c => c.id));
+    data.proposals = data.proposals.filter(p => p.field === "new" || ids.has(p.cardId));
+  }
+  // Charge (ou recharge depuis le cache) les cartes d'une liste commune dans state.
+  function loadList(l) {
+    const U = l.shared.id;
+    const prog = Object.assign({}, (state.sharedProgress || {})[U] || {});
+    state.cards.forEach(c => { if (c.listId === l.id) prog[c.id] = shProg(c); });
+    state.cards = state.cards.filter(c => c.listId !== l.id);
+    const m = eff(U);
+    Object.keys(m).forEach(cid => { if (!m[cid].del) state.cards.push(cardFrom(U, cid, m[cid], l.id, prog[cid])); });
+    if (!(state.__shLoaded instanceof Set)) defHidden(state, "__shLoaded", new Set());
+    state.__shLoaded.add(U);
+    defHidden(state, "__sh", true);
+  }
+
+  // --- Avant chaque sauvegarde : modifications des listes communes → file d'envoi ---
+  function capture(data) {
+    if (!data || data !== state || !data.__sh || !(data.__shLoaded instanceof Set)) return;
+    const sh = data.lists.filter(isSharedList);
+    if (!sh.length && !data.folders.some(isSharedFolder)) return;
+    loadCache();
+    let changed = false, reverted = false;
+    const byList = new Map();
+    data.cards.forEach(c => { if (!byList.has(c.listId)) byList.set(c.listId, []); byList.get(c.listId).push(c); });
+    sh.forEach(l => {
+      const U = l.shared.id;
+      if (!data.__shLoaded.has(U)) return;
+      const m = eff(U), seen = new Set();
+      const diffs = [];
+      arr(byList.get(l.id)).forEach(c => {
+        seen.add(c.id);
+        const d = shContent(c), s = shStable(d), e = m[c.id];
+        if (!e || e.del || e.s !== s) diffs.push({ c: c.id, d, s, del: false });
+      });
+      Object.keys(m).forEach(cid => { if (!m[cid].del && !seen.has(cid)) diffs.push({ c: cid, d: m[cid].d, s: m[cid].s, del: true }); });
+      if (!diffs.length) return;
+      if (l.shared.role === "read") { loadList(l); reverted = true; return; }   // lecture seule : on remet la version commune
+      diffs.forEach(x => { cache.out[U + "|" + x.c] = { l: U, c: x.c, d: x.d, s: x.s, del: x.del }; });
+      changed = true;
+    });
+    // Propriétaire : nom et langues des listes / dossiers communs.
+    data.lists.filter(shIsOwner).concat(data.folders.filter(shIsOwner)).forEach(o => {
+      const row = cache.lists.find(r => r.id === o.shared.id);
+      if (!row) return;
+      const lg = data.folders.includes(o) ? folderLangs(o) : listLangs(o);
+      // Langues d'appui calculées par chaque appareil (étape 31) : seuls le nom et la langue apprise sont envoyés ; support inchangé.
+      const want = { name: o.name, target: lg.target, support: arr(row.support).slice().sort() };
+      const have = { name: row.name, target: row.target, support: arr(row.support).slice().sort() };
+      if (shStable(want) !== shStable(have) && shStable(want) !== shStable(cache.meta[o.shared.id] || null)) { cache.meta[o.shared.id] = want; changed = true; }
+    });
+    if (reverted && Date.now() - revertWarned > 5000) { revertWarned = Date.now(); setTimeout(() => toast(t("sh.readOnlyReverted")), 0); }
+    if (changed) { saveCache(); scheduleFlush(); }
+    else if (reverted) saveCache();
+  }
+  function scheduleFlush() {
+    clearTimeout(flushTimer);
+    flushTimer = setTimeout(() => { flushTimer = null; if (on() && navigator.onLine !== false) flushAll().then(n => { if (n) render(); }); }, 2500);
+  }
+
+  // --- Envoi de la file (cartes) et des noms / langues ---
+  let flushing = null;
+  function flushAll() {
+    if (flushing) return flushing;
+    flushing = (async () => {
+      loadCache();
+      let n = 0;
+      for (const U of Object.keys(cache.meta)) {
+        const m = cache.meta[U];
+        try {
+          await rpc("share_update", { p_list: U, p_name: m.name, p_target: m.target, p_support: m.support });
+          const row = cache.lists.find(r => r.id === U);
+          if (row) Object.assign(row, { name: m.name, target: m.target, support: m.support });
+          delete cache.meta[U];
+        } catch (e) {
+          if (sbErrKind(e) === "net" || isMissing(e)) break;
+          delete cache.meta[U];          // plus propriétaire ou liste supprimée : abandon
+        }
+      }
+      const keys = Object.keys(cache.out);
+      for (let i = 0; i < keys.length; i += SH_BATCH) {
+        const part = keys.slice(i, i + SH_BATCH).map(k => cache.out[k]).filter(Boolean);
+        if (!part.length) continue;
+        const rows = part.map(o => ({ list_id: o.l, card_id: o.c, data: o.d, deleted: !!o.del }));
+        const r = await withTimeout(Supa.client().from("shared_cards").upsert(rows, { onConflict: "list_id,card_id" }), 20000).catch(e => ({ error: e }));
+        if (r && r.error) {
+          if (sbErrKind(r.error) === "net" || isMissing(r.error)) break;
+          // Plus le droit d'écrire (retiré, passé en lecture seule, liste supprimée) : on abandonne ces envois,
+          // la prochaine synchro remet la version commune.
+          part.forEach(o => { delete cache.out[o.l + "|" + o.c]; });
+          continue;
+        }
+        part.forEach(o => {
+          const k = o.l + "|" + o.c;
+          if (cache.out[k] !== o) return;            // modifiée encore entre-temps : repartira
+          delete cache.out[k];
+          if (!cache.cards[o.l]) cache.cards[o.l] = { since: null, items: {} };
+          cache.cards[o.l].items[o.c] = { d: o.d, s: o.s, del: !!o.del, by: me() };
+        });
+        n += part.length;
+      }
+      saveCache(true);
+      return n;
+    })().finally(() => { flushing = null; });
+    return flushing;
+  }
+
+  // --- Synchro complète ---
+  async function sync(opts) {
+    if (!on() || busy) return;
+    busy = true;
+    try {
+      loadCache();
+      if (navigator.onLine !== false) await flushAll();
+      const rows = await rpc("my_shared_lists");
+      status = "ok";
+      cache.lists = arr(rows);
+      // dirty : listes ou dossiers changés (enregistrés) ; seen : seulement des cartes (affichage rafraîchi)
+      let dirty = applyLists(), seen = false;
+      if (!(rv && rv.phase === "run")) {        // pas pendant une session de révision
+        for (const row of cache.lists.filter(r => !r.is_folder)) {
+          if (await pull(row.id)) seen = true;
+        }
+      }
+      if (await convertNew()) dirty = true;
+      saveCache(true);
+      if (dirty) commitQuiet();
+      if ((dirty || seen) && ["lists", "home", "review", "stats"].includes(currentScreen) && !(rv && rv.phase === "run")) renderScreen();
+      refreshInvites(false);
+      publishProgress(false);
+    } catch (e) {
+      if (isMissing(e)) status = "missing";
+    } finally { busy = false; }
+  }
+
+  // Listes et dossiers communs (my_shared_lists) → state.lists / state.folders. Renvoie true si quelque chose a changé.
+  function applyLists() {
+    const rows = cache.lists, byId = new Map(rows.map(r => [r.id, r]));
+    let changed = false;
+    const notes = [];
+    // Dossiers communs
+    state.folders.filter(isSharedFolder).forEach(f => {
+      const r = byId.get(f.shared.id);
+      if (!r) { delete f.shared; changed = true; return; }                 // plus partagé : dossier normal
+      const s = { id: r.id, role: r.role, owner: r.owner, ownerName: r.owner_ident || "" };
+      if (shStable(s) !== shStable(f.shared)) { f.shared = s; changed = true; }
+      if (r.role !== "owner" && f.name !== r.name && !cache.meta[r.id]) { f.name = r.name; changed = true; }
+    });
+    rows.filter(r => r.is_folder && !state.folders.some(f => isSharedFolder(f) && f.shared.id === r.id)).forEach(r => {
+      // dossier commun accepté sur un autre appareil : on le crée ici
+      const mine = r.my_folder && getFolder(r.my_folder);
+      if (mine && !isSharedFolder(mine)) mine.shared = { id: r.id, role: r.role, owner: r.owner, ownerName: r.owner_ident || "" };
+      else state.folders.push({ id: uid(), name: r.name, order: nextOrder(state.folders), shared: { id: r.id, role: r.role, owner: r.owner, ownerName: r.owner_ident || "" } });
+      changed = true;
+    });
+    // Listes communes disparues (retiré, liste supprimée, plus amis…)
+    state.lists.filter(isSharedList).forEach(l => {
+      if (byId.has(l.shared.id)) return;
+      const U = l.shared.id;
+      if (l.shared.role === "owner") { delete l.shared; notes.push(t("sh.backPrivate", { name: l.name })); }   // ses cartes restent chez lui
+      else {
+        state.lists = state.lists.filter(x => x !== l);
+        state.cards = state.cards.filter(c => c.listId !== l.id);
+        notes.push(t("sh.gone", { name: l.name }));
+      }
+      if (state.sharedProgress) delete state.sharedProgress[U];
+      if (state.__shLoaded instanceof Set) state.__shLoaded.delete(U);
+      delete cache.cards[U];
+      Object.keys(cache.out).forEach(k => { if (cache.out[k].l === U) delete cache.out[k]; });
+      changed = true;
+    });
+    // Nouvelles listes communes, ou mises à jour (nom, langues, droit)
+    rows.filter(r => !r.is_folder).forEach(r => {
+      let l = state.lists.find(x => isSharedList(x) && x.shared.id === r.id);
+      const s = { id: r.id, role: r.role, owner: r.owner, ownerName: r.owner_ident || "" };
+      if (r.folder) s.folder = r.folder;
+      if (!l) {
+        const fd = (r.folder && state.folders.find(f => isSharedFolder(f) && f.shared.id === r.folder)) || (r.my_folder && getFolder(r.my_folder)) || null;
+        const fid = fd ? fd.id : null;
+        let id = "sh_" + r.id;
+        if (getList(id)) id = uid();
+        l = { id, name: r.name, folderId: fid, order: nextOrder(listsIn(fid)), createdAt: Date.now(),
+          target: r.target, support: arr(r.support).slice(), shared: s };
+        state.lists.push(l);
+        if (r.role !== "owner") notes.push(t("sh.arrived", { name: r.name, id: r.owner_ident || "?" }));
+        changed = true;
+        return;
+      }
+      if (shStable(s) !== shStable(l.shared)) { l.shared = s; changed = true; }
+      if (r.role !== "owner" || !cache.meta[r.id]) {
+        if (r.role !== "owner" && l.name !== r.name) { l.name = r.name; changed = true; }
+        if (r.role !== "owner" && (l.target !== r.target || shStable(l.support || []) !== shStable(arr(r.support)))) {
+          l.target = r.target; l.support = arr(r.support).slice(); changed = true;
+        }
+      }
+    });
+    if (notes.length) setTimeout(() => toast(notes.slice(0, 3).join(" · ")), 0);
+    return changed;
+  }
+
+  // Cartes modifiées depuis la dernière synchro (10 s de marge, sans doublon). Renvoie true si state a changé.
+  async function pull(U) {
+    const l = state.lists.find(x => isSharedList(x) && x.shared.id === U);
+    if (!l) return false;
+    const first = !cache.cards[U];
+    if (first) cache.cards[U] = { since: null, items: {} };
+    const lc = cache.cards[U];
+    const since = lc.since ? new Date(Date.parse(lc.since) - 10000).toISOString() : "1970-01-01T00:00:00Z";
+    let rows = [], from = 0;
+    for (;;) {
+      const r = await withTimeout(Supa.client().from("shared_cards").select("card_id,data,deleted,updated_at,updated_by")
+        .eq("list_id", U).gt("updated_at", since).order("updated_at", { ascending: true }).range(from, from + 999), 20000);
+      if (r && r.error) throw r.error;
+      const got = arr(r && r.data);
+      rows = rows.concat(got);
+      if (got.length < 1000) break;
+      from += 1000;
+    }
+    const names = new Map();
+    arr((cache.lists.find(x => x.id === (l.shared.folder || U)) || {}).members).forEach(m => names.set(m.user_id, m.identifiant));
+    const row = cache.lists.find(x => x.id === U);
+    if (row) names.set(row.owner, row.owner_ident);
+    let changed = first;
+    if (first) {               // première fois : on garde la progression déjà enregistrée
+      rows.forEach(r => storeItem(lc, r));
+      loadList(l);
+      return true;
+    }
+    if (!(state.__shLoaded instanceof Set) || !state.__shLoaded.has(U)) loadList(l);
+    rows.forEach(r => {
+      const cid = String(r.card_id);
+      const prev = lc.items[cid];
+      const it = storeItem(lc, r);
+      const pend = cache.out[U + "|" + cid];
+      const other = r.updated_by && r.updated_by !== me();
+      if (pend) {
+        if (pend.s === it.s && !!pend.del === it.del) delete cache.out[U + "|" + cid];   // déjà envoyée
+        else if (other) cache.flags[cid] = { by: names.get(r.updated_by) || "?", at: Date.now() };   // ma version repartira (dernière)
+        return;
+      }
+      if (prev && prev.s === it.s && prev.del === it.del) return;
+      if (other && prev) cache.flags[cid] = { by: names.get(r.updated_by) || "?", at: Date.now() };
+      const idx = state.cards.findIndex(c => c.id === cid && c.listId === l.id);
+      if (it.del) { if (idx >= 0) { state.cards.splice(idx, 1); changed = true; } return; }
+      if (idx >= 0) {                   // mise à jour sur place (la progression reste)
+        const c = state.cards[idx];
+        Object.keys(c).forEach(k => { if (!SH_SKIP.includes(k) && !(k in it.d)) delete c[k]; });
+        Object.assign(c, JSON.parse(JSON.stringify(it.d)));
+      } else state.cards.push(cardFrom(U, cid, it, l.id, ((state.sharedProgress || {})[U] || {})[cid]));
+      changed = true;
+    });
+    return changed;
+  }
+  function storeItem(lc, r) {
+    const cid = String(r.card_id);
+    const d = shContent(Object.assign({}, r.data || {}, { id: cid }));
+    const it = { d, s: shStable(d), del: !!r.deleted, by: r.updated_by || "" };
+    lc.items[cid] = it;
+    if (r.updated_at && (!lc.since || Date.parse(r.updated_at) > Date.parse(lc.since))) lc.since = r.updated_at;
+    return it;
+  }
+
+  // --- Propriétaire : liste ajoutée (ou déplacée) dans un de ses dossiers communs → partagée aussi ---
+  async function convertNew() {
+    let changed = false;
+    for (const f of state.folders.filter(f => isSharedFolder(f) && f.shared.role === "owner")) {
+      if (!cache.lists.some(r => r.id === f.shared.id)) continue;
+      for (const l of listsIn(f.id).filter(l => !isSharedList(l))) {
+        try { await makeCommon(l, f.shared.id); changed = true; } catch (e) { break; }
+      }
+    }
+    return changed;
+  }
+  // Transforme une de mes listes en liste commune (cartes envoyées dans shared_cards). Renvoie l'id commun.
+  async function makeCommon(l, folderU, onProgress) {
+    if (isSharedList(l)) return l.shared.id;
+    const lg = listLangs(l);
+    const r = await rpc("share_create", { p_name: l.name, p_target: lg.target, p_support: lg.support, p_is_folder: false, p_folder: folderU || null });
+    const U = r && r.id;
+    if (!U) throw new Error("share_create");
+    const cards = cardsOf(l.id);
+    const items = {};
+    try {
+      for (let i = 0; i < cards.length; i += SH_BATCH) {
+        const part = cards.slice(i, i + SH_BATCH).map(c => { const d = shContent(c); items[c.id] = { d, s: shStable(d), del: false, by: me() }; return { list_id: U, card_id: c.id, data: d, deleted: false }; });
+        const w = await withTimeout(Supa.client().from("shared_cards").upsert(part, { onConflict: "list_id,card_id" }), 30000);
+        if (w && w.error) throw w.error;
+        if (onProgress) onProgress(Math.min(1, (i + SH_BATCH) / cards.length));
+      }
+    } catch (e) {
+      try { await rpc("share_delete", { p_list: U }); } catch (e2) {}
+      throw e;
+    }
+    loadCache();
+    cache.cards[U] = { since: null, items };
+    cache.lists.push({ id: U, is_folder: false, folder: folderU || null, owner: me(), owner_ident: myName(), name: l.name,
+      target: lg.target, support: lg.support.slice(), role: "owner", members: [] });
+    l.shared = { id: U, role: "owner", owner: me(), ownerName: myName() };
+    if (folderU) l.shared.folder = folderU;
+    if (!(state.__shLoaded instanceof Set)) defHidden(state, "__shLoaded", new Set());
+    state.__shLoaded.add(U);
+    defHidden(state, "__sh", true);
+    saveCache(true);
+    commitQuiet();
+    return U;
+  }
+  async function makeCommonFolder(f, onProgress) {
+    if (isSharedFolder(f)) { await convertNew(); return f.shared.id; }
+    const lg = folderLangs(f);
+    const r = await rpc("share_create", { p_name: f.name, p_target: lg.target, p_support: lg.support, p_is_folder: true, p_folder: null });
+    const F = r && r.id;
+    if (!F) throw new Error("share_create");
+    loadCache();
+    cache.lists.push({ id: F, is_folder: true, folder: null, owner: me(), owner_ident: myName(), name: f.name,
+      target: lg.target, support: lg.support.slice(), role: "owner", members: [] });
+    f.shared = { id: F, role: "owner", owner: me(), ownerName: myName() };
+    commitQuiet();
+    const lists = listsIn(f.id).filter(l => !isSharedList(l));
+    for (let i = 0; i < lists.length; i++) {
+      await makeCommon(lists[i], F, p => { if (onProgress) onProgress((i + p) / lists.length); });
+    }
+    return F;
+  }
+
+  // --- Progression personnelle publiée (vue par les amis selon la confidentialité) ---
+  function progressItems() {
+    const o = {};
+    state.lists.filter(isSharedList).forEach(l => {
+      if (!(state.__shLoaded instanceof Set) || !state.__shLoaded.has(l.shared.id)) return;
+      const cs = cardsOf(l.id);
+      o[l.shared.id] = { n: cs.length, su: cs.filter(c => c.box >= 3).length, rev: cs.filter(c => c.box >= 1 && c.box <= 2).length, ps: cs.filter(c => c.box === 0).length };
+    });
+    return o;
+  }
+  async function publishProgress(force) {
+    if (!on() || status === "missing") return;
+    const items = progressItems();
+    if (!Object.keys(items).length) return;
+    const k = shStable(items);
+    if (!force && k === lastProgKey) return;
+    try { await rpc("share_progress_publish", { p_items: items }); lastProgKey = k; } catch (e) {}
+  }
+
+  // --- Invitations ---
+  async function refreshInvites(full) {
+    if (!on()) { inviteCount = 0; return; }
+    try {
+      if (full) {
+        invites = await rpc("my_share_invites"); invitesAt = Date.now();
+        inviteCount = arr(invites && invites.incoming).length;
+      } else inviteCount = num(Number(await rpc("share_incoming_count")), 0);
+      status = "ok";
+    } catch (e) { if (isMissing(e)) { status = "missing"; inviteCount = 0; } }
+    Friends.renderBadge();
+  }
+  async function loadFriendsView() {
+    if (!on()) return;
+    try {
+      const [inv, fp] = await Promise.all([rpc("my_share_invites"), rpc("friends_shared_progress")]);
+      invites = inv; invitesAt = Date.now(); inviteCount = arr(inv && inv.incoming).length;
+      friendsProg = {};
+      arr(fp).forEach(x => { friendsProg[x.user_id] = arr(x.lists); });
+      status = "ok";
+    } catch (e) { if (isMissing(e)) status = "missing"; }
+  }
+
+  // --- Marques « modifiée par … » ---
+  function flagOf(cid) {
+    if (!cache) return null;
+    const f = cache.flags[cid];
+    if (!f) return null;
+    if (Date.now() - num(f.at, 0) > SH_FLAG_DAYS * 86400000) { delete cache.flags[cid]; saveCache(); return null; }
+    return f;
+  }
+  function clearFlag(cid) { if (cache && cache.flags[cid]) { delete cache.flags[cid]; saveCache(); } }
+  function flagCount(listId) { if (!cache) return 0; return cardsOf(listId).filter(c => flagOf(c.id)).length; }
+  function pendingCount() { return cache ? Object.keys(cache.out).length : 0; }
+  function listRow(U) { return cache ? cache.lists.find(r => r.id === U) || null : null; }
+  function dropList(U) {
+    loadCache();
+    delete cache.cards[U]; delete cache.meta[U];
+    Object.keys(cache.out).forEach(k => { if (cache.out[k].l === U) delete cache.out[k]; });
+    cache.lists = cache.lists.filter(r => r.id !== U && r.folder !== U);
+    if (state.sharedProgress) delete state.sharedProgress[U];
+    if (state.__shLoaded instanceof Set) state.__shLoaded.delete(U);
+    saveCache(true);
+  }
+
+  // --- Lancement / arrêt ---
+  function start() {
+    stop();
+    loadCache();
+    if (!on()) return;
+    status = "unknown";
+    sync();
+    refreshInvites(false);
+    timer = setInterval(() => { if (on() && document.visibilityState !== "hidden") sync(); }, SH_POLL_MS);
+  }
+  function stop() { clearInterval(timer); timer = null; }
+  function reset() {
+    stop(); saveCache(true);
+    cache = null; cacheUser = null; status = "unknown"; invites = null; inviteCount = 0; friendsProg = null; lastProgKey = "";
+    view.busy = false;
+  }
+  try {
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && timer) sync(); });
+    window.addEventListener("online", () => { if (timer) sync(); });
+  } catch (e) {}
+  Storage.onBeforeSave(capture);
+
+  return {
+    on, rpc, errText, attach, capture, sync, flushAll, makeCommon, makeCommonFolder, publishProgress, refreshInvites, loadFriendsView,
+    flagOf, clearFlag, flagCount, pendingCount, listRow, dropList, start, reset, loadCache, view,
+    status: () => status, setStatus: s => { status = s; }, invites: () => invites, inviteCount: () => (on() ? inviteCount : 0),
+    friendsProgress: () => friendsProg
+  };
+})();
+
+// --- Partager : choix des amis puis « Envoyer une copie » ou « Liste commune » ---
+// kind = "list" | "folder". Liste d'un dossier commun : le partage commun se fait par le dossier.
+async function openShare(kind, id) {
+  const obj = kind === "folder" ? getFolder(id) : getList(id);
+  if (!obj) return;
+  if (!Shared.on()) { openModal(t("sh.title"), el("p", null, t("sh.offline")), [{ label: t("sh.close") }]); return; }
+  const close = openModal(t("sh.title"), el("p", "muted", t("am.loading")), [], { locked: true });
+  let friends = [];
+  try {
+    const [d] = await Promise.all([Shared.rpc("my_friends"), Shared.rpc("share_incoming_count")]);
+    friends = arr(d && d.friends);
+    Shared.setStatus("ok");
+  } catch (e) {
+    close();
+    if (alIsMissing(e)) { Shared.setStatus("missing"); openModal(t("sh.title"), el("p", "q-err", t("sh.missing")), [{ label: t("sh.close") }]); }
+    else toast(Shared.errText(e));
+    return;
+  }
+  close();
+  if (!friends.length) { openModal(t("sh.title"), el("p", null, t("sh.noFriends")), [{ label: t("sh.close") }]); return; }
+  const shared = kind === "folder" ? isSharedFolder(obj) : isSharedList(obj);
+  const child = kind === "list" && isSharedList(obj) && !!obj.shared.folder;
+  const commonOk = (!shared || shIsOwner(obj)) && !child;
+  const top = shared ? (kind === "list" && obj.shared.folder ? obj.shared.folder : obj.shared.id) : null;
+  const members = new Map(arr((top && Shared.listRow(top) || {}).members).map(m => [m.user_id, m]));
+  const cards = kind === "folder" ? cardsUnder("folder", obj) : cardsOf(obj.id);
+  const st = { mode: "copy", picks: new Map() };   // user_id → role
+  const wrap = el("div", "sh-wrap");
+  const draw = () => {
+    wrap.textContent = "";
+    wrap.appendChild(el("p", "muted", t(kind === "folder" ? "sh.whatFolder" : "sh.whatList", { name: obj.name, n: cards.length, l: kind === "folder" ? listsIn(obj.id).length : 1 })));
+    const seg = el("div", "seg");
+    [["copy", t("sh.modeCopy")], ["common", t("sh.modeCommon")]].forEach(([k, label]) => {
+      const b = el("button", null, label);
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(st.mode === k));
+      b.disabled = k === "common" && !commonOk;
+      b.addEventListener("click", () => { st.mode = k; draw(); });
+      seg.appendChild(b);
+    });
+    wrap.appendChild(formField(t("sh.mode"), seg));
+    wrap.appendChild(el("div", "hint", t(st.mode === "copy" ? "sh.copyHint" : "sh.commonHint")));
+    if (!commonOk) wrap.appendChild(el("div", "hint", t(child ? "sh.childHint" : "sh.notOwnerHint")));
+    const box = el("div", "sh-friends");
+    friends.forEach(f => {
+      const row = el("div", "sh-friend");
+      const lab = el("label", "check-row");
+      const cb = el("input"); cb.type = "checkbox"; cb.checked = st.picks.has(f.user_id);
+      cb.addEventListener("change", () => { if (cb.checked) st.picks.set(f.user_id, st.picks.get(f.user_id) || "read"); else st.picks.delete(f.user_id); draw(); });
+      const m = members.get(f.user_id);
+      lab.append(cb, document.createTextNode(f.identifiant + (st.mode === "common" && m ? " (" + t("sh.alreadyMember") + ")" : "")));
+      row.appendChild(lab);
+      if (st.mode === "common" && st.picks.has(f.user_id)) {
+        const sel = el("select", "input sh-role");
+        [["read", t("sh.role.read")], ["write", t("sh.role.write")]].forEach(([v, l]) => { const o = el("option", null, l); o.value = v; sel.appendChild(o); });
+        sel.value = st.picks.get(f.user_id);
+        sel.setAttribute("aria-label", t("sh.roleFor", { id: f.identifiant }));
+        sel.addEventListener("change", () => st.picks.set(f.user_id, sel.value));
+        row.appendChild(sel);
+      }
+      box.appendChild(row);
+    });
+    wrap.appendChild(formField(t("sh.friends"), box));
+  };
+  draw();
+  openModal(t("sh.titleName", { name: obj.name }), wrap, [
+    { label: t("cancel") },
+    { label: t("sh.send"), kind: "primary", onClick: () => {
+      if (!st.picks.size) { toast(t("sh.pickFriend")); return false; }
+      if (st.mode === "copy" && cards.length > 20000) { toast(t("sh.err.sh_big")); return false; }
+      const picks = friends.filter(f => st.picks.has(f.user_id)).map(f => ({ user_id: f.user_id, identifiant: f.identifiant, role: st.picks.get(f.user_id) }));
+      shSend(kind, obj, st.mode, picks);
+    } }
+  ]);
+}
+// Copie envoyée dans l'invitation : dossier (facultatif) + listes + cartes, sans progression.
+function shPayload(kind, obj) {
+  const lists = kind === "folder" ? listsIn(obj.id) : [obj];
+  const lgOf = l => { const lg = listLangs(l); return { target: lg.target, support: lg.support.slice() }; };
+  const out = { v: 1, what: kind, folder: null, lists: [] };
+  if (kind === "folder") { const lg = folderLangs(obj); out.folder = { name: obj.name, target: lg.target, support: lg.support.slice() }; }
+  lists.forEach(l => out.lists.push(Object.assign({ name: l.name }, lgOf(l), { cards: cardsOf(l.id).map(shContent) })));
+  return out;
+}
+async function shSend(kind, obj, mode, picks) {
+  const prog = openProgress(t("sh.sending"), t(mode === "copy" ? "sh.modeCopy" : "sh.modeCommon"));
+  try {
+    let res, n = 0;
+    if (mode === "copy") {
+      const payload = shPayload(kind, obj);
+      payload.lists.forEach(l => { n += l.cards.length; });
+      prog.set(0.4);
+      res = await Shared.rpc("share_invite", { p_kind: "copy", p_what: kind, p_targets: picks.map(x => ({ user_id: x.user_id })),
+        p_list: null, p_name: obj.name, p_payload: payload, p_cards: n, p_lists: payload.lists.length });
+    } else {
+      const U = kind === "folder" ? await Shared.makeCommonFolder(obj, f => prog.set(f * 0.9)) : await Shared.makeCommon(obj, null, f => prog.set(f * 0.9));
+      res = await Shared.rpc("share_invite", { p_kind: "common", p_what: kind, p_targets: picks.map(x => ({ user_id: x.user_id, role: x.role })),
+        p_list: U, p_name: obj.name });
+    }
+    prog.close();
+    const ok = arr(res).filter(r => ["sent", "updated", "member"].includes(r.result));
+    const ko = arr(res).filter(r => !["sent", "updated", "member"].includes(r.result));
+    if (ok.length) Activity.log("share_sent", { kind: mode, what: kind, name: String(obj.name).slice(0, 60), n: ok.length, target: ok.map(r => r.identifiant).join(", ").slice(0, 120) });
+    const msg = [];
+    if (ok.length) msg.push(t("sh.sent", { ids: ok.map(r => r.identifiant).join(", ") }));
+    if (ko.length) msg.push(t("sh.refused", { ids: ko.map(r => r.identifiant).join(", ") }));
+    toast(msg.join(" · "));
+    render();
+    Shared.sync();
+  } catch (e) {
+    prog.close();
+    if (alIsMissing(e)) Shared.setStatus("missing");
+    toast(Shared.errText(e));
+    render();
+  }
+}
+
+// --- Gérer une liste ou un dossier commun ---
+// Propriétaire : membres, droits, retirer, invitations en attente, supprimer. Membre : quitter (option « garder une copie »).
+async function openShareManage(kind, id) {
+  const obj = kind === "folder" ? getFolder(id) : getList(id);
+  if (!obj || !obj.shared) return;
+  const s = obj.shared;
+  const top = kind === "list" && s.folder ? s.folder : s.id;
+  const topFolder = state.folders.find(f => isSharedFolder(f) && f.shared.id === top) || null;
+  const close = openModal(obj.name, el("p", "muted", t("am.loading")), [], { locked: true });
+  let rows = null, inv = null, err = "";
+  if (Shared.on()) {
+    try { [rows, inv] = await Promise.all([Shared.rpc("my_shared_lists"), Shared.rpc("my_share_invites")]); }
+    catch (e) { err = Shared.errText(e); if (alIsMissing(e)) Shared.setStatus("missing"); }
+  } else err = t("sh.offline");
+  close();
+  const row = arr(rows).find(r => r.id === top) || Shared.listRow(top) || null;
+  const wrap = el("div", "sh-wrap");
+  const owner = s.role === "owner";
+  wrap.appendChild(el("p", "muted", owner ? t(kind === "folder" || topFolder && top !== s.id ? "sh.ownFolder" : "sh.ownList")
+    : t("sh.memberOf", { id: s.ownerName || "?", role: t("sh.role." + s.role) })));
+  if (kind === "list" && s.folder) wrap.appendChild(el("p", "hint", t("sh.inFolder", { name: topFolder ? topFolder.name : (row && row.name) || "?" })));
+  if (err) wrap.appendChild(el("p", "q-err", err));
+  const busy = () => Shared.view.busy;
+  const act = async (fn, after) => {
+    if (busy()) return;
+    Shared.view.busy = true;
+    try { await fn(); if (after) after(); } catch (e) { toast(Shared.errText(e)); }
+    Shared.view.busy = false;
+  };
+  const reopen = () => { closeMain(); openShareManage(kind, id); };
+  // Membres
+  const mem = arr(row && row.members);
+  if (mem.length) {
+    const box = el("div", "sh-members");
+    mem.forEach(m => {
+      const r = el("div", "am-row");
+      const who = el("div", "am-who");
+      who.append(el("div", "am-id", m.identifiant + (m.user_id === auth.sbUid ? " (" + t("am.rankMe") + ")" : "")),
+        el("div", "muted am-sub", (m.role === "owner" ? t("sh.role.owner") : t("sh.role." + m.role)) + (m.active === false ? " · " + t("sh.notFriend") : "")));
+      r.appendChild(who);
+      if (owner && m.role !== "owner") {
+        const btns = el("div", "am-btns");
+        const sel = el("select", "input sh-role");
+        [["read", t("sh.role.read")], ["write", t("sh.role.write")]].forEach(([v, l]) => { const o = el("option", null, l); o.value = v; sel.appendChild(o); });
+        sel.value = m.role;
+        sel.setAttribute("aria-label", t("sh.roleFor", { id: m.identifiant }));
+        sel.addEventListener("change", () => act(() => Shared.rpc("share_set_role", { p_list: top, p_user: m.user_id, p_role: sel.value }),
+          () => toast(t("sh.roleDone", { id: m.identifiant, role: t("sh.role." + sel.value) }))));
+        const rm = el("button", "am-btn danger", t("sh.removeMember"));
+        rm.type = "button";
+        rm.addEventListener("click", () => openModal(t("sh.removeMember"), el("p", null, t("sh.removeAsk", { id: m.identifiant, name: obj.name })), [
+          { label: t("cancel") },
+          { label: t("sh.removeMember"), kind: "danger", onClick: () => { act(() => Shared.rpc("share_remove_member", { p_list: top, p_user: m.user_id }), () => {
+            Activity.log("share_member_removed", { name: String((row && row.name) || obj.name).slice(0, 60), target: m.identifiant });
+            toast(t("sh.removed", { id: m.identifiant })); reopen(); Shared.sync();
+          }); } }
+        ]));
+        btns.append(sel, rm);
+        r.appendChild(btns);
+      }
+      box.appendChild(r);
+    });
+    wrap.appendChild(formField(t("sh.members", { n: mem.length }), box));
+  }
+  // Invitations en attente (propriétaire)
+  const pend = owner ? arr(inv && inv.outgoing).filter(x => x.list_id === top) : [];
+  if (pend.length) {
+    const box = el("div");
+    pend.forEach(x => {
+      const r = el("div", "am-row");
+      const who = el("div", "am-who");
+      who.append(el("div", "am-id", x.identifiant), el("div", "muted am-sub", t("sh.role." + (x.role || "read")) + " · " + queueDate(x.created_at)));
+      const b = el("button", "am-btn", t("am.cancel"));
+      b.type = "button";
+      b.addEventListener("click", () => act(() => Shared.rpc("share_invite_cancel", { p_id: x.id }), () => { toast(t("sh.invCanceled", { id: x.identifiant })); reopen(); }));
+      const btns = el("div", "am-btns"); btns.appendChild(b);
+      r.append(who, btns);
+      box.appendChild(r);
+    });
+    wrap.appendChild(formField(t("sh.pendingInv"), box));
+  }
+  const pendingSend = Shared.pendingCount();
+  if (pendingSend) wrap.appendChild(el("p", "hint", t("sh.pendingSend", { n: pendingSend })));
+  const actions = [];
+  if (owner) {
+    if (!(kind === "list" && s.folder)) actions.push({ label: t("sh.inviteMore"), onClick: () => { openShare(kind, id); } });
+    actions.push({ label: t(kind === "folder" ? "sh.deleteFolder" : "sh.deleteList"), kind: "danger", onClick: () => { shConfirmDelete(kind, obj); } });
+  } else {
+    actions.push({ label: t("sh.copyOnly"), onClick: () => { openShare(kind, id); } });
+    actions.push({ label: t(top !== s.id || kind === "folder" ? "sh.leaveFolder" : "sh.leave"), kind: "danger", onClick: () => { shConfirmLeave(kind, obj, top, row); } });
+  }
+  actions.push({ label: t("sh.close") });
+  const closeMain = openModal(t("sh.manageTitle", { name: obj.name }), wrap, actions);
+}
+// Case « garder une copie » (cochée par défaut).
+function shKeepBox(labelKey) {
+  const lab = el("label", "check-row");
+  const cb = el("input"); cb.type = "checkbox"; cb.checked = true;
+  lab.append(cb, document.createTextNode(t(labelKey)));
+  return { node: lab, get: () => cb.checked };
+}
+// Listes locales concernées par un id commun (liste seule, ou dossier commun et toutes ses listes).
+function shLocalLists(U) { return state.lists.filter(l => isSharedList(l) && (l.shared.id === U || l.shared.folder === U)); }
+// Liste commune → liste normale (nouvel id local, cartes et progression gardées).
+function shToPrivate(l, newId) {
+  if (newId) {
+    const nid = uid();
+    state.cards.forEach(c => { if (c.listId === l.id) c.listId = nid; });
+    if (lv.listId === l.id) lv.listId = nid;
+    l.id = nid;
+  }
+  delete l.shared;
+}
+function shDropLists(lists) {
+  const ids = new Set(lists.map(l => l.id));
+  state.lists = state.lists.filter(l => !ids.has(l.id));
+  state.cards = state.cards.filter(c => !ids.has(c.listId));
+  if (ids.has(lv.listId)) lv.listId = null;
+}
+function shConfirmLeave(kind, obj, top, row) {
+  const keep = shKeepBox("sh.keepCopy");
+  const lists = shLocalLists(top);
+  const body = el("div");
+  body.append(el("p", null, t("sh.leaveAsk", { name: (row && row.name) || obj.name, id: (obj.shared && obj.shared.ownerName) || "?" })), keep.node);
+  openModal(t("sh.leave"), body, [
+    { label: t("cancel") },
+    { label: t("sh.leave"), kind: "danger", onClick: () => {
+      const k = keep.get();
+      (async () => {
+        try {
+          await Shared.rpc("share_leave", { p_list: top });
+          const fd = state.folders.find(f => isSharedFolder(f) && f.shared.id === top);
+          if (fd) delete fd.shared;
+          lists.forEach(l => { const U = l.shared.id; if (k) shToPrivate(l, true); Shared.dropList(U); });
+          if (!k) shDropLists(lists);
+          Shared.dropList(top);
+          commit();
+          Activity.log("share_left", { name: String((row && row.name) || obj.name).slice(0, 60), target: (obj.shared && obj.shared.ownerName) || "", keep: k });
+          toast(t(k ? "sh.leftKept" : "sh.left", { name: (row && row.name) || obj.name }));
+        } catch (e) { toast(Shared.errText(e)); }
+      })();
+    } }
+  ]);
+}
+function shConfirmDelete(kind, obj) {
+  const U = obj.shared.id;
+  const isFolder = kind === "folder";
+  const lists = isFolder ? shLocalLists(U) : [obj];
+  const keep = shKeepBox("sh.keepMine");
+  const body = el("div");
+  body.append(el("p", null, t(isFolder ? "sh.deleteFolderAsk" : "sh.deleteAsk", { name: obj.name, l: lists.length })), keep.node);
+  openModal(t(isFolder ? "sh.deleteFolder" : "sh.deleteList"), body, [
+    { label: t("cancel") },
+    { label: t("delete"), kind: "danger", onClick: () => {
+      const k = keep.get();
+      (async () => {
+        try {
+          const r = await Shared.rpc("share_delete", { p_list: U });
+          if (isFolder) delete obj.shared;
+          lists.forEach(l => {
+            const LU = l.shared.id;
+            if (k) {
+              shToPrivate(l, false);
+              // liste d'un dossier commun gardée : sortie du dossier (sinon elle serait repartagée avec lui)
+              if (!isFolder && l.folderId && isSharedFolder(getFolder(l.folderId))) { l.folderId = null; l.order = nextOrder(listsIn(null)); }
+            }
+            Shared.dropList(LU);
+          });
+          if (!k) {
+            shDropLists(lists);
+            if (isFolder) { state.folders = state.folders.filter(f => f !== obj); sortedFolders().forEach((x, i) => { x.order = i; }); }
+          }
+          Shared.dropList(U);
+          commit();
+          Activity.log("share_deleted", { what: kind, name: String(obj.name).slice(0, 60), members: num(r && r.members, 0), keep: k });
+          toast(t("sh.deleted", { name: obj.name }));
+        } catch (e) { toast(Shared.errText(e)); }
+      })();
+    } }
+  ]);
+}
+
+// --- Invitations reçues (écran Amis) : Ajouter (choix du dossier) / Refuser ---
+function shInviteLabel(x) {
+  const k = "sh.inv." + (x.kind === "common" ? "common" : "copy") + (x.what === "folder" ? "Folder" : "List");
+  let s = t(k, { id: x.identifiant, name: x.name });
+  const bits = [t("lists.count", { n: num(Number(x.cards), 0) })];
+  if (x.what === "folder") bits.push(t("sh.nLists", { n: num(Number(x.lists), 0) }));
+  if (x.kind === "common") bits.push(t("sh.role." + (x.role || "read")));
+  return { title: s, sub: bits.join(" · ") };
+}
+function shInvitesCard() {
+  const inv = Shared.invites();
+  if (!inv) return null;
+  const inc = arr(inv.incoming), out = arr(inv.outgoing);
+  if (!inc.length && !out.length) return null;
+  const c = el("div", "card");
+  if (inc.length) {
+    c.appendChild(el("h2", null, t("sh.invTitle", { n: inc.length })));
+    inc.forEach(x => {
+      const lb = shInviteLabel(x);
+      c.appendChild(amPersonRow({ identifiant: lb.title }, lb.sub, [
+        [t("sh.add"), "primary", () => shAccept(x)],
+        [t("am.decline"), "", () => shDecline(x)]
+      ]));
+    });
+  }
+  if (out.length) {
+    c.appendChild(el("h3", "fc-h4", t("sh.invOut", { n: out.length })));
+    out.forEach(x => {
+      const lb = shInviteLabel(Object.assign({}, x, { identifiant: x.identifiant }));
+      c.appendChild(amPersonRow({ identifiant: x.identifiant }, x.name + " · " + lb.sub, [
+        [t("am.cancel"), "", () => shRun(() => Shared.rpc("share_invite_cancel", { p_id: x.id }), t("sh.invCanceled", { id: x.identifiant }))]
+      ]));
+    });
+  }
+  return c;
+}
+async function shRun(fn, okText) {
+  if (Shared.view.busy) return;
+  Shared.view.busy = true;
+  try { await fn(); if (okText) toast(okText); } catch (e) { toast(Shared.errText(e)); }
+  Shared.view.busy = false;
+  await Shared.loadFriendsView();
+  if (currentScreen === "friends") renderFriends();
+}
+function shDecline(x) {
+  return shRun(async () => {
+    await Shared.rpc("share_invite_answer", { p_id: x.id, p_accept: false, p_folder: null });
+    Activity.log("share_declined", { kind: x.kind, what: x.what, name: String(x.name).slice(0, 60), target: x.identifiant });
+  }, t("sh.declined", { name: x.name }));
+}
+function shAccept(x) {
+  if (x.what === "folder") { shAcceptInto(x, null); return; }
+  const sel = folderSelect("", true);
+  const wrap = el("div");
+  wrap.appendChild(el("p", "muted", shInviteLabel(x).title));
+  wrap.appendChild(formField(t("sh.whereTo"), sel));
+  openModal(t("sh.add"), wrap, [
+    { label: t("cancel") },
+    { label: t("sh.add"), kind: "primary", onClick: () => {
+      if (sel.value === "__new__") { openFolderName(null, nf => { commitQuiet(); shAcceptInto(x, nf.id); }); return; }
+      shAcceptInto(x, sel.value || null);
+    } }
+  ]);
+}
+function shAcceptInto(x, folderId) {
+  return shRun(async () => {
+    if (x.kind === "copy") {
+      if (!state.lists.some(l => l.copiedFrom === x.id)) {
+        const payload = await Shared.rpc("share_invite_payload", { p_id: x.id });
+        shAddCopy(payload || {}, x, folderId);
+        commit();
+      }
+      await Shared.rpc("share_invite_answer", { p_id: x.id, p_accept: true, p_folder: null });
+    } else {
+      let made = null;
+      if (x.what === "folder") {
+        made = { id: uid(), name: x.name || "?", order: nextOrder(state.folders), shared: { id: x.list_id, role: x.role || "read", owner: x.user_id, ownerName: x.identifiant } };
+        state.folders.push(made);
+        folderId = made.id;
+        commitQuiet();
+      }
+      try { await Shared.rpc("share_invite_answer", { p_id: x.id, p_accept: true, p_folder: folderId }); }
+      catch (e) { if (made) { state.folders = state.folders.filter(f => f !== made); commitQuiet(); } throw e; }
+      await Shared.sync();
+    }
+    Activity.log("share_accepted", { kind: x.kind, what: x.what, name: String(x.name).slice(0, 60), target: x.identifiant });
+  }, t(x.kind === "copy" ? "sh.addedCopy" : "sh.addedCommon", { name: x.name }));
+}
+// Copie acceptée : dossier (si c'est un dossier), listes et cartes ajoutées, progression à zéro. Renvoie le nombre de cartes.
+function shAddCopy(payload, x, folderId) {
+  let fid = folderId || null, n = 0;
+  const now = Date.now();
+  if (payload.what === "folder" || payload.folder) {
+    const pf = payload.folder || {};
+    const nf = Object.assign({ id: uid(), name: String(pf.name || x.name || "?").slice(0, 200), order: nextOrder(state.folders), copiedFrom: x.id }, normLangPair(pf));
+    state.folders.push(nf);
+    fid = nf.id;
+  }
+  arr(payload.lists).forEach(pl => {
+    if (!pl || typeof pl !== "object") return;
+    const nl = Object.assign({ id: uid(), name: String(pl.name || x.name || "?").slice(0, 200), folderId: fid,
+      order: nextOrder(listsIn(fid)), createdAt: now, copiedFrom: x.id }, normLangPair(pl));
+    state.lists.push(nl);
+    arr(pl.cards).forEach(cd => {
+      if (!cd || typeof cd !== "object") return;
+      const c = shWithProg(normalizeCard(Object.assign({}, cd, { id: uid(), listId: nl.id })), null);
+      if (cardHasContent(c)) { state.cards.push(c); n++; }
+    });
+  });
+  return n;
+}
+// Écran Amis : progression d'un ami sur les listes partagées avec moi (selon sa confidentialité).
+function shFriendProgress(userId) {
+  const fp = Shared.friendsProgress();
+  if (!fp) return "—";
+  const lists = arr(fp[userId]);
+  if (!lists.length) return el("span", "muted", t("sh.noProgress"));
+  const box = el("div", "sh-prog");
+  lists.forEach(x => {
+    const n = num(Number(x.n), 0), su = num(Number(x.su), 0);
+    const line = el("div", "sh-prog-row");
+    line.append(el("span", "sh-prog-name", "👥 " + x.name), el("span", "muted", " " + t("sh.progVal", { su, n, rev: num(Number(x.rev), 0), ps: num(Number(x.ps), 0) })));
+    box.appendChild(line);
+  });
+  return box;
+}
+// Petit libellé « partagée » d'une liste ou d'un dossier.
+function shTag(o) {
+  if (!o || !o.shared) return "";
+  return "👥 " + (o.shared.role === "owner" ? t("sh.byMe") : t("sh.byOwner", { id: o.shared.ownerName || "?" })) + (o.shared.role === "read" ? " · " + t("sh.role.read") : "");
+}
+
+// --- Fiche du compte (admin) : partages et invitations ---
+function fcShares() {
+  const sec = fcSec(t("sh.fc.title"), "fc-shares");
+  const s = fc.shares;
+  if (!s) { sec.appendChild(el("p", "q-note", fc.sharesErr || "—")); return sec; }
+  const who = (id, name) => {
+    const b = el("button", "link-btn am-fc-who", name || "?");
+    b.type = "button";
+    b.addEventListener("click", () => openAccountFiche(id, fc.from));
+    return b;
+  };
+  const owned = arr(s.owned);
+  sec.appendChild(el("h4", "fc-h4", t("sh.fc.owned", { n: owned.length })));
+  if (!owned.length) sec.appendChild(el("p", "muted", t("am.fc.none")));
+  owned.forEach(o => {
+    const p = el("div", "sh-fc-row");
+    p.appendChild(el("div", null, (o.is_folder ? "📁 " : "") + o.name + " · " + t("lists.count", { n: num(Number(o.cards), 0) }) + (o.is_folder ? " · " + t("sh.nLists", { n: num(Number(o.lists), 0) }) : "")));
+    const m = el("div", "am-fc-list");
+    if (!arr(o.members).length) m.appendChild(el("span", "muted", t("sh.fc.noMember")));
+    arr(o.members).forEach(x => { m.append(who(x.user_id, x.identifiant + " (" + t("sh.role." + x.role) + ")")); });
+    p.appendChild(m);
+    sec.appendChild(p);
+  });
+  const mem = arr(s.member_of);
+  sec.appendChild(el("h4", "fc-h4", t("sh.fc.member", { n: mem.length })));
+  if (!mem.length) sec.appendChild(el("p", "muted", t("am.fc.none")));
+  mem.forEach(o => {
+    const p = el("div", "sh-fc-row");
+    p.append(document.createTextNode((o.is_folder ? "📁 " : "") + o.name + " · " + t("sh.role." + o.role) + (o.active === false ? " · " + t("sh.notFriend") : "") + " · "), who(o.owner, o.owner_ident));
+    sec.appendChild(p);
+  });
+  const invRows = (list, dir) => {
+    const a = arr(list);
+    if (!a.length) return el("p", "muted", t("am.fc.none"));
+    return fcTable([t("sh.fc.date"), t(dir === "sent" ? "sh.fc.to" : "sh.fc.from"), t("sh.fc.what"), t("sh.fc.status")],
+      a.map(x => [admDate(x.created_at), x.identifiant, t(x.kind === "common" ? "sh.modeCommon" : "sh.modeCopy") + " · " + (x.what === "folder" ? "📁 " : "") + x.name
+        + (x.role ? " · " + t("sh.role." + x.role) : "") + " · " + t("lists.count", { n: num(Number(x.cards), 0) }), t("sh.st." + x.status)]), 9);
+  };
+  sec.appendChild(el("h4", "fc-h4", t("sh.fc.sent", { n: arr(s.sent).length })));
+  sec.appendChild(invRows(s.sent, "sent"));
+  sec.appendChild(el("h4", "fc-h4", t("sh.fc.received", { n: arr(s.received).length })));
+  sec.appendChild(invRows(s.received, "received"));
+  return sec;
+}
+function fcSharedCount() { return fc.shares ? arr(fc.shares.owned).length + arr(fc.shares.member_of).length : "—"; }
+
 // === MISE À JOUR DES LISTES ===
 // « Mettre à jour » une liste, un dossier ou tout (scope = { kind: "list"|"folder"|"all", id }).
 // 1. Analyse : rien n'est modifié, bilan par catégorie avec le nombre de cartes concernées.
@@ -10839,7 +12385,7 @@ function gapFields(c, lg) {
   lg = lg || cardLangs(c);
   return fillFields(c, lg).filter(f => !fieldVal(c, f).trim()).concat(genderFields(c, lg));
 }
-function listGapCount(l) { const lg = listLangs(l); return cardsOf(l.id).filter(c => gapFields(c, lg).length).length; }
+function listGapCount(l) { if (!canEditList(l)) return 0; const lg = listLangs(l); return cardsOf(l.id).filter(c => gapFields(c, lg).length).length; }
 function folderGapCount(f) { return listsIn(f.id).reduce((n, l) => n + listGapCount(l), 0); }
 function updBadge(n) { return n ? el("span", "upd-badge", t("upd.badge", { n })) : null; }
 function updDate(ts) {
@@ -10849,9 +12395,10 @@ function updDate(ts) {
 
 // Mise à jour (traductions, nature, exemple, vérification, doublons) : cartes de vocabulaire seulement.
 function updScopeCards(scope) {
-  if (scope.kind === "list") return getList(scope.id) ? cardsOf(scope.id).filter(isVocab) : [];
-  if (scope.kind === "folder") { const f = getFolder(scope.id); return f ? cardsUnder("folder", f).filter(isVocab) : []; }
-  return state.cards.filter(isVocab);
+  const ok = c => isVocab(c) && canEditList(c.listId);   // listes communes en lecture seule exclues (étape 30)
+  if (scope.kind === "list") return getList(scope.id) ? cardsOf(scope.id).filter(ok) : [];
+  if (scope.kind === "folder") { const f = getFolder(scope.id); return f ? cardsUnder("folder", f).filter(ok) : []; }
+  return state.cards.filter(ok);
 }
 function updScopeObj(scope) { return scope.kind === "list" ? getList(scope.id) : scope.kind === "folder" ? getFolder(scope.id) : null; }
 // Ancien format (la migration v1 → v2 est faite au lancement : normalement aucune).
@@ -11049,9 +12596,19 @@ function pvFieldLabel(f) {
   if (isPosField(f)) return t("pv.field.pos", { lang: langName(f.slice(4)) });
   return langName(f);
 }
+// Propositions sur une langue cachée (ni apprise ni d'appui, étape 31) : gardées, mais ni affichées ni comptées ;
+// elles réapparaissent si la langue de l'interface change.
 function liveProposals() {
-  const ids = new Set(state.cards.map(c => c.id));
-  return state.proposals.filter(p => p.field === "new" ? !!getList(p.listId) : ids.has(p.cardId));
+  const byId = new Map(state.cards.map(c => [c.id, c]));
+  const lgs = new Map();
+  const vis = c => { let x = lgs.get(c.listId); if (!x) { x = visibleLangs(cardLangs(c)); lgs.set(c.listId, x); } return x; };
+  return state.proposals.filter(p => {
+    if (p.field === "new") return !!getList(p.listId);
+    const c = byId.get(p.cardId);
+    if (!c) return false;
+    const code = isPosField(p.field) ? p.field.slice(4) : isLang(p.field) ? p.field : "";
+    return !code || !isVocab(c) || vis(c).includes(code);
+  });
 }
 // Liste d'une proposition (« Nouvelle carte » : liste de destination).
 function pvListOf(p, cards) { if (p.field === "new") return p.listId; const c = cards.get(p.cardId); return c ? c.listId : ""; }
@@ -11751,7 +13308,7 @@ async function admRead(a) {
   return raw ? normalizeData(raw) : null;
 }
 async function admWrite(a, data) {
-  if (a.user_id === auth.sbUid) { state = data; applyTheme(); commit(); return; }
+  if (a.user_id === auth.sbUid) { state = data; Shared.attach(state); applyTheme(); commit(); return; }
   data.updatedAt = Date.now();
   await Supa.writeRows(a.user_id, Storage.packRows(data, a.identifiant));
 }
@@ -12834,7 +14391,8 @@ function aqDelete(r) {
 // (séparateur ";", UTF-8 avec BOM pour Excel). Script pas lancé : message « Lancez le script SQL de l'étape 24 ».
 const AL_PAGE = 50;
 const AL_KINDS = ["login", "session", "cards_added", "import", "validate", "claude_request", "pin_change", "logout", "sync_error", "conflict",
-  "friend_request", "friend_accept", "friend_remove", "friend_block", "admin_*"];
+  "friend_request", "friend_accept", "friend_remove", "friend_block",
+  "share_sent", "share_accepted", "share_declined", "share_member_removed", "share_left", "share_deleted", "admin_*"];
 const al = { f: { user: "", kind: "", days: "7" }, page: 0, data: null, loading: false, err: "", missing: false };
 let alCleaned = false;
 function alIsMissing(e) {
@@ -12901,6 +14459,10 @@ function alSummary(r) {
     case "admin_streak_set": case "admin_streak_restore":   // étape 28
       return [d.target ? t("al.s.target", { id: d.target }) : "", t("al.s.streak", { b: n(d.before), v: n(d.value) }),
         d.reason ? t("al.s.reason", { r: d.reason }) : ""].filter(Boolean).join(" · ");
+    case "share_sent": case "share_accepted": case "share_declined": case "share_member_removed": case "share_left": case "share_deleted":   // étape 30
+      return [d.name ? "« " + d.name + " »" : "", d.kind ? t(d.kind === "common" ? "sh.modeCommon" : "sh.modeCopy") : "",
+        d.what === "folder" ? t("sh.folderWord") : "", d.target ? t("al.s.target", { id: d.target }) : "",
+        d.n ? t("sh.al.n", { n: n(d.n) }) : "", d.keep === true ? t("sh.al.keep") : ""].filter(Boolean).join(" · ");
     case "admin_streak_freezes":
       return [d.target ? t("al.s.target", { id: d.target }) : "", t("al.s.freezes", { d: (n(d.value) > 0 || Number(d.value) > 0 ? "+" : "") + String(d.value), b: n(d.before) }),
         d.reason ? t("al.s.reason", { r: d.reason }) : ""].filter(Boolean).join(" · ");
@@ -13095,7 +14657,7 @@ const fc = {
 function openAccountFiche(userId, from) {
   if (!userId) return;
   if (fc.user !== userId) Object.assign(fc, { sum: null, store: null, issues: null, part: {}, missing: false, data: null,
-    dataErr: "", version: null, view: null, q: "", open: {}, cap: "", acc: null, friends: null, friendsErr: "" });
+    dataErr: "", version: null, view: null, q: "", open: {}, cap: "", acc: null, friends: null, friendsErr: "", shares: null, sharesErr: "" });
   fc.user = userId;
   fc.from = from || (currentScreen !== "adminfiche" ? currentScreen : fc.from) || "adminacc";
   fc.started = false;
@@ -13131,6 +14693,10 @@ async function fcLoad() {
     (async () => {   // amis et demandes en attente (étape 29) ; script absent : seulement un message dans la section Amis
       try { fc.friends = await aqRpc("admin_friends", { p_user: user }); fc.friendsErr = ""; }
       catch (e) { fc.friends = null; fc.friendsErr = alIsMissing(e) ? t("am.missing") : aqErrText(e); }
+    })(),
+    (async () => {   // partages et invitations (étape 30) ; script absent : message dans la section Partages
+      try { fc.shares = await aqRpc("admin_shares", { p_user: user }); fc.sharesErr = ""; }
+      catch (e) { fc.shares = null; fc.sharesErr = alIsMissing(e) ? t("sh.missing") : aqErrText(e); }
     })(),
     (async () => {
       try {
@@ -13247,6 +14813,7 @@ function renderAdminFiche() {
   root.appendChild(nav);
   root.appendChild(fcHeader());
   root.appendChild(fcFriends());
+  root.appendChild(fcShares());   // étape 30
   root.appendChild(fcReviews());
   root.appendChild(fcContent());
   root.appendChild(fcDifficulties());
@@ -13488,7 +15055,7 @@ function fcContent() {
   const grid = el("div", "dash-kpis");
   const tile = (label, value) => { const c = el("div", "dash-tile"); c.append(el("div", "dash-tl", label), el("div", "dash-tv", typeof value === "number" ? dashFmt(value) : String(value))); grid.appendChild(c); };
   tile(t("fc.folders"), v.folders); tile(t("fc.lists"), v.lists); tile(t("fc.cards"), v.cards);
-  tile(t("fc.gaps"), v.gaps); tile(t("fc.pending"), v.proposals); tile(t("fc.shared"), "—");
+  tile(t("fc.gaps"), v.gaps); tile(t("fc.pending"), v.proposals); tile(t("fc.shared"), fcSharedCount());
   sec.appendChild(grid);
   sec.appendChild(el("h4", "fc-h4", t("fc.byTypeBox")));
   const head = [t("fc.type")].concat([0, 1, 2, 3, 4, 5].map(b => t("fc.box", { n: b })), [t("fc.total")]);
@@ -13569,6 +15136,8 @@ function fcCardRow(c) {
   m.appendChild(el("div", "fc-ct", TYPE_ICON[cardType(c)] + " " + cardTitle(c)));
   const sub = cardSubtitle(c);
   if (sub) m.appendChild(el("div", "muted fc-small", sub));
+  const miss = missingSupport(c);                    // langues d'appui calculées (étape 31)
+  if (miss.length) m.appendChild(el("span", "tag warn", t("card.toFill", { langs: miss.map(x => langName(x)).join(", ") })));
   const s = c.stats || {};
   r.append(m, el("div", "fc-cnum", t("fc.box", { n: num(c.box, 0) }) + " · " + num(s.correct, 0) + "/" + num(s.seen, 0)));
   return r;
@@ -13698,6 +15267,13 @@ function fcCsv() {
     [["friends", "am.fc.friends"], ["incoming", "am.fc.incoming"], ["outgoing", "am.fc.outgoing"], ["blocked", "am.fc.blocked"], ["blocked_by", "am.fc.blockedBy"]]
       .forEach(([k, l]) => S(F, t(l) + " (" + arr(f[k]).length + ")", arr(f[k]).map(x => x.identifiant).join(", ")));
   } else S(H, t("fc.friends"), "—");
+  if (fc.shares) {   // partages et invitations (étape 30)
+    const SH = t("sh.fc.title"), x = fc.shares;
+    arr(x.owned).forEach(o => S(SH, t("sh.fc.ownedOne") + " : " + o.name, t("lists.count", { n: num(Number(o.cards), 0) }) + " · " + arr(o.members).map(m => m.identifiant + " (" + t("sh.role." + m.role) + ")").join(", ")));
+    arr(x.member_of).forEach(o => S(SH, t("sh.fc.memberOne") + " : " + o.name, o.owner_ident + " · " + t("sh.role." + o.role)));
+    S(SH, t("sh.fc.sent", { n: arr(x.sent).length }), arr(x.sent).map(i => i.identifiant + " · " + i.name + " · " + t("sh.st." + i.status)).join(" | "));
+    S(SH, t("sh.fc.received", { n: arr(x.received).length }), arr(x.received).map(i => i.identifiant + " · " + i.name + " · " + t("sh.st." + i.status)).join(" | "));
+  }
   if (fc.sum) {
     const R = t("fc.reviews"), P = fc.sum.periods || {};
     [["d7", "dash.p7"], ["d30", "dash.p30"], ["all", "fc.pAll"]].forEach(([k, l]) => {
@@ -13717,7 +15293,7 @@ function fcCsv() {
     CARD_TYPES.forEach(ty => { if (v.types[ty].some(n => n > 0)) v.types[ty].forEach((n, b) => S(C, t("type." + ty) + " · " + t("fc.box", { n: b }), n)); });
     v.boxes.forEach((n, b) => S(C, t("fc.total") + " · " + t("fc.box", { n: b }), n));
     Object.keys(v.targets).forEach(c => S(C, t("fc.lang") + " : " + langName(c), v.targets[c]));
-    S(C, t("fc.gaps"), v.gaps); S(C, t("fc.pending"), v.proposals); S(C, t("fc.shared"), "—");
+    S(C, t("fc.gaps"), v.gaps); S(C, t("fc.pending"), v.proposals); S(C, t("fc.shared"), fcSharedCount());
     const D = t("fc.diff");
     v.missed.forEach((x, i) => S(D, t("fc.missed") + " " + (i + 1), [x.title, x.sub].filter(Boolean).join(" · ") + " — " + t("stats.missedCount", { w: x.wrong, s: x.seen })));
     v.tenses.forEach(x => S(D, t("fc.tenses") + " : " + x.name, t("stats.missedCount", { w: x.wrong, s: x.seen })));
@@ -14673,6 +16249,7 @@ async function startUser(id, preset, target, sbUid) {
   Streak.tick(true);   // série : modifications de l'admin, jours manqués (gels), messages au lancement (étape 28)
   Activity.start(auth.loginVia || "resume");   // journal (mode Supabase) : login 1 par heure max, fiche appareil, envois
   Friends.start();   // amis (étape 29) : résumé public publié au lancement, badge des demandes reçues
+  Shared.start();    // listes communes (étape 30) : envois en attente, nouvelles cartes, invitations
   auth.loginVia = null;
   autoWeeklyCheck(id);
   Queue.start(); // file d'attente Claude (mode Supabase) : réponses arrivées pendant l'absence
@@ -14696,6 +16273,8 @@ async function startUserData(id, preset, target, sbUid) {
       state.updatedAt = 0;                    // 0 = une version en ligne existante passe devant
     }
   }
+  Shared.reset();
+  Shared.attach(state);   // cartes des listes communes (cache de l'appareil, étape 30)
   document.body.classList.remove("auth");
   render();
   showScreen(screenFromHash());
@@ -14736,6 +16315,7 @@ async function syncWithRemote(id, ctx, first) {
       if (Storage.getUser() !== id) return;
       if (take === "remote") {
         state = r;
+        Shared.attach(state);   // étape 30
         oldRemote = remote.old;
         rawV1 = dataVersion(remote.data) < DATA_VERSION ? remote.data : null;
         if (!oldRemote && !rawV1) Storage.markSynced(state);
@@ -14799,6 +16379,7 @@ async function logout() {
   Ann.reset();
   Streak.reset();
   Friends.reset();
+  Shared.reset();
   Storage.setUser(null);
   Storage.setSession(null);
   if (auth.mode === "supabase") {
