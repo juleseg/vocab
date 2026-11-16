@@ -74,7 +74,7 @@ textarea{min-height:140px;font-family:ui-monospace,Menlo,monospace;font-size:16p
 
 /* === STYLES : NAVIGATION === */
 nav.bottom{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom)}
-nav.bottom .inner{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+nav.bottom .inner{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(7,1fr)}
 nav.bottom button{position:relative;border:0;background:none;padding:8px 1px 10px;min-height:62px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;line-height:1.15;text-align:center;color:var(--muted);cursor:pointer}
 .nav-badge{position:absolute;top:3px;left:calc(50% + 5px);min-width:18px;height:18px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;padding:0 5px;display:flex;align-items:center;justify-content:center}
 nav.bottom button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -667,6 +667,93 @@ span.fc-day{display:inline-block;width:12px;height:12px;aspect-ratio:auto;cursor
 .q-err{font-size:13px;color:var(--bad);margin-top:6px;overflow-wrap:anywhere}
 .q-acts{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px}
 .q-note{font-size:13px;color:var(--muted);margin:4px 0 12px}
+/* --- Séries (étape 28) : accueil, objectif du jour, gels, badges, calendrier --- */
+.sk-home{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.sk-flame-row{display:flex;align-items:center;justify-content:center;gap:6px}
+.sk-flame{font-size:34px;line-height:1;transition:filter .3s,opacity .3s}
+.sk-flame.off{filter:grayscale(1);opacity:.45}
+.sk-flame.on{animation:skGlow 1.6s ease-in-out 1}
+.sk-sub{font-size:13px;color:var(--muted);margin-top:4px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px 10px}
+.sk-goal{margin-top:14px}
+.sk-goal-hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.sk-goal-hd h2{margin:0;font-size:17px}
+.sk-goal-n{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sk-bar{height:12px;border-radius:6px;background:var(--surface2);overflow:hidden;margin:10px 0 6px}
+.sk-bar > span{display:block;height:100%;width:0;background:var(--warn);border-radius:6px;transition:width .4s}
+.sk-bar.done > span{background:var(--ok)}
+.sk-goal-txt{font-size:14px;color:var(--muted)}
+.sk-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.sk-badges{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.sk-badge{text-align:center;padding:10px 4px;border-radius:12px;background:var(--surface2);min-width:0}
+.sk-badge .ic{font-size:28px;line-height:1.1}
+.sk-badge .nm{font-weight:700;font-size:14px}
+.sk-badge .dt{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+.sk-badge.off .ic{filter:grayscale(1);opacity:.35}
+.sk-badge.on{background:color-mix(in srgb,var(--warn) 18%,var(--surface2))}
+.sk-msg{margin:0 0 8px}
+.sk-msg:last-child{margin-bottom:0}
+.fc-day.valid{box-shadow:inset 0 0 0 2px var(--warn)}
+.fc-day.frozen.valid{box-shadow:inset 0 0 0 2px #3b8fd6}
+.sk-pop{position:fixed;left:50%;top:38%;z-index:300;pointer-events:none;transform:translate(-50%,-50%);
+  background:var(--surface);color:var(--text);border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,.25);
+  padding:18px 24px;text-align:center;min-width:200px;max-width:86vw;animation:skPop 2.8s ease forwards}
+.sk-pop .ic{font-size:56px;line-height:1.1;display:block;animation:skSpin 1s ease 1}
+.sk-pop .tx{font-weight:700;font-size:18px;margin-top:6px}
+.sk-pop .sb{font-size:14px;color:var(--muted)}
+@keyframes skPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}12%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}
+  20%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(.96)}}
+@keyframes skSpin{0%{transform:rotate(-20deg) scale(.6)}60%{transform:rotate(10deg) scale(1.15)}100%{transform:none}}
+@keyframes skGlow{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){
+  .sk-pop{animation:skFade 2.8s linear forwards}.sk-pop .ic,.sk-flame.on{animation:none}
+  @keyframes skFade{0%{opacity:0}10%{opacity:1}85%{opacity:1}100%{opacity:0}}
+}
+.sk-adm-cur{margin:0 0 10px}
+.sk-seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sk-seg button{padding:10px 0;border-radius:10px;border:1px solid var(--border);background:var(--surface);font-weight:700}
+.sk-seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.sk-adj{border-top:1px solid var(--border);padding:8px 0;font-size:14px}
+.sk-adj:first-of-type{border-top:0}
+/* --- Amis (étape 29) : écran Amis, classement de la semaine, Réglages → Amis, fiche du compte --- */
+@media (max-width:420px){nav.bottom button{font-size:11px;padding-left:0;padding-right:0}nav.bottom button span{max-width:100%;overflow-wrap:anywhere}}
+.am-add{display:flex;gap:8px;align-items:stretch}
+.am-add .input{flex:1;min-width:0;font-size:16px}
+.am-add .btn{width:auto;flex:none;min-height:48px;padding:8px 14px}
+.am-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.card > .am-row:last-child{border-bottom:0}
+.am-who{flex:1;min-width:120px}
+.am-id{font-weight:700;overflow-wrap:anywhere}
+.am-sub{font-size:13px;margin:0}
+.am-btns{display:flex;gap:6px;flex-wrap:wrap}
+.am-btns-end{justify-content:flex-end;margin-top:8px}
+.am-btn{min-height:40px;padding:6px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-weight:600;font-size:14px}
+.am-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-text)}
+.am-btn.danger{color:var(--bad)}
+.am-btn:disabled{opacity:.5;cursor:default}
+.am-friend{padding:6px 0 12px;border-bottom:1px solid var(--border)}
+.am-friend:last-child{border-bottom:0;padding-bottom:0}
+.am-friend .am-row{border-bottom:0;padding-bottom:4px;flex-wrap:nowrap}
+.am-fire{font-weight:700;font-size:18px;white-space:nowrap;opacity:.55}
+.am-fire.on{opacity:1}
+.am-dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:4px 0 0;font-size:14px}
+.am-dl dt{color:var(--muted)}
+.am-dl dd{margin:0;text-align:right;overflow-wrap:anywhere}
+.am-badges{display:inline-flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
+.am-badge{background:var(--surface2);border-radius:8px;padding:1px 6px;font-size:13px;white-space:nowrap}
+.am-empty{margin:0}
+.am-week{margin:-6px 0 10px}
+.am-seg{margin-bottom:10px}
+.am-rank{list-style:none;margin:0;padding:0}
+.am-rank-row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--border)}
+.am-rank-row:last-child{border-bottom:0}
+.am-rank-row.me{background:var(--surface2);border-radius:10px;font-weight:700}
+.am-rank-n{width:30px;text-align:center;flex:none;font-variant-numeric:tabular-nums}
+.am-rank-id{flex:1;min-width:0;overflow-wrap:anywhere}
+.am-rank-v{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.am-rank-v small{font-weight:400}
+.am-switch .au-lbl{font-weight:500}
+.am-fc-list{display:flex;flex-wrap:wrap;gap:0 12px}
+.am-fc-who{padding:4px 0;min-height:32px;font-weight:500;text-align:left}
 </style>
 <!-- === PWA (appli installable) === -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -696,8 +783,13 @@ span.fc-day{display:inline-block;width:12px;height:12px;aspect-ratio:auto;cursor
     <section class="screen" id="screen-home">
       <div class="row2">
         <div class="card"><div class="big-num" id="homeDue">0</div><div class="muted" data-i18n="home.due"></div></div>
-        <div class="card"><div class="big-num" id="homeStreak">0</div><div class="muted" data-i18n="home.streak"></div></div>
+        <div class="card sk-home" id="homeStreakCard">
+          <div class="sk-flame-row"><span class="sk-flame off" id="homeFlame" aria-hidden="true">🔥</span><span class="big-num" id="homeStreak">0</span></div>
+          <div class="muted" data-i18n="home.streak"></div>
+          <div class="sk-sub" id="homeStreakSub"></div>
+        </div>
       </div>
+      <div class="card sk-goal" id="homeGoal"></div>
     </section>
 
     <!-- ÉCRAN : RÉVISER -->
@@ -746,6 +838,9 @@ span.fc-day{display:inline-block;width:12px;height:12px;aspect-ratio:auto;cursor
     <!-- ÉCRAN : DEMANDES À CLAUDE (file d'attente, mode Supabase) -->
     <section class="screen" id="screen-requests"></section>
 
+    <!-- Amis (étape 29) -->
+    <section class="screen" id="screen-friends"></section>
+
     <!-- ÉCRAN : RÉGLAGES -->
     <section class="screen" id="screen-admin"></section>
 
@@ -785,6 +880,11 @@ span.fc-day{display:inline-block;width:12px;height:12px;aspect-ratio:auto;cursor
           <label for="setSessionSize" data-i18n="settings.sessionSize"></label>
           <input type="number" id="setSessionSize" min="1" max="500" inputmode="numeric">
         </div>
+        <div class="field">
+          <label for="setDailyGoal" data-i18n="settings.dailyGoal"></label>
+          <input type="number" id="setDailyGoal" min="5" max="100" inputmode="numeric">
+          <div class="hint" data-i18n="settings.dailyGoalHint"></div>
+        </div>
       </div>
 
       <div class="card" id="audioCard"></div>
@@ -796,6 +896,8 @@ span.fc-day{display:inline-block;width:12px;height:12px;aspect-ratio:auto;cursor
       </div>
 
       <div class="card" id="aiCard"></div>
+
+      <div class="card" id="friendsPrivCard" hidden></div>
 
       <div class="card">
         <h2 data-i18n="account.title"></h2>
@@ -832,6 +934,7 @@ span.fc-day{display:inline-block;width:12px;height:12px;aspect-ratio:auto;cursor
       <button data-nav="lists"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg><span data-i18n="nav.lists"></span></button>
       <button data-nav="stats"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span data-i18n="nav.stats"></span></button>
       <button data-nav="pending"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span data-i18n="nav.pending"></span><span class="nav-badge" id="pendingBadge" hidden></span></button>
+      <button data-nav="friends"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 5.8"/></svg><span data-i18n="nav.friends"></span><span class="nav-badge" id="friendsBadge" hidden></span></button>
       <button data-nav="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-i18n="nav.settings"></span></button>
     </div>
   </nav>
@@ -878,7 +981,7 @@ const CONFIG = {
   PV_CHUNK: 200          // « À valider » : propositions acceptées / refusées par paquet
 };
 // Numéro de la dernière étape réalisée : affiché en bas des Réglages, envoyé au journal d'activité et dans la fiche appareil.
-const APP_VERSION = "27";
+const APP_VERSION = "29";
 
 // === I18N ===
 const I18N = {
@@ -2709,6 +2812,481 @@ Object.assign(I18N.en, {
   "al.a.admin_template_send": "template sent"
 });
 
+// Étape 28 : séries façon Duolingo — objectif du jour, gels, badges, actions de l'admin.
+Object.assign(I18N.fr, {
+  "st28.missing": "Lancez le script SQL de l'étape 28 (supabase-etape28.sql) dans Supabase pour utiliser cette fonction.",
+  "save.migratedV4": "Données mises à jour (version 4 : séries, objectif du jour, gels). Une sauvegarde a été exportée juste avant.",
+  "home.streak": "Jours de suite",
+  "settings.dailyGoal": "Objectif du jour (cartes)",
+  "settings.dailyGoalHint": "De 5 à 100. Objectif atteint = jour validé pour la série.",
+  "sk.title": "Ta série",
+  "sk.flameOn": "Objectif du jour atteint",
+  "sk.flameOff": "Objectif du jour pas encore atteint",
+  "sk.best": "Record : {n}",
+  "sk.freezes": "{n} / {m}",
+  "sk.bestLbl": "Record",
+  "sk.freezesLbl": "Gels",
+  "sk.goalTitle": "Objectif du jour",
+  "sk.goalCount": "{n} / {g}",
+  "sk.goalCards": "{n} cartes",
+  "sk.goalReached": "Objectif atteint, la série est assurée pour aujourd'hui 🔥",
+  "sk.goalLeft": "Encore {n} carte(s) pour valider la journée.",
+  "sk.goalDone": "🔥 Objectif du jour atteint ! Série : {n} jour(s).",
+  "sk.earned": "❄️ +1 gel gagné.",
+  "sk.badgeNew": "Badge {n} jours !",
+  "sk.badgeSub": "Bravo, continue comme ça",
+  "sk.msg.frozen1": "Un gel a sauvé ta série (1 jour gelé).",
+  "sk.msg.frozenN": "Des gels ont sauvé ta série ({n} jours gelés).",
+  "sk.msg.lost": "Série perdue : tu avais {n} jour(s) de suite. Ton record reste {b} jour(s).",
+  "sk.msg.restored": "Ta série a été restaurée : {n} jour(s).",
+  "sk.msg.set": "Ta série a été modifiée : {n} jour(s).",
+  "sk.msg.gift1": "Tu as reçu 1 gel.",
+  "sk.msg.giftN": "Tu as reçu {n} gels.",
+  "sk.msg.removed": "{n} gel(s) retiré(s).",
+  "sk.msg.now": "Série : {n} jour(s) · gels : {f}.",
+  "sk.rules": "Un jour est validé quand tu révises {g} cartes. Tous les 7 jours validés d'affilée : 1 gel (2 au maximum). Un jour manqué utilise un gel ; sans gel, la série repart à 0 (le record reste).",
+  "sk.calCards": "{n} cartes révisées",
+  "sk.calGoal": "objectif atteint",
+  "sk.badges": "Badges",
+  "sk.badgeName": "{n} jours",
+  "sk.badgeGot": "Obtenu",
+  "sk.badgeTodo": "À venir",
+  "sk.fcLost": "Série perdue : {n} jour(s), perdue le {d}.",
+  "sk.fcNoKey": "Ce compte n'a pas encore ouvert la version 28 : série calculée d'après son historique (au moins une carte révisée par jour).",
+  "sk.adjTitle": "Modifications de la série (admin)",
+  "sk.adjSeen": "vue par le compte",
+  "sk.adjUnseen": "pas encore vue",
+  "sk.adm.set": "Modifier la série",
+  "sk.adm.restore": "Restaurer la série",
+  "sk.adm.freezes": "Donner / retirer des gels",
+  "sk.adm.setDone": "Série modifiée : {b} → {n} j",
+  "sk.adm.restoreDone": "Série restaurée : {b} → {n} j",
+  "sk.adm.freezesDone": "Gels {d} (maintenant {n})",
+  "sk.adm.cur": "Actuellement : série {n} j · record {b} j · gels {f} / {m}.",
+  "sk.adm.newValue": "Nouvelle série (jours)",
+  "sk.adm.restoreAsk": "Série de {l} jour(s) perdue le {d}. Elle sera remise à {n} jour(s).",
+  "sk.adm.delta": "Gels à donner (+) ou à retirer (−)",
+  "sk.adm.deltaHint": "{m} gels au maximum en réserve.",
+  "sk.adm.reasonHint": "Obligatoire. Notée dans la série du compte et au journal.",
+  "sk.adm.apply": "Valider",
+  "sk.adm.done": "{id} : série {n} j, gels {f}. Message affiché à sa prochaine ouverture.",
+  "sk.adm.err.reason": "Indiquez une raison.",
+  "sk.adm.err.value": "Valeur non valide.",
+  "sk.adm.err.nolost": "Aucune série perdue à restaurer.",
+  "sk.adm.err.freezes_max": "Ce compte a déjà le maximum de gels.",
+  "sk.adm.err.freezes_min": "Ce compte n'a aucun gel à retirer.",
+  "al.s.streak": "série {b} → {v}",
+  "al.s.freezes": "gels {d} (avant : {b})",
+  "al.s.reason": "raison : {r}",
+  "al.a.admin_streak_set": "série modifiée",
+  "al.a.admin_streak_restore": "série restaurée",
+  "al.a.admin_streak_freezes": "gels donnés / retirés",
+  "fc.streakNote": "Série : jours où l'objectif du jour est atteint, gels compris. Les jours manqués pas encore vus par l'appli du compte sont comptés (gel utilisé ou série perdue).",
+  "dash.rk.streaksNote": "Jours d'affilée avec l'objectif du jour atteint, gels compris (comptes en version 28) ; sinon au moins une carte révisée par jour."
+});
+Object.assign(I18N.ko, {
+  "st28.missing": "이 기능을 사용하려면 Supabase에서 28단계 SQL 스크립트(supabase-etape28.sql)를 실행하세요.",
+  "save.migratedV4": "데이터가 새 형식(버전 4: 연속 기록, 오늘의 목표, 보호권)으로 바뀌었습니다. 그 전에 백업을 내보냈습니다.",
+  "home.streak": "연속 학습일",
+  "settings.dailyGoal": "오늘의 목표 (카드 수)",
+  "settings.dailyGoalHint": "5~100장. 목표를 채우면 그날이 연속 기록에 들어갑니다.",
+  "sk.title": "연속 기록",
+  "sk.flameOn": "오늘의 목표 달성",
+  "sk.flameOff": "아직 오늘의 목표를 채우지 않았어요",
+  "sk.best": "최고 기록: {n}",
+  "sk.freezes": "{n} / {m}",
+  "sk.bestLbl": "최고 기록",
+  "sk.freezesLbl": "보호권",
+  "sk.goalTitle": "오늘의 목표",
+  "sk.goalCount": "{n} / {g}",
+  "sk.goalCards": "카드 {n}장",
+  "sk.goalReached": "목표 달성! 오늘 연속 기록이 지켜졌어요 🔥",
+  "sk.goalLeft": "{n}장 더 복습하면 오늘이 인정돼요.",
+  "sk.goalDone": "🔥 오늘의 목표 달성! 연속 {n}일.",
+  "sk.earned": "❄️ 보호권 1개 획득.",
+  "sk.badgeNew": "{n}일 배지 획득!",
+  "sk.badgeSub": "잘하고 있어요, 계속 가요",
+  "sk.msg.frozen1": "보호권이 연속 기록을 지켜 줬어요 (1일 보호).",
+  "sk.msg.frozenN": "보호권이 연속 기록을 지켜 줬어요 ({n}일 보호).",
+  "sk.msg.lost": "연속 기록이 끊겼어요: {n}일 연속이었어요. 최고 기록 {b}일은 그대로예요.",
+  "sk.msg.restored": "연속 기록이 복구되었어요: {n}일.",
+  "sk.msg.set": "연속 기록이 변경되었어요: {n}일.",
+  "sk.msg.gift1": "보호권 1개를 받았어요.",
+  "sk.msg.giftN": "보호권 {n}개를 받았어요.",
+  "sk.msg.removed": "보호권 {n}개가 회수되었어요.",
+  "sk.msg.now": "연속 {n}일 · 보호권 {f}개.",
+  "sk.rules": "하루에 카드 {g}장을 복습하면 그날이 인정됩니다. 7일 연속 인정될 때마다 보호권 1개 (최대 2개). 빠진 날에는 보호권이 쓰이고, 없으면 연속 기록이 0이 됩니다 (최고 기록은 남아요).",
+  "sk.calCards": "카드 {n}장 복습",
+  "sk.calGoal": "목표 달성",
+  "sk.badges": "배지",
+  "sk.badgeName": "{n}일",
+  "sk.badgeGot": "획득",
+  "sk.badgeTodo": "미획득",
+  "sk.fcLost": "연속 기록 끊김: {n}일, {d}.",
+  "sk.fcNoKey": "이 계정은 아직 28버전을 열지 않았습니다: 복습 기록으로 계산한 연속 기록입니다(하루 1장 이상).",
+  "sk.adjTitle": "연속 기록 변경 (관리자)",
+  "sk.adjSeen": "계정에서 확인함",
+  "sk.adjUnseen": "아직 확인 안 함",
+  "sk.adm.set": "연속 기록 수정",
+  "sk.adm.restore": "연속 기록 복구",
+  "sk.adm.freezes": "보호권 주기 / 회수",
+  "sk.adm.setDone": "연속 기록 수정: {b} → {n}일",
+  "sk.adm.restoreDone": "연속 기록 복구: {b} → {n}일",
+  "sk.adm.freezesDone": "보호권 {d} (현재 {n})",
+  "sk.adm.cur": "현재: 연속 {n}일 · 최고 {b}일 · 보호권 {f} / {m}.",
+  "sk.adm.newValue": "새 연속 기록 (일)",
+  "sk.adm.restoreAsk": "{d}에 {l}일 연속 기록이 끊겼습니다. {n}일로 되돌립니다.",
+  "sk.adm.delta": "줄 보호권 (+) 또는 회수할 보호권 (−)",
+  "sk.adm.deltaHint": "보호권은 최대 {m}개까지 보유할 수 있습니다.",
+  "sk.adm.reasonHint": "필수. 계정의 연속 기록과 활동 기록에 남습니다.",
+  "sk.adm.apply": "확인",
+  "sk.adm.done": "{id}: 연속 {n}일, 보호권 {f}개. 다음에 앱을 열 때 메시지가 표시됩니다.",
+  "sk.adm.err.reason": "사유를 입력하세요.",
+  "sk.adm.err.value": "올바른 값이 아닙니다.",
+  "sk.adm.err.nolost": "복구할 끊긴 연속 기록이 없습니다.",
+  "sk.adm.err.freezes_max": "이미 보호권이 최대입니다.",
+  "sk.adm.err.freezes_min": "회수할 보호권이 없습니다.",
+  "al.s.streak": "연속 기록 {b} → {v}",
+  "al.s.freezes": "보호권 {d} (이전: {b})",
+  "al.s.reason": "사유: {r}",
+  "al.a.admin_streak_set": "연속 기록 수정",
+  "al.a.admin_streak_restore": "연속 기록 복구",
+  "al.a.admin_streak_freezes": "보호권 주기 / 회수",
+  "fc.streakNote": "연속 기록: 오늘의 목표를 채운 날(보호권 포함). 계정 앱이 아직 처리하지 않은 빠진 날도 계산합니다(보호권 사용 또는 끊김).",
+  "dash.rk.streaksNote": "오늘의 목표를 채운 연속 일수(보호권 포함, 28버전 계정). 그 외: 하루 1장 이상 복습한 연속 일수."
+});
+Object.assign(I18N.en, {
+  "st28.missing": "Run the step 28 SQL script (supabase-etape28.sql) in Supabase to use this feature.",
+  "save.migratedV4": "Data updated (version 4: streaks, daily goal, freezes). A backup was exported just before.",
+  "home.streak": "Day streak",
+  "settings.dailyGoal": "Daily goal (cards)",
+  "settings.dailyGoalHint": "From 5 to 100. Goal reached = the day counts for your streak.",
+  "sk.title": "Your streak",
+  "sk.flameOn": "Daily goal reached",
+  "sk.flameOff": "Daily goal not reached yet",
+  "sk.best": "Best: {n}",
+  "sk.freezes": "{n} / {m}",
+  "sk.bestLbl": "Best",
+  "sk.freezesLbl": "Freezes",
+  "sk.goalTitle": "Daily goal",
+  "sk.goalCount": "{n} / {g}",
+  "sk.goalCards": "{n} cards",
+  "sk.goalReached": "Goal reached, your streak is safe for today 🔥",
+  "sk.goalLeft": "{n} more card(s) to complete the day.",
+  "sk.goalDone": "🔥 Daily goal reached! Streak: {n} day(s).",
+  "sk.earned": "❄️ +1 freeze earned.",
+  "sk.badgeNew": "{n}-day badge!",
+  "sk.badgeSub": "Well done, keep it up",
+  "sk.msg.frozen1": "A freeze saved your streak (1 frozen day).",
+  "sk.msg.frozenN": "Freezes saved your streak ({n} frozen days).",
+  "sk.msg.lost": "Streak lost: you had {n} day(s) in a row. Your best stays at {b} day(s).",
+  "sk.msg.restored": "Your streak has been restored: {n} day(s).",
+  "sk.msg.set": "Your streak has been changed: {n} day(s).",
+  "sk.msg.gift1": "You received 1 freeze.",
+  "sk.msg.giftN": "You received {n} freezes.",
+  "sk.msg.removed": "{n} freeze(s) removed.",
+  "sk.msg.now": "Streak: {n} day(s) · freezes: {f}.",
+  "sk.rules": "A day counts when you review {g} cards. Every 7 days in a row: 1 freeze (2 max). A missed day uses a freeze; without one, the streak goes back to 0 (your best stays).",
+  "sk.calCards": "{n} cards reviewed",
+  "sk.calGoal": "goal reached",
+  "sk.badges": "Badges",
+  "sk.badgeName": "{n} days",
+  "sk.badgeGot": "Earned",
+  "sk.badgeTodo": "Not yet",
+  "sk.fcLost": "Streak lost: {n} day(s), lost on {d}.",
+  "sk.fcNoKey": "This account has not opened version 28 yet: streak computed from its history (at least one card reviewed per day).",
+  "sk.adjTitle": "Streak changes (admin)",
+  "sk.adjSeen": "seen by the account",
+  "sk.adjUnseen": "not seen yet",
+  "sk.adm.set": "Change the streak",
+  "sk.adm.restore": "Restore the streak",
+  "sk.adm.freezes": "Give / remove freezes",
+  "sk.adm.setDone": "Streak changed: {b} → {n} d",
+  "sk.adm.restoreDone": "Streak restored: {b} → {n} d",
+  "sk.adm.freezesDone": "Freezes {d} (now {n})",
+  "sk.adm.cur": "Now: streak {n} d · best {b} d · freezes {f} / {m}.",
+  "sk.adm.newValue": "New streak (days)",
+  "sk.adm.restoreAsk": "{l}-day streak lost on {d}. It will be set back to {n} day(s).",
+  "sk.adm.delta": "Freezes to give (+) or remove (−)",
+  "sk.adm.deltaHint": "{m} freezes at most in reserve.",
+  "sk.adm.reasonHint": "Required. Saved in the account's streak and in the activity log.",
+  "sk.adm.apply": "Confirm",
+  "sk.adm.done": "{id}: streak {n} d, freezes {f}. A message will show the next time they open the app.",
+  "sk.adm.err.reason": "Enter a reason.",
+  "sk.adm.err.value": "Invalid value.",
+  "sk.adm.err.nolost": "No lost streak to restore.",
+  "sk.adm.err.freezes_max": "This account already has the maximum number of freezes.",
+  "sk.adm.err.freezes_min": "This account has no freeze to remove.",
+  "al.s.streak": "streak {b} → {v}",
+  "al.s.freezes": "freezes {d} (before: {b})",
+  "al.s.reason": "reason: {r}",
+  "al.a.admin_streak_set": "streak changed",
+  "al.a.admin_streak_restore": "streak restored",
+  "al.a.admin_streak_freezes": "freezes given / removed",
+  "fc.streakNote": "Streak: days with the daily goal reached, freezes included. Missed days not yet seen by the account's app are counted (freeze used or streak lost).",
+  "dash.rk.streaksNote": "Days in a row with the daily goal reached, freezes included (version 28 accounts); otherwise at least one card reviewed per day."
+});
+
+// Étape 29 : amis — demandes, blocage, stats visibles, classement de la semaine, confidentialité.
+Object.assign(I18N.fr, {
+  "nav.friends": "Amis",
+  "am.title": "Amis",
+  "am.missing": "Lancez le script SQL de l'étape 29 (supabase-etape29.sql) dans Supabase pour utiliser les amis.",
+  "am.offline": "Les amis demandent la connexion en ligne (Supabase). Ils ne sont pas disponibles ici.",
+  "am.loading": "Chargement…",
+  "am.refresh": "Actualiser",
+  "am.add": "Ajouter un ami",
+  "am.addHint": "Tape son identifiant exact. Il recevra une demande et pourra l'accepter ou la refuser.",
+  "am.addPh": "Identifiant",
+  "am.send": "Envoyer la demande",
+  "am.sent": "Demande envoyée à {id}.",
+  "am.nowFriends": "{id} t'avait déjà envoyé une demande : vous êtes maintenant amis.",
+  "am.incoming": "Demandes reçues",
+  "am.outgoing": "Demandes envoyées ({n} / {m})",
+  "am.accept": "Accepter",
+  "am.decline": "Refuser",
+  "am.cancel": "Annuler",
+  "am.accepted": "{id} est maintenant ton ami.",
+  "am.declined": "Demande de {id} refusée.",
+  "am.canceled": "Demande à {id} annulée.",
+  "am.friends": "Mes amis ({n})",
+  "am.noFriends": "Pas encore d'ami. Ajoute quelqu'un avec son identifiant.",
+  "am.since": "Amis depuis le {d}",
+  "am.remove": "Retirer",
+  "am.removeAsk": "Retirer {id} de tes amis ?",
+  "am.removed": "{id} a été retiré de tes amis.",
+  "am.block": "Bloquer",
+  "am.blockAsk": "Bloquer {id} ? Il ne pourra plus t'envoyer de demande ni de partage. Si vous êtes amis, il sera retiré de tes amis.",
+  "am.blocked": "{id} est bloqué.",
+  "am.unblock": "Débloquer",
+  "am.unblocked": "{id} est débloqué.",
+  "am.blockedTitle": "Comptes bloqués",
+  "am.streak": "Série",
+  "am.streakVal": "{n} j · record {b} j",
+  "am.today": "Objectif du jour",
+  "am.todayYes": "atteint ✓",
+  "am.todayNo": "pas encore",
+  "am.week": "Cartes cette semaine",
+  "am.success": "Réussite cette semaine",
+  "am.badges": "Badges",
+  "am.noBadge": "aucun",
+  "am.shared": "Listes partagées",
+  "am.hidden": "caché",
+  "am.notPublished": "Pas encore de stats (il n'a pas encore ouvert la nouvelle version).",
+  "am.rank": "Classement de la semaine",
+  "am.rankWeek": "Du {a} au {b}",
+  "am.rankCards": "Cartes révisées",
+  "am.rankSuccess": "Taux de réussite",
+  "am.rankMin": "À partir de {n} cartes révisées dans la semaine.",
+  "am.rankEmpty": "Personne pour l'instant.",
+  "am.rankMe": "moi",
+  "am.rankHiddenMe": "Tu t'es retiré du classement : tes amis ne t'y voient pas.",
+  "am.cardsN": "{n} cartes",
+  "am.err.notfound": "Identifiant introuvable",
+  "am.err.self": "Tu ne peux pas t'ajouter toi-même.",
+  "am.err.limit": "Tu as déjà {m} demandes en attente. Attends une réponse ou annule-en une.",
+  "am.err.already_sent": "Demande déjà envoyée à ce compte.",
+  "am.err.already_friends": "Vous êtes déjà amis.",
+  "am.err.you_blocked": "Tu as bloqué ce compte. Débloque-le d'abord.",
+  "am.err.unavailable": "Impossible d'envoyer une demande à ce compte.",
+  "am.err.gone": "Cette demande ou cet ami n'existe plus.",
+  "am.err.account_blocked": "Ton compte est bloqué : action impossible.",
+  "am.err.net": "Pas de connexion. Réessaie plus tard.",
+  "am.err.other": "Une erreur est survenue. Réessaie.",
+  "am.priv.title": "Amis",
+  "am.priv.hint": "Ce que tes amis voient de toi.",
+  "am.priv.streak": "Série et record",
+  "am.priv.today": "Objectif du jour atteint",
+  "am.priv.week": "Cartes de la semaine",
+  "am.priv.success": "Réussite de la semaine",
+  "am.priv.badges": "Badges",
+  "am.priv.ranking": "Présence dans le classement",
+  "am.fc.title": "Amis",
+  "am.fc.friends": "Amis",
+  "am.fc.incoming": "Demandes reçues en attente",
+  "am.fc.outgoing": "Demandes envoyées en attente",
+  "am.fc.blocked": "Comptes qu'il a bloqués",
+  "am.fc.blockedBy": "Bloqué par",
+  "am.fc.none": "aucun",
+  "am.fc.count": "{n} ami(s) · {p} demande(s) en attente",
+  "al.k.friend_request": "Demande d'ami envoyée",
+  "al.k.friend_accept": "Demande d'ami acceptée",
+  "al.k.friend_remove": "Ami retiré",
+  "al.k.friend_block": "Compte bloqué (amis)"
+});
+Object.assign(I18N.ko, {
+  "nav.friends": "친구",
+  "am.title": "친구",
+  "am.missing": "친구 기능을 사용하려면 Supabase에서 29단계 SQL 스크립트(supabase-etape29.sql)를 실행하세요.",
+  "am.offline": "친구 기능은 온라인 연결(Supabase)이 필요합니다. 여기서는 사용할 수 없습니다.",
+  "am.loading": "불러오는 중…",
+  "am.refresh": "새로 고침",
+  "am.add": "친구 추가",
+  "am.addHint": "상대의 아이디를 정확히 입력하세요. 상대가 요청을 받고 수락하거나 거절할 수 있습니다.",
+  "am.addPh": "아이디",
+  "am.send": "요청 보내기",
+  "am.sent": "{id}님에게 요청을 보냈습니다.",
+  "am.nowFriends": "{id}님이 먼저 요청을 보냈었어요. 이제 친구입니다.",
+  "am.incoming": "받은 요청",
+  "am.outgoing": "보낸 요청 ({n} / {m})",
+  "am.accept": "수락",
+  "am.decline": "거절",
+  "am.cancel": "취소",
+  "am.accepted": "{id}님과 친구가 되었습니다.",
+  "am.declined": "{id}님의 요청을 거절했습니다.",
+  "am.canceled": "{id}님에게 보낸 요청을 취소했습니다.",
+  "am.friends": "내 친구 ({n})",
+  "am.noFriends": "아직 친구가 없습니다. 아이디로 친구를 추가해 보세요.",
+  "am.since": "{d}부터 친구",
+  "am.remove": "삭제",
+  "am.removeAsk": "{id}님을 친구에서 삭제할까요?",
+  "am.removed": "{id}님을 친구에서 삭제했습니다.",
+  "am.block": "차단",
+  "am.blockAsk": "{id}님을 차단할까요? 더 이상 친구 요청이나 공유를 보낼 수 없습니다. 친구라면 친구에서도 삭제됩니다.",
+  "am.blocked": "{id}님을 차단했습니다.",
+  "am.unblock": "차단 해제",
+  "am.unblocked": "{id}님의 차단을 해제했습니다.",
+  "am.blockedTitle": "차단한 계정",
+  "am.streak": "연속 기록",
+  "am.streakVal": "{n}일 · 최고 {b}일",
+  "am.today": "오늘의 목표",
+  "am.todayYes": "달성 ✓",
+  "am.todayNo": "아직",
+  "am.week": "이번 주 카드",
+  "am.success": "이번 주 정답률",
+  "am.badges": "배지",
+  "am.noBadge": "없음",
+  "am.shared": "공유 목록",
+  "am.hidden": "비공개",
+  "am.notPublished": "아직 통계가 없습니다 (새 버전을 아직 열지 않았어요).",
+  "am.rank": "이번 주 순위",
+  "am.rankWeek": "{a} ~ {b}",
+  "am.rankCards": "복습한 카드",
+  "am.rankSuccess": "정답률",
+  "am.rankMin": "이번 주에 카드 {n}장 이상 복습한 경우만.",
+  "am.rankEmpty": "아직 아무도 없습니다.",
+  "am.rankMe": "나",
+  "am.rankHiddenMe": "순위에서 나를 숨겼습니다: 친구들에게는 보이지 않아요.",
+  "am.cardsN": "카드 {n}장",
+  "am.err.notfound": "아이디를 찾을 수 없습니다",
+  "am.err.self": "자기 자신은 추가할 수 없습니다.",
+  "am.err.limit": "보낸 요청이 이미 {m}개 대기 중입니다. 답을 기다리거나 하나를 취소하세요.",
+  "am.err.already_sent": "이 계정에 이미 요청을 보냈습니다.",
+  "am.err.already_friends": "이미 친구입니다.",
+  "am.err.you_blocked": "이 계정을 차단했습니다. 먼저 차단을 해제하세요.",
+  "am.err.unavailable": "이 계정에는 요청을 보낼 수 없습니다.",
+  "am.err.gone": "이 요청이나 친구가 더 이상 없습니다.",
+  "am.err.account_blocked": "계정이 차단되어 할 수 없습니다.",
+  "am.err.net": "인터넷 연결이 없습니다. 나중에 다시 시도하세요.",
+  "am.err.other": "오류가 발생했습니다. 다시 시도하세요.",
+  "am.priv.title": "친구",
+  "am.priv.hint": "친구에게 보이는 내 정보입니다.",
+  "am.priv.streak": "연속 기록과 최고 기록",
+  "am.priv.today": "오늘의 목표 달성 여부",
+  "am.priv.week": "이번 주 카드 수",
+  "am.priv.success": "이번 주 정답률",
+  "am.priv.badges": "배지",
+  "am.priv.ranking": "순위에 표시",
+  "am.fc.title": "친구",
+  "am.fc.friends": "친구",
+  "am.fc.incoming": "받은 요청 (대기 중)",
+  "am.fc.outgoing": "보낸 요청 (대기 중)",
+  "am.fc.blocked": "이 계정이 차단한 계정",
+  "am.fc.blockedBy": "이 계정을 차단한 계정",
+  "am.fc.none": "없음",
+  "am.fc.count": "친구 {n}명 · 대기 중인 요청 {p}개",
+  "al.k.friend_request": "친구 요청 보냄",
+  "al.k.friend_accept": "친구 요청 수락",
+  "al.k.friend_remove": "친구 삭제",
+  "al.k.friend_block": "계정 차단 (친구)"
+});
+Object.assign(I18N.en, {
+  "nav.friends": "Friends",
+  "am.title": "Friends",
+  "am.missing": "Run the step 29 SQL script (supabase-etape29.sql) in Supabase to use friends.",
+  "am.offline": "Friends need the online connection (Supabase). They are not available here.",
+  "am.loading": "Loading…",
+  "am.refresh": "Refresh",
+  "am.add": "Add a friend",
+  "am.addHint": "Type their exact username. They will get a request and can accept or decline it.",
+  "am.addPh": "Username",
+  "am.send": "Send request",
+  "am.sent": "Request sent to {id}.",
+  "am.nowFriends": "{id} had already sent you a request: you are now friends.",
+  "am.incoming": "Requests received",
+  "am.outgoing": "Requests sent ({n} / {m})",
+  "am.accept": "Accept",
+  "am.decline": "Decline",
+  "am.cancel": "Cancel",
+  "am.accepted": "{id} is now your friend.",
+  "am.declined": "Request from {id} declined.",
+  "am.canceled": "Request to {id} cancelled.",
+  "am.friends": "My friends ({n})",
+  "am.noFriends": "No friends yet. Add someone with their username.",
+  "am.since": "Friends since {d}",
+  "am.remove": "Remove",
+  "am.removeAsk": "Remove {id} from your friends?",
+  "am.removed": "{id} was removed from your friends.",
+  "am.block": "Block",
+  "am.blockAsk": "Block {id}? They will no longer be able to send you requests or shares. If you are friends, they will be removed.",
+  "am.blocked": "{id} is blocked.",
+  "am.unblock": "Unblock",
+  "am.unblocked": "{id} is unblocked.",
+  "am.blockedTitle": "Blocked accounts",
+  "am.streak": "Streak",
+  "am.streakVal": "{n} d · best {b} d",
+  "am.today": "Daily goal",
+  "am.todayYes": "reached ✓",
+  "am.todayNo": "not yet",
+  "am.week": "Cards this week",
+  "am.success": "Success this week",
+  "am.badges": "Badges",
+  "am.noBadge": "none",
+  "am.shared": "Shared lists",
+  "am.hidden": "hidden",
+  "am.notPublished": "No stats yet (they have not opened the new version yet).",
+  "am.rank": "This week's ranking",
+  "am.rankWeek": "{a} to {b}",
+  "am.rankCards": "Cards reviewed",
+  "am.rankSuccess": "Success rate",
+  "am.rankMin": "From {n} cards reviewed in the week.",
+  "am.rankEmpty": "Nobody yet.",
+  "am.rankMe": "me",
+  "am.rankHiddenMe": "You left the ranking: your friends don't see you in it.",
+  "am.cardsN": "{n} cards",
+  "am.err.notfound": "Username not found",
+  "am.err.self": "You can't add yourself.",
+  "am.err.limit": "You already have {m} pending requests. Wait for an answer or cancel one.",
+  "am.err.already_sent": "Request already sent to this account.",
+  "am.err.already_friends": "You are already friends.",
+  "am.err.you_blocked": "You blocked this account. Unblock it first.",
+  "am.err.unavailable": "You can't send a request to this account.",
+  "am.err.gone": "This request or friend no longer exists.",
+  "am.err.account_blocked": "Your account is blocked: action not possible.",
+  "am.err.net": "No connection. Try again later.",
+  "am.err.other": "Something went wrong. Try again.",
+  "am.priv.title": "Friends",
+  "am.priv.hint": "What your friends see about you.",
+  "am.priv.streak": "Streak and best",
+  "am.priv.today": "Daily goal reached",
+  "am.priv.week": "Cards this week",
+  "am.priv.success": "Success this week",
+  "am.priv.badges": "Badges",
+  "am.priv.ranking": "Show me in the ranking",
+  "am.fc.title": "Friends",
+  "am.fc.friends": "Friends",
+  "am.fc.incoming": "Pending requests received",
+  "am.fc.outgoing": "Pending requests sent",
+  "am.fc.blocked": "Accounts they blocked",
+  "am.fc.blockedBy": "Blocked by",
+  "am.fc.none": "none",
+  "am.fc.count": "{n} friend(s) · {p} pending request(s)",
+  "al.k.friend_request": "Friend request sent",
+  "al.k.friend_accept": "Friend request accepted",
+  "al.k.friend_remove": "Friend removed",
+  "al.k.friend_block": "Account blocked (friends)"
+});
+
 function t(key, vars) {
   const lang = (state && state.settings && state.settings.uiLang) || defaultLang();
   let s = (I18N[lang] && I18N[lang][key]) || I18N.fr[key] || key;
@@ -3072,7 +3650,11 @@ function listLabel(l) { const f = l && getFolder(l.folderId); return l ? (f ? f.
 // === DATA MODEL ===
 // Version 2 : cartes multilingues (terms), dossiers, langue apprise et langues d'appui par compte / dossier / liste.
 // Version 3 : types de cartes (champ type : vocab, conj, cloze, fix, rule — voir TYPES DE CARTES).
-const DATA_VERSION = 3;
+// Version 4 : séries façon Duolingo (settings.dailyGoal, settings.privacy, streak — voir SÉRIES).
+const DATA_VERSION = 4;
+const PRIVACY_KEYS = ["streak", "today", "week", "success", "badges", "ranking"];   // ce que mes amis voient (étape 29)
+function defaultPrivacy() { const o = {}; PRIVACY_KEYS.forEach(k => { o[k] = true; }); return o; }
+function normPrivacy(p) { const o = defaultPrivacy(); if (p && typeof p === "object") PRIVACY_KEYS.forEach(k => { if (p[k] === false) o[k] = false; }); return o; }
 
 // Langue de l'interface à la première ouverture : celle du téléphone si ko ou fr, sinon anglais.
 function defaultLang() {
@@ -3087,7 +3669,8 @@ function defaultSettings(target) {
   return {
     uiLang: defaultLang(), theme: "auto", sessionSize: 20,
     defaultTarget: tg, defaultSupport: defaultSupportFor(tg),
-    audio: { auto: true, langs: "target" }
+    audio: { auto: true, langs: "target" },
+    dailyGoal: 10, privacy: defaultPrivacy()
   };
 }
 
@@ -3100,6 +3683,7 @@ function emptyData(target) {
     lists: [],       // { id, name, folderId|null, order, target?, support?, createdAt }
     cards: [],       // { id, listId, type, ... } (voir newCard et TYPES DE CARTES)
     history: [],
+    streak: normStreak(null, []),   // série (voir SÉRIES)
     proposals: [],   // propositions « À valider » : { id, cardId, field (code de langue | example | pos:<code> | dup), type, oldValue, newValue, reason, createdAt }
     rejected: [],    // clés des propositions refusées (carte|champ|empreinte de la valeur) : jamais reproposées
     lastCheckAt: 0,  // dernière vérification automatique (0 = pas encore démarrée)
@@ -3170,6 +3754,8 @@ function dataVersion(raw) { return (raw && typeof raw === "object") ? num(raw.ve
 // Rend n'importe quel objet (stockage, import, version 1 ou 2) conforme au modèle version 3, sans planter.
 // Migration v1 → v2 : ko/en/fr → terms, listes dans « Sans dossier », langue apprise fr et langues d'appui ko, en par défaut.
 // Migration v2 → v3 : toutes les cartes existantes reçoivent type "vocab" (normalizeCard).
+// Migration v3 → v4 : dailyGoal 10, privacy tout à true, streak calculé depuis history (série actuelle gardée, 0 gel).
+//   Si la clé streak existe déjà (écrite par un autre appareil ou par l'admin), elle est gardée telle quelle.
 function normalizeData(raw) {
   const d = (raw && typeof raw === "object") ? raw : {};
   const s = d.settings || {};
@@ -3185,7 +3771,9 @@ function normalizeData(raw) {
       sessionSize: clampInt(s.sessionSize, 1, 500, 20),
       defaultTarget: tg,
       defaultSupport: sup.length ? sup : defaultSupportFor(tg),
-      audio: { auto: au.auto !== false, langs: ["target", "support", "both"].includes(au.langs) ? au.langs : "target" }
+      audio: { auto: au.auto !== false, langs: ["target", "support", "both"].includes(au.langs) ? au.langs : "target" },
+      dailyGoal: clampInt(s.dailyGoal, 5, 100, 10),
+      privacy: normPrivacy(s.privacy)
     },
     folders: arr(d.folders).filter(f => f && f.id).map((f, i) => Object.assign(
       { id: String(f.id), name: String(f.name || ""), order: num(f.order, i) }, normLangPair(f), lastUpdateOf(f))),
@@ -3194,6 +3782,7 @@ function normalizeData(raw) {
     history: arr(d.history)
       .filter(h => h && /^\d{4}-\d{2}-\d{2}$/.test(h.date))
       .map(h => ({ date: h.date, reviewed: num(h.reviewed, 0), correct: num(h.correct, 0) })),
+    streak: null,
     proposals: arr(d.proposals)
       .filter(p => p && p.id && p.cardId && (isLang(p.field) || isPosField(p.field) || isTypedField(p.field) || ["example", "dup"].includes(p.field)) && ["completion", "correction"].includes(p.type))
       .map(p => Object.assign({ id: String(p.id), cardId: String(p.cardId), field: p.field, type: p.type,
@@ -3204,6 +3793,7 @@ function normalizeData(raw) {
     checkedSig: {},
     aiResume: null
   };
+  out.streak = normStreak(d.streak, out.history);
   const folderIds = new Set(out.folders.map(f => f.id));
   out.lists = arr(d.lists).filter(l => l && l.id).map((l, i) => Object.assign({
     id: String(l.id), name: String(l.name || ""),
@@ -3266,6 +3856,235 @@ function propReqFields(p) {
 function looksLikeAppData(raw) {
   return raw && typeof raw === "object" && Array.isArray(raw.cards) && Array.isArray(raw.lists);
 }
+
+// === SÉRIES ===
+// Étape 28 : séries façon Duolingo. Données : state.streak, clé user:<id>:streak (morceau « streak » du STORAGE).
+//   { current, best, since, lastValidDay, checkedDay, freezes, run, validDays [], frozenDays [], badges [{ days, day }],
+//     lost { value, day, since } | null, adjustments [{ id, kind, value, freezes, delta, before, since, reason, at, by, seen }] }
+// Jours = dates locales de l'appareil ("YYYY-MM-DD"), comparées comme du texte.
+// - Jour validé : au moins dailyGoal cartes révisées ce jour-là (Réglages, 5 à 100, 10 par défaut). Validé une seule
+//   fois (lastValidDay) : pas de double comptage, même si l'heure ou le fuseau changent.
+// - Jours passés « fermés » un par un (checkedDay = dernier jour fermé) : jour non validé → 1 gel utilisé s'il en
+//   reste (série gardée, jour gelé), sinon série à 0 (lost = valeur perdue, pour la restauration par l'admin). Record gardé.
+// - 1 gel gagné tous les 7 jours validés d'affilée (run), 2 au maximum. Badges à 7, 30, 100 et 365 jours (une seule fois).
+// - Modifications de l'admin (fonctions SQL admin_streak_* de l'étape 28) : écrites directement dans la clé streak
+//   (adjustments, seen = false). Au lancement, l'appli les applique (valeurs absolues : rejouer ne change rien),
+//   les marque vues et affiche un message. Un déclencheur SQL empêche l'appli d'effacer une modification pas encore vue.
+// - Migration 3 → 4 : streakFromHistory (jours avec au moins 1 révision = validés, série actuelle gardée, 0 gel).
+const STREAK_BADGES = [7, 30, 100, 365];
+const STREAK_MAX_FREEZES = 2, STREAK_FREEZE_EVERY = 7, STREAK_KEEP_DAYS = 400, STREAK_ADJ_MAX = 50, STREAK_MAX = 100000;
+function skDay(v) { return typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null; }
+// Jour + n (en jours calendaires, midi local : pas d'effet des changements d'heure)
+function skAdd(day, n) { const [y, m, d] = day.split("-").map(Number); return todayStr(new Date(y, m - 1, d + n, 12)); }
+function skDiff(a, b) { const u = s => { const [y, m, d] = s.split("-").map(Number); return Date.UTC(y, m - 1, d); }; return Math.round((u(b) - u(a)) / 86400000); }
+function skDays(list) { return Array.from(new Set(arr(list).map(skDay).filter(Boolean))).sort().slice(-STREAK_KEEP_DAYS); }
+function skLocalDay(iso) { const ts = Date.parse(iso || ""); return isNaN(ts) ? null : todayStr(new Date(ts)); }
+
+function normAdj(a) {
+  if (!a || typeof a !== "object" || typeof a.id !== "string" || !a.id) return null;
+  if (!["set", "restore", "freezes"].includes(a.kind)) return null;
+  const b = a.before && typeof a.before === "object" ? a.before : null;
+  return {
+    id: a.id.slice(0, 64), kind: a.kind,
+    value: clampInt(a.value, 0, STREAK_MAX, 0), freezes: clampInt(a.freezes, 0, STREAK_MAX_FREEZES, 0), delta: clampInt(a.delta, -2, 2, 0),
+    before: b ? { current: clampInt(b.current, 0, STREAK_MAX, 0), freezes: clampInt(b.freezes, 0, STREAK_MAX_FREEZES, 0),
+                  lost: b.lost == null ? null : clampInt(b.lost, 0, STREAK_MAX, 0) } : null,
+    since: skDay(a.since), reason: String(a.reason || "").slice(0, 300), at: typeof a.at === "string" ? a.at : "",
+    by: String(a.by || "").slice(0, 60), seen: a.seen === true
+  };
+}
+// Série enregistrée → modèle propre ; absente (données version 3 et moins) → calculée depuis history.
+function normStreak(s, history) {
+  if (!s || typeof s !== "object" || Array.isArray(s)) return streakFromHistory(history);
+  const cur = clampInt(s.current, 0, STREAK_MAX, 0);
+  const lv = s.lost && typeof s.lost === "object" ? clampInt(s.lost.value, 0, STREAK_MAX, 0) : 0;
+  const seenB = new Set(), badges = [];
+  arr(s.badges).forEach(b => {
+    const n = typeof b === "number" ? b : num(Number(b && b.days), 0);
+    if (STREAK_BADGES.includes(n) && !seenB.has(n)) { seenB.add(n); badges.push({ days: n, day: skDay(b && b.day) }); }
+  });
+  const ids = new Set();
+  return {
+    current: cur, best: Math.max(cur, clampInt(s.best, 0, STREAK_MAX, 0)),
+    since: cur ? skDay(s.since) : null,
+    lastValidDay: skDay(s.lastValidDay), checkedDay: skDay(s.checkedDay),
+    freezes: clampInt(s.freezes, 0, STREAK_MAX_FREEZES, 0), run: clampInt(s.run, 0, STREAK_MAX, 0),
+    validDays: skDays(s.validDays), frozenDays: skDays(s.frozenDays),
+    badges: badges.sort((a, b) => a.days - b.days),
+    lost: lv > 0 ? { value: lv, day: skDay(s.lost.day), since: skDay(s.lost.since) } : null,
+    adjustments: arr(s.adjustments).map(normAdj).filter(a => a && !ids.has(a.id) && ids.add(a.id)).slice(-STREAK_ADJ_MAX)
+  };
+}
+// Migration 3 → 4 : jours avec au moins 1 révision = validés ; série en cours gardée (aujourd'hui compris s'il a révisé,
+// comme l'ancien affichage) ; record = plus longue suite ; badges déjà atteints donnés sans animation ; 0 gel.
+function streakFromHistory(history, today) {
+  today = today || todayStr();
+  const days = Array.from(new Set(arr(history).filter(h => h && num(h.reviewed, 0) > 0).map(h => skDay(h.date)).filter(d => d && d <= today))).sort();
+  const set = new Set(days);
+  let best = 0, run = 0, prev = null;
+  days.forEach(d => { run = prev && skAdd(prev, 1) === d ? run + 1 : 1; best = Math.max(best, run); prev = d; });
+  const start = set.has(today) ? today : skAdd(today, -1);
+  let cur = 0;
+  while (set.has(skAdd(start, -cur))) cur++;
+  best = Math.max(best, cur);
+  return {
+    current: cur, best, since: cur ? skAdd(start, -(cur - 1)) : null, lastValidDay: cur ? start : null,
+    checkedDay: skAdd(today, -1), freezes: 0, run: 0,
+    validDays: days.slice(-STREAK_KEEP_DAYS), frozenDays: [],
+    badges: STREAK_BADGES.filter(b => b <= best).map(b => ({ days: b, day: null })),
+    lost: null, adjustments: []
+  };
+}
+// Ferme les jours passés jusqu'à hier (today exclu). Modifie s. Renvoie les événements [{ k: "frozen", day } | { k: "lost", value }].
+function streakRoll(s, today) {
+  const ev = [];
+  let d = s.checkedDay ? skAdd(s.checkedDay, 1) : (s.lastValidDay ? skAdd(s.lastValidDay, 1) : today);
+  if (s.lastValidDay && s.lastValidDay >= d) d = skAdd(s.lastValidDay, 1);
+  if (d < today && skDiff(d, today) > STREAK_KEEP_DAYS) d = skAdd(today, -STREAK_KEEP_DAYS);
+  const valid = new Set(s.validDays);
+  for (; d < today; d = skAdd(d, 1)) {
+    if (valid.has(d) || d === s.lastValidDay) continue;
+    s.run = 0;
+    if (s.current <= 0) continue;
+    if (s.freezes > 0) { s.freezes--; s.frozenDays.push(d); ev.push({ k: "frozen", day: d }); }
+    else { s.lost = { value: s.current, day: d, since: s.since }; ev.push({ k: "lost", value: s.current }); s.current = 0; s.since = null; }
+  }
+  const y = skAdd(today, -1);                         // tous les jours avant aujourd'hui sont traités
+  if (!s.checkedDay || s.checkedDay < y) s.checkedDay = y;
+  s.frozenDays = skDays(s.frozenDays);
+  return ev;
+}
+// Objectif du jour atteint ? Valide le jour une seule fois. Renvoie [{ k: "goal", value } | { k: "earned" } | { k: "badge", days }].
+function streakValidate(s, today, reviewed, goal) {
+  if (reviewed < goal) return [];
+  if (s.lastValidDay && s.lastValidDay >= today) return [];   // déjà validé (ou horloge revenue en arrière)
+  const ev = [];
+  if (s.current <= 0) s.since = today;
+  s.current++; s.run++; s.lastValidDay = today;
+  s.validDays = skDays(s.validDays.concat(today));
+  s.best = Math.max(s.best, s.current);
+  ev.push({ k: "goal", value: s.current });
+  if (s.run % STREAK_FREEZE_EVERY === 0 && s.freezes < STREAK_MAX_FREEZES) { s.freezes++; ev.push({ k: "earned" }); }
+  STREAK_BADGES.forEach(b => {
+    if (s.current >= b && !s.badges.some(x => x.days === b)) { s.badges.push({ days: b, day: today }); ev.push({ k: "badge", days: b }); }
+  });
+  return ev;
+}
+// Modifications de l'admin pas encore vues : appliquées dans l'ordre (valeurs absolues), puis marquées vues.
+// Série posée par l'admin = série du jour de la modification : les jours d'avant ne sont plus à rattraper.
+function streakApplyAdj(s, today) {
+  const done = [];
+  s.adjustments.filter(a => !a.seen).sort((a, b) => a.at.localeCompare(b.at)).forEach(a => {
+    let day = skLocalDay(a.at) || today;
+    if (day > today) day = today;
+    s.freezes = a.freezes;
+    if (a.kind !== "freezes") {
+      s.current = a.value;
+      s.best = Math.max(s.best, a.value);
+      s.since = a.value > 0 ? (a.since || skAdd(day, -(a.value - 1))) : null;
+      if (a.kind === "restore" || a.value > 0) s.lost = null;
+      const y = skAdd(day, -1);
+      if (!s.checkedDay || s.checkedDay < y) s.checkedDay = y;
+    }
+    a.seen = true;
+    done.push(a);
+  });
+  return done;
+}
+// Données en ligne : ajoute les modifications de l'admin que cet appareil ne connaît pas encore.
+function streakMerge(s, raw) {
+  if (!s || !raw || typeof raw !== "object") return 0;
+  const have = new Set(s.adjustments.map(a => a.id));
+  let n = 0;
+  arr(raw.adjustments).map(normAdj).filter(Boolean).forEach(a => { if (!have.has(a.id)) { s.adjustments.push(a); have.add(a.id); n++; } });
+  if (n) s.adjustments = s.adjustments.slice(-STREAK_ADJ_MAX);
+  return n;
+}
+// Série vue à la date today sans rien modifier (fiche du compte, admin) : copie fermée jusqu'à hier.
+function streakEffective(s, today) {
+  const c = normStreak(JSON.parse(JSON.stringify(s || {})), []);
+  streakRoll(c, today || todayStr());
+  return c;
+}
+
+// Côté appli : objectif du jour, messages au lancement, célébrations.
+const Streak = (() => {
+  let notices = [], lastDay = null, watching = false;
+  function goal() { return clampInt(state.settings.dailyGoal, 5, 100, 10); }
+  function reviewedOn(day) { const h = state.history.find(x => x.date === day); return h ? num(h.reviewed, 0) : 0; }
+  function data() { if (!state.streak) state.streak = normStreak(null, state.history); return state.streak; }
+  function doneToday() { return data().lastValidDay === todayStr(); }
+  // Au lancement, au changement de jour, après une synchro, après un changement d'objectif.
+  function tick(show) {
+    if (!Storage.getUser()) return;
+    const s = data(), today = todayStr();
+    lastDay = today;
+    const before = JSON.stringify(s);
+    streakApplyAdj(s, today).forEach(a => notices.push({ k: "adj", a }));
+    notices.push(...streakRoll(s, today));
+    const ev = streakValidate(s, today, reviewedOn(today), goal());
+    if (JSON.stringify(s) !== before) commit();
+    celebrate(ev);
+    if (show) showNotices();
+    Friends.publish();   // série, objectif du jour, semaine : résumé public pour mes amis (étape 29)
+  }
+  // Après chaque réponse (Leitner) : l'appelant enregistre (commit). day = jour de la réponse.
+  function onReview(day) {
+    const s = data();
+    lastDay = todayStr();
+    notices.push(...streakRoll(s, day));
+    celebrate(streakValidate(s, day, reviewedOn(day), goal()));
+  }
+  function celebrate(ev) {
+    if (!ev.length) return;
+    const g = ev.find(e => e.k === "goal");
+    if (g) {
+      toast(t("sk.goalDone", { n: g.value }) + (ev.some(e => e.k === "earned") ? " " + t("sk.earned") : ""));
+      const fl = $("#homeFlame");
+      if (fl) { fl.classList.remove("on"); void fl.offsetWidth; fl.classList.add("on"); }
+    }
+    ev.filter(e => e.k === "badge").forEach((e, i) => setTimeout(() => badgePop(e.days), 600 + i * 3000));
+  }
+  // Petite animation au passage d'un palier (une seule fois : le badge est enregistré).
+  function badgePop(days) {
+    const box = el("div", "sk-pop");
+    box.setAttribute("role", "status");
+    box.append(el("span", "ic", badgeIcon(days)), el("div", "tx", t("sk.badgeNew", { n: days })), el("div", "sb", t("sk.badgeSub")));
+    document.body.appendChild(box);
+    setTimeout(() => box.remove(), 3000);
+  }
+  // Messages en attente (gel utilisé, série perdue, modifications de l'admin) : une fenêtre, hors session de révision.
+  function showNotices() {
+    if (!notices.length || !Storage.getUser()) return;
+    if (rv.phase === "run" && currentScreen === "review") return;   // en pleine session : plus tard
+    const list = notices.splice(0), s = data(), body = el("div");
+    const p = txt => body.appendChild(el("p", "sk-msg", txt));
+    const frozen = list.filter(x => x.k === "frozen").length;
+    const lost = list.filter(x => x.k === "lost").pop();
+    if (frozen) p("❄️ " + (frozen > 1 ? t("sk.msg.frozenN", { n: frozen }) : t("sk.msg.frozen1")));
+    if (lost) p("💔 " + t("sk.msg.lost", { n: lost.value, b: s.best }));
+    list.filter(x => x.k === "adj").forEach(({ a }) => {
+      if (a.kind === "restore") p("🔥 " + t("sk.msg.restored", { n: a.value }));
+      else if (a.kind === "set") p("🔥 " + t("sk.msg.set", { n: a.value }));
+      else if (a.delta > 0) p("❄️ " + (a.delta > 1 ? t("sk.msg.giftN", { n: a.delta }) : t("sk.msg.gift1")));
+      else if (a.delta < 0) p("❄️ " + t("sk.msg.removed", { n: -a.delta }));
+    });
+    if (!body.childNodes.length) return;
+    if (!lost || s.current > 0) p(t("sk.msg.now", { n: s.current, f: s.freezes }));
+    openModal(t("sk.title"), body, [{ label: t("ann.ok"), kind: "primary" }]);
+  }
+  // Changement de jour pendant que l'appli est ouverte (minuit, fuseau, retour au premier plan).
+  function watch() {
+    if (watching) return;
+    watching = true;
+    const check = () => { if (Storage.getUser() && lastDay && todayStr() !== lastDay) tick(true); };
+    setInterval(check, 60000);
+    try { document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") check(); }); } catch (e) {}
+  }
+  function reset() { notices = []; lastDay = null; }
+  return { goal, reviewedOn, data, doneToday, tick, onReview, showNotices, watch, reset };
+})();
+function badgeIcon(days) { return days >= 365 ? "👑" : days >= 100 ? "🏆" : days >= 30 ? "🥇" : "🏅"; }
 
 // === TYPES DE CARTES ===
 // Chaque carte a un champ type. Tous les types passent par le même Leitner, les mêmes listes, dossiers, stats et « À valider ».
@@ -3604,6 +4423,7 @@ function langSample(code) { const w = arr((LANGUAGES[code] && LANGUAGES[code].de
 //   user:<id>:index                 { v: 2, updatedAt, keys: [...] } — liste des morceaux, écrit en dernier
 //   user:<id>:settings              { version (modèle de données), settings, updatedAt, rejected, lastCheckAt, aiResume: { kind, total } }
 //   user:<id>:folders / :lists / :history
+//   user:<id>:streak                série (étape 28, voir SÉRIES) — aussi modifiée par les fonctions admin de l'étape 28
 //   user:<id>:proposals:<n>         propositions « À valider » (500 max par morceau)
 //   user:<id>:cards:<listId>:<n>    { cards: [200 max], sig: { idCarte: empreinte vérifiée } }
 //   user:<id>:resume:<n>            ids des cartes restant à compléter (complétion en pause, 2000 max par morceau)
@@ -3821,6 +4641,7 @@ const Storage = (() => {
     put("folders", data.folders);
     put("lists", data.lists);
     put("history", data.history);
+    put("streak", data.streak);
     // Cartes : par liste, morceaux de 200 cartes max (et taille limitée, pour les cartes avec de longs exemples).
     const byList = new Map();
     data.cards.forEach(c => { if (!byList.has(c.listId)) byList.set(c.listId, []); byList.get(c.listId).push(c); });
@@ -3865,6 +4686,7 @@ const Storage = (() => {
       version: num(s.version, 1), updatedAt: num(idx.updatedAt, 0),   // pas de version = données de la version 1
       settings: s.settings, rejected: s.rejected, lastCheckAt: s.lastCheckAt,
       folders: arr(getPiece(P + "folders")), lists: arr(getPiece(P + "lists")), history: arr(getPiece(P + "history")),
+      streak: getPiece(P + "streak"),   // absent (version 3 et moins) : calculé par normalizeData
       cards: [], proposals: [], checkedSig: {}, aiResume: null
     };
     const ids = [];
@@ -4283,6 +5105,7 @@ const Leitner = (() => {
     if (!h) { h = { date, reviewed: 0, correct: 0 }; state.history.push(h); }
     h.reviewed++;
     if (known) h.correct++;
+    Streak.onReview(date);   // objectif du jour, gels, badges (étape 28)
   }
   // result : "known" (Su) | "review" (À revoir) | "unknown" (Pas su).
   // Modifie la carte et l'historique, sans sauvegarder (l'appelant fait commit()).
@@ -4449,8 +5272,8 @@ function applyTheme() {
 }
 
 // === NAVIGATION ===
-const SCREENS = ["home", "review", "lists", "stats", "pending", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl"];
-const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles" }; // "settings" est réservé dans l'URL
+const SCREENS = ["home", "review", "lists", "stats", "pending", "friends", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl"];
+const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", friends: "amis", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles" }; // "settings" est réservé dans l'URL
 const ADMIN_SCREENS = ["admin", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl"];
 const ADMIN_SB_SCREENS = ["adminreq", "adminlog", "adminfiche", "adminann", "admintpl"];   // mode Supabase seulement
 let currentScreen = "home";
@@ -4616,18 +5439,34 @@ function renderSyncStatus(mode) {
 }
 
 // === ÉCRAN : ACCUEIL ===
-function computeStreak() {
-  const days = new Set(state.history.filter(h => h.reviewed > 0).map(h => h.date));
-  const d = new Date();
-  if (!days.has(todayStr(d))) d.setDate(d.getDate() - 1); // la série tient encore si on a révisé hier
-  let n = 0;
-  while (days.has(todayStr(d))) { n++; d.setDate(d.getDate() - 1); }
-  return n;
-}
+// Série en cours (étape 28 : objectif du jour atteint, gels compris — voir SÉRIES).
+function computeStreak() { return Streak.data().current; }
 function renderHome() {
   const now = Date.now();
   $("#homeDue").textContent = state.cards.filter(c => Leitner.isDue(c, now)).length;
-  $("#homeStreak").textContent = computeStreak();
+  // Série : flamme allumée quand l'objectif du jour est atteint, record, gels disponibles
+  const s = Streak.data(), done = Streak.doneToday();
+  $("#homeStreak").textContent = s.current;
+  const fl = $("#homeFlame");
+  fl.classList.toggle("off", !done);
+  fl.title = t(done ? "sk.flameOn" : "sk.flameOff");
+  const sub = $("#homeStreakSub");
+  sub.textContent = "";
+  sub.append(el("span", null, t("sk.best", { n: s.best })), el("span", null, "❄️ " + t("sk.freezes", { n: s.freezes, m: STREAK_MAX_FREEZES })));
+  // Objectif du jour : barre de progression (ex. 6 / 10)
+  const g = Streak.goal(), n = Streak.reviewedOn(todayStr());
+  const box = $("#homeGoal");
+  box.textContent = "";
+  const hd = el("div", "sk-goal-hd");
+  hd.append(el("h2", null, t("sk.goalTitle")), el("span", "sk-goal-n", t("sk.goalCount", { n: Math.min(n, 9999), g })));
+  const bar = el("div", "sk-bar" + (done || n >= g ? " done" : ""));
+  const fill = el("span");
+  fill.style.width = Math.min(100, Math.round(n * 100 / g)) + "%";
+  bar.appendChild(fill);
+  bar.setAttribute("role", "progressbar"); bar.setAttribute("aria-valuemin", "0"); bar.setAttribute("aria-valuemax", String(g));
+  bar.setAttribute("aria-valuenow", String(Math.min(n, g)));
+  const txt = done || n >= g ? t("sk.goalReached") : t("sk.goalLeft", { n: g - n });
+  box.append(hd, bar, el("div", "sk-goal-txt", txt));
 }
 
 // === ÉCRAN : RÉVISER (CHOIX DE SESSION) ===
@@ -5081,6 +5920,7 @@ function renderSessionSummary(root) {
   const n = { known: 0, review: 0, unknown: 0 };
   ids.forEach(id => n[s.first[id]]++);
   Activity.session(s, ids, n);   // journal : une fois par session
+  Friends.publish();             // résumé public pour mes amis (étape 29)
 
   const box = el("div", "card");
   box.appendChild(el("h2", null, t("sum.title")));
@@ -6926,7 +7766,7 @@ async function runBulkImport(opts, r, nReplace, lg) {
 // Filtres gardés en mémoire tant que l'appli est ouverte :
 //   stv.lang  : langue apprise ("" = toutes) ; stv.scope : "" (tout) | "f:<idDossier>" | "l:<idListe>".
 // Taux de réussite = réponses « Su » / toutes les réponses (stats.correct / stats.seen).
-const stv = { lang: "", scope: "" };
+const stv = { lang: "", scope: "", cap: "" };
 
 function catCounts(cards) {
   const n = { known: 0, review: 0, unknown: 0 };
@@ -7031,6 +7871,7 @@ function renderStats() {
   top.appendChild(tiles);
   if (rate.seen) top.appendChild(el("div", "hint", t("stats.rateHint", { c: rate.ok, s: rate.seen })));
   root.appendChild(top);
+  root.appendChild(statsStreak());
 
   // Par catégorie
   const n = catCounts(cards);
@@ -7135,12 +7976,48 @@ function renderStats() {
   root.appendChild(ms);
 }
 
+// Série (étape 28) : chiffres, calendrier des 12 dernières semaines (jours gelés, objectif atteint), badges.
+function statsStreak() {
+  const s = Streak.data(), wrap = el("div");
+  const card = el("div", "card");
+  card.appendChild(el("h2", null, "🔥 " + t("sk.title")));
+  const tiles = el("div", "st-tiles");
+  tiles.append(stTile(s.current, t("home.streak")), stTile(s.best, t("sk.bestLbl")),
+    stTile(s.freezes + " / " + STREAK_MAX_FREEZES, "❄️ " + t("sk.freezesLbl")), stTile(Streak.goal(), t("sk.goalTitle")));
+  card.appendChild(tiles);
+  card.appendChild(el("div", "hint", t("sk.rules", { g: Streak.goal() })));
+  wrap.appendChild(card);
+  // Calendrier : du lundi d'il y a 11 semaines à aujourd'hui (même dessin que la fiche du compte)
+  const today = new Date(), dow = (today.getDay() + 6) % 7;
+  const from = todayStr(new Date(today.getFullYear(), today.getMonth(), today.getDate() - dow - 77, 12));
+  const days = state.history.filter(h => h.reviewed > 0 && h.date >= from).map(h => ({ day: h.date, reviewed: h.reviewed, sessions: 0 }));
+  wrap.appendChild(fcCalendar({ from, to: todayStr(), days },
+    { frozen: new Set(s.frozenDays), valid: new Set(s.validDays), store: stv, line: n => t("sk.calCards", { n }) }));
+  // Badges : les 4 paliers, obtenus en couleur avec leur date
+  const bc = el("div", "card");
+  bc.appendChild(el("h2", null, t("sk.badges")));
+  const grid = el("div", "sk-badges");
+  STREAK_BADGES.forEach(b => {
+    const got = s.badges.find(x => x.days === b);
+    const c = el("div", "sk-badge " + (got ? "on" : "off"));
+    c.append(el("div", "ic", badgeIcon(b)), el("div", "nm", t("sk.badgeName", { n: b })),
+      el("div", "dt", got ? (got.day ? dashBucketLabel(got.day, false, true) : t("sk.badgeGot")) : t("sk.badgeTodo")));
+    c.title = t("sk.badgeName", { n: b }) + " — " + (got ? t("sk.badgeGot") : t("sk.badgeTodo"));
+    grid.appendChild(c);
+  });
+  bc.appendChild(grid);
+  wrap.appendChild(bc);
+  return wrap;
+}
+
 // === ÉCRAN : RÉGLAGES ===
 function renderSettings() {
   document.querySelectorAll("#setLang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.value === state.settings.uiLang)));
   document.querySelectorAll("#setTheme button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.value === state.settings.theme)));
   const inp = $("#setSessionSize");
   if (document.activeElement !== inp) inp.value = state.settings.sessionSize;
+  const gi = $("#setDailyGoal");
+  if (document.activeElement !== gi) gi.value = Streak.goal();
   $("#accountInfo").textContent = t("account.info", { id: Storage.getUser() || "" });
   $("#adminCard").hidden = !(auth.mode === "supabase" && auth.isAdmin);
   $("#appVersion").textContent = t("settings.version", { v: APP_VERSION });
@@ -7148,6 +8025,7 @@ function renderSettings() {
   $("#defaultLangs").textContent = t("langs.defaultInfo", { target: langName(lg.target), support: lg.support.map(x => langName(x)).join(", ") });
   renderAudioCard();
   renderAiCard();
+  renderFriendsPrivCard();   // Réglages → Amis (étape 29)
 }
 // Carte « Audio » : lecture auto, langues lues automatiquement, avertissement si une langue n'a pas de voix.
 function renderAudioCard() {
@@ -7183,6 +8061,14 @@ function initSettings() {
   }));
   $("#setSessionSize").addEventListener("change", e => {
     state.settings.sessionSize = clampInt(e.target.value, 1, 500, 20); commit();
+  });
+  // Objectif du jour (5 à 100) : s'il est déjà atteint avec le nouvel objectif, le jour est validé tout de suite.
+  $("#setDailyGoal").addEventListener("change", e => {
+    const v = clampInt(e.target.value, 5, 100, 10);
+    e.target.value = v;
+    if (v === state.settings.dailyGoal) return;
+    state.settings.dailyGoal = v; commit();
+    Streak.tick(true);
   });
   $("#btnDefaultLangs").addEventListener("click", () => openLangEditor("account", state.settings));
   $("#btnExport").addEventListener("click", () => exportData());
@@ -9529,6 +10415,415 @@ const Activity = (() => {
   };
 })();
 
+// === AMIS ===
+// Étape 29. Mode Supabase seulement (script supabase-etape29.sql). Sans le script : l'écran Amis affiche
+// « Lancez le script SQL de l'étape 29 », le reste de l'appli marche comme avant. Hors mode Supabase (artifact,
+// navigateur sans config.js) : écran Amis avec un message, rien n'est envoyé.
+// - Liens entre comptes : table friendships, changée seulement par les fonctions friend_send / friend_accept /
+//   friend_decline / friend_cancel / friend_remove / friend_block / friend_unblock ; lecture : my_friends,
+//   friend_incoming_count (badge du menu).
+// - Résumé public : table user_public_stats (ma ligne seulement), écrite au lancement, après chaque session de
+//   révision et au changement de confidentialité (Réglages → Amis). Les amis la lisent par friends_stats et
+//   friends_ranking (confidentialité appliquée côté serveur). Jamais d'accès des amis à user_data.
+// - Semaine = lundi → dimanche (jours locaux de l'appareil), d'après history.
+// - Journal : friend_request, friend_accept, friend_remove, friend_block (data.target = identifiant de l'autre).
+const FRIENDS_MAX_PENDING = 20;
+const FRIENDS_POLL_MS = 300000;   // badge des demandes reçues : toutes les 5 min (et au retour au premier plan)
+const PRIVACY_ORDER = ["streak", "today", "week", "success", "badges", "ranking"];
+
+// Lundi de la semaine du jour day ("YYYY-MM-DD").
+function frMonday(day) {
+  const [y, m, d] = day.split("-").map(Number);
+  const dow = (new Date(y, m - 1, d, 12).getDay() + 6) % 7;   // 0 = lundi
+  return skAdd(day, -dow);
+}
+// Cartes révisées et justes depuis lundi (jours locaux).
+function frWeekStats(today) {
+  const mon = frMonday(today);
+  let cards = 0, correct = 0;
+  arr(state.history).forEach(h => {
+    if (h && typeof h.date === "string" && h.date >= mon && h.date <= today) {
+      cards += num(h.reviewed, 0); correct += num(h.correct, 0);
+    }
+  });
+  return { mon, cards, correct: Math.min(correct, cards) };
+}
+function frDayLabel(day, opts) {
+  try { const [y, m, d] = day.split("-").map(Number); return new Date(y, m - 1, d, 12).toLocaleDateString(state.settings.uiLang, opts || { day: "numeric", month: "short" }); }
+  catch (e) { return String(day || ""); }
+}
+
+const Friends = (() => {
+  let status = "unknown";          // unknown | ok | missing (script de l'étape 29 pas lancé)
+  let incoming = 0;                // demandes reçues (badge)
+  let data = null, stats = null, ranking = null, loadedAt = 0, loading = false, err = "", token = 0;
+  let lastPub = "", pubBusy = null, pollTimer = null;
+  const view = { input: "", rankTab: "cards", busy: false };
+  function on() { return auth.mode === "supabase" && !!auth.sbUid && !!Supa.client() && !!Storage.getUser(); }
+  function isMissing(e) { return alIsMissing(e); }
+  async function rpc(name, args) {
+    const r = await withTimeout(Supa.client().rpc(name, args || {}), 15000);
+    if (r && r.error) throw r.error;
+    return r ? r.data : null;
+  }
+  // Message d'erreur lisible (hint des fonctions SQL).
+  function errText(e) {
+    const hint = String((e && e.hint) || "");
+    if (I18N.fr["am.err." + hint]) return t("am.err." + hint, { m: FRIENDS_MAX_PENDING });
+    if (isMissing(e)) return t("am.missing");
+    if (sbErrKind(e) === "net") return t("am.err.net");
+    if (String((e && e.code) || "") === "42501" || /compte bloqué/i.test(String((e && e.message) || ""))) return t("am.err.account_blocked");
+    return t("am.err.other");
+  }
+
+  // --- Résumé public (user_public_stats) ---
+  function publicRow() {
+    const today = todayStr(), s = Streak.data(), w = frWeekStats(today);
+    return {
+      user_id: auth.sbUid,
+      streak: clampInt(s.current, 0, 100000, 0), best: clampInt(Math.max(s.best, s.current), 0, 100000, 0),
+      last_valid_day: s.lastValidDay || null, freezes: clampInt(s.freezes, 0, 2, 0),
+      badges: STREAK_BADGES.filter(b => s.badges.some(x => x.days === b)),
+      daily_goal: Streak.goal(),
+      today_day: today, today_done: Streak.doneToday(),
+      week_start: w.mon, week_cards: Math.min(w.cards, 1000000), week_correct: Math.min(w.correct, w.cards, 1000000),
+      privacy: normPrivacy(state.settings.privacy)
+    };
+  }
+  // Écrit ma ligne (rien si elle n'a pas changé depuis la dernière écriture réussie). Jamais d'erreur visible.
+  function publish(force) {
+    if (!on() || status === "missing") return Promise.resolve(false);
+    if (pubBusy) return pubBusy.then(() => publish(force));
+    const row = publicRow(), key = JSON.stringify(row);
+    if (!force && key === lastPub) return Promise.resolve(true);
+    pubBusy = (async () => {
+      try {
+        const r = await withTimeout(Supa.client().from("user_public_stats").upsert(row, { onConflict: "user_id" }), 15000);
+        if (r && r.error) throw r.error;
+        lastPub = key; status = "ok";
+        return true;
+      } catch (e) { if (isMissing(e)) status = "missing"; return false; }
+    })();
+    return pubBusy.finally(() => { pubBusy = null; });
+  }
+
+  // --- Badge du menu : demandes reçues ---
+  async function refreshBadge() {
+    if (!on()) { incoming = 0; renderBadge(); return; }
+    try { incoming = num(Number(await rpc("friend_incoming_count")), 0); status = "ok"; }
+    catch (e) { if (isMissing(e)) { status = "missing"; incoming = 0; } }
+    renderBadge();
+  }
+  function renderBadge() {
+    const b = $("#friendsBadge");
+    if (!b) return;
+    const n = on() ? incoming : 0;
+    b.hidden = !n;
+    b.textContent = n > 99 ? "99+" : String(n);
+  }
+
+  // --- Écran Amis : chargement ---
+  async function load() {
+    if (!on()) return;
+    const my = ++token;
+    loading = true; err = "";
+    if (currentScreen === "friends") renderFriends();
+    await publish(false);   // mes chiffres à jour avant le classement
+    try {
+      const today = todayStr();
+      const [d, s, r] = await Promise.all([rpc("my_friends"), rpc("friends_stats", { p_today: today }), rpc("friends_ranking", { p_today: today })]);
+      if (my !== token) return;
+      data = d || { incoming: [], outgoing: [], friends: [], blocked: [] };
+      stats = arr(s); ranking = r || null; status = "ok"; loadedAt = Date.now();
+      incoming = arr(data.incoming).length;
+    } catch (e) {
+      if (my !== token) return;
+      if (isMissing(e)) status = "missing";
+      err = errText(e);
+    }
+    loading = false;
+    renderBadge();
+    if (currentScreen === "friends") renderFriends();
+  }
+  function needLoad() { return on() && !loading && (!data || Date.now() - loadedAt > 30000); }
+
+  // --- Actions ---
+  async function act(fn, okText, logKind, after) {
+    if (view.busy) return;
+    view.busy = true;
+    if (currentScreen === "friends") renderFriends();
+    try {
+      const r = await fn();
+      if (logKind) Activity.log(logKind, { target: String((r && r.identifiant) || "").slice(0, 40) });
+      if (okText) toast(typeof okText === "function" ? okText(r) : okText);
+      if (after) after(r);
+    } catch (e) {
+      toast(errText(e));
+    }
+    view.busy = false;
+    await load();
+  }
+  function send() {
+    const id = normId(view.input);
+    if (!validId(id)) { toast(t("am.err.notfound")); return; }
+    if (id === Storage.getUser()) { toast(t("am.err.self")); return; }
+    act(() => rpc("friend_send", { p_identifiant: id }),
+      r => t(r && r.result === "accepted" ? "am.nowFriends" : "am.sent", { id: (r && r.identifiant) || id }),
+      null,
+      r => { view.input = ""; Activity.log(r && r.result === "accepted" ? "friend_accept" : "friend_request", { target: (r && r.identifiant) || id }); });
+  }
+  function accept(x) { act(() => rpc("friend_accept", { p_id: x.id }), t("am.accepted", { id: x.identifiant }), "friend_accept"); }
+  function decline(x) { act(() => rpc("friend_decline", { p_id: x.id }), t("am.declined", { id: x.identifiant })); }
+  function cancel(x) { act(() => rpc("friend_cancel", { p_id: x.id }), t("am.canceled", { id: x.identifiant })); }
+  function remove(x) {
+    openModal(t("am.remove"), el("p", null, t("am.removeAsk", { id: x.identifiant })), [
+      { label: t("cancel") },
+      { label: t("am.remove"), kind: "danger", onClick: () => { act(() => rpc("friend_remove", { p_user: x.user_id }), t("am.removed", { id: x.identifiant }), "friend_remove"); } }
+    ]);
+  }
+  function block(x) {
+    openModal(t("am.block"), el("p", null, t("am.blockAsk", { id: x.identifiant })), [
+      { label: t("cancel") },
+      { label: t("am.block"), kind: "danger", onClick: () => { act(() => rpc("friend_block", { p_user: x.user_id }), t("am.blocked", { id: x.identifiant }), "friend_block"); } }
+    ]);
+  }
+  function unblock(x) { act(() => rpc("friend_unblock", { p_user: x.user_id }), t("am.unblocked", { id: x.identifiant })); }
+
+  // --- Lancement / arrêt ---
+  function start() {
+    stop();
+    if (!on()) return;
+    status = "unknown";
+    publish(true).then(() => refreshBadge());
+    pollTimer = setInterval(() => { if (on() && document.visibilityState !== "hidden") refreshBadge(); }, FRIENDS_POLL_MS);
+  }
+  function stop() { clearInterval(pollTimer); pollTimer = null; }
+  function reset() {
+    stop(); token++;
+    status = "unknown"; incoming = 0; data = null; stats = null; ranking = null; loadedAt = 0; loading = false; err = "";
+    lastPub = ""; view.input = ""; view.rankTab = "cards"; view.busy = false;
+    renderBadge();
+  }
+  try {
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && on() && pollTimer) refreshBadge(); });
+  } catch (e) {}
+  return {
+    on, publish, refreshBadge, renderBadge, load, needLoad, start, reset,
+    send, accept, decline, cancel, remove, block, unblock, view,
+    status: () => status, data: () => data, stats: () => stats, ranking: () => ranking, loading: () => loading, err: () => err
+  };
+})();
+
+// --- Écran Amis ---
+function renderFriends() {
+  const root = $("#screen-friends");
+  if (!root) return;
+  root.textContent = "";
+  const top = el("div", "adm-top");
+  top.appendChild(el("h2", null, t("am.title")));
+  if (Friends.on()) {
+    const ref = el("button", "link-btn", t("am.refresh"));
+    ref.addEventListener("click", () => Friends.load());
+    top.appendChild(ref);
+  }
+  root.appendChild(top);
+  if (!Friends.on()) { root.appendChild(el("div", "card muted", t("am.offline"))); return; }
+  if (Friends.status() === "missing") { root.appendChild(el("div", "card q-err", t("am.missing"))); return; }
+  if (Friends.needLoad() && !Friends.data()) { Friends.load(); return; }   // load() affiche « Chargement… »
+  const d = Friends.data();
+  if (!d) {
+    root.appendChild(el("div", "card muted", Friends.loading() ? t("am.loading") : (Friends.err() || t("am.loading"))));
+    if (!Friends.loading() && Friends.err()) {
+      const b = el("button", "btn", t("am.refresh"));
+      b.addEventListener("click", () => Friends.load());
+      root.appendChild(b);
+    }
+    return;
+  }
+  if (Friends.needLoad()) setTimeout(() => Friends.load(), 0);   // données de plus de 30 s : rechargées
+  if (Friends.err()) root.appendChild(el("div", "card q-err", Friends.err()));
+  root.appendChild(amAddCard());
+  const inc = arr(d.incoming);
+  if (inc.length) {
+    const c = el("div", "card");
+    c.appendChild(el("h2", null, t("am.incoming") + " (" + inc.length + ")"));
+    inc.forEach(x => c.appendChild(amPersonRow(x, queueDate(x.created_at), [
+      [t("am.accept"), "primary", () => Friends.accept(x)],
+      [t("am.decline"), "", () => Friends.decline(x)],
+      [t("am.block"), "danger", () => Friends.block({ user_id: x.user_id, identifiant: x.identifiant })]
+    ])));
+    root.appendChild(c);
+  }
+  const out = arr(d.outgoing);
+  if (out.length) {
+    const c = el("div", "card");
+    c.appendChild(el("h2", null, t("am.outgoing", { n: out.length, m: FRIENDS_MAX_PENDING })));
+    out.forEach(x => c.appendChild(amPersonRow(x, queueDate(x.created_at), [[t("am.cancel"), "", () => Friends.cancel(x)]])));
+    root.appendChild(c);
+  }
+  root.appendChild(amRankingCard());
+  const fr = arr(d.friends);
+  const fc = el("div", "card");
+  fc.appendChild(el("h2", null, t("am.friends", { n: fr.length })));
+  if (!fr.length) fc.appendChild(el("p", "muted am-empty", t("am.noFriends")));
+  const byId = {};
+  arr(Friends.stats()).forEach(s => { byId[s.user_id] = s; });
+  fr.forEach(x => fc.appendChild(amFriendBlock(x, byId[x.user_id])));
+  root.appendChild(fc);
+  const bl = arr(d.blocked);
+  if (bl.length) {
+    const c = el("div", "card");
+    c.appendChild(el("h2", null, t("am.blockedTitle")));
+    bl.forEach(x => c.appendChild(amPersonRow(x, admDate(x.at), [[t("am.unblock"), "", () => Friends.unblock(x)]])));
+    root.appendChild(c);
+  }
+}
+function amAddCard() {
+  const c = el("div", "card");
+  c.appendChild(el("h2", null, t("am.add")));
+  const row = el("form", "am-add");
+  const inp = el("input", "input");
+  inp.type = "text"; inp.placeholder = t("am.addPh"); inp.value = Friends.view.input;
+  inp.autocomplete = "off"; inp.setAttribute("autocapitalize", "none"); inp.setAttribute("autocorrect", "off"); inp.spellcheck = false;
+  inp.maxLength = 40; inp.setAttribute("enterkeyhint", "send"); inp.setAttribute("aria-label", t("am.addPh"));
+  inp.addEventListener("input", () => { Friends.view.input = inp.value; });
+  const b = el("button", "btn primary", t("am.send"));
+  b.type = "submit"; b.disabled = Friends.view.busy;
+  row.addEventListener("submit", e => { e.preventDefault(); Friends.view.input = inp.value; Friends.send(); });
+  row.append(inp, b);
+  c.append(row, el("div", "hint", t("am.addHint")));
+  return c;
+}
+// Ligne « personne » : identifiant, petite ligne grise, boutons [libellé, style, action].
+function amPersonRow(x, sub, actions) {
+  const row = el("div", "am-row");
+  const who = el("div", "am-who");
+  who.append(el("div", "am-id", x.identifiant || "?"), el("div", "muted am-sub", sub || ""));
+  const btns = el("div", "am-btns");
+  actions.forEach(([label, kind, fn]) => {
+    const b = el("button", "am-btn" + (kind ? " " + kind : ""), label);
+    b.type = "button"; b.disabled = Friends.view.busy;
+    b.addEventListener("click", fn);
+    btns.appendChild(b);
+  });
+  row.append(who, btns);
+  return row;
+}
+// Un ami : stats visibles (selon sa confidentialité), Retirer, Bloquer.
+function amFriendBlock(x, s) {
+  const box = el("div", "am-friend");
+  const head = el("div", "am-row");
+  const who = el("div", "am-who");
+  who.append(el("div", "am-id", x.identifiant), el("div", "muted am-sub", t("am.since", { d: admDate(x.since) })));
+  head.appendChild(who);
+  const fire = s && s.streak != null ? el("div", "am-fire" + (s.today_done ? " on" : ""), "🔥 " + s.streak) : null;
+  if (fire) head.appendChild(fire);
+  box.appendChild(head);
+  const hid = el("span", "muted", t("am.hidden"));
+  const val = v => v == null ? hid.cloneNode(true) : document.createTextNode(String(v));
+  const dl = el("dl", "am-dl");
+  const add = (k, v) => { const dd = el("dd"); dd.appendChild(v instanceof Node ? v : val(v)); dl.append(el("dt", null, k), dd); };
+  if (!s || !s.published) {
+    box.appendChild(el("p", "muted am-sub", t("am.notPublished")));
+  } else {
+    add(t("am.streak"), s.streak == null ? null : t("am.streakVal", { n: s.streak, b: s.best }));
+    add(t("am.today"), s.today_done == null ? null : t(s.today_done ? "am.todayYes" : "am.todayNo"));
+    add(t("am.week"), s.week_cards == null ? null : dashFmt(s.week_cards));
+    add(t("am.success"), s.week_correct == null ? null : (num(Number(s.week_total), 0) > 0
+      ? dashRate(Math.round(1000 * num(Number(s.week_correct), 0) / num(Number(s.week_total), 1)) / 10) : "—"));
+    let bd = null;
+    if (Array.isArray(s.badges)) {
+      bd = el("span", "am-badges");
+      if (!s.badges.length) bd.appendChild(el("span", "muted", t("am.noBadge")));
+      s.badges.forEach(n => { const b = el("span", "am-badge", badgeIcon(n) + " " + t("sk.badgeName", { n })); bd.appendChild(b); });
+    }
+    add(t("am.badges"), bd);
+  }
+  add(t("am.shared"), "—");   // listes partagées : étape 30
+  box.appendChild(dl);
+  const btns = el("div", "am-btns am-btns-end");
+  [[t("am.remove"), "", () => Friends.remove(x)], [t("am.block"), "danger", () => Friends.block(x)]].forEach(([label, kind, fn]) => {
+    const b = el("button", "am-btn" + (kind ? " " + kind : ""), label);
+    b.type = "button"; b.disabled = Friends.view.busy;
+    b.addEventListener("click", fn);
+    btns.appendChild(b);
+  });
+  box.appendChild(btns);
+  return box;
+}
+// Classement de la semaine : cartes révisées / taux de réussite (20 cartes minimum).
+function amRankingCard() {
+  const r = Friends.ranking();
+  const c = el("div", "card");
+  c.appendChild(el("h2", null, t("am.rank")));
+  if (!r) { c.appendChild(el("p", "muted", "—")); return c; }
+  c.appendChild(el("p", "muted am-sub am-week", t("am.rankWeek", { a: frDayLabel(r.week_start), b: frDayLabel(r.week_end) })));
+  const seg = el("div", "seg am-seg");
+  [["cards", t("am.rankCards")], ["success", t("am.rankSuccess")]].forEach(([k, label]) => {
+    const b = el("button", null, label);
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(Friends.view.rankTab === k));
+    b.addEventListener("click", () => { Friends.view.rankTab = k; renderFriends(); });
+    seg.appendChild(b);
+  });
+  c.appendChild(seg);
+  const tab = Friends.view.rankTab === "success" ? "success" : "cards";
+  const rows = arr(r[tab]);
+  const list = el("ol", "am-rank");
+  let rank = 0, prev = null;
+  rows.forEach((x, i) => {
+    const v = tab === "cards" ? num(Number(x.cards), 0) : num(Number(x.rate), 0);
+    if (prev === null || v !== prev) rank = i + 1;
+    prev = v;
+    const li = el("li", "am-rank-row" + (x.me ? " me" : ""));
+    li.appendChild(el("span", "am-rank-n", rank <= 3 ? ["🥇", "🥈", "🥉"][rank - 1] : String(rank)));
+    const nm = el("span", "am-rank-id", x.identifiant + (x.me ? " (" + t("am.rankMe") + ")" : ""));
+    li.appendChild(nm);
+    const val = tab === "cards" ? dashFmt(v) : dashRate(v);
+    const sub = tab === "success" && x.cards != null ? t("am.cardsN", { n: dashFmt(x.cards) }) : "";
+    const vv = el("span", "am-rank-v", val);
+    if (sub) vv.appendChild(el("small", "muted", " · " + sub));
+    li.appendChild(vv);
+    list.appendChild(li);
+  });
+  if (!rows.length) c.appendChild(el("p", "muted", t("am.rankEmpty")));
+  else c.appendChild(list);
+  if (tab === "success") c.appendChild(el("p", "hint", t("am.rankMin", { n: num(Number(r.min_cards), 20) })));
+  if (!normPrivacy(state.settings.privacy).ranking)
+    c.appendChild(el("p", "hint", t("am.rankHiddenMe")));
+  return c;
+}
+
+// Réglages → Amis : ce que mes amis voient (tout montré par défaut).
+function renderFriendsPrivCard() {
+  const box = $("#friendsPrivCard");
+  if (!box) return;
+  box.hidden = !Friends.on();
+  box.textContent = "";
+  if (box.hidden) return;
+  box.appendChild(el("h2", null, t("am.priv.title")));
+  box.appendChild(el("p", "muted am-sub", t("am.priv.hint")));
+  const pv = normPrivacy(state.settings.privacy);
+  PRIVACY_ORDER.forEach(k => {
+    const b = el("button", "au-switch am-switch");
+    b.type = "button";
+    b.setAttribute("role", "switch");
+    b.setAttribute("aria-checked", String(pv[k]));
+    const track = el("span", "au-track");
+    track.appendChild(el("span", "au-knob"));
+    b.append(el("span", "au-lbl", t("am.priv." + k)), track);
+    b.addEventListener("click", () => {
+      const p = normPrivacy(state.settings.privacy);
+      p[k] = !p[k];
+      state.settings.privacy = p;
+      b.setAttribute("aria-checked", String(p[k]));
+      commitQuiet();
+      Friends.publish(true);   // confidentialité appliquée tout de suite chez mes amis
+    });
+    box.appendChild(b);
+  });
+}
+
 // === MISE À JOUR DES LISTES ===
 // « Mettre à jour » une liste, un dossier ou tout (scope = { kind: "list"|"folder"|"all", id }).
 // 1. Analyse : rien n'est modifié, bilan par catégorie avec le nombre de cartes concernées.
@@ -10436,6 +11731,10 @@ function adminActions(a) {
   // Étape 27 : bloquer / réactiver (jamais son propre compte)
   if (!self && admIsBlocked(a.user_id)) acts.push({ label: t("blk.unblock"), onClick: () => { setTimeout(() => adminUnblock(a), 0); } });
   else if (!self) acts.push({ label: t("blk.block"), kind: "danger", onClick: () => { setTimeout(() => adminBlock(a), 0); } });
+  // Étape 28 : série du compte (raison obligatoire, notée dans sa clé streak et au journal)
+  acts.push({ label: "🔥 " + t("sk.adm.set"), onClick: () => { setTimeout(() => skAdmin(a, "set"), 0); } });
+  acts.push({ label: "🔥 " + t("sk.adm.restore"), onClick: () => { setTimeout(() => skAdmin(a, "restore"), 0); } });
+  acts.push({ label: "❄️ " + t("sk.adm.freezes"), onClick: () => { setTimeout(() => skAdmin(a, "freezes"), 0); } });
   acts.push({ label: t("admin.export"), onClick: () => { adminExport(a); } });
   acts.push({ label: t("admin.import"), onClick: () => { setTimeout(() => adminImport(a), 0); } });
   if (adm.list.length > 1) acts.push({ label: t("admin.copy"), onClick: () => { adminCopy(a); } });
@@ -10565,6 +11864,81 @@ function adminUnblock(a) {
       })();
     } }
   ]);
+}
+
+// --- Série d'un compte (étape 28) : admin_streak_get, puis admin_streak_set / _restore / _freezes ---
+// La modification est écrite par Supabase dans la clé streak du compte (adjustments) et notée au journal (admin_streak_*) ;
+// l'appli du compte l'applique et affiche un message à son lancement suivant. Script pas lancé : « Lancez le script… ».
+function skAdmErr(e) {
+  if (alIsMissing(e)) return t("st28.missing");
+  const h = String((e && e.hint) || "");
+  if (["reason", "value", "nolost", "freezes_max", "freezes_min"].includes(h)) return t("sk.adm.err." + h);
+  if (h === "gone") return t("dash.accGone");
+  return aqErrText(e);
+}
+async function skAdmin(a, kind) {
+  let info;
+  try { info = await aqRpc("admin_streak_get", { p_user: a.user_id, p_tz: dashTz() }); }
+  catch (e) { toast(skAdmErr(e)); return; }
+  if (!info) { toast(t("dash.accGone")); return; }
+  const sk = info.streak || {}, cur = num(Number(sk.current), 0), fr = num(Number(sk.freezes), 0), lostV = num(Number(sk.lost_value), 0);
+  if (kind === "restore" && lostV <= 0) { toast(t("sk.adm.err.nolost")); return; }
+  const wrap = el("div");
+  wrap.appendChild(el("p", "sk-adm-cur", t("sk.adm.cur", { n: cur, b: num(Number(sk.best), 0), f: fr, m: STREAK_MAX_FREEZES })));
+  const f = { value: cur, delta: 0 };
+  if (kind === "set") {
+    const inp = el("input", "input");
+    inp.type = "number"; inp.min = "0"; inp.max = "10000"; inp.inputMode = "numeric"; inp.value = String(cur);
+    inp.addEventListener("input", () => { f.value = inp.value; });
+    wrap.appendChild(formField(t("sk.adm.newValue"), inp, true));
+  } else if (kind === "restore") {
+    wrap.appendChild(el("p", null, t("sk.adm.restoreAsk", { n: lostV + cur, l: lostV,
+      d: sk.lost_day ? dashBucketLabel(sk.lost_day, false, true) : "?" })));
+  } else {
+    const seg = el("div", "sk-seg");
+    [-2, -1, 1, 2].forEach(d => {
+      const b = el("button", null, (d > 0 ? "+" : "−") + Math.abs(d));
+      b.type = "button";
+      const ok = fr + d >= 0 && fr + d <= STREAK_MAX_FREEZES;
+      b.disabled = !ok;
+      b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", () => { f.delta = d; seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); });
+      seg.appendChild(b);
+    });
+    wrap.appendChild(formField(t("sk.adm.delta"), seg, true, t("sk.adm.deltaHint", { m: STREAK_MAX_FREEZES })));
+  }
+  const ta = el("textarea", "input blk-ta");
+  ta.maxLength = 300; ta.rows = 3;
+  wrap.appendChild(formField(t("blk.reason"), ta, true, t("sk.adm.reasonHint")));
+  let busy = false;
+  const title = t("sk.adm." + kind) + " — " + a.identifiant;
+  const close = openModal(title, wrap, [
+    { label: t("cancel") },
+    { label: t("sk.adm.apply"), kind: "primary", onClick: () => {
+      const reason = ta.value.trim();
+      if (kind === "set" && (!/^\d{1,5}$/.test(String(f.value).trim()) || Number(f.value) > 10000)) { toast(t("sk.adm.err.value")); return false; }
+      if (kind === "freezes" && !f.delta) { toast(t("sk.adm.err.value")); return false; }
+      if (!reason) { toast(t("sk.adm.err.reason")); ta.focus(); return false; }
+      if (busy) return false;
+      busy = true;
+      (async () => {
+        try {
+          const args = { p_user: a.user_id, p_reason: reason, p_tz: dashTz() };
+          let r;
+          if (kind === "set") r = await aqRpc("admin_streak_set", Object.assign(args, { p_value: Number(f.value) }));
+          else if (kind === "restore") r = await aqRpc("admin_streak_restore", args);
+          else r = await aqRpc("admin_streak_freezes", Object.assign(args, { p_delta: f.delta }));
+          const ns = (r && r.streak) || {};
+          toast(t("sk.adm.done", { id: a.identifiant, n: num(Number(ns.current), 0), f: num(Number(ns.freezes), 0) }));
+          close();
+          if (currentScreen === "adminfiche") { fc.started = false; renderAdminFiche(); }
+          else if (currentScreen === "admin") loadAdmin();
+        } catch (e) { busy = false; toast(skAdmErr(e)); }
+      })();
+      return false;
+    } }
+  ]);
+  setTimeout(() => { try { (wrap.querySelector("input") || ta).focus(); } catch (e) {} }, 50);
 }
 
 // Copie de dossiers et de listes vers un autre compte : nouvelles cartes sans progression.
@@ -11459,7 +12833,8 @@ function aqDelete(r) {
 // 50 lignes par page (seule la page affichée est dans le DOM). Filtres compte / type / période. Export CSV du journal filtré
 // (séparateur ";", UTF-8 avec BOM pour Excel). Script pas lancé : message « Lancez le script SQL de l'étape 24 ».
 const AL_PAGE = 50;
-const AL_KINDS = ["login", "session", "cards_added", "import", "validate", "claude_request", "pin_change", "logout", "sync_error", "conflict", "admin_*"];
+const AL_KINDS = ["login", "session", "cards_added", "import", "validate", "claude_request", "pin_change", "logout", "sync_error", "conflict",
+  "friend_request", "friend_accept", "friend_remove", "friend_block", "admin_*"];
 const al = { f: { user: "", kind: "", days: "7" }, page: 0, data: null, loading: false, err: "", missing: false };
 let alCleaned = false;
 function alIsMissing(e) {
@@ -11523,6 +12898,12 @@ function alSummary(r) {
     case "conflict": return t("al.s.conflict." + (d.choice === "local" ? "local" : "remote"));
     case "pin_change": return d.forced ? t("al.s.pinForced") : "";
     case "logout": return "";
+    case "admin_streak_set": case "admin_streak_restore":   // étape 28
+      return [d.target ? t("al.s.target", { id: d.target }) : "", t("al.s.streak", { b: n(d.before), v: n(d.value) }),
+        d.reason ? t("al.s.reason", { r: d.reason }) : ""].filter(Boolean).join(" · ");
+    case "admin_streak_freezes":
+      return [d.target ? t("al.s.target", { id: d.target }) : "", t("al.s.freezes", { d: (n(d.value) > 0 || Number(d.value) > 0 ? "+" : "") + String(d.value), b: n(d.before) }),
+        d.reason ? t("al.s.reason", { r: d.reason }) : ""].filter(Boolean).join(" · ");
   }
   const parts = [];
   if (d.target) parts.push(t("al.s.target", { id: d.target }));
@@ -11714,7 +13095,7 @@ const fc = {
 function openAccountFiche(userId, from) {
   if (!userId) return;
   if (fc.user !== userId) Object.assign(fc, { sum: null, store: null, issues: null, part: {}, missing: false, data: null,
-    dataErr: "", version: null, view: null, q: "", open: {}, cap: "", acc: null });
+    dataErr: "", version: null, view: null, q: "", open: {}, cap: "", acc: null, friends: null, friendsErr: "" });
   fc.user = userId;
   fc.from = from || (currentScreen !== "adminfiche" ? currentScreen : fc.from) || "adminacc";
   fc.started = false;
@@ -11747,12 +13128,17 @@ async function fcLoad() {
     part("sum", () => aqRpc("admin_account_summary", { p_user: user, p_tz: tz })),
     part("store", () => aqRpc("admin_account_storage", { p_user: user })),
     part("issues", () => aqRpc("admin_account_issues", { p_user: user, p_days: 30 })),
+    (async () => {   // amis et demandes en attente (étape 29) ; script absent : seulement un message dans la section Amis
+      try { fc.friends = await aqRpc("admin_friends", { p_user: user }); fc.friendsErr = ""; }
+      catch (e) { fc.friends = null; fc.friendsErr = alIsMissing(e) ? t("am.missing") : aqErrText(e); }
+    })(),
     (async () => {
       try {
-        if (user === auth.sbUid) { fc.data = state; fc.version = state.version; }
+        if (user === auth.sbUid) { fc.data = state; fc.version = state.version; fc.skStored = true; }
         else {
           const raw = Storage.unpackRows(await Supa.readRows(user));
           fc.version = raw ? num(Number(raw.version), null) : null;
+          fc.skStored = !!(raw && raw.streak && typeof raw.streak === "object");   // clé streak présente (version 28)
           fc.data = raw ? normalizeData(raw) : null;
         }
         fc.dataErr = "";
@@ -11798,23 +13184,17 @@ function fcCompute(d) {
     v.tenses = Array.from(tense.values()).filter(x => x.wrong > 0)
       .sort((a, b) => b.wrong - a.wrong || b.seen - a.seen).slice(0, 10)
       .map(x => Object.assign(x, { name: tenseName(x.lang, x.tense) }));
-    // Série (règle actuelle de l'appli : au moins une carte révisée par jour) et record, d'après history
-    const days = Array.from(new Set(arr(d.history).filter(h => num(h.reviewed, 0) > 0).map(h => String(h.date)))).sort();
-    let best = 0, run = 0, prev = null;
-    days.forEach(s => {
-      const dt = dashBucketDate(s);
-      run = prev && Math.round((dt - prev) / 86400000) === 1 ? run + 1 : 1;
-      best = Math.max(best, run); prev = dt;
-    });
-    const set = new Set(days), dd = new Date();
-    if (!set.has(todayStr(dd))) dd.setDate(dd.getDate() - 1);
-    let cur = 0;
-    while (set.has(todayStr(dd))) { cur++; dd.setDate(dd.getDate() - 1); }
-    v.streak = cur; v.best = best;
+    // Série (étape 28) : clé streak du compte (sinon calculée depuis history par normalizeData, comme la migration),
+    // vue aujourd'hui : jours manqués pas encore traités par l'appli du compte couverts par les gels, sinon série perdue.
+    const sk = streakEffective(d.streak || normStreak(null, d.history), todayStr());
+    v.streak = sk.current; v.best = sk.best; v.freezes = sk.freezes; v.lost = sk.lost;
+    v.goal = clampInt(d.settings && d.settings.dailyGoal, 5, 100, 10);
+    v.valid = new Set(sk.validDays);
+    v.adjustments = arr(sk.adjustments).slice().reverse();
     v.uiLang = (d.settings && d.settings.uiLang) || "";
     v.langs = Object.keys(v.targets).filter(isLang);
     arr(d.lists).forEach(l => { const tg = listLangs(l).target; if (!v.langs.includes(tg)) v.langs.push(tg); });
-    v.frozen = new Set(arr(d.streak && d.streak.frozenDays).map(String));   // jours gelés (étape 28)
+    v.frozen = new Set(sk.frozenDays);   // jours gelés (étape 28)
     return v;
   });
 }
@@ -11866,6 +13246,7 @@ function renderAdminFiche() {
   btn(t("fc.actions"), () => { if (adm.list) adminActions(fcAccountObj()); else toast(t("admin.err")); });
   root.appendChild(nav);
   root.appendChild(fcHeader());
+  root.appendChild(fcFriends());
   root.appendChild(fcReviews());
   root.appendChild(fcContent());
   root.appendChild(fcDifficulties());
@@ -11936,15 +13317,60 @@ function fcHeader() {
     [t("fc.state"), state0],
     [t("fc.streak"), v ? t("fc.days", { n: v.streak }) : "—"],
     [t("fc.best"), v ? t("fc.days", { n: v.best }) : "—"],
-    [t("fc.freezes"), "—"],
-    [t("fc.goal"), "—"],
+    [t("fc.freezes"), v ? v.freezes + " / " + STREAK_MAX_FREEZES : "—"],
+    [t("fc.goal"), v ? t("sk.goalCards", { n: v.goal }) : "—"],
     [t("fc.uiLang"), v && v.uiLang ? langName(v.uiLang) : "—"],
     [t("fc.langs"), v ? fcLangsText(v.langs) : "—"],
     [t("fc.devices"), devNode],
-    [t("fc.friends"), "—"]
+    [t("fc.friends"), fc.friends ? t("am.fc.count", { n: arr(fc.friends.friends).length,
+      p: arr(fc.friends.incoming).length + arr(fc.friends.outgoing).length }) : "—"]
   ]));
-  if (v) sec.appendChild(el("p", "q-note", t("fc.streakNote")));
+  if (v) {
+    if (v.lost && v.streak === 0) sec.appendChild(el("p", "q-note", t("sk.fcLost", { n: v.lost.value, d: v.lost.day ? dashBucketLabel(v.lost.day, false, true) : "?" })));
+    sec.appendChild(el("p", "q-note", t(fc.skStored ? "fc.streakNote" : "sk.fcNoKey")));
+    // Modifications de la série par l'admin (clé streak, adjustments), les plus récentes d'abord
+    if (v.adjustments.length) {
+      sec.appendChild(el("h4", "fc-h4", t("sk.adjTitle")));
+      v.adjustments.slice(0, 10).forEach(a => {
+        const row = el("div", "sk-adj");
+        row.appendChild(el("div", null, skAdjLabel(a)));
+        row.appendChild(el("div", "muted fc-small", [a.at ? alTime(a.at) : "", a.by, t(a.seen ? "sk.adjSeen" : "sk.adjUnseen")].filter(Boolean).join(" · ")));
+        if (a.reason) row.appendChild(el("div", "muted fc-small", t("al.s.reason", { r: a.reason })));
+        sec.appendChild(row);
+      });
+    }
+  }
   return sec;
+}
+// Amis (étape 29) : amis, demandes en attente (reçues / envoyées), blocages.
+function fcFriends() {
+  const sec = fcSec(t("am.fc.title"), "fc-friends");
+  if (!fc.friends) { sec.appendChild(el("p", "q-note", fc.friendsErr || "—")); return sec; }
+  const f = fc.friends;
+  const people = (list, dateKey) => {
+    const a = arr(list);
+    if (!a.length) return el("span", "muted", t("am.fc.none"));
+    const box = el("div", "am-fc-list");
+    a.forEach(x => {
+      const b = el("button", "link-btn am-fc-who", x.identifiant + (x[dateKey] ? " · " + admDate(x[dateKey]) : ""));
+      b.type = "button";
+      b.addEventListener("click", () => openAccountFiche(x.user_id, fc.from));
+      box.appendChild(b);
+    });
+    return box;
+  };
+  sec.appendChild(fcDl([
+    [t("am.fc.friends") + " (" + arr(f.friends).length + ")", people(f.friends, "since")],
+    [t("am.fc.incoming") + " (" + arr(f.incoming).length + ")", people(f.incoming, "created_at")],
+    [t("am.fc.outgoing") + " (" + arr(f.outgoing).length + ")", people(f.outgoing, "created_at")],
+    [t("am.fc.blocked"), people(f.blocked, "at")],
+    [t("am.fc.blockedBy"), people(f.blocked_by, "at")]
+  ]));
+  return sec;
+}
+function skAdjLabel(a) {
+  if (a.kind === "freezes") return t("sk.adm.freezesDone", { d: (a.delta > 0 ? "+" : "") + a.delta, n: a.freezes });
+  return t(a.kind === "restore" ? "sk.adm.restoreDone" : "sk.adm.setDone", { b: a.before ? a.before.current : "?", n: a.value });
 }
 
 // Révisions
@@ -11975,15 +13401,19 @@ function fcReviews() {
 }
 // Calendrier des 12 dernières semaines : une colonne par semaine (lundi → dimanche), couleur selon les cartes révisées.
 function fcLevel(n) { return n <= 0 ? 0 : n < 10 ? 1 : n < 30 ? 2 : n < 60 ? 3 : 4; }
-function fcCalendar(cal) {
+// o (étape 28, facultatif) : { frozen: Set, valid: Set (objectif atteint), store: objet où garder la légende touchée (cap),
+//   line: (n, sessions) → texte d'un jour actif }. Sans o : fiche du compte (fc).
+function fcCalendar(cal, o) {
+  o = o || { frozen: fc.view && fc.view.frozen, valid: fc.view && fc.view.valid, store: fc };
+  const store = o.store || {};
   const box = el("div", "card fc-cal");
   box.appendChild(el("div", "dash-ch-title", t("fc.calendar")));
-  const cap = el("div", "dash-ch-cap", fc.cap || t("fc.calTap"));
+  const cap = el("div", "dash-ch-cap", store.cap || t("fc.calTap"));
   box.appendChild(cap);
   const from = dashBucketDate(cal.from), to = dashBucketDate(cal.to);
   if (isNaN(from) || isNaN(to)) { box.appendChild(el("p", "muted", "—")); return box; }
   const byDay = new Map(arr(cal.days).map(x => [String(x.day).slice(0, 10), x]));
-  const frozen = (fc.view && fc.view.frozen) || new Set();
+  const frozen = o.frozen || new Set(), valid = o.valid || new Set();
   const wrap = el("div", "fc-cal-wrap");
   const lab = el("div", "fc-cal-days");
   [0, 2, 4, 6].forEach(i => {     // lun, mer, ven, dim
@@ -11997,12 +13427,13 @@ function fcCalendar(cal) {
   for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
     const k = todayStr(d), x = byDay.get(k), n = x ? dashNum(x.reviewed) : 0, ses = x ? dashNum(x.sessions) : 0;
     const lvl = Math.max(fcLevel(n), ses > 0 ? 1 : 0);
-    const c = el("button", "fc-day l" + lvl + (frozen.has(k) ? " frozen" : "") + (k === todayStr() ? " today" : ""));
+    const c = el("button", "fc-day l" + lvl + (frozen.has(k) ? " frozen" : "") + (valid.has(k) ? " valid" : "") + (k === todayStr() ? " today" : ""));
     c.type = "button";
     c.dataset.day = k;
-    const txt = dashBucketLabel(k, false, true) + " : " + (frozen.has(k) ? t("fc.frozen") : lvl ? t("fc.calLine", { n, s: ses }) : t("fc.calNone"));
+    const line = lvl ? (o.line ? o.line(n, ses) : t("fc.calLine", { n, s: ses })) : t("fc.calNone");
+    const txt = dashBucketLabel(k, false, true) + " : " + (frozen.has(k) ? t("fc.frozen") : line + (valid.has(k) ? " · " + t("sk.calGoal") : ""));
     c.title = txt; c.setAttribute("aria-label", txt);
-    c.addEventListener("click", () => { fc.cap = txt; cap.textContent = txt; });
+    c.addEventListener("click", () => { store.cap = txt; cap.textContent = txt; });
     grid.appendChild(c);
   }
   wrap.appendChild(grid);
@@ -12013,6 +13444,8 @@ function fcCalendar(cal) {
   leg.appendChild(el("span", "muted", t("fc.more")));
   leg.appendChild(el("span", "fc-day frozen"));
   leg.appendChild(el("span", "muted", t("fc.frozen")));
+  leg.appendChild(el("span", "fc-day l1 valid"));
+  leg.appendChild(el("span", "muted", t("sk.calGoal")));
   box.appendChild(leg);
   return box;
 }
@@ -12257,10 +13690,14 @@ function fcCsv() {
   S(H, t("fc.lastAct"), admDay(fcLastActivity()));
   S(H, t("fc.state"), fc.sum ? (a.blocked === true ? t("fc.blocked") : t("fc.active")) : "—");
   S(H, t("fc.streak"), v ? v.streak : "—"); S(H, t("fc.best"), v ? v.best : "—");
-  S(H, t("fc.freezes"), "—"); S(H, t("fc.goal"), "—");
+  S(H, t("fc.freezes"), v ? v.freezes : "—"); S(H, t("fc.goal"), v ? v.goal : "—");
   S(H, t("fc.uiLang"), v && v.uiLang ? langName(v.uiLang) : "—"); S(H, t("fc.langs"), v ? fcLangsText(v.langs) : "—");
   arr(fc.sum && fc.sum.devices).forEach(d => S(H, t("fc.devices"), [t("al.dev." + (d.type || "desktop")), d.os, d.browser, d.installed ? t("al.installed") : t("al.browser"), d.app_version ? "v" + d.app_version : "", admDay(d.last_seen)].filter(Boolean).join(" · ")));
-  S(H, t("fc.friends"), "—");
+  if (fc.friends) {   // amis et demandes en attente (étape 29)
+    const F = t("am.fc.title"), f = fc.friends;
+    [["friends", "am.fc.friends"], ["incoming", "am.fc.incoming"], ["outgoing", "am.fc.outgoing"], ["blocked", "am.fc.blocked"], ["blocked_by", "am.fc.blockedBy"]]
+      .forEach(([k, l]) => S(F, t(l) + " (" + arr(f[k]).length + ")", arr(f[k]).map(x => x.identifiant).join(", ")));
+  } else S(H, t("fc.friends"), "—");
   if (fc.sum) {
     const R = t("fc.reviews"), P = fc.sum.periods || {};
     [["d7", "dash.p7"], ["d30", "dash.p30"], ["all", "fc.pAll"]].forEach(([k, l]) => {
@@ -13232,7 +14669,10 @@ async function backupLegacy(thenCreate) {
 // sbUid : identifiant Supabase du compte (mode Supabase).
 async function startUser(id, preset, target, sbUid) {
   await startUserData(id, preset, target, sbUid);
+  Streak.reset();
+  Streak.tick(true);   // série : modifications de l'admin, jours manqués (gels), messages au lancement (étape 28)
   Activity.start(auth.loginVia || "resume");   // journal (mode Supabase) : login 1 par heure max, fiche appareil, envois
+  Friends.start();   // amis (étape 29) : résumé public publié au lancement, badge des demandes reçues
   auth.loginVia = null;
   autoWeeklyCheck(id);
   Queue.start(); // file d'attente Claude (mode Supabase) : réponses arrivées pendant l'absence
@@ -13305,6 +14745,9 @@ async function syncWithRemote(id, ctx, first) {
         Storage.forceFullPush(remote.keys, r.updatedAt);
         state.updatedAt = Math.max(Date.now(), r.updatedAt + 1);
       }
+      // Série : modifications de l'admin écrites en ligne dans la clé streak (étape 28), même si les données
+      // de cet appareil sont gardées. Appliquées par Streak.tick (au lancement, ou ci-dessous).
+      try { streakMerge(state.streak, remote.data && remote.data.streak); } catch (e) {}
     }
     if (ctx.oldLocal || oldRemote || rawV1) {
       // Sauvegarde de sécurité (on n'attend pas plus d'une minute une réponse à la demande d'enregistrement).
@@ -13316,10 +14759,10 @@ async function syncWithRemote(id, ctx, first) {
     if (rawV1) state.updatedAt = Math.max(Date.now(), state.updatedAt + 1); // la nouvelle version du modèle passe devant l'ancienne partout
     if (first) Storage.release();
     Storage.save(state);        // local tout de suite, en ligne regroupé (seulement si les données en ligne ont été lues)
-    const migKey = rawV1 ? (dataVersion(rawV1) < 2 ? "save.migratedV2" : "save.migratedV3") : "save.migrated";
+    const migKey = rawV1 ? (dataVersion(rawV1) < 2 ? "save.migratedV2" : dataVersion(rawV1) < 3 ? "save.migratedV3" : "save.migratedV4") : "save.migrated";
     if (ctx.oldLocal && Storage.dropOldLocal(state)) toast(t(migKey));
     else if (oldRemote || rawV1) toast(t(migKey));
-    if (!first) render();
+    if (!first) { Streak.tick(true); render(); }
   } finally { syncBusy = false; }
 }
 // Fenêtre de conflit (ne se ferme pas en touchant le fond). Renvoie "remote" ou "local".
@@ -13354,6 +14797,8 @@ async function logout() {
   await Storage.flushWait();
   Queue.reset();
   Ann.reset();
+  Streak.reset();
+  Friends.reset();
   Storage.setUser(null);
   Storage.setSession(null);
   if (auth.mode === "supabase") {
@@ -13381,6 +14826,7 @@ function renderScreen() {
   else if (currentScreen === "stats") renderStats();
   else if (currentScreen === "pending") renderPending();
   else if (currentScreen === "settings") renderSettings();
+  else if (currentScreen === "friends") renderFriends();
   else if (currentScreen === "admin") renderAdmin();
   else if (currentScreen === "requests") renderRequests();
   else if (currentScreen === "adminreq") renderAdminReq();
@@ -13390,6 +14836,8 @@ function renderScreen() {
   else if (currentScreen === "adminann") renderAdminAnn();
   else if (currentScreen === "admintpl") renderAdminTpl();
   renderPendingBadge();
+  Friends.renderBadge();   // demandes d'amis reçues (étape 29)
+  Streak.showNotices();   // messages de série en attente (pas pendant une session de révision)
 }
 function render() {
   if (Storage.getUser()) savePrefs(); // langue et thème repris sur l'écran de connexion
@@ -13409,6 +14857,7 @@ async function init() {
   initNav();
   initSettings();
   initLists();
+  Streak.watch();   // changement de jour pendant que l'appli est ouverte (étape 28)
   Storage.onMode(m => renderSyncStatus(m));
   Storage.onConflict(() => { const id = Storage.getUser(); if (id) syncWithRemote(id, { conflict: true }, false); });
   Storage.onRetryInit(() => { const id = Storage.getUser(); if (id) syncWithRemote(id, {}, false); });
