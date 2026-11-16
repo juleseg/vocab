@@ -396,6 +396,37 @@ body.auth main{padding-bottom:24px}
 .adm-pick .check:last-child{border-bottom:0}
 .adm-pick .check.sub{padding-left:22px}
 
+/* --- Demandes à Claude (suivi admin, étape 23) --- */
+.adm-reqbtn{margin:4px 0 14px}
+.aq-h{font-size:16px;margin:18px 0 8px}
+.aq-period{margin-bottom:10px}
+.aq-period button{flex:1}
+.aq-tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:12px;margin-bottom:10px}
+.aq-table{border-collapse:collapse;width:100%;font-size:13px}
+.aq-table th,.aq-table td{padding:7px 8px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+.aq-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+.aq-table th{background:var(--surface2);position:sticky;top:0}
+.aq-sort{background:none;border:0;color:inherit;font:inherit;font-weight:700;cursor:pointer;padding:0;white-space:nowrap}
+.aq-table tr.aq-acc{cursor:pointer}
+.aq-table tr.aq-acc:hover td{background:var(--surface2)}
+.aq-table .aq-name{font-weight:600}
+.aq-table tfoot td{font-weight:700;border-top:2px solid var(--border);border-bottom:0}
+.aq-detail td{white-space:normal;overflow-wrap:anywhere;min-width:60px}
+.aq-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.aq-f{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted)}
+.aq-count{font-size:13px;margin:4px 0 8px}
+.aq-list{display:flex;flex-direction:column;gap:8px}
+.aq-row{display:block;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;border:1px solid var(--border)}
+.aq-counts{color:var(--text)}
+.aq-detailbox{max-height:62vh;overflow:auto}
+.aq-detailbox h4{margin:14px 0 6px;font-size:15px}
+.aq-sum{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:13px;margin:0}
+.aq-sum dt{color:var(--muted)}
+.aq-sum dd{margin:0;overflow-wrap:anywhere}
+.aq-lothead{font-size:13px;font-weight:600;margin:10px 0 4px}
+.aq-cleared{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--surface2);color:var(--muted)}
+.aq-json{max-height:60vh;overflow:auto;font-size:11px;background:var(--surface2);padding:10px;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+
 /* === STYLES : MISE À JOUR === */
 .upd-badge{display:inline-block;font-size:12px;font-weight:600;line-height:1.5;padding:0 7px;border-radius:999px;border:1px solid var(--warn);color:var(--warn);white-space:nowrap;vertical-align:middle}
 .upd-intro{margin:0 0 10px}
@@ -542,6 +573,9 @@ body.auth main{padding-bottom:24px}
 
     <!-- ÉCRAN : RÉGLAGES -->
     <section class="screen" id="screen-admin"></section>
+
+    <!-- ÉCRAN : ADMINISTRATION — DEMANDES À CLAUDE (suivi, admin seulement) -->
+    <section class="screen" id="screen-adminreq"></section>
 
     <section class="screen" id="screen-settings">
       <div class="card">
@@ -1394,7 +1428,29 @@ Object.assign(I18N.en, {
 
 // Étape 18 : file d'attente Claude (tâche programmée), écran « Demandes à Claude ».
 Object.assign(I18N.ko, {
-  "queue.ask": "Claude에게 요청", "queue.title": "Claude에게 보낸 요청", "queue.send": "요청 보내기",
+  "aq.open": "Claude 요청 내역", "aq.title": "Claude 요청 내역", "aq.back": "‹ 관리",
+  "aq.help": "\"Claude에게 요청\"으로 보낸 요청만 표시됩니다(복사·붙여넣기, 파일 교환 제외). 내용은 가져온 뒤 30일이 지나면 지워지고 요약은 계속 남습니다.",
+  "aq.counters": "계정별 집계", "aq.history": "내역", "aq.p7": "최근 7일", "aq.p30": "최근 30일", "aq.pAll": "전체 기간",
+  "aq.col.account": "계정", "aq.col.total": "요청", "aq.col.complete": "채우기", "aq.col.verify": "검사", "aq.col.generate": "만들기",
+  "aq.col.cards": "보낸 카드", "aq.col.received": "받은 제안", "aq.col.accepted": "수락", "aq.col.rejected": "거절",
+  "aq.col.errors": "오류", "aq.col.last": "마지막 요청", "aq.totalRow": "합계",
+  "aq.f.account": "계정", "aq.f.kind": "종류", "aq.f.status": "상태", "aq.f.period": "기간", "aq.f.all": "전체",
+  "aq.st.pending": "대기 중", "aq.st.processing": "처리 중", "aq.st.done": "완료", "aq.st.error": "오류",
+  "aq.nReq": "요청 {n}개", "aq.none": "요청이 없습니다.",
+  "aq.batches": "묶음 {n}개", "aq.attempts": "시도 {n}회",
+  "aq.d.created": "생성 {d}", "aq.d.started": "시작 {d}", "aq.d.finished": "완료 {d}", "aq.d.fetched": "가져옴 {d}",
+  "aq.props": "제안: 받음 {r} · 수락 {a} · 거절 {x}", "aq.hidden": "사용자가 숨김", "aq.cleared": "내용 지워짐",
+  "aq.clearedLong": "내용이 지워졌습니다(30일 지남).", "aq.gone": "이 요청은 더 이상 없습니다.",
+  "aq.label": "목록 / 폴더", "aq.lots": "묶음", "aq.tries": "시도", "aq.dates": "날짜",
+  "aq.sent": "보낸 카드", "aq.answer": "Claude의 답변", "aq.noAnswer": "아직 답변이 없습니다.", "aq.emptyAnswer": "제안 없음",
+  "aq.lot": "묶음", "aq.lotN": "묶음 {n}/{m}", "aq.card": "카드", "aq.content": "내용", "aq.missing": "채울 칸",
+  "aq.field": "칸", "aq.proposed": "제안 값", "aq.type": "종류", "aq.param": "설정", "aq.value": "값",
+  "aq.json": "JSON 보기", "aq.copy": "복사", "aq.copied": "복사했습니다",
+  "aq.retry": "다시 실행", "aq.retried": "요청이 다시 대기 중입니다. 다음 예약 작업에서 처리됩니다.",
+  "aq.delete": "요청 삭제", "aq.delConfirm": "'{id}' 계정의 이 요청과 답변을 삭제할까요? 사용자의 카드와 \"검토\"는 바뀌지 않습니다.",
+  "aq.deleted": "요청을 삭제했습니다",
+  "aq.err.denied": "관리자만 사용할 수 있습니다.", "aq.err.missing": "Supabase에서 étape 23 SQL 스크립트(supabase-etape23.sql)를 실행하세요.",
+  "queue.ask": "Claude에게 요청", "queue.title": "진행 중인 요청", "queue.send": "요청 보내기",
   "queue.help": "Claude가 예약된 작업에서 요청을 처리합니다(바로 처리되지 않음). 제안은 \"검토\"에 도착합니다. 카드는 직접 바뀌지 않습니다.",
   "queue.info": "복사·붙여넣기 대신 Claude에게 요청을 남길 수 있습니다. 예약된 작업에서 처리됩니다.",
   "queue.prepNote": "또는 \"Claude에게 요청\"을 누르세요: 복사·붙여넣기 없이 Claude가 나중에 처리하고, 제안이 \"검토\"에 도착합니다.",
@@ -1410,8 +1466,8 @@ Object.assign(I18N.ko, {
   "queue.st.pending": "대기 중", "queue.st.processing": "처리 중…", "queue.st.done": "완료 · 가져올 제안 있음",
   "queue.st.fetched": "완료", "queue.st.error": "오류",
   "queue.meta.cards": "카드 {n}개", "queue.meta.gen": "{n}개 요청", "queue.meta.sent": "보냄 {d}", "queue.meta.done": "완료 {d}",
-  "queue.cancel": "요청 취소", "queue.cancelConfirm": "이 요청을 취소할까요? 이미 받은 제안은 \"검토\"에 남습니다.",
-  "queue.clear": "지우기", "queue.clearAll": "끝난 요청 지우기 ({n})", "queue.refetch": "제안 다시 가져오기",
+  "queue.cancel": "요청 취소", "queue.cancelConfirm": "아직 처리되지 않은 이 요청을 취소할까요? 요청이 삭제됩니다.",
+  "queue.hide": "숨기기", "queue.hideAll": "끝난 요청 숨기기 ({n})", "queue.refetch": "제안 다시 가져오기",
   "queue.got": "Claude 제안 {n}개가 \"검토\"에 추가되었습니다.", "queue.nothingNew": "새 제안이 없습니다 (이미 있거나 거절한 제안).",
   "queue.banner": "Claude가 처리 중인 요청 {n}개", "queue.banner1": "Claude가 처리 중인 요청 1개", "queue.got1": "Claude 제안 1개가 \"검토\"에 추가되었습니다.",
   "queue.err.missing": "요청 대기열이 아직 설치되지 않았습니다. Supabase에서 étape 18 SQL 스크립트를 실행하세요.",
@@ -1420,7 +1476,29 @@ Object.assign(I18N.ko, {
   "queue.err.big": "요청이 너무 큽니다. 범위를 줄이세요.", "queue.err.server": "서버 오류. 나중에 다시 시도하세요."
 });
 Object.assign(I18N.fr, {
-  "queue.ask": "Demander à Claude", "queue.title": "Demandes à Claude", "queue.send": "Envoyer la demande",
+  "aq.open": "Demandes à Claude", "aq.title": "Demandes à Claude", "aq.back": "‹ Administration",
+  "aq.help": "Seulement les demandes passées par « Demander à Claude » (pas le copier-coller ni l'échange par fichier). Le contenu est effacé 30 jours après récupération, le résumé est gardé.",
+  "aq.counters": "Compteurs par compte", "aq.history": "Historique", "aq.p7": "7 derniers jours", "aq.p30": "30 derniers jours", "aq.pAll": "Depuis le début",
+  "aq.col.account": "Compte", "aq.col.total": "Demandes", "aq.col.complete": "Compléter", "aq.col.verify": "Vérifier", "aq.col.generate": "Générer",
+  "aq.col.cards": "Cartes envoyées", "aq.col.received": "Reçues", "aq.col.accepted": "Acceptées", "aq.col.rejected": "Refusées",
+  "aq.col.errors": "En erreur", "aq.col.last": "Dernière demande", "aq.totalRow": "Total",
+  "aq.f.account": "Compte", "aq.f.kind": "Type", "aq.f.status": "Statut", "aq.f.period": "Période", "aq.f.all": "Tous",
+  "aq.st.pending": "En attente", "aq.st.processing": "En cours", "aq.st.done": "Terminée", "aq.st.error": "Erreur",
+  "aq.nReq": "{n} demandes", "aq.none": "Aucune demande.",
+  "aq.batches": "{n} lots", "aq.attempts": "{n} essais",
+  "aq.d.created": "créée {d}", "aq.d.started": "prise {d}", "aq.d.finished": "terminée {d}", "aq.d.fetched": "récupérée {d}",
+  "aq.props": "Propositions : {r} reçues · {a} acceptées · {x} refusées", "aq.hidden": "masquée par l'utilisateur", "aq.cleared": "contenu effacé",
+  "aq.clearedLong": "Contenu effacé (plus de 30 jours).", "aq.gone": "Cette demande n'existe plus.",
+  "aq.label": "Liste / dossier", "aq.lots": "Lots", "aq.tries": "Essais", "aq.dates": "Dates",
+  "aq.sent": "Cartes envoyées", "aq.answer": "Réponse de Claude", "aq.noAnswer": "Pas encore de réponse.", "aq.emptyAnswer": "Aucune proposition",
+  "aq.lot": "Lot", "aq.lotN": "Lot {n}/{m}", "aq.card": "Carte", "aq.content": "Contenu", "aq.missing": "À compléter",
+  "aq.field": "Champ", "aq.proposed": "Valeur proposée", "aq.type": "Type", "aq.param": "Réglage", "aq.value": "Valeur",
+  "aq.json": "Voir le JSON", "aq.copy": "Copier", "aq.copied": "Copié",
+  "aq.retry": "Relancer", "aq.retried": "Demande remise en attente : elle sera reprise au prochain passage de la tâche programmée.",
+  "aq.delete": "Supprimer la demande", "aq.delConfirm": "Supprimer cette demande du compte « {id} » et ses réponses ? Les cartes et « À valider » de l'utilisateur ne changent pas.",
+  "aq.deleted": "Demande supprimée",
+  "aq.err.denied": "Réservé à l'admin.", "aq.err.missing": "Lancez le script SQL de l'étape 23 (supabase-etape23.sql) dans Supabase.",
+  "queue.ask": "Demander à Claude", "queue.title": "Demandes en cours", "queue.send": "Envoyer la demande",
   "queue.help": "Claude traite les demandes lors de sa tâche programmée (pas tout de suite). Les propositions arrivent dans « À valider » ; rien n'est modifié directement dans les cartes.",
   "queue.info": "Au lieu de copier-coller, laissez une demande à Claude : elle sera traitée par sa tâche programmée.",
   "queue.prepNote": "Ou touchez « Demander à Claude » : pas de copier-coller, Claude s'en charge plus tard et les propositions arrivent dans « À valider ».",
@@ -1436,8 +1514,8 @@ Object.assign(I18N.fr, {
   "queue.st.pending": "En attente", "queue.st.processing": "En cours…", "queue.st.done": "Terminée · à récupérer",
   "queue.st.fetched": "Terminée", "queue.st.error": "Erreur",
   "queue.meta.cards": "{n} cartes", "queue.meta.gen": "{n} demandées", "queue.meta.sent": "envoyée le {d}", "queue.meta.done": "terminée le {d}",
-  "queue.cancel": "Annuler la demande", "queue.cancelConfirm": "Annuler cette demande ? Les propositions déjà reçues restent dans « À valider ».",
-  "queue.clear": "Effacer", "queue.clearAll": "Effacer les demandes terminées ({n})", "queue.refetch": "Récupérer à nouveau",
+  "queue.cancel": "Annuler la demande", "queue.cancelConfirm": "Annuler cette demande pas encore traitée ? Elle sera supprimée.",
+  "queue.hide": "Masquer", "queue.hideAll": "Masquer les demandes terminées ({n})", "queue.refetch": "Récupérer à nouveau",
   "queue.got": "{n} propositions de Claude ajoutées dans « À valider ».", "queue.nothingNew": "Rien de nouveau (propositions déjà présentes ou refusées).",
   "queue.banner": "{n} demandes en cours chez Claude", "queue.banner1": "1 demande en cours chez Claude", "queue.got1": "1 proposition de Claude ajoutée dans « À valider ».",
   "queue.err.missing": "La file d'attente n'est pas encore installée : lancez le script SQL de l'étape 18 dans Supabase.",
@@ -1446,7 +1524,29 @@ Object.assign(I18N.fr, {
   "queue.err.big": "Demande trop grosse : réduisez le périmètre.", "queue.err.server": "Erreur du serveur. Réessayez plus tard."
 });
 Object.assign(I18N.en, {
-  "queue.ask": "Ask Claude", "queue.title": "Requests to Claude", "queue.send": "Send the request",
+  "aq.open": "Requests to Claude", "aq.title": "Requests to Claude", "aq.back": "‹ Administration",
+  "aq.help": "Only requests sent with \"Ask Claude\" (not copy-paste or file exchange). Content is erased 30 days after it was fetched; the summary is kept.",
+  "aq.counters": "Counts per account", "aq.history": "History", "aq.p7": "Last 7 days", "aq.p30": "Last 30 days", "aq.pAll": "All time",
+  "aq.col.account": "Account", "aq.col.total": "Requests", "aq.col.complete": "Fill", "aq.col.verify": "Check", "aq.col.generate": "Generate",
+  "aq.col.cards": "Cards sent", "aq.col.received": "Received", "aq.col.accepted": "Accepted", "aq.col.rejected": "Rejected",
+  "aq.col.errors": "Errors", "aq.col.last": "Last request", "aq.totalRow": "Total",
+  "aq.f.account": "Account", "aq.f.kind": "Type", "aq.f.status": "Status", "aq.f.period": "Period", "aq.f.all": "All",
+  "aq.st.pending": "Waiting", "aq.st.processing": "In progress", "aq.st.done": "Done", "aq.st.error": "Error",
+  "aq.nReq": "{n} requests", "aq.none": "No requests.",
+  "aq.batches": "{n} batches", "aq.attempts": "{n} attempts",
+  "aq.d.created": "created {d}", "aq.d.started": "taken {d}", "aq.d.finished": "done {d}", "aq.d.fetched": "fetched {d}",
+  "aq.props": "Suggestions: {r} received · {a} accepted · {x} rejected", "aq.hidden": "hidden by the user", "aq.cleared": "content erased",
+  "aq.clearedLong": "Content erased (over 30 days).", "aq.gone": "This request no longer exists.",
+  "aq.label": "List / folder", "aq.lots": "Batches", "aq.tries": "Attempts", "aq.dates": "Dates",
+  "aq.sent": "Cards sent", "aq.answer": "Claude's answer", "aq.noAnswer": "No answer yet.", "aq.emptyAnswer": "No suggestions",
+  "aq.lot": "Batch", "aq.lotN": "Batch {n}/{m}", "aq.card": "Card", "aq.content": "Content", "aq.missing": "To fill",
+  "aq.field": "Field", "aq.proposed": "Suggested value", "aq.type": "Type", "aq.param": "Setting", "aq.value": "Value",
+  "aq.json": "View JSON", "aq.copy": "Copy", "aq.copied": "Copied",
+  "aq.retry": "Retry", "aq.retried": "Request back in the queue: it will be picked up by the next scheduled task.",
+  "aq.delete": "Delete request", "aq.delConfirm": "Delete this request from account \"{id}\" and its answers? The user's cards and \"Pending\" are not changed.",
+  "aq.deleted": "Request deleted",
+  "aq.err.denied": "Admin only.", "aq.err.missing": "Run the step 23 SQL script (supabase-etape23.sql) in Supabase.",
+  "queue.ask": "Ask Claude", "queue.title": "Ongoing requests", "queue.send": "Send the request",
   "queue.help": "Claude handles requests during its scheduled task (not right away). Suggestions arrive in \"Pending\"; cards are never changed directly.",
   "queue.info": "Instead of copy-pasting, leave a request for Claude: its scheduled task will handle it.",
   "queue.prepNote": "Or tap \"Ask Claude\": no copy-paste, Claude handles it later and the suggestions arrive in \"Pending\".",
@@ -1462,8 +1562,8 @@ Object.assign(I18N.en, {
   "queue.st.pending": "Waiting", "queue.st.processing": "In progress…", "queue.st.done": "Done · to fetch",
   "queue.st.fetched": "Done", "queue.st.error": "Error",
   "queue.meta.cards": "{n} cards", "queue.meta.gen": "{n} requested", "queue.meta.sent": "sent {d}", "queue.meta.done": "done {d}",
-  "queue.cancel": "Cancel request", "queue.cancelConfirm": "Cancel this request? Suggestions already received stay in \"Pending\".",
-  "queue.clear": "Clear", "queue.clearAll": "Clear finished requests ({n})", "queue.refetch": "Fetch again",
+  "queue.cancel": "Cancel request", "queue.cancelConfirm": "Cancel this request that hasn't been handled yet? It will be deleted.",
+  "queue.hide": "Hide", "queue.hideAll": "Hide finished requests ({n})", "queue.refetch": "Fetch again",
   "queue.got": "{n} suggestions from Claude added to \"Pending\".", "queue.nothingNew": "Nothing new (suggestions already there or rejected).",
   "queue.banner": "{n} requests in progress with Claude", "queue.banner1": "1 request in progress with Claude", "queue.got1": "1 suggestion from Claude added to \"Pending\".",
   "queue.err.missing": "The queue is not installed yet: run the step 18 SQL script in Supabase.",
@@ -1959,8 +2059,8 @@ function normalizeData(raw) {
       .map(h => ({ date: h.date, reviewed: num(h.reviewed, 0), correct: num(h.correct, 0) })),
     proposals: arr(d.proposals)
       .filter(p => p && p.id && p.cardId && (isLang(p.field) || isPosField(p.field) || isTypedField(p.field) || ["example", "dup"].includes(p.field)) && ["completion", "correction"].includes(p.type))
-      .map(p => ({ id: String(p.id), cardId: String(p.cardId), field: p.field, type: p.type,
-        oldValue: String(p.oldValue || ""), newValue: String(p.newValue || ""), reason: String(p.reason || ""), createdAt: num(p.createdAt, 0) }))
+      .map(p => Object.assign({ id: String(p.id), cardId: String(p.cardId), field: p.field, type: p.type,
+        oldValue: String(p.oldValue || ""), newValue: String(p.newValue || ""), reason: String(p.reason || ""), createdAt: num(p.createdAt, 0) }, propReqFields(p)))
       .concat(arr(d.proposals).map(normNewProposal).filter(Boolean)),   // « Nouvelle carte » (étape 17)
     rejected: arr(d.rejected).map(String).slice(-CONFIG.REJECT_MAX),
     lastCheckAt: num(d.lastCheckAt, 0),
@@ -2016,8 +2116,15 @@ function normNewProposal(p) {
     return { type: d.type, fields: f, ruleRef: String(d.ruleRef || "") };
   });
   if (!cards.length) return null;
-  return { id: String(p.id), cardId: "", listId: String(p.listId), field: "new", type: "newcard", cards,
-    oldValue: "", newValue: "", reason: String(p.reason || "").slice(0, 300), createdAt: num(p.createdAt, 0) };
+  return Object.assign({ id: String(p.id), cardId: "", listId: String(p.listId), field: "new", type: "newcard", cards,
+    oldValue: "", newValue: "", reason: String(p.reason || "").slice(0, 300), createdAt: num(p.createdAt, 0) }, propReqFields(p));
+}
+// Proposition venue de la file d'attente Claude (étape 23) : reqId = id de la demande (claude_requests),
+// qc = acceptation / refus déjà compté (proposition restaurée par « Annuler »).
+function propReqFields(p) {
+  const o = {};
+  if (p && typeof p.reqId === "string" && /^[0-9a-f-]{36}$/i.test(p.reqId)) { o.reqId = p.reqId; if (p.qc) o.qc = true; }
+  return o;
 }
 function looksLikeAppData(raw) {
   return raw && typeof raw === "object" && Array.isArray(raw.cards) && Array.isArray(raw.lists);
@@ -3201,8 +3308,8 @@ function applyTheme() {
 }
 
 // === NAVIGATION ===
-const SCREENS = ["home", "review", "lists", "stats", "pending", "settings", "admin", "requests"];
-const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", settings: "reglages", admin: "admin", requests: "demandes" }; // "settings" est réservé dans l'URL
+const SCREENS = ["home", "review", "lists", "stats", "pending", "settings", "admin", "requests", "adminreq"];
+const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes" }; // "settings" est réservé dans l'URL
 let currentScreen = "home";
 
 function screenFromHash() {
@@ -3212,7 +3319,8 @@ function screenFromHash() {
 function showScreen(name) {
   if (!Storage.getUser()) { showAuth(auth.view); return; } // personne de connecté : écran de connexion
   currentScreen = SCREENS.includes(name) ? name : "home";
-  if (currentScreen === "admin" && !auth.isAdmin) currentScreen = "settings"; // Administration : admin seulement
+  if ((currentScreen === "admin" || currentScreen === "adminreq") && !auth.isAdmin) currentScreen = "settings"; // Administration : admin seulement
+  if (currentScreen === "adminreq" && auth.mode !== "supabase") currentScreen = "admin";
   if (currentScreen === "requests" && !Queue.usable()) currentScreen = "settings"; // Demandes à Claude : mode Supabase seulement
   document.querySelectorAll(".screen").forEach(el => el.classList.toggle("active", el.id === "screen-" + currentScreen));
   document.querySelectorAll("nav.bottom button").forEach(b => b.classList.toggle("active", b.dataset.nav === currentScreen));
@@ -7506,7 +7614,10 @@ const Queue = (() => {
   let status = "unknown";      // unknown | ok | missing (tables pas installées)
   let items = [];              // demandes du compte (50 plus récentes)
   let loaded = false, busy = null, timer = null, lastError = "";
+  let v23 = null;              // script de l'étape 23 installé ? (null = pas encore su) — sinon ancien fonctionnement
   const T = 15000;
+  const COLS = "id,kind,status,label,card_count,batch_count,error,result_count,created_at,started_at,finished_at,fetched_at";
+  const COLS23 = COLS + ",hidden_by_user,content_cleared_at";
   const OPEN = ["pending", "processing"];
 
   function usable() { return auth.mode === "supabase" && !!auth.sbUid && !!Supa.client() && !!Storage.getUser(); }
@@ -7528,14 +7639,25 @@ const Queue = (() => {
     return k;
   }
   function errText(k) { return t("queue.err." + (k || "server")); }
+  // Colonne de l'étape 23 absente (script supabase-etape23.sql pas lancé)
+  function isNoCol23(e) {
+    const code = String((e && e.code) || ""), msg = String((e && (e.message || e.msg)) || "");
+    return code === "42703" || /hidden_by_user|content_cleared_at/i.test(msg);
+  }
 
   async function refresh() {
     if (!usable()) return false;
+    const get = with23 => {
+      let q = client().from("claude_requests").select(with23 ? COLS23 : COLS).eq("user_id", auth.sbUid);
+      if (with23) q = q.eq("hidden_by_user", false);          // demandes masquées : plus sur cet écran (gardées pour l'admin)
+      return withTimeout(q.order("created_at", { ascending: false }).limit(50), T);
+    };
     try {
-      const rows = ok(await withTimeout(client().from("claude_requests")
-        .select("id,kind,status,label,card_count,batch_count,error,result_count,created_at,started_at,finished_at,fetched_at")
-        .eq("user_id", auth.sbUid).order("created_at", { ascending: false }).limit(50), T));
-      items = arr(rows); loaded = true; status = "ok"; lastError = "";
+      let r = v23 === false ? null : await get(true);
+      if (r && r.error && isNoCol23(r.error)) { v23 = false; r = null; }
+      else if (r && !r.error) v23 = true;
+      if (!r) r = await get(false);
+      items = arr(ok(r)); loaded = true; status = "ok"; lastError = "";
       return true;
     } catch (e) { noteError(e); return false; }
   }
@@ -7563,6 +7685,7 @@ const Queue = (() => {
       try {
         res = await claim(!!opts.report);
         await refresh();
+        QStats.flush();                                 // compteurs en attente (hors connexion) : renvoyés
       } finally {
         busy = null;
         schedule();
@@ -7595,11 +7718,26 @@ const Queue = (() => {
       return { error: null };
     } catch (e) { const k = noteError(e); await refresh(); return { error: k }; }
   }
+  // Annuler : seulement une demande en attente (la règle RLS de l'étape 23 refuse les autres).
   async function remove(ids) {
     try {
-      ok(await withTimeout(client().from("claude_requests").delete().eq("user_id", auth.sbUid).in("id", ids), T));
+      let q = client().from("claude_requests").delete().eq("user_id", auth.sbUid).in("id", ids);
+      if (v23 !== false) q = q.eq("status", "pending");
+      ok(await withTimeout(q, T));
       await refresh(); return true;
     } catch (e) { noteError(e); toast(errText(lastError)); return false; }
+  }
+  // Masquer des demandes terminées (done / error) : elles restent dans l'historique admin.
+  // Sans le script de l'étape 23 : ancien fonctionnement (demande effacée).
+  async function hide(ids) {
+    if (v23 === false) {
+      try { ok(await withTimeout(client().from("claude_requests").delete().eq("user_id", auth.sbUid).in("id", ids), T)); }
+      catch (e) { noteError(e); toast(errText(lastError)); return false; }
+      await refresh(); return true;
+    }
+    try { ok(await withTimeout(client().rpc("claude_request_hide", { p_ids: ids }), T)); }
+    catch (e) { noteError(e); toast(errText(lastError)); return false; }
+    await refresh(); return true;
   }
   async function refetch(id) {
     try { ok(await withTimeout(client().rpc("claude_refetch_request", { p_request: id }), T)); }
@@ -7615,10 +7753,92 @@ const Queue = (() => {
   function reset() { clearTimeout(timer); timer = null; items = []; loaded = false; lastError = ""; }
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && usable() && loaded) sync(); });
   return {
-    usable, sync, submit, remove, refetch, start, reset, refresh, errText,
+    usable, sync, submit, remove, hide, refetch, start, reset, refresh, errText,
     items: () => items, loaded: () => loaded, status: () => status, lastError: () => lastError, openCount,
     busy: () => !!busy
   };
+})();
+
+// --- Compteurs reçues / acceptées / refusées (suivi admin, étape 23) ---
+// Chaque proposition venue de la file garde l'id de sa demande (p.reqId). L'appli compte les propositions reçues à la
+// récupération, puis chaque acceptation ou refus dans « À valider », et envoie les hausses à claude_request_add_counts
+// (un seul appel pour tout ce qui est en attente : une action groupée = un envoi par paquet). Les compteurs ne font
+// qu'augmenter. En attente sur l'appareil (localStorage) tant que l'envoi n'a pas réussi : hors connexion, refait plus
+// tard (retour en ligne, synchro de la file, toutes les minutes), sans message d'erreur.
+const QStats = (() => {
+  const FIELDS = ["received", "accepted", "rejected"];
+  let pending = {}, who = null, inflight = null, again = false, timer = null;
+  const counted = new Set();            // propositions déjà comptées (acceptées / refusées) depuis l'ouverture
+  function key() { return CONFIG.LS_USER_PREFIX + "qstats:" + (Storage.getUser() || ""); }
+  function load() {
+    const u = Storage.getUser() || "";
+    if (who === u) return;
+    who = u; pending = {}; counted.clear();
+    try {
+      const o = JSON.parse(localStorage.getItem(key()) || "{}");
+      if (o && typeof o === "object") Object.keys(o).forEach(id => {
+        const v = o[id] || {}, x = {};
+        FIELDS.forEach(f => { const n = Math.floor(Number(v[f]) || 0); if (n > 0) x[f] = n; });
+        if (Object.keys(x).length) pending[id] = x;
+      });
+    } catch (e) { pending = {}; }
+  }
+  function store() {
+    try { if (Object.keys(pending).length) localStorage.setItem(key(), JSON.stringify(pending)); else localStorage.removeItem(key()); } catch (e) {}
+  }
+  function add(reqId, field, n) {
+    if (!reqId || !FIELDS.includes(field) || !(n > 0)) return;
+    load();
+    const x = pending[reqId] || (pending[reqId] = {});
+    x[field] = (x[field] || 0) + n;
+    store();
+  }
+  // Acceptation / refus d'une proposition de la file (une seule fois par proposition, même après « Annuler »).
+  function decide(p, field) {
+    if (!p || !p.reqId || p.qc || counted.has(p.id)) return;
+    counted.add(p.id);
+    add(p.reqId, field, 1);
+  }
+  function wasCounted(id) { return counted.has(id); }
+  function retryLater() { clearTimeout(timer); timer = setTimeout(() => flush(), 60000); }
+  // Envoie tout ce qui est en attente (500 demandes max par appel). Rien à envoyer, hors mode Supabase : rien.
+  function flush() {
+    load();
+    if (!Object.keys(pending).length) return Promise.resolve(true);
+    if (!Queue.usable()) return Promise.resolve(false);
+    if (inflight) { again = true; return inflight; }
+    const ids = Object.keys(pending).slice(0, 500);
+    const sent = ids.map(id => Object.assign({ id }, pending[id]));
+    const u = who, cl = Supa.client();
+    inflight = (async () => {
+      let okSent = false;
+      try {
+        const r = await withTimeout(cl.rpc("claude_request_add_counts", { p_items: sent }), 15000);
+        if (r && r.error) throw r.error;
+        okSent = true;
+      } catch (e) { okSent = false; }
+      if (who === u && okSent) {
+        sent.forEach(s => {                              // retire ce qui a été envoyé (des hausses ont pu arriver entre-temps)
+          const x = pending[s.id]; if (!x) return;
+          FIELDS.forEach(f => { if (s[f]) { x[f] = (x[f] || 0) - s[f]; if (x[f] <= 0) delete x[f]; } });
+          if (!Object.keys(x).length) delete pending[s.id];
+        });
+        store();
+      }
+      return okSent;
+    })();
+    return inflight.then(r => {
+      inflight = null;
+      if (who !== u) return r;
+      if (r && (again || Object.keys(pending).length)) { again = false; return flush(); }
+      again = false;
+      if (!r) retryLater();
+      return r;
+    });
+  }
+  function pendingCount() { load(); return Object.keys(pending).length; }
+  window.addEventListener("online", () => { if (pendingCount()) flush(); });
+  return { add, decide, wasCounted, flush, pendingCount, reset: () => { who = null; clearTimeout(timer); } };
 })();
 
 function queueGotText(n) { return n === 1 ? t("queue.got1") : t("queue.got", { n }); }
@@ -7718,8 +7938,23 @@ function queueApply(resp) {
   const byId = new Map(state.cards.map(c => [c.id, c]));
   const genReqs = new Map();      // une nouvelle liste recréée une seule fois par demande
   const out = { added: 0, cards: 0, bad: 0 };
+  const got = {};                 // demande → propositions ajoutées dans « À valider » (compteur « reçues »)
   arr(resp.proposals).forEach(p => {
-    try {
+    const before = state.proposals.length;
+    try { queueApplyOne(p); } catch (e) { out.bad++; }
+    // addProposal / addGenProposals ajoutent en fin de tableau : les nouvelles gardent l'id de leur demande
+    const fresh = state.proposals.slice(before);
+    if (p.request_id && fresh.length) {
+      fresh.forEach(x => { x.reqId = String(p.request_id); });
+      got[p.request_id] = (got[p.request_id] || 0) + fresh.length;
+    }
+  });
+  Object.keys(got).forEach(id => QStats.add(id, "received", got[id]));
+  if (Object.keys(got).length) QStats.flush();
+  return out;
+
+  function queueApplyOne(p) {
+    {                                                            // un lot de réponse
       const r = reqs.get(p.request_id), pl = r && r.payload;
       const b = pl && arr(pl.batches)[p.batch];
       if (!b) { out.bad++; return; }
@@ -7747,12 +7982,11 @@ function queueApply(resp) {
         const sigs = arr(b.sigs);
         batch.forEach((c, i) => { if (c && sigs[i] && cardSig(c) === sigs[i]) state.checkedSig[c.id] = sigs[i]; }); // carte inchangée : vérifiée
       }
-    } catch (e) { out.bad++; }
-  });
-  return out;
+    }
+  }
 }
 
-// --- Écran « Demandes à Claude » ---
+// --- Écran « Demandes en cours » (demandes de l'utilisateur) ---
 function goRequests() {
   try { history.replaceState(null, "", "#" + HASH_OF.requests); } catch (e) {}
   showScreen("requests");
@@ -7800,21 +8034,22 @@ function renderRequests() {
     if (r.status === "error" && r.error) box.appendChild(el("div", "q-err", r.error));
     const acts = el("div", "q-acts");
     const link = (label, fn, danger) => { const b = el("button", "link-btn" + (danger ? " danger" : ""), label); b.addEventListener("click", fn); acts.appendChild(b); };
-    if (r.status === "pending" || r.status === "processing") {
+    // En attente : annuler (la demande est supprimée). En cours : rien. Terminée : masquer (gardée pour l'admin).
+    if (r.status === "pending") {
       link(t("queue.cancel"), () => openModal(t("queue.cancel"), el("p", null, t("queue.cancelConfirm")), [
         { label: t("cancel") },
         { label: t("queue.cancel"), kind: "danger", onClick: () => { Queue.remove([r.id]).then(() => renderRequests()); } }]), true);
-    } else {
-      if (r.status === "done" && r.fetched_at && r.result_count) link(t("queue.refetch"), () => { Queue.refetch(r.id); });
-      link(t("queue.clear"), () => { Queue.remove([r.id]).then(() => renderRequests()); }, true);
+    } else if (r.status === "done" || r.status === "error") {
+      if (r.status === "done" && r.fetched_at && r.result_count && !r.content_cleared_at) link(t("queue.refetch"), () => { Queue.refetch(r.id); });
+      link(t("queue.hide"), () => { Queue.hide([r.id]).then(() => renderRequests()); });
     }
-    box.appendChild(acts);
+    if (acts.childNodes.length) box.appendChild(acts);
     root.appendChild(box);
   });
   const fin = items.filter(r => r.status === "error" || (r.status === "done" && r.fetched_at));
   if (fin.length > 1) {
-    const b = el("button", "btn", t("queue.clearAll", { n: fin.length }));
-    b.addEventListener("click", () => { Queue.remove(fin.map(r => r.id)).then(() => renderRequests()); });
+    const b = el("button", "btn", t("queue.hideAll", { n: fin.length }));
+    b.addEventListener("click", () => { Queue.hide(fin.map(r => r.id)).then(() => renderRequests()); });
     root.appendChild(b);
   }
 }
@@ -8501,6 +8736,7 @@ async function pvRun(kind, ids, edits, snap) {
       n += part.length;
       state.updatedAt = Date.now();
       Storage.save(state);                                    // paquet enregistré avant le suivant
+      QStats.flush();                                         // compteurs du paquet : un seul envoi (mis en attente hors connexion)
       pvJobStore(rest.length ? { kind, ids: rest, edits, total } : null);
       renderPendingBadge();
       if (prog) prog.set(n / total, t("pv.progress", { i: n, n: total }));
@@ -8531,7 +8767,7 @@ function pvAcceptPart(ids, edits) {
   const done = new Set(), removed = new Set();
   sel.filter(p => p.field === "new").forEach(p => {
     const r = pvAcceptNew(p, edits[p.id] != null ? edits[p.id] : null);
-    if (r.added) { ok++; done.add(p.id); }
+    if (r.added) { ok++; done.add(p.id); QStats.decide(p, "accepted"); }
     else if (r.dupOnly) { skipped++; done.add(p.id); }   // déjà dans la liste : la proposition disparaît
     else skipped++;                                      // non valide : la ligne reste
   });
@@ -8558,6 +8794,7 @@ function pvAcceptPart(ids, edits) {
     c.auto = c.auto.filter(a => a !== (p.field === "example" ? "example" : isPosField(p.field) ? "pos." + p.field.slice(4) : "terms." + p.field)); // validé à la main
     if (isVocab(c)) state.checkedSig[c.id] = cardSig(c);
     done.add(p.id); ok++;
+    QStats.decide(p, "accepted");                        // suivi admin (proposition venue de la file d'attente)
   });
   if (removed.size) state.cards = state.cards.filter(c => !removed.has(c.id));
   const cardIds = new Set(state.cards.map(c => c.id));
@@ -8576,6 +8813,7 @@ function pvRejectPart(ids) {
       ? p.cards.map(d => rejectKey(p.listId, "new", draftKey(d, listLangs(p.listId))))   // ne sera plus proposée par « Générer »
       : [rejectKey(p.cardId, p.field, p.newValue)];
     ks.forEach(k => { if (!have.has(k)) { have.add(k); state.rejected.push(k); } });
+    QStats.decide(p, "rejected");                        // suivi admin (proposition venue de la file d'attente)
   });
   if (state.rejected.length > CONFIG.REJECT_MAX) state.rejected = state.rejected.slice(-CONFIG.REJECT_MAX);
   const done = new Set(sel.map(p => p.id));
@@ -8610,6 +8848,7 @@ function showUndo(msg, snap) {
     try {
       state.cards = JSON.parse(snap.cards);
       state.proposals = JSON.parse(snap.proposals);
+      state.proposals.forEach(p => { if (p.reqId && QStats.wasCounted(p.id)) p.qc = true; }); // déjà comptée : pas deux fois
       state.rejected = snap.rejected;
       state.checkedSig = snap.checkedSig;
       commit();
@@ -8646,6 +8885,9 @@ function renderAdmin() {
   ref.addEventListener("click", loadAdmin);
   top.appendChild(ref);
   root.appendChild(top);
+  const req = el("button", "btn adm-reqbtn", t("aq.open"));      // suivi des demandes à Claude (étape 23)
+  req.addEventListener("click", () => { location.hash = "#" + HASH_OF.adminreq; });
+  root.appendChild(req);
   if (!adm.list && !adm.loading && !adm.error) { loadAdmin(); return; }
   if (adm.loading) { root.appendChild(el("div", "empty", t("admin.loading"))); return; }
   if (adm.error || !adm.list) { root.appendChild(el("div", "empty", t("admin.error"))); return; }
@@ -8831,6 +9073,370 @@ async function runAdminCopy(d, dest, selF, selL) {
     toast(t("admin.copyDone", { folders: Object.keys(fMap).length, lists: Object.keys(lMap).length, cards: n, id: dest.identifiant }));
     loadAdmin();
   } catch (e) { toast(t("admin.err")); }
+}
+
+// --- Demandes à Claude (suivi admin, étape 23) : écran #admin-demandes ---
+// Seulement les demandes de la file d'attente (« Demander à Claude »). Tout passe par les fonctions SQL admin_claude_*
+// (security definer, contrôle is_admin()) du script supabase-etape23.sql.
+// Compteurs : admin_claude_stats(jours), une ligne par compte, tri par colonne, ligne Total.
+// Historique : admin_claude_history(filtres, page), 50 par page, seule la page affichée est dans le DOM.
+// Détail : admin_claude_request(id) → cartes envoyées et réponses lot par lot en tableaux, « Voir le JSON ».
+// Actions : admin_claude_retry (relancer), admin_claude_delete (supprimer).
+const AQ_PAGE = 50;
+const AQ_COLS = [
+  ["identifiant", "aq.col.account"], ["nb_demandes", "aq.col.total"], ["nb_complete", "aq.col.complete"],
+  ["nb_verify", "aq.col.verify"], ["nb_generate", "aq.col.generate"], ["cartes_envoyees", "aq.col.cards"],
+  ["recues", "aq.col.received"], ["acceptees", "aq.col.accepted"], ["refusees", "aq.col.rejected"],
+  ["en_erreur", "aq.col.errors"], ["derniere_demande", "aq.col.last"]
+];
+const aq = {
+  period: "30",                                   // "7" | "30" | "all"
+  stats: null, statsLoading: false, statsErr: "",
+  sort: { key: "nb_demandes", dir: -1 },
+  f: { user: "", kind: "", status: "", days: "" }, // filtres de l'historique ("" = tous)
+  page: 0, hist: null, histLoading: false, histErr: "", cleaned: false
+};
+async function aqRpc(name, args) {
+  const cl = Supa.client();
+  if (!cl) throw new Error("no client");
+  const r = await withTimeout(cl.rpc(name, args || {}), 20000);
+  if (r && r.error) throw r.error;
+  return r ? r.data : null;
+}
+function aqErrText(e) {
+  const code = String((e && e.code) || ""), msg = String((e && (e.message || e.msg)) || e || "");
+  if (code === "42501" || /réservé à l'admin/i.test(msg)) return t("aq.err.denied");
+  if (["PGRST202", "42883", "PGRST205", "42P01"].includes(code) || /could not find|does not exist|schema cache/i.test(msg)) return t("aq.err.missing");
+  if (sbErrKind(e) === "net") return t("queue.err.net");
+  return t("admin.err");
+}
+function aqDays(v) { return v === "7" ? 7 : v === "30" ? 30 : null; }
+function aqDate(s) { return s ? queueDate(s) : "—"; }
+async function aqLoadStats() {
+  aq.statsLoading = true; aq.statsErr = "";
+  if (currentScreen === "adminreq") renderAdminReq();
+  try {
+    if (!aq.cleaned) { aq.cleaned = true; try { await aqRpc("admin_claude_cleanup"); } catch (e) {} }   // contenu > 30 jours
+    aq.stats = arr(await aqRpc("admin_claude_stats", { p_days: aqDays(aq.period) }));
+  } catch (e) { aq.stats = null; aq.statsErr = aqErrText(e); }
+  aq.statsLoading = false;
+  if (currentScreen === "adminreq") renderAdminReq();
+}
+async function aqLoadHist() {
+  aq.histLoading = true; aq.histErr = "";
+  if (currentScreen === "adminreq") renderAdminReq();
+  try {
+    const r = await aqRpc("admin_claude_history", {
+      p_user: aq.f.user || null, p_kind: aq.f.kind || null, p_status: aq.f.status || null,
+      p_days: aqDays(aq.f.days), p_page: aq.page, p_size: AQ_PAGE
+    });
+    aq.hist = { total: num(Number(r && r.total), 0), rows: arr(r && r.rows) };
+    const pages = Math.max(1, Math.ceil(aq.hist.total / AQ_PAGE));
+    if (aq.page > pages - 1 && aq.page > 0) { aq.page = pages - 1; aq.histLoading = false; return aqLoadHist(); }
+  } catch (e) { aq.hist = null; aq.histErr = aqErrText(e); }
+  aq.histLoading = false;
+  if (currentScreen === "adminreq") renderAdminReq();
+}
+function aqReload() { aqLoadStats(); aqLoadHist(); }
+
+function renderAdminReq() {
+  const root = $("#screen-adminreq");
+  if (!root) return;
+  root.textContent = "";
+  const back = el("button", "link-btn", t("aq.back"));
+  back.addEventListener("click", () => { location.hash = "#" + HASH_OF.admin; });
+  root.appendChild(back);
+  const top = el("div", "adm-top");
+  top.appendChild(el("h2", null, t("aq.title")));
+  const ref = el("button", "link-btn", t("admin.refresh"));
+  ref.addEventListener("click", aqReload);
+  top.appendChild(ref);
+  root.appendChild(top);
+  root.appendChild(el("p", "q-note", t("aq.help")));
+  if (!aq.stats && !aq.statsLoading && !aq.statsErr) { aqReload(); return; }
+
+  // Compteurs par compte
+  root.appendChild(el("h3", "aq-h", t("aq.counters")));
+  const seg = el("div", "seg aq-period");
+  [["7", "aq.p7"], ["30", "aq.p30"], ["all", "aq.pAll"]].forEach(([v, k]) => {
+    const b = el("button", null, t(k));
+    b.type = "button"; b.setAttribute("aria-pressed", String(aq.period === v));
+    b.addEventListener("click", () => { if (aq.period === v) return; aq.period = v; aqLoadStats(); });
+    seg.appendChild(b);
+  });
+  root.appendChild(seg);
+  if (aq.statsLoading && !aq.stats) root.appendChild(el("div", "empty", t("admin.loading")));
+  else if (aq.statsErr) root.appendChild(el("div", "card q-err", aq.statsErr));
+  else if (aq.stats) root.appendChild(aqStatsTable());
+
+  // Historique
+  const hh = el("h3", "aq-h", t("aq.history"));
+  hh.id = "aqHist";
+  root.appendChild(hh);
+  root.appendChild(aqFilters());
+  if (aq.histLoading && !aq.hist) { root.appendChild(el("div", "empty", t("admin.loading"))); return; }
+  if (aq.histErr) { root.appendChild(el("div", "card q-err", aq.histErr)); return; }
+  if (!aq.hist) return;
+  root.appendChild(el("p", "muted aq-count", t("aq.nReq", { n: aq.hist.total })));
+  if (!aq.hist.rows.length) { root.appendChild(el("div", "empty", t("aq.none"))); return; }
+  const pages = Math.max(1, Math.ceil(aq.hist.total / AQ_PAGE));
+  const pager = () => {
+    if (pages < 2) return null;
+    const w = el("div", "pv-pager");
+    const prev = el("button", "btn", "‹"), next = el("button", "btn", "›");
+    prev.setAttribute("aria-label", t("pv.prev")); next.setAttribute("aria-label", t("pv.next"));
+    prev.disabled = aq.page === 0 || aq.histLoading; next.disabled = aq.page >= pages - 1 || aq.histLoading;
+    const go = d => { aq.page += d; aqLoadHist().then(() => { const h = $("#aqHist"); if (h) try { h.scrollIntoView({ block: "start" }); } catch (e) {} }); };
+    prev.addEventListener("click", () => go(-1));
+    next.addEventListener("click", () => go(1));
+    w.append(prev, el("span", null, t("pv.page", { i: aq.page + 1, n: pages })), next);
+    return w;
+  };
+  const p1 = pager(); if (p1) root.appendChild(p1);
+  const list = el("div", "aq-list");
+  aq.hist.rows.forEach(r => list.appendChild(aqRow(r)));
+  root.appendChild(list);
+  const p2 = pager(); if (p2) root.appendChild(p2);
+}
+
+function aqStatsTable() {
+  const rows = aq.stats.slice();
+  const { key, dir } = aq.sort;
+  rows.sort((a, b) => {
+    let x = a[key], y = b[key];
+    if (key === "identifiant") return dir * String(x || "").localeCompare(String(y || ""));
+    if (key === "derniere_demande") { x = x ? Date.parse(x) : 0; y = y ? Date.parse(y) : 0; }
+    else { x = Number(x) || 0; y = Number(y) || 0; }
+    return dir * (x - y) || String(a.identifiant).localeCompare(String(b.identifiant));
+  });
+  const wrap = el("div", "aq-tablewrap");
+  const tb = el("table", "aq-table");
+  const thead = el("thead"), hr = el("tr");
+  AQ_COLS.forEach(([k, lab]) => {
+    const th = el("th");
+    const b = el("button", "aq-sort", t(lab) + (key === k ? (dir > 0 ? " ▲" : " ▼") : ""));
+    b.type = "button";
+    b.addEventListener("click", () => {
+      if (aq.sort.key === k) aq.sort.dir = -aq.sort.dir;
+      else aq.sort = { key: k, dir: k === "identifiant" ? 1 : -1 };
+      renderAdminReq();
+    });
+    th.appendChild(b);
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr); tb.appendChild(thead);
+  const body = el("tbody");
+  const tot = {};
+  AQ_COLS.forEach(([k]) => { tot[k] = 0; });
+  tot.derniere_demande = null;
+  rows.forEach(r => {
+    const tr = el("tr", "aq-acc");
+    tr.dataset.user = r.user_id;
+    AQ_COLS.forEach(([k]) => {
+      let v = r[k];
+      if (k === "identifiant") v = String(v || "?");
+      else if (k === "derniere_demande") { if (v && (!tot.derniere_demande || Date.parse(v) > Date.parse(tot.derniere_demande))) tot.derniere_demande = v; v = v ? admDate(v) : "—"; }
+      else { v = num(Number(v), 0); tot[k] += v; }
+      tr.appendChild(el("td", k === "identifiant" ? "aq-name" : "num", String(v)));
+    });
+    tr.addEventListener("click", () => {          // historique filtré sur ce compte
+      aq.f.user = r.user_id; aq.page = 0;
+      aqLoadHist().then(() => { const h = $("#aqHist"); if (h) try { h.scrollIntoView({ block: "start" }); } catch (e) {} });
+    });
+    body.appendChild(tr);
+  });
+  tb.appendChild(body);
+  const tf = el("tfoot"), fr = el("tr", "aq-total");
+  AQ_COLS.forEach(([k]) => {
+    const v = k === "identifiant" ? t("aq.totalRow") : k === "derniere_demande" ? (tot.derniere_demande ? admDate(tot.derniere_demande) : "—") : String(tot[k]);
+    fr.appendChild(el("td", k === "identifiant" ? "aq-name" : "num", v));
+  });
+  tf.appendChild(fr); tb.appendChild(tf);
+  wrap.appendChild(tb);
+  return wrap;
+}
+
+function aqFilters() {
+  const box = el("div", "aq-filters");
+  const mk = (label, opts, val, on) => {
+    const s = el("select", "input");
+    opts.forEach(([v, l]) => { const o = el("option", null, l); o.value = v; s.appendChild(o); });
+    s.value = val;
+    if (s.value !== val) s.value = "";
+    s.setAttribute("aria-label", label);
+    s.addEventListener("change", () => { on(s.value); aq.page = 0; aqLoadHist(); });
+    const w = el("label", "aq-f");
+    w.append(el("span", null, label), s);
+    box.appendChild(w);
+  };
+  const accts = (aq.stats || []).slice().sort((a, b) => String(a.identifiant).localeCompare(String(b.identifiant)));
+  mk(t("aq.f.account"), [["", t("aq.f.all")]].concat(accts.map(a => [a.user_id, a.identifiant])), aq.f.user, v => { aq.f.user = v; });
+  mk(t("aq.f.kind"), [["", t("aq.f.all")]].concat(["complete", "verify", "generate"].map(k => [k, t("queue.kind." + k)])), aq.f.kind, v => { aq.f.kind = v; });
+  mk(t("aq.f.status"), [["", t("aq.f.all")]].concat(["pending", "processing", "done", "error"].map(k => [k, t("aq.st." + k)])), aq.f.status, v => { aq.f.status = v; });
+  mk(t("aq.f.period"), [["", t("aq.pAll")], ["7", t("aq.p7")], ["30", t("aq.p30")]], aq.f.days, v => { aq.f.days = v; });
+  return box;
+}
+
+function aqRow(r) {
+  const box = el("button", "card q-item aq-row");
+  box.type = "button";
+  const head = el("div", "q-head");
+  const left = el("div");
+  left.appendChild(el("div", "q-title", r.identifiant + " · " + t("queue.kind." + r.kind) + (r.label ? " · " + r.label : "")));
+  left.appendChild(el("div", "q-meta", [
+    r.kind === "generate" ? t("queue.meta.gen", { n: r.card_count }) : t("queue.meta.cards", { n: r.card_count }),
+    t("aq.batches", { n: r.batch_count }), t("aq.attempts", { n: r.attempts })].join(" · ")));
+  head.append(left, el("span", "q-st " + r.status, queueStatusText(r)));
+  box.appendChild(head);
+  box.appendChild(el("div", "q-meta", [
+    t("aq.d.created", { d: aqDate(r.created_at) }), t("aq.d.started", { d: aqDate(r.started_at) }),
+    t("aq.d.finished", { d: aqDate(r.finished_at) }), t("aq.d.fetched", { d: aqDate(r.fetched_at) })].join(" · ")));
+  box.appendChild(el("div", "q-meta aq-counts", t("aq.props", { r: r.proposals_received || 0, a: r.proposals_accepted || 0, x: r.proposals_rejected || 0 })));
+  if (r.error) box.appendChild(el("div", "q-err", r.error));
+  const tags = el("div", "adm-tags");
+  if (r.hidden_by_user) tags.appendChild(el("span", "tag", t("aq.hidden")));
+  if (r.content_cleared_at) tags.appendChild(el("span", "tag", t("aq.cleared")));
+  if (tags.childNodes.length) box.appendChild(tags);
+  box.addEventListener("click", () => aqOpenDetail(r));
+  return box;
+}
+
+// --- Détail d'une demande ---
+// Cartes d'un lot complete / verify : JSON à la fin du prompt (« Cartes : » puis [{ id: "k0", target, <langues>, example, missing }]).
+function aqBatchCards(b) {
+  try {
+    const p = String((b && b.prompt) || "");
+    const i = p.lastIndexOf("Cartes :");
+    if (i < 0) return [];
+    const j = p.indexOf("[", i);
+    return arr(JSON.parse(p.slice(j)));
+  } catch (e) { return []; }
+}
+function aqFieldName(f) {
+  try { return pvFieldLabel(String(f)); } catch (e) { return String(f); }
+}
+function aqTable(head, rows) {
+  const wrap = el("div", "aq-tablewrap");
+  const tb = el("table", "aq-table aq-detail");
+  const hr = el("tr");
+  head.forEach(h => hr.appendChild(el("th", null, h)));
+  const th = el("thead"); th.appendChild(hr); tb.appendChild(th);
+  const body = el("tbody");
+  rows.forEach(r => { const tr = el("tr"); r.forEach(c => tr.appendChild(el("td", null, c == null ? "" : String(c)))); body.appendChild(tr); });
+  tb.appendChild(body);
+  wrap.appendChild(tb);
+  return wrap;
+}
+function aqCardWord(it) { return it ? String(it[it.target] || it.id || "") : ""; }
+async function aqOpenDetail(r0) {
+  const wrap = el("div", "aq-detailbox");
+  wrap.appendChild(el("p", "muted", t("admin.loading")));
+  let close = openModal(t("queue.kind." + r0.kind) + " · " + r0.identifiant, wrap, [{ label: t("close") }]);
+  let d;
+  try { d = await aqRpc("admin_claude_request", { p_id: r0.id }); }
+  catch (e) { wrap.textContent = ""; wrap.appendChild(el("p", "q-err", aqErrText(e))); return; }
+  close();
+  if (!d || !d.request) { toast(t("aq.gone")); aqReload(); return; }
+  const r = d.request, props = arr(d.proposals);
+  const body = el("div", "aq-detailbox");
+  const sum = [
+    [t("aq.f.account"), r.identifiant], [t("aq.f.kind"), t("queue.kind." + r.kind)], [t("aq.label"), r.label || "—"],
+    [t("aq.f.status"), queueStatusText(r) + (r.error ? " — " + r.error : "")],
+    [t("aq.col.cards"), r.card_count], [t("aq.lots"), r.batch_count], [t("aq.tries"), r.attempts],
+    [t("aq.dates"), [t("aq.d.created", { d: aqDate(r.created_at) }), t("aq.d.started", { d: aqDate(r.started_at) }),
+      t("aq.d.finished", { d: aqDate(r.finished_at) }), t("aq.d.fetched", { d: aqDate(r.fetched_at) })].join(" · ")],
+    [t("aq.col.received") + " / " + t("aq.col.accepted") + " / " + t("aq.col.rejected"),
+      (r.proposals_received || 0) + " / " + (r.proposals_accepted || 0) + " / " + (r.proposals_rejected || 0)]
+  ];
+  if (r.hidden_by_user) sum.push([t("aq.hidden"), "✓"]);
+  const dl = el("dl", "aq-sum");
+  sum.forEach(([k, v]) => { dl.append(el("dt", null, k), el("dd", null, String(v))); });
+  body.appendChild(dl);
+  const pl = r.payload || {};
+  const batches = arr(pl.batches);
+  if (r.content_cleared_at) body.appendChild(el("p", "aq-cleared", t("aq.clearedLong")));
+  else {
+    // Cartes envoyées
+    body.appendChild(el("h4", null, t("aq.sent")));
+    if (r.kind === "generate") {
+      const req = pl.req || {};
+      const rows = Object.keys(req).filter(k => !["lg"].includes(k)).map(k => {
+        const v = req[k];
+        return [k, Array.isArray(v) ? v.join(", ") : v && typeof v === "object" ? JSON.stringify(v) : String(v == null ? "" : v)];
+      }).filter(x => x[1] !== "");
+      if (req.lg) rows.unshift(["langues", (req.lg.target || "") + " ← " + arr(req.lg.support).join(", ")]);
+      body.appendChild(rows.length ? aqTable([t("aq.param"), t("aq.value")], rows) : el("p", "muted", "—"));
+    } else {
+      const rows = [];
+      batches.forEach((b, bi) => aqBatchCards(b).forEach(it => {
+        const other = Object.keys(it).filter(k => !["id", "target", "missing", it.target].includes(k)).map(k => aqFieldName(k) + " : " + it[k]).join(" · ");
+        const row = [(bi + 1) + "·" + it.id, aqCardWord(it), other];
+        if (r.kind === "complete") row.push(arr(it.missing).map(aqFieldName).join(", "));
+        rows.push(row);
+      }));
+      const head = [t("aq.lot"), t("aq.card"), t("aq.content")];
+      if (r.kind === "complete") head.push(t("aq.missing"));
+      body.appendChild(rows.length ? aqTable(head, rows) : el("p", "muted", "—"));
+    }
+    // Réponse de Claude lot par lot
+    body.appendChild(el("h4", null, t("aq.answer")));
+    if (!props.length) body.appendChild(el("p", "muted", t("aq.noAnswer")));
+    props.forEach(p => {
+      body.appendChild(el("div", "aq-lothead", t("aq.lotN", { n: num(Number(p.batch), 0) + 1, m: Math.max(batches.length, 1) }) + " · " + aqDate(p.created_at)));
+      const cards = new Map(aqBatchCards(batches[p.batch]).map(it => [it.id, it]));
+      const res = p.result;
+      let rows = [], head;
+      if (r.kind === "generate") {
+        head = ["#", t("aq.type"), t("aq.content")];
+        const lines = Array.isArray(res) ? res : res && Array.isArray(res.lines) ? res.lines : [];
+        lines.forEach((ln, i) => { const cs = String(ln).split(";"); rows.push([i + 1, cs[0], cs.slice(1).join(" ; ")]); });
+      } else {
+        head = [t("aq.card"), t("aq.field"), t("aq.proposed")];
+        const items = Array.isArray(res) ? res : res && typeof res === "object" ? arr(res.items || res.cards || res.result || res.errors) : [];
+        items.forEach(it => {
+          if (!it || typeof it !== "object") return;
+          const w = aqCardWord(cards.get(String(it.id))) || String(it.id || "");
+          if (r.kind === "verify") rows.push([w, aqFieldName(it.field), String(it.value == null ? "" : it.value) + (it.reason ? " (" + it.reason + ")" : "")]);
+          else Object.keys(it).filter(k => k !== "id").forEach(k => {
+            const v = it[k];
+            if (v && typeof v === "object") Object.keys(v).forEach(s => rows.push([w, aqFieldName(k + ":" + s), String(v[s])]));
+            else rows.push([w, aqFieldName(k), String(v == null ? "" : v)]);
+          });
+        });
+      }
+      body.appendChild(rows.length ? aqTable(head, rows) : el("p", "muted", t("aq.emptyAnswer")));
+    });
+  }
+  const acts = [];
+  acts.push({ label: t("aq.json"), onClick: () => { setTimeout(() => aqShowJson(d), 0); return false; } });
+  if (["error", "processing"].includes(r.status) && !r.content_cleared_at) acts.push({ label: t("aq.retry"), kind: "primary", onClick: () => { aqRetry(r); } });
+  acts.push({ label: t("aq.delete"), kind: "danger", onClick: () => { setTimeout(() => aqDelete(r), 0); } });
+  acts.push({ label: t("close") });
+  openModal(t("queue.kind." + r.kind) + " · " + r.identifiant, body, acts);
+}
+function aqShowJson(d) {
+  const pre = el("pre", "aq-json", JSON.stringify(d, null, 2));
+  openModal(t("aq.json"), pre, [
+    { label: t("aq.copy"), onClick: () => { try { navigator.clipboard.writeText(pre.textContent).then(() => toast(t("aq.copied")), () => {}); } catch (e) {} return false; } },
+    { label: t("close") }
+  ]);
+}
+async function aqRetry(r) {
+  try { await aqRpc("admin_claude_retry", { p_id: r.id }); toast(t("aq.retried")); }
+  catch (e) { toast(aqErrText(e)); }
+  aqReload();
+}
+function aqDelete(r) {
+  openModal(t("aq.delete"), el("p", null, t("aq.delConfirm", { id: r.identifiant })), [
+    { label: t("cancel") },
+    { label: t("aq.delete"), kind: "danger", onClick: () => {
+      (async () => {
+        try { await aqRpc("admin_claude_delete", { p_id: r.id }); toast(t("aq.deleted")); }
+        catch (e) { toast(aqErrText(e)); }
+        aqReload();
+      })();
+    } }
+  ]);
 }
 
 // === CONNEXION ===
@@ -9342,6 +9948,7 @@ function renderScreen() {
   else if (currentScreen === "settings") renderSettings();
   else if (currentScreen === "admin") renderAdmin();
   else if (currentScreen === "requests") renderRequests();
+  else if (currentScreen === "adminreq") renderAdminReq();
   renderPendingBadge();
 }
 function render() {
