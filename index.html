@@ -382,6 +382,7 @@ body.auth main{padding-bottom:24px}
 .auth-mig p{margin:0 0 12px}
 .auth-lang{margin-bottom:14px}
 .auth-msg{background:var(--surface2);border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:15px}
+.auth-msg.err{color:var(--bad);border:1px solid var(--bad);background:transparent}
 .check{display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer}
 .check input{width:22px;height:22px;flex:none;accent-color:var(--accent)}
 
@@ -439,6 +440,13 @@ body.auth main{padding-bottom:24px}
 .undo-bar.show{display:flex}
 .undo-bar button{border:0;background:var(--bg);color:var(--text);font-weight:700;border-radius:9px;padding:8px 12px;min-height:40px;cursor:pointer}
 @media (max-width:360px){.pv-filters{grid-template-columns:1fr 1fr}}
+.pv-sel2{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.pv-pager{display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0}
+.pv-pager .btn{width:auto;min-width:48px;padding:8px 14px}
+.pv-pager span{font-size:14px;color:var(--muted)}
+/* === STYLES : REPRISE (TRAITEMENTS INTERROMPUS) === */
+.rs-bar{background:var(--surface2);border-left:4px solid var(--warn);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px}
+.rs-bar .btns{margin-top:8px}
 /* === STYLES : FILE D'ATTENTE CLAUDE === */
 .q-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface2);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px}
 .q-banner .link-btn{white-space:nowrap}
@@ -472,6 +480,9 @@ body.auth main{padding-bottom:24px}
   </header>
 
   <main>
+    <!-- BANDEAUX DE REPRISE (traitements interrompus) -->
+    <div id="resumeBars"></div>
+
     <!-- ÉCRAN : CONNEXION -->
     <section class="screen" id="screen-auth"></section>
 
@@ -635,7 +646,10 @@ const CONFIG = {
   UNDO_MS: 6000,         // durée du bouton « Annuler » après une action groupée
   REJECT_MAX: 3000,      // valeurs refusées gardées (pour ne plus les reproposer)
   QUEUE_MAX_BATCHES: 10, // file d'attente Claude : lots de AI_BATCH cartes max par demande (au-delà : plusieurs demandes)
-  QUEUE_POLL_MS: 120000  // file d'attente Claude : nouvelle vérification toutes les 2 min tant qu'une demande est en cours
+  QUEUE_POLL_MS: 120000, // file d'attente Claude : nouvelle vérification toutes les 2 min tant qu'une demande est en cours
+  AI_AWAY_MS: 10000,     // complétion : appli en arrière-plan plus longtemps → lot en cours interrompu, bandeau « Reprendre »
+  PV_PAGE: 50,           // « À valider » : lignes max par page (seule la page affichée est dans le DOM)
+  PV_CHUNK: 200          // « À valider » : propositions acceptées / refusées par paquet
 };
 
 // === I18N ===
@@ -740,6 +754,13 @@ const I18N = {
     "reply.analyze": "분석", "reply.done": "제안 {n}개 추가, 인식하지 못한 줄 {m}개", "reply.none": "새 제안이 없습니다",
     "pv.empty": "검토할 항목이 없습니다", "pv.allLists": "모든 목록", "pv.allTypes": "모든 종류", "pv.allFields": "모든 칸",
     "pv.selectAll": "모두 선택", "pv.selected": "{n}개 선택됨",
+    "pv.selectPage": "이 페이지 선택", "pv.selectAllN": "모두 선택 ({n})", "pv.unselectAll": "모두 선택 해제",
+    "pv.page": "{i} / {n} 페이지", "pv.prev": "이전 페이지", "pv.next": "다음 페이지",
+    "pv.progressTitle.accept": "수락 중…", "pv.progressTitle.reject": "거절 중…", "pv.progress": "제안 {i} / {n}개",
+    "pv.stop": "중지", "pv.busy": "이미 처리 중입니다.",
+    "rs.ai": "빈 칸 채우기가 중단되었습니다: 남은 카드 {n}개 ({b}묶음).", "rs.pvaccept": "수락이 중단되었습니다: 남은 제안 {n}개.",
+    "rs.pvreject": "거절이 중단되었습니다: 남은 제안 {n}개.", "rs.resume": "이어서 하기", "rs.drop": "그만두기",
+    "rs.dropped": "작업을 그만두었습니다. 이미 받은 제안은 「검토」에 남아 있습니다.",
     "pv.accept": "수락", "pv.reject": "거절", "pv.edit": "수정",
     "pv.type.completion": "채우기", "pv.type.correction": "수정 제안",
     "pv.field.dup": "중복", "pv.dupAction": "이 카드 삭제 (중복)", "pv.dupReason": "같은 카드가 목록에 이미 있습니다",
@@ -886,6 +907,13 @@ const I18N = {
     "reply.analyze": "Analyser", "reply.done": "{n} propositions ajoutées, {m} lignes non reconnues", "reply.none": "Aucune nouvelle proposition",
     "pv.empty": "Rien à valider", "pv.allLists": "Toutes les listes", "pv.allTypes": "Tous les types", "pv.allFields": "Tous les champs",
     "pv.selectAll": "Tout sélectionner", "pv.selected": "{n} sélectionnées",
+    "pv.selectPage": "Sélectionner la page", "pv.selectAllN": "Tout sélectionner ({n})", "pv.unselectAll": "Tout désélectionner",
+    "pv.page": "Page {i} / {n}", "pv.prev": "Page précédente", "pv.next": "Page suivante",
+    "pv.progressTitle.accept": "Acceptation…", "pv.progressTitle.reject": "Refus…", "pv.progress": "{i} / {n} propositions",
+    "pv.stop": "Arrêter", "pv.busy": "Un traitement est déjà en cours.",
+    "rs.ai": "Complétion interrompue : {n} cartes restantes ({b} lots).", "rs.pvaccept": "Acceptation interrompue : {n} propositions restantes.",
+    "rs.pvreject": "Refus interrompu : {n} propositions restantes.", "rs.resume": "Reprendre", "rs.drop": "Abandonner",
+    "rs.dropped": "Traitement abandonné. Les propositions déjà reçues restent dans « À valider ».",
     "pv.accept": "Accepter", "pv.reject": "Refuser", "pv.edit": "Modifier",
     "pv.type.completion": "Complétion", "pv.type.correction": "Correction",
     "pv.field.dup": "Doublon", "pv.dupAction": "Supprimer cette carte (doublon)", "pv.dupReason": "La même carte existe déjà dans la liste",
@@ -1032,6 +1060,13 @@ const I18N = {
     "reply.analyze": "Analyze", "reply.done": "{n} suggestions added, {m} lines not recognized", "reply.none": "No new suggestions",
     "pv.empty": "Nothing pending", "pv.allLists": "All lists", "pv.allTypes": "All types", "pv.allFields": "All fields",
     "pv.selectAll": "Select all", "pv.selected": "{n} selected",
+    "pv.selectPage": "Select page", "pv.selectAllN": "Select all ({n})", "pv.unselectAll": "Unselect all",
+    "pv.page": "Page {i} / {n}", "pv.prev": "Previous page", "pv.next": "Next page",
+    "pv.progressTitle.accept": "Accepting…", "pv.progressTitle.reject": "Rejecting…", "pv.progress": "{i} / {n} suggestions",
+    "pv.stop": "Stop", "pv.busy": "Already processing.",
+    "rs.ai": "Filling interrupted: {n} cards left ({b} batches).", "rs.pvaccept": "Accepting interrupted: {n} suggestions left.",
+    "rs.pvreject": "Rejecting interrupted: {n} suggestions left.", "rs.resume": "Resume", "rs.drop": "Discard",
+    "rs.dropped": "Discarded. Suggestions already received stay in “Pending”.",
     "pv.accept": "Accept", "pv.reject": "Reject", "pv.edit": "Edit",
     "pv.type.completion": "Completion", "pv.type.correction": "Correction",
     "pv.field.dup": "Duplicate", "pv.dupAction": "Delete this card (duplicate)", "pv.dupReason": "The same card is already in the list",
@@ -1431,7 +1466,7 @@ Object.assign(I18N.en, {
 });
 
 function t(key, vars) {
-  const lang = (state && state.settings && state.settings.uiLang) || "ko";
+  const lang = (state && state.settings && state.settings.uiLang) || defaultLang();
   let s = (I18N[lang] && I18N[lang][key]) || I18N.fr[key] || key;
   if (vars) for (const k in vars) s = s.split("{" + k + "}").join(String(vars[k]));
   return s;
@@ -1789,11 +1824,12 @@ function listLabel(l) { const f = l && getFolder(l.folderId); return l ? (f ? f.
 // Version 3 : types de cartes (champ type : vocab, conj, cloze, fix, rule — voir TYPES DE CARTES).
 const DATA_VERSION = 3;
 
+// Langue de l'interface à la première ouverture : celle du téléphone si ko ou fr, sinon anglais.
 function defaultLang() {
   const l = (navigator.language || "").toLowerCase();
   if (l.startsWith("ko")) return "ko";
   if (l.startsWith("fr")) return "fr";
-  return "ko"; // public cible : apprenante coréenne
+  return "en"; // anglais, ou toute autre langue du téléphone
 }
 
 function defaultSettings(target) {
@@ -3235,6 +3271,76 @@ function openProgress(title, text, actions) {
   set(0);
   return { set, close };
 }
+
+// === TRAITEMENTS LONGS (REPRISE, ÉCRAN ALLUMÉ) ===
+// Complétion par Claude et Accepter / Refuser groupés dans « À valider » : écran gardé allumé (Wake Lock, si le téléphone le permet)
+// et bandeau « Reprendre / Abandonner » quand un traitement a été interrompu (appli en arrière-plan, rechargée, ou arrêtée).
+const Wake = (() => {
+  let lock = null, users = 0;
+  async function acquire() {
+    try {
+      if (!users || lock || document.visibilityState !== "visible" || !navigator.wakeLock) return;
+      const l = await navigator.wakeLock.request("screen");
+      if (!users) { try { l.release(); } catch (e) {} return; }
+      lock = l;
+      l.addEventListener("release", () => { if (lock === l) lock = null; });
+    } catch (e) { lock = null; }   // refusé (économie d'énergie, iframe…) : sans effet
+  }
+  return {
+    on() { users++; acquire(); },
+    off() { users = Math.max(0, users - 1); if (!users && lock) { try { lock.release(); } catch (e) {} lock = null; } },
+    refresh: acquire                 // le système relâche le verrou quand l'appli passe en arrière-plan
+  };
+})();
+
+// Bandeau(x) en haut de l'écran : complétion interrompue (state.aiResume) et Accepter / Refuser interrompu (pvJobSaved()).
+function renderResumeBars() {
+  const box = $("#resumeBars");
+  if (!box) return;
+  box.textContent = "";
+  try {
+    if (!Storage.getUser() || currentScreen === "review") return;
+    const bar = (msg, onResume, onDrop) => {
+      const b = el("div", "rs-bar");
+      b.appendChild(el("div", null, msg));
+      const btns = el("div", "btns two");
+      const bD = el("button", "btn", t("rs.drop")), bR = el("button", "btn primary", t("rs.resume"));
+      bD.addEventListener("click", onDrop);
+      bR.addEventListener("click", onResume);
+      btns.append(bD, bR);
+      b.appendChild(btns);
+      box.appendChild(b);
+    };
+    if (!aiJob && state.aiResume && state.aiResume.ids.length) {
+      const n = state.aiResume.ids.length;
+      bar(t("rs.ai", { n, b: Math.ceil(n / CONFIG.AI_BATCH) }),
+        () => { box.textContent = ""; startCompletion(state.aiResume.ids.slice(), null, true); },
+        () => { state.aiResume = null; updResumeSync(null); commitQuiet(); renderResumeBars(); toast(t("rs.dropped")); });
+    }
+    const pj = !pvJob && pvJobSaved();
+    if (pj) {
+      bar(t("rs.pv" + pj.kind, { n: pj.ids.length }),
+        () => { box.textContent = ""; pvRun(pj.kind, pj.ids, pj.edits || {}, null); },
+        () => { pvJobStore(null); renderResumeBars(); toast(t("rs.dropped")); });
+    }
+  } catch (e) { box.textContent = ""; }
+}
+
+// Arrière-plan / retour pendant une complétion : sauvegarde immédiate, puis au retour reprise du verrou d'écran
+// et, après une longue absence, arrêt du lot en cours (il sera refait) → bandeau « Reprendre / Abandonner ».
+try {
+  document.addEventListener("visibilitychange", () => {
+    const job = aiJob;
+    if (document.visibilityState === "hidden") {
+      if (job) { job.hiddenAt = Date.now(); job.wasHidden = true; if (job.onHide) job.onHide(); }
+      return;
+    }
+    Wake.refresh();
+    if (job && job.hiddenAt && Date.now() - job.hiddenAt > CONFIG.AI_AWAY_MS) { job.interrupted = true; job.ctl.abort(); }
+    if (job) job.hiddenAt = 0;
+    renderResumeBars();
+  });
+} catch (e) {}
 
 // === SYNC STATUS ===
 function renderSyncStatus(mode) {
@@ -6105,54 +6211,84 @@ function aiErrorText(e) {
 
 // Traitement par lots de CONFIG.AI_BATCH cartes, un lot après l'autre (jamais en parallèle ni en boucle de réessai).
 // opts : { silent (vérification automatique), extra (propositions déjà ajoutées, ex. doublons),
-//          want (champs demandés par carte, complétion), noEndModal (pas de fenêtre de fin : l'appelant l'affiche) }
-// Renvoie { added, error, stopped } (null si rien n'a été lancé ou si le compte a changé).
+//          want (champs demandés par carte, complétion), noEndModal (pas de fenêtre de fin : l'appelant l'affiche),
+//          resumeCats (complétion lancée par « Mettre à jour » : catégories gardées pour la reprise) }
+// Complétion : cartes restantes enregistrées avant le 1er lot, après chaque lot et dès que l'appli passe en arrière-plan
+// (state.aiResume) ; propositions de chaque lot rangées tout de suite dans « À valider ». Champs ayant déjà une proposition
+// en attente : jamais redemandés (pas de doublon à la reprise). Écran gardé allumé pendant le traitement (Wake).
+// Interruption (appel échoué pendant / après l'arrière-plan, ou absence > AI_AWAY_MS) : pas de fenêtre d'erreur,
+// bandeau « Reprendre / Abandonner » ; la reprise repart du lot non terminé.
+// Renvoie { added, error, stopped, interrupted } (null si rien n'a été lancé ou si le compte a changé).
 async function runAiJob(kind, cards, opts) {
   opts = opts || {};
   if (aiJob) { if (!opts.silent) toast(t("ai.busy")); return null; }
   const st = state, who = Storage.getUser();
+  const isComplete = kind === "complete";
+  let want = opts.want;
+  if (isComplete) {
+    const base = opts.want || missingFields;
+    const has = new Set(state.proposals.map(p => p.cardId + "|" + p.field));
+    want = c => base(c).filter(f => !has.has(c.id + "|" + f));
+    cards = cards.filter(c => want(c).length);
+  }
   const batches = chunks(cards, CONFIG.AI_BATCH);
   const ctl = new AbortController();
-  aiJob = { ctl };
-  const isComplete = kind === "complete";
+  const job = { ctl, hiddenAt: 0, wasHidden: false, interrupted: false, onHide: null };
+  aiJob = job;
   let added = opts.extra || 0, error = null, stopped = false, prog = null, next = 0;
-  // Complétion : enregistre les cartes restantes (reprise plus tard depuis Réglages), ou rien si tout est fait.
+  // Complétion : enregistre les cartes restantes (reprise plus tard), ou rien si tout est fait.
   const saveResume = () => {
     if (!isComplete) return;
     const live = new Set(state.cards.map(c => c.id));
     const ids = [];
     for (let j = next; j < batches.length; j++) batches[j].forEach(c => { if (live.has(c.id)) ids.push(c.id); });
     state.aiResume = ids.length ? { kind: "complete", ids } : null;
+    updResumeSync(opts.resumeCats || null);
   };
+  const persist = () => { commitQuiet(); Storage.flushNow(); };   // local tout de suite, cloud sans attendre les 2 s
+  if (isComplete) job.onHide = () => { if (state === st && Storage.getUser() === who) { saveResume(); persist(); } };
+  Wake.on();
+  renderResumeBars();
   if (!opts.silent) {
-    prog = openProgress(t("ai.progressTitle." + kind), t("ai.progress", { i: 1, n: batches.length }),
+    prog = openProgress(t("ai.progressTitle." + kind), t("ai.progress", { i: 1, n: Math.max(1, batches.length) }),
       [{ label: t(isComplete ? "ai.pause" : "ai.stop"), onClick: () => { ctl.abort(); } }]);
   }
   try {
+    if (isComplete && batches.length) { saveResume(); persist(); }
     for (let i = 0; i < batches.length; i++) {
       next = i;
       if (ctl.signal.aborted) { stopped = true; break; }
       if (prog) prog.set(i / batches.length, t("ai.progress", { i: i + 1, n: batches.length }));
       const batch = batches[i];
+      job.wasHidden = document.visibilityState === "hidden";
       let res;
-      try { res = await AI.ask(isComplete ? completionPrompt(batch, opts.want) : verifyPrompt(batch), ctl.signal); }
-      catch (e) { if (e && e.code === "cancelled") stopped = true; else error = e; break; }
+      try { res = await AI.ask(isComplete ? completionPrompt(batch, want) : verifyPrompt(batch), ctl.signal); }
+      catch (e) {
+        if (job.interrupted || job.wasHidden || document.visibilityState === "hidden") { job.interrupted = true; stopped = true; }
+        else if (e && e.code === "cancelled") stopped = true;
+        else error = e;
+        break;
+      }
       if (state !== st || Storage.getUser() !== who) return null; // compte changé ou données importées entre-temps
-      added += applyAiResult(kind, batch, res, opts.want);
+      added += applyAiResult(kind, batch, res, want);
       if (kind === "verify") batch.forEach(c => { if (state.cards.includes(c)) state.checkedSig[c.id] = cardSig(c); });
       next = i + 1;
       saveResume();
-      commitQuiet();
+      persist();
     }
-    if (isComplete && (stopped || error) && state === st && Storage.getUser() === who) { saveResume(); commitQuiet(); }
+    if (isComplete && (stopped || error) && state === st && Storage.getUser() === who) { saveResume(); persist(); }
   } finally {
-    aiJob = null;
+    if (aiJob === job) aiJob = null;
+    Wake.off();
     if (prog) prog.close();
+    renderResumeBars();
   }
   if (state !== st || Storage.getUser() !== who) return null;
-  const result = { added, error, stopped };
+  const interrupted = job.interrupted && stopped;
+  const result = { added, error, stopped, interrupted };
   if (opts.silent) { if (added) toast(t("ai.autoDone", { n: added })); return result; }
   if (opts.noEndModal) return result;
+  if (interrupted) return result;   // bandeau « Reprendre / Abandonner » (renderResumeBars)
   let msg = error ? aiErrorText(error) : stopped ? t(isComplete ? "ai.paused" : "ai.stopped", { n: added }) : added ? t("ai.done", { n: added }) : t("ai.doneNone");
   if (error && added) msg += " " + t("ai.done", { n: added });
   if (error && isComplete && state.aiResume) msg += " " + t("ai.resumeLater");
@@ -6186,7 +6322,7 @@ async function startCompletion(ids, want, fromResume) {
   const set = ids ? new Set(ids) : null;
   const cards = state.cards.filter(c => (!set || set.has(c.id)) && (want ? want(c) : missingFields(c)).length);
   if (!cards.length) { toast(t("ai.nothingToComplete")); return; }
-  if (AI.isOn()) { await runAiJob("complete", cards, { want }); updResumeSync(cats); }
+  if (AI.isOn()) await runAiJob("complete", cards, { want, resumeCats: cats });
   else openPrepare("complete", cards);
 }
 // Bouton « Vérifier mes listes » : toutes les cartes.
@@ -7423,10 +7559,10 @@ async function runUpdate(scope, cats) {
 
   let error = null, stopped = false;
   if (fillCards.length) {
-    const r = await runAiJob("complete", fillCards, { want, noEndModal: true });
+    const r = await runAiJob("complete", fillCards, { want, noEndModal: true, resumeCats: cats });
     if (!r || state !== st) return;
     added += r.added; error = r.error; stopped = r.stopped;
-    updResumeSync(cats);
+    if (r.interrupted) return;   // bandeau « Reprendre / Abandonner »
   }
   if (verifyCards.length && !error && !stopped) {
     const r = await runAiJob("verify", verifyCards, { noEndModal: true });
@@ -7446,9 +7582,13 @@ async function runUpdate(scope, cats) {
 
 // === ÉCRAN : À VALIDER ===
 // Une ligne par proposition : case à cocher, liste, mot de la langue apprise, champ, ancienne → nouvelle valeur (différences surlignées), type.
-// Filtres (liste, type, champ) ; « Tout sélectionner » ne prend que les lignes filtrées ; la sélection est limitée aux lignes visibles.
-// Accepter / Refuser / Modifier (édition dans la ligne, puis Accepter) ; « Annuler » quelques secondes après une action groupée.
-const pv = { folder: "", list: "", type: "", field: "", sel: new Set(), editing: new Set(), edits: {} };
+// Filtres (liste, type, champ) ; la sélection est limitée aux lignes filtrées.
+// Pages de CONFIG.PV_PAGE lignes : seule la page affichée est dans le DOM. Sélection = ensemble d'ids en mémoire (pv.sel) :
+// « Sélectionner la page » et « Tout sélectionner (N) » ne créent ni ne cochent les lignes une par une.
+// Accepter / Refuser : par paquets de CONFIG.PV_CHUNK, barre de progression, l'écran reste fluide ; reste à faire gardé
+// sur l'appareil après chaque paquet (reprise par le bandeau si l'appli est rechargée ou si on arrête).
+// Modifier (édition dans la ligne, puis Accepter) ; « Annuler » quelques secondes après une action groupée.
+const pv = { folder: "", list: "", type: "", field: "", page: 0, sel: new Set(), editing: new Set(), edits: {}, refreshBar: null };
 // Dossier : id, "__none__" (sans dossier) ou "" (tous).
 function pvFolderOf(listId) { const l = getList(listId); return l && l.folderId ? l.folderId : "__none__"; }
 // Filtre par champ : une traduction (code de langue), l'exemple, la nature (« pos » = toutes les langues) ou les doublons.
@@ -7458,7 +7598,7 @@ function pvFieldMatch(p, f) { return f === "pos" ? isPosField(p.field) : p.field
 function pvPosText(code, lng) { return code ? posLabel(code, lng) + (POS_CODES.includes(code) ? " — " + t("pos." + code) : "") : ""; }
 let undoTimer = null;
 
-function pvReset() { pv.folder = ""; pv.list = ""; pv.type = ""; pv.field = ""; pvClearSel(); }
+function pvReset() { pv.folder = ""; pv.list = ""; pv.type = ""; pv.field = ""; pv.page = 0; pvClearSel(); }
 function pvClearSel() { pv.sel.clear(); pv.editing.clear(); pv.edits = {}; }
 function pvFieldLabel(f) {
   if (f === "dup") return t("pv.field.dup");
@@ -7507,7 +7647,7 @@ function renderPending() {
     const s = el("select", "input");
     opts.forEach(([v, l]) => { const o = el("option", null, l); o.value = v; s.appendChild(o); });
     s.value = value;
-    s.addEventListener("change", () => { onCh(s.value); renderPending(); });
+    s.addEventListener("change", () => { onCh(s.value); pv.page = 0; renderPending(); });
     return s;
   };
   if (state.folders.length) {
@@ -7524,18 +7664,45 @@ function renderPending() {
   );
   root.appendChild(f);
 
+  // Page affichée
+  const pages = Math.max(1, Math.ceil(vis.length / CONFIG.PV_PAGE));
+  pv.page = Math.min(Math.max(0, pv.page | 0), pages - 1);
+  const pageItems = vis.slice(pv.page * CONFIG.PV_PAGE, (pv.page + 1) * CONFIG.PV_PAGE);
+
   // Sélection + actions (collées en haut pendant le défilement)
   const sticky = el("div", "pv-sticky");
   const bar = el("div", "pv-bar");
   const lab = el("label", "pv-all");
   const cb = el("input");
   cb.type = "checkbox";
-  cb.checked = vis.length > 0 && vis.every(p => pv.sel.has(p.id));
-  cb.indeterminate = !cb.checked && vis.some(p => pv.sel.has(p.id));
-  cb.addEventListener("change", () => { vis.forEach(p => { if (cb.checked) pv.sel.add(p.id); else pv.sel.delete(p.id); }); renderPending(); });
-  lab.append(cb, document.createTextNode(t("pv.selectAll")));
-  bar.append(lab, el("span", "pv-count", t("pv.selected", { n: pv.sel.size })));
+  cb.addEventListener("change", () => {
+    pageItems.forEach(p => { if (cb.checked) pv.sel.add(p.id); else pv.sel.delete(p.id); });
+    root.querySelectorAll(".pv-row").forEach(r => { r.classList.toggle("sel", cb.checked); const x = r.querySelector(".pv-cb"); if (x) x.checked = cb.checked; });
+    refresh();
+  });
+  lab.append(cb, document.createTextNode(t("pv.selectPage")));
+  const count = el("span", "pv-count");
+  bar.append(lab, count);
   sticky.appendChild(bar);
+  const bAll = el("button", "link-btn");
+  bAll.addEventListener("click", () => {
+    if (vis.length && pv.sel.size >= vis.length) pv.sel.clear();     // la sélection ne contient que des lignes filtrées
+    else vis.forEach(p => pv.sel.add(p.id));                         // ids en mémoire seulement
+    renderPending();
+  });
+  const sel2 = el("div", "pv-sel2");
+  sel2.appendChild(bAll);
+  sticky.appendChild(sel2);
+  // Case de la page, compteur et bouton « Tout sélectionner » sans réafficher les lignes.
+  const refresh = () => {
+    const onPage = pageItems.filter(p => pv.sel.has(p.id)).length;
+    cb.checked = pageItems.length > 0 && onPage === pageItems.length;
+    cb.indeterminate = onPage > 0 && !cb.checked;
+    count.textContent = t("pv.selected", { n: pv.sel.size });
+    bAll.textContent = vis.length && pv.sel.size >= vis.length ? t("pv.unselectAll") : t("pv.selectAllN", { n: vis.length });
+  };
+  pv.refreshBar = refresh;
+  refresh();
   const acts = el("div", "btns three");
   const bA = el("button", "btn primary", t("pv.accept"));
   const bR = el("button", "btn danger", t("pv.reject"));
@@ -7549,9 +7716,34 @@ function renderPending() {
   root.appendChild(sticky);
 
   if (!vis.length) { root.appendChild(el("div", "empty", t("lists.noResults"))); return; }
+  const pager = () => {
+    const w = el("div", "pv-pager");
+    if (pages < 2) return null;
+    const prev = el("button", "btn", "‹"), next = el("button", "btn", "›");
+    prev.setAttribute("aria-label", t("pv.prev")); next.setAttribute("aria-label", t("pv.next"));
+    prev.disabled = pv.page === 0; next.disabled = pv.page >= pages - 1;
+    const go = d => { pv.page += d; renderPending(); try { root.scrollIntoView({ block: "start" }); } catch (e) { window.scrollTo(0, 0); } };
+    prev.addEventListener("click", () => go(-1));
+    next.addEventListener("click", () => go(1));
+    w.append(prev, el("span", null, t("pv.page", { i: pv.page + 1, n: pages })), next);
+    return w;
+  };
+  const p1 = pager();
+  if (p1) root.appendChild(p1);
   const items = el("div", "items");
-  vis.forEach(p => items.appendChild(p.field === "new" ? pvNewRow(p) : pvRow(p, cards.get(p.cardId))));
+  pageItems.forEach(p => items.appendChild(p.field === "new" ? pvNewRow(p) : pvRow(p, cards.get(p.cardId))));
   root.appendChild(items);
+  const p2 = pager();
+  if (p2) root.appendChild(p2);
+}
+
+// Case d'une ligne : met à jour la sélection, la ligne et la barre, sans réafficher l'écran.
+function pvRowCheck(row, cb, id) {
+  cb.addEventListener("change", () => {
+    if (cb.checked) pv.sel.add(id); else pv.sel.delete(id);
+    row.classList.toggle("sel", cb.checked);
+    if (pv.refreshBar) pv.refreshBar();
+  });
 }
 
 function pvRow(p, c) {
@@ -7559,7 +7751,7 @@ function pvRow(p, c) {
   const cb = el("input", "pv-cb");
   cb.type = "checkbox";
   cb.checked = pv.sel.has(p.id);
-  cb.addEventListener("change", () => { if (cb.checked) pv.sel.add(p.id); else pv.sel.delete(p.id); renderPending(); });
+  pvRowCheck(row, cb, p.id);
   const m = el("div", "main");
   const top = el("div", "pv-top");
   const l = getList(c.listId);
@@ -7622,7 +7814,7 @@ function pvNewRow(p) {
   const cb = el("input", "pv-cb");
   cb.type = "checkbox";
   cb.checked = pv.sel.has(p.id);
-  cb.addEventListener("change", () => { if (cb.checked) pv.sel.add(p.id); else pv.sel.delete(p.id); renderPending(); });
+  pvRowCheck(row, cb, p.id);
   const m = el("div", "main");
   const top = el("div", "pv-top");
   const l = getList(p.listId);
@@ -7736,30 +7928,111 @@ function pvSnapshot() {
     rejected: state.rejected.slice(), checkedSig: Object.assign({}, state.checkedSig) };
 }
 
-function pvAccept() {
-  const sel = pvSelected();
+// --- Accepter / Refuser groupés : paquets de CONFIG.PV_CHUNK, reprise possible ---
+let pvJob = null;   // traitement en cours { kind, stop }
+// Reste à faire, gardé sur cet appareil : { kind: "accept"|"reject", ids, edits, total }
+function pvJobKey() { return CONFIG.LS_USER_PREFIX + "pvJob:" + (Storage.getUser() || ""); }
+function pvJobSaved() {
+  try {
+    const r = JSON.parse(localStorage.getItem(pvJobKey()) || "null");
+    if (!r || !["accept", "reject"].includes(r.kind) || !Array.isArray(r.ids)) return null;
+    const live = new Set(state.proposals.map(p => p.id));
+    r.ids = r.ids.filter(id => live.has(id));   // déjà traitées (ou supprimées) : ignorées, pas de doublon
+    return r.ids.length ? r : null;
+  } catch (e) { return null; }
+}
+function pvJobStore(r) {
+  try { if (r && r.ids.length) localStorage.setItem(pvJobKey(), JSON.stringify(r)); else localStorage.removeItem(pvJobKey()); } catch (e) {}
+}
+
+function pvAccept() { pvStart("accept"); }
+function pvReject() { pvStart("reject"); }
+function pvStart(kind) {
+  if (pvJob) { toast(t("pv.busy")); return; }
+  let sel = pvSelected();
   if (!sel.length) { toast(t("pv.pickOne")); return; }
-  const snap = pvSnapshot();
-  let ok = 0, skipped = 0;
-  const done = new Set();
   // Nouvelles cartes : fiches de règle d'abord (pour relier les textes à trous / phrases à corriger acceptés en même temps)
-  sel.filter(p => p.field === "new").sort((a, b) => pvNewRank(a) - pvNewRank(b)).forEach(p => {
-    const r = pvAcceptNew(p, pv.editing.has(p.id) ? pv.edits[p.id] : null);
+  if (kind === "accept") {
+    const rank = p => p.field === "new" ? pvNewRank(p) : 2;
+    sel = sel.map((p, i) => [p, i]).sort((x, y) => rank(x[0]) - rank(y[0]) || x[1] - y[1]).map(x => x[0]);
+  }
+  const edits = {};
+  if (kind === "accept") sel.forEach(p => { if (pv.editing.has(p.id) && pv.edits[p.id] != null) edits[p.id] = pv.edits[p.id]; });
+  pvRun(kind, sel.map(p => p.id), edits, pvSnapshot());
+}
+
+// snap : état d'avant (bouton « Annuler ») ; null pour une reprise.
+async function pvRun(kind, ids, edits, snap) {
+  if (pvJob) { toast(t("pv.busy")); return; }
+  const st = state, who = Storage.getUser();
+  const job = { kind, stop: false };
+  pvJob = job;
+  let rest = ids.slice();
+  const total = rest.length;
+  let ok = 0, skipped = 0, n = 0, prog = null;
+  pvJobStore({ kind, ids: rest, edits, total });
+  renderResumeBars();
+  Wake.on();
+  if (total > CONFIG.PV_CHUNK) {
+    prog = openProgress(t("pv.progressTitle." + kind), t("pv.progress", { i: 0, n: total }),
+      [{ label: t("pv.stop"), onClick: () => { job.stop = true; } }]);
+  }
+  try {
+    while (rest.length && !job.stop) {
+      if (state !== st || Storage.getUser() !== who) return;   // compte changé entre-temps
+      const part = rest.slice(0, CONFIG.PV_CHUNK);
+      const r = kind === "accept" ? pvAcceptPart(part, edits) : pvRejectPart(part);
+      ok += r.ok; skipped += r.skipped;
+      rest = rest.slice(part.length);
+      n += part.length;
+      state.updatedAt = Date.now();
+      Storage.save(state);                                    // paquet enregistré avant le suivant
+      pvJobStore(rest.length ? { kind, ids: rest, edits, total } : null);
+      renderPendingBadge();
+      if (prog) prog.set(n / total, t("pv.progress", { i: n, n: total }));
+      await yieldUI();                                        // l'écran reste fluide
+    }
+  } finally {
+    if (pvJob === job) pvJob = null;
+    Wake.off();
+    if (prog) prog.close();
+  }
+  if (state !== st || Storage.getUser() !== who) return;
+  Storage.flushNow();
+  pvClearSel();
+  render();
+  const msg = (kind === "accept" ? t("pv.accepted", { n: ok }) + (skipped ? t("pv.skipped", { n: skipped }) : "") : t("pv.rejected", { n: ok }));
+  if (rest.length) toast(msg);                // arrêté : bandeau « Reprendre / Abandonner »
+  else if (snap) showUndo(msg, snap);
+  else toast(msg);
+}
+
+// Un paquet d'acceptations (même règles qu'avant). Renvoie { ok, skipped }.
+function pvAcceptPart(ids, edits) {
+  const want = new Set(ids);
+  const sel = state.proposals.filter(p => want.has(p.id));
+  const order = new Map(ids.map((id, i) => [id, i]));
+  sel.sort((a, b) => order.get(a.id) - order.get(b.id));
+  let ok = 0, skipped = 0;
+  const done = new Set(), removed = new Set();
+  sel.filter(p => p.field === "new").forEach(p => {
+    const r = pvAcceptNew(p, edits[p.id] != null ? edits[p.id] : null);
     if (r.added) { ok++; done.add(p.id); }
     else if (r.dupOnly) { skipped++; done.add(p.id); }   // déjà dans la liste : la proposition disparaît
     else skipped++;                                      // non valide : la ligne reste
   });
+  const cards = new Map(state.cards.map(c => [c.id, c]));
   sel.filter(p => p.field !== "new").forEach(p => {
-    const c = state.cards.find(x => x.id === p.cardId);
-    if (!c) { done.add(p.id); return; }
+    const c = cards.get(p.cardId);
+    if (!c || removed.has(c.id)) { done.add(p.id); return; }
     if (p.field === "dup") {
-      state.cards = state.cards.filter(x => x.id !== c.id);
+      removed.add(c.id);
       delete state.checkedSig[c.id];
       done.add(p.id); ok++;
       return;
     }
-    const edited = pv.editing.has(p.id) && pv.edits[p.id] != null;
-    let nv = String(edited ? pv.edits[p.id] : p.newValue).replace(/\s+/g, " ").trim();
+    const edited = edits[p.id] != null;
+    let nv = String(edited ? edits[p.id] : p.newValue).replace(/\s+/g, " ").trim();
     if (isPosField(p.field)) nv = parsePos(nv, p.field.slice(4)); // nature non valide : la ligne reste
     const cur = fieldVal(c, p.field);
     const stale = p.type === "completion" ? !!cur.trim() : cur !== p.oldValue; // champ modifié entre-temps : jamais écrasé
@@ -7772,29 +8045,28 @@ function pvAccept() {
     state.checkedSig[c.id] = cardSig(c);
     done.add(p.id); ok++;
   });
-  const ids = new Set(state.cards.map(c => c.id));
-  state.proposals = state.proposals.filter(p => !done.has(p.id) && (p.field === "new" ? !!getList(p.listId) : ids.has(p.cardId)));
-  pvClearSel();
-  commit();
-  showUndo(t("pv.accepted", { n: ok }) + (skipped ? t("pv.skipped", { n: skipped }) : ""), snap);
+  if (removed.size) state.cards = state.cards.filter(c => !removed.has(c.id));
+  const cardIds = new Set(state.cards.map(c => c.id));
+  const listIds = new Set(state.lists.map(l => l.id));
+  state.proposals = state.proposals.filter(p => !done.has(p.id) && (p.field === "new" ? listIds.has(p.listId) : cardIds.has(p.cardId)));
+  return { ok, skipped };
 }
 
-function pvReject() {
-  const sel = pvSelected();
-  if (!sel.length) { toast(t("pv.pickOne")); return; }
-  const snap = pvSnapshot();
-  const done = new Set(sel.map(p => p.id));
+// Un paquet de refus. Renvoie { ok, skipped }.
+function pvRejectPart(ids) {
+  const want = new Set(ids);
+  const sel = state.proposals.filter(p => want.has(p.id));
+  const have = new Set(state.rejected);
   sel.forEach(p => {
     const ks = p.field === "new"
       ? p.cards.map(d => rejectKey(p.listId, "new", draftKey(d, listLangs(p.listId))))   // ne sera plus proposée par « Générer »
       : [rejectKey(p.cardId, p.field, p.newValue)];
-    ks.forEach(k => { if (!state.rejected.includes(k)) state.rejected.push(k); });
+    ks.forEach(k => { if (!have.has(k)) { have.add(k); state.rejected.push(k); } });
   });
   if (state.rejected.length > CONFIG.REJECT_MAX) state.rejected = state.rejected.slice(-CONFIG.REJECT_MAX);
+  const done = new Set(sel.map(p => p.id));
   state.proposals = state.proposals.filter(p => !done.has(p.id));
-  pvClearSel();
-  commit();
-  showUndo(t("pv.rejected", { n: sel.length }), snap);
+  return { ok: sel.length, skipped: 0 };
 }
 
 function pvEdit() {
@@ -8058,7 +8330,7 @@ async function runAdminCopy(d, dest, selF, selL) {
 // Identifiant inconnu à la connexion : proposition de créer le compte.
 const auth = {
   mode: "local", view: "loading", reg: { accounts: [], migrated: false }, legacy: null, backupAsked: false, busy: false,
-  msg: "", isAdmin: false, sbUid: null, lastPin: "", forceId: "", forceTarget: null,
+  msg: null, err: null, isAdmin: false, sbUid: null, lastPin: "", forceId: "", forceTarget: null,
   form: { id: "", pin: "", pin2: "", target: LANG_DEFAULT }
 };
 
@@ -8067,7 +8339,11 @@ function setRememberMe(v) { try { localStorage.setItem(CONFIG.LS_REMEMBER, v ? "
 function normId(s) { return String(s || "").replace(/\s+/g, "").toLowerCase(); }
 function validId(s) { return /^[a-z0-9-]{2,20}$/.test(s); }
 function validPin(s) { return /^\d{4,6}$/.test(s); }
-function clearAuthForm() { auth.form = { id: "", pin: "", pin2: "", target: (auth.form && auth.form.target) || LANG_DEFAULT }; auth.msg = ""; }
+function clearAuthForm() { auth.form = { id: "", pin: "", pin2: "", target: (auth.form && auth.form.target) || LANG_DEFAULT }; auth.msg = null; auth.err = null; }
+// Messages de l'écran de connexion : gardés sous forme de clé (+ variables) et traduits à l'affichage,
+// pour suivre immédiatement un changement de langue. authError : erreur affichée dans l'écran (plus de bulle éphémère).
+function authError(key, vars) { auth.err = { key, vars: vars || null }; if (!Storage.getUser()) renderAuth(); }
+function authErrKind(kind) { authError({ net: "auth.err.net", exists: "auth.err.exists", confirm: "auth.err.confirm", same: "auth.err.same", wrong: "auth.err.wrong" }[kind] || "auth.err.server"); }
 async function hashPin(pin, salt) {
   const txt = salt + ":" + pin;
   try {
@@ -8096,7 +8372,9 @@ function errText(kind) {
 
 // Affiche l'écran de connexion. view : "loading" | "login" | "create" | "force" (nouveau PIN obligatoire) | "libError".
 function showAuth(view) {
-  auth.view = view || "login";
+  const v = view || "login";
+  if (v !== auth.view && v !== "loading" && auth.view !== "loading") auth.err = null;
+  auth.view = v;
   document.body.classList.add("auth");
   document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === "screen-auth"));
   applyTheme();
@@ -8120,8 +8398,7 @@ function authLangSeg() {
     b.setAttribute("aria-pressed", String(state.settings.uiLang === code));
     b.addEventListener("click", () => {
       state.settings.uiLang = code; savePrefs(); applyI18n(); renderSyncStatus(Storage.getMode());
-      if (auth.msg && auth.form.id) auth.msg = t("auth.unknown", { id: normId(auth.form.id) });
-      renderAuth();
+      renderAuth(); // tous les textes, messages et erreurs compris, sont relus dans la nouvelle langue
     });
     seg.appendChild(b);
   });
@@ -8129,11 +8406,16 @@ function authLangSeg() {
   f.classList.add("auth-lang");
   return f;
 }
+function authErrBox() {
+  const d = el("div", "auth-msg err", t(auth.err.key, auth.err.vars));
+  d.setAttribute("role", "alert");
+  return d;
+}
 function renderAuth() {
   const root = $("#screen-auth");
   root.textContent = "";
-  if (auth.view === "loading") { root.appendChild(el("div", "empty", t("auth.loading"))); return; }
   root.appendChild(authLangSeg());
+  if (auth.view === "loading") { root.appendChild(el("div", "empty", t("auth.loading"))); return; }
   if (auth.view === "libError") {
     const c = el("div", "card");
     c.appendChild(el("p", null, t("auth.err.lib")));
@@ -8151,7 +8433,8 @@ function renderAuth() {
 
   const box = el("div", "card");
   box.appendChild(el("h2", null, t(first ? "auth.firstTitle" : creating ? "auth.createTitle" : "auth.loginTitle")));
-  if (auth.msg) box.appendChild(el("div", "auth-msg", auth.msg));
+  if (auth.msg) box.appendChild(el("div", "auth-msg", t(auth.msg.key, auth.msg.vars)));
+  if (auth.err) box.appendChild(authErrBox());
   const idInp = textInput(f.id, "");
   idInp.autocomplete = "username"; idInp.spellcheck = false;
   idInp.setAttribute("autocapitalize", "off"); idInp.setAttribute("autocorrect", "off");
@@ -8209,15 +8492,15 @@ function renderAuth() {
 async function doLogin() {
   if (auth.busy) return;
   const id = normId(auth.form.id), pin = auth.form.pin;
-  if (id.length < 2) { toast(t("auth.err.id")); return; }
-  if (!validPin(pin)) { toast(t("auth.err.pin")); return; }
+  if (id.length < 2) { authError("auth.err.id"); return; }
+  if (!validPin(pin)) { authError("auth.err.pin"); return; }
   auth.busy = true;
   try {
     if (auth.mode === "supabase") { await sbLogin(id, pin); return; }
     let a = auth.reg.accounts.find(x => x.id === id);
     if (!a && Storage.isCloud()) { auth.reg = await Storage.loadAccounts(); a = auth.reg.accounts.find(x => x.id === id); } // créé sur un autre appareil
     if (!a && validId(id)) { offerCreate(id); return; }
-    if (!a || (await hashPin(pin, a.salt)) !== a.pinHash) { toast(t("auth.err.wrong")); return; }
+    if (!a || (await hashPin(pin, a.salt)) !== a.pinHash) { authError("auth.err.wrong"); return; }
     clearAuthForm();
     await startUser(id, null);
   } finally { auth.busy = false; }
@@ -8225,7 +8508,7 @@ async function doLogin() {
 // Identifiant inconnu : on passe à la création, identifiant et PIN gardés (il reste la confirmation).
 function offerCreate(id) {
   auth.form.id = id; auth.form.pin2 = "";
-  auth.msg = t("auth.unknown", { id });
+  auth.msg = { key: "auth.unknown", vars: { id } };
   showAuth("create");
 }
 async function sbLogin(id, pin) {
@@ -8236,25 +8519,25 @@ async function sbLogin(id, pin) {
     await enterSupabase(session);
   } catch (e) {
     const k = sbErrKind(e);
-    if (k !== "wrong") { toast(errText(k)); return; }
+    if (k !== "wrong") { authErrKind(k); return; }
     let exists = true;
     try { exists = await Supa.usernameExists(id); } catch (e2) {}
     if (!exists && validId(id)) offerCreate(id);
-    else toast(t("auth.err.wrong"));
+    else authError("auth.err.wrong");
   }
 }
 
 async function doCreate() {
   if (auth.busy) return;
   const f = auth.form, id = normId(f.id);
-  if (!validId(id)) { toast(t("auth.err.id")); return; }
-  if (!validPin(f.pin)) { toast(t("auth.err.pin")); return; }
-  if (f.pin !== f.pin2) { toast(t("auth.err.pin2")); return; }
+  if (!validId(id)) { authError("auth.err.id"); return; }
+  if (!validPin(f.pin)) { authError("auth.err.pin"); return; }
+  if (f.pin !== f.pin2) { authError("auth.err.pin2"); return; }
   auth.busy = true;
   try {
     if (auth.mode === "supabase") { await sbCreate(id, f.pin, f.target); return; }
     auth.reg = await Storage.loadAccounts(); // registre à jour (autre appareil)
-    if (auth.reg.accounts.some(a => a.id === id)) { toast(t("auth.err.exists")); return; }
+    if (auth.reg.accounts.some(a => a.id === id)) { authError("auth.err.exists"); return; }
     const migrate = !auth.reg.migrated && !!auth.legacy;
     if (migrate && !auth.backupAsked) { askBackup(); return; }
     const salt = uid();
@@ -8272,13 +8555,13 @@ async function doCreate() {
 }
 async function sbCreate(id, pin, target) {
   try {
-    if (await Supa.usernameExists(id)) { toast(t("auth.err.exists")); return; }
+    if (await Supa.usernameExists(id)) { authError("auth.err.exists"); return; }
     const session = await Supa.signUp(id, pin);
     auth.lastPin = pin;
     clearAuthForm();
     await enterSupabase(session, target);
     toast(t("auth.welcome", { id }));
-  } catch (e) { toast(errText(sbErrKind(e))); }
+  } catch (e) { authErrKind(sbErrKind(e)); }
 }
 
 // Supabase : profil du compte (identifiant, PIN à changer, admin), puis ouverture des données.
@@ -8310,6 +8593,7 @@ function renderForcePin(root) {
   const box = el("div", "card");
   box.appendChild(el("h2", null, t("auth.forceTitle")));
   box.appendChild(el("p", "muted", t("auth.forceText")));
+  if (auth.err) box.appendChild(authErrBox());
   const p1 = pinInput(f.pin, v => { f.pin = v; }), p2 = pinInput(f.pin2, v => { f.pin2 = v; });
   box.appendChild(formField(t("pin.new"), p1));
   box.appendChild(formField(t("pin.new2"), p2));
@@ -8326,9 +8610,9 @@ function renderForcePin(root) {
 async function doForcePin() {
   if (auth.busy) return;
   const f = auth.form;
-  if (!validPin(f.pin)) { toast(t("auth.err.pin")); return; }
-  if (f.pin !== f.pin2) { toast(t("auth.err.pin2")); return; }
-  if (auth.lastPin && f.pin === auth.lastPin) { toast(t("auth.err.same")); return; }
+  if (!validPin(f.pin)) { authError("auth.err.pin"); return; }
+  if (f.pin !== f.pin2) { authError("auth.err.pin2"); return; }
+  if (auth.lastPin && f.pin === auth.lastPin) { authError("auth.err.same"); return; }
   auth.busy = true;
   try {
     await Supa.setPin(auth.forceId, f.pin);
@@ -8338,7 +8622,7 @@ async function doForcePin() {
     toast(t("pin.done"));
     const s = await Supa.session();
     if (s) await enterSupabase(s, target); else showAuth("login");
-  } catch (e) { toast(errText(sbErrKind(e))); }
+  } catch (e) { authErrKind(sbErrKind(e)); }
   finally { auth.busy = false; }
 }
 
@@ -8534,6 +8818,7 @@ async function logout() {
 
 // === RENDER ===
 function renderScreen() {
+  renderResumeBars();   // traitements interrompus (complétion, Accepter / Refuser groupés)
   if (!Storage.getUser()) { renderAuth(); return; }
   if (currentScreen === "home") renderHome();
   else if (currentScreen === "review") renderReview();
@@ -8584,7 +8869,7 @@ async function init() {
       try { session = await Supa.session(); } catch (e) {}
       if (session) {
         try { await enterSupabase(session); return; }
-        catch (e) { toast(errText(sbErrKind(e))); }
+        catch (e) { auth.err = { key: { net: "auth.err.net" }[sbErrKind(e)] || "auth.err.server", vars: null }; }
       }
       showAuth("login");
       return;
