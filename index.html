@@ -452,6 +452,156 @@ body.auth main{padding-bottom:24px}
 .adm-tags .tag.muted{color:var(--muted)}
 .app-version{text-align:center;font-size:12px;color:var(--muted);margin:6px 0 4px}
 
+/* --- Tableau de bord (admin, étape 25) --- */
+.dash-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 12px}
+.dash-nav .btn{margin:0;padding:10px 6px;min-height:44px;font-size:14px;overflow-wrap:anywhere}
+.dash-sec{margin-bottom:18px}
+.dash-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:16px 0 8px}
+.dash-h h3{margin:0;font-size:16px}
+.dash-csv{width:auto;margin:0;padding:6px 10px;min-height:36px;font-size:13px;flex:none}
+.aq-csv{display:block;margin:0 0 8px auto}
+.dash-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.dash-tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;min-width:0}
+.dash-tl{font-size:12px;color:var(--muted)}
+.dash-tv{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.dash-ts{font-size:12px;color:var(--muted);margin-top:2px}
+.dash-ts.warn{color:var(--bad);font-weight:600}
+.dash-chart{padding:12px;margin-bottom:10px;overflow:hidden}
+.dash-ch-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.dash-ch-title{font-weight:700;font-size:14px}
+.dash-ch-total{font-size:12px;color:var(--muted);white-space:nowrap}
+.dash-ch-cap{font-size:13px;min-height:18px;margin:2px 0 4px;font-variant-numeric:tabular-nums}
+.dash-svg{display:block;max-width:100%;touch-action:pan-y;cursor:crosshair;user-select:none;-webkit-user-select:none}
+.dash-grid{stroke:var(--border);stroke-width:1}
+.dash-axis{fill:var(--muted);font-size:10px}
+.dash-area{fill:var(--accent);opacity:.12}
+.dash-line{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.dash-dot{fill:var(--accent)}
+.dash-guide{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
+.dash-mark{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.dash-note{margin:-4px 0 6px}
+.dash-empty{padding:10px}
+.dash-table td.dash-wrap{white-space:normal;min-width:110px;overflow-wrap:anywhere}
+.dash-table th.num{text-align:right}
+.dash-link{background:none;border:0;padding:0;font:inherit;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px;text-align:left}
+.dash-inact{display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:10px}
+.dash-inact .input{width:90px}
+.dash-alert{padding:10px 12px;margin-bottom:8px}
+.dash-al-title{font-weight:700;font-size:14px;margin-bottom:4px}
+.dash-al-item{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:6px 0;border-top:1px solid var(--border);font-size:13px}
+.dash-al-title + .dash-al-item{border-top:0}
+.dash-al-txt{overflow-wrap:anywhere;min-width:0}
+.dash-al-acts{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none;font-size:13px}
+.items .item.adm-focus{outline:2px solid var(--accent);outline-offset:-2px;background:var(--surface2)}
+/* --- Fiche d'un compte (admin, étape 26) --- */
+.fc-nav{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:4px 0 8px}
+.fc-nav .btn{margin:0;padding:10px 6px;min-height:44px;font-size:14px;overflow-wrap:anywhere}
+.fc-loading{display:flex;align-items:center;gap:12px;color:var(--muted)}
+.fc-spin{width:22px;height:22px;flex:none;border-radius:50%;border:3px solid var(--border);border-top-color:var(--accent);animation:fcspin .8s linear infinite}
+@keyframes fcspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.fc-spin{animation-duration:2.4s}}
+.fc-h{margin:20px 0 8px;font-size:17px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.fc-h4{margin:14px 0 6px;font-size:14px}
+.fc-dl{display:grid;grid-template-columns:minmax(110px,40%) 1fr;gap:6px 12px;margin:0;font-size:14px}
+.fc-dl dt{color:var(--muted)}
+.fc-dl dd{margin:0;overflow-wrap:anywhere;min-width:0}
+.fc-small{font-size:12px}
+.fc-dev + .fc-dev{margin-top:6px}
+.fc-table td.fc-wrap{white-space:normal;min-width:90px;overflow-wrap:anywhere}
+.fc-table th.num{text-align:right}
+.fc-cal,.fc-hours{padding:12px;margin:10px 0}
+.fc-cal-wrap{display:flex;gap:4px;margin-top:4px}
+.fc-cal-days{display:grid;grid-template-rows:repeat(7,1fr);gap:3px;font-size:10px;color:var(--muted);width:12px;line-height:1}
+.fc-cal-days span{display:flex;align-items:center}
+.fc-cal-grid{flex:1;display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;grid-auto-columns:1fr;gap:3px;max-width:360px}
+.fc-day{display:block;aspect-ratio:1;min-width:0;width:100%;padding:0;border:0;border-radius:3px;background:var(--surface2);cursor:pointer}
+span.fc-day{display:inline-block;width:12px;height:12px;aspect-ratio:auto;cursor:default;vertical-align:middle}
+.fc-day.l1{background:color-mix(in srgb,var(--ok) 30%,var(--surface2))}
+.fc-day.l2{background:color-mix(in srgb,var(--ok) 55%,var(--surface2))}
+.fc-day.l3{background:color-mix(in srgb,var(--ok) 80%,var(--surface2))}
+.fc-day.l4{background:var(--ok)}
+.fc-day.frozen{background:#9cc9f0;box-shadow:inset 0 0 0 2px #3b8fd6}
+.fc-day.today{outline:2px solid var(--text);outline-offset:-1px}
+.fc-legend{display:flex;align-items:center;flex-wrap:wrap;gap:4px;font-size:11px;margin-top:8px}
+.fc-legend .muted{margin:0 4px}
+.fc-bars{display:grid;grid-template-columns:repeat(24,1fr);gap:2px;align-items:end;height:90px;margin-top:4px}
+.fc-bar{height:100%;display:flex;align-items:flex-end;padding:0;border:0;background:none;cursor:pointer;min-width:0}
+.fc-bar span{display:block;width:100%;min-height:2px;background:var(--accent);border-radius:2px 2px 0 0;opacity:.85}
+.fc-bar.sel span{opacity:1;box-shadow:0 0 0 2px var(--text)}
+.fc-bars-ax{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:3px}
+.fc-clist{padding:4px 12px;margin-bottom:8px}
+.fc-blocked{max-height:420px;overflow-y:auto}
+.fc-cline,.fc-card{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:7px 0;border-top:1px solid var(--border);font-size:14px}
+.fc-clist .fc-cline:first-child,.fc-cards .fc-card:first-child{border-top:0}
+.fc-cmain{min-width:0;overflow-wrap:anywhere}
+.fc-ct{font-weight:600}
+.fc-cnum{flex:none;font-size:12px;color:var(--muted);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.fc-acts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.fc-acts .btn{width:auto;margin:0;flex:1 1 140px}
+.fc-search{margin-bottom:8px}
+.fc-folder,.fc-list{border:1px solid var(--border);border-radius:12px;background:var(--surface);margin-bottom:8px}
+.fc-folder > .fc-list{margin:0 8px 8px}
+.fc-folder > summary,.fc-list > summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:10px 12px;min-height:44px;cursor:pointer;list-style-position:inside}
+.fc-ln{font-weight:600;overflow-wrap:anywhere}
+.fc-cards{padding:0 12px 8px}
+.fc-folder > p{padding:0 12px 8px;margin:0}
+.fc-res-h{font-weight:700;font-size:13px;margin:12px 0 2px;overflow-wrap:anywhere}
+.fc-meter{height:8px;border-radius:4px;background:var(--surface2);overflow:hidden;margin-top:4px}
+.fc-meter span{display:block;height:100%;background:var(--accent)}
+.fc-meter span.bad{background:var(--bad)}
+.fc-scroll{max-height:320px;overflow-y:auto}
+.aq-table tr.fc-warnrow td{color:var(--bad);font-weight:600}
+
+/* --- Gestion des comptes (admin, étape 27) : blocage, annonces, listes modèles --- */
+.tag.bad{color:var(--bad);border:1px solid var(--bad);background:transparent}
+.tag.ok{color:var(--ok)}
+.blk-card h2{color:var(--bad)}
+.blk-reason{background:var(--surface2);border-radius:12px;padding:10px 12px;margin:0 0 12px}
+.blk-lbl{font-size:13px;margin-bottom:2px}
+.blk-txt{white-space:pre-wrap;overflow-wrap:anywhere;font-weight:600}
+.blk-help{font-size:14px;margin:0}
+.blk-ta,.an-ta{width:100%;min-height:72px;resize:vertical;font:inherit;line-height:1.4}
+.ann-body{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5;font-size:16px;max-height:55vh;overflow-y:auto}
+.an-intro{font-size:14px;margin:0 0 10px}
+.an-list{margin-top:12px}
+.an-item{padding:14px}
+.an-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.an-head .tag{margin:0;flex:none}
+.an-t{font-weight:700;overflow-wrap:anywhere;min-width:0}
+.an-prev{margin-top:6px;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.an-meta{margin-top:8px;font-size:13px;color:var(--muted);display:grid;gap:2px;overflow-wrap:anywhere}
+.an-acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.an-acts .btn{min-height:44px;padding:8px 4px;font-size:14px;overflow-wrap:anywhere}
+.an-lang{border:1px solid var(--border);border-radius:12px;padding:8px 12px 12px;margin:0 0 12px;min-width:0}
+.an-lang legend{font-weight:600;font-size:14px;padding:0 4px}
+.an-lang .field{margin-bottom:8px}
+.an-pick{margin-top:8px}
+.an-dates{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.an-dates input{min-width:0;width:100%}
+@media (max-width:420px){.an-dates{grid-template-columns:1fr}}
+.an-rl{max-height:30vh;overflow-y:auto;padding:0 12px}
+.an-r{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;overflow-wrap:anywhere}
+.an-r:last-child{border-bottom:0}
+.an-none{padding:10px 0}
+.tp-count{margin-bottom:8px}
+.tp-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.tp-row:last-child{border-bottom:0}
+.tp-row.sub{padding-left:30px}
+.tp-row.on{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.tp-main{flex:1 1 160px;min-width:0}
+.tp-main .t1{font-weight:600;overflow-wrap:anywhere}
+.tp-main .t2{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.tp-recv{color:var(--accent) !important}
+.tp-acts{display:flex;align-items:center;gap:8px;flex:none}
+.tp-check{min-height:44px;font-size:14px}
+.tp-send{width:auto;min-height:44px;padding:8px 14px;font-size:14px}
+.tp-row > .btn{width:auto;min-height:44px;font-size:14px}
+.tp-sep{padding:8px 14px;font-size:13px;color:var(--muted);background:var(--surface2);border-bottom:1px solid var(--border)}
+.tp-all{font-weight:600}
+.tp-again{background:var(--surface2);box-shadow:none;margin-top:4px}
+.tp-again p{margin:0 0 10px}
+.seg button:disabled{opacity:.45;cursor:default}
+
 /* === STYLES : MISE À JOUR === */
 .upd-badge{display:inline-block;font-size:12px;font-weight:600;line-height:1.5;padding:0 7px;border-radius:999px;border:1px solid var(--warn);color:var(--warn);white-space:nowrap;vertical-align:middle}
 .upd-intro{margin:0 0 10px}
@@ -605,6 +755,14 @@ body.auth main{padding-bottom:24px}
     <!-- ÉCRAN : ADMINISTRATION — JOURNAL D'ACTIVITÉ (admin seulement) -->
     <section class="screen" id="screen-adminlog"></section>
 
+    <!-- ÉCRAN : ADMINISTRATION — LISTE DES COMPTES (admin seulement, étape 25 : l'accueil admin est le tableau de bord) -->
+    <section class="screen" id="screen-adminacc"></section>
+    <!-- Fiche d'un compte (admin, étape 26) -->
+    <section class="screen" id="screen-adminfiche"></section>
+    <!-- Annonces et listes modèles (admin, étape 27) -->
+    <section class="screen" id="screen-adminann"></section>
+    <section class="screen" id="screen-admintpl"></section>
+
     <section class="screen" id="screen-settings">
       <div class="card">
         <div class="field">
@@ -720,7 +878,7 @@ const CONFIG = {
   PV_CHUNK: 200          // « À valider » : propositions acceptées / refusées par paquet
 };
 // Numéro de la dernière étape réalisée : affiché en bas des Réglages, envoyé au journal d'activité et dans la fiche appareil.
-const APP_VERSION = "24";
+const APP_VERSION = "27";
 
 // === I18N ===
 const I18N = {
@@ -1802,6 +1960,753 @@ Object.assign(I18N.en, {
   "al.s.conflict.local": "device data kept",
   "al.s.pinForced": "mandatory change",
   "al.s.target": "account: {id}"
+});
+// Étape 25 : tableau de bord admin (accueil de l'Administration), exports CSV.
+Object.assign(I18N.ko, {
+  "dash.accounts": "계정 목록", "dash.nAccounts": "계정 {n}개", "dash.csv": "CSV 내보내기", "dash.csvDone": "CSV 파일을 저장했습니다({n}줄)",
+  "dash.yes": "예", "dash.c.created": "생성일", "dash.c.last": "마지막 접속", "dash.c.cards": "카드",
+  "dash.c.date": "날짜", "dash.c.indicator": "지표", "dash.c.value": "값",
+  "dash.accGone": "목록에서 이 계정을 찾을 수 없습니다",
+  "dash.missing": "대시보드를 보려면 Supabase에서 étape 25 SQL 스크립트(supabase-etape25.sql)를 실행하세요.",
+  "dash.kpis": "주요 수치",
+  "dash.k.accounts": "계정", "dash.k.new7": "7일간 +{n}",
+  "dash.k.activeToday": "오늘 활동한 계정", "dash.k.active": "7일 {a} · 30일 {b}",
+  "dash.k.reviewsToday": "오늘 복습한 카드", "dash.k.reviews7": "7일 {n}",
+  "dash.k.cards": "전체 카드", "dash.k.claude": "대기 중인 Claude 요청", "dash.k.claudeErr": "오류 {n}",
+  "dash.k.proposals": "확인 대기(전체 계정)",
+  "dash.r.accounts": "계정", "dash.r.new7": "새 계정(7일)", "dash.r.active1": "오늘 활동한 계정", "dash.r.active7": "활동한 계정(7일)",
+  "dash.r.active30": "활동한 계정(30일)", "dash.r.cards": "전체 카드", "dash.r.rev1": "오늘 복습한 카드", "dash.r.rev7": "복습한 카드(7일)",
+  "dash.r.cPending": "대기 중인 Claude 요청", "dash.r.cErr": "오류가 난 Claude 요청", "dash.r.props": "확인 대기 제안",
+  "dash.charts": "그래프", "dash.p30d": "30일", "dash.p12m": "12개월",
+  "dash.ch.reviews": "복습한 카드", "dash.ch.active": "활동한 계정", "dash.ch.new": "새 계정", "dash.ch.added": "추가한 카드", "dash.ch.claude": "Claude 요청",
+  "dash.total": "합계 {n}", "dash.maxDay": "최대 {n}", "dash.tap": "그래프를 누르면 값이 보입니다.",
+  "dash.ranks": "순위", "dash.p7": "7일", "dash.p30": "30일",
+  "dash.rk.active": "가장 활발한 계정", "dash.rk.streaks": "현재 최고 연속 기록", "dash.rk.success": "가장 높은 정답률", "dash.rk.lists": "가장 많이 복습한 목록",
+  "dash.rk.streaksNote": "하루에 카드 1장 이상 복습한 연속 일수(기간과 무관).",
+  "dash.rk.successNote": "기간 내 복습한 카드 50장 이상인 계정만.",
+  "dash.rk.listsNote": "세션에서 복습한 카드 수(목록별). ≈: 이전 버전 앱의 추정치(마지막 복습 날짜 기준).",
+  "dash.col.rank": "#", "dash.col.reviewed": "복습한 카드", "dash.col.sessions": "세션", "dash.col.minutes": "분",
+  "dash.col.streak": "연속(일)", "dash.col.since": "시작", "dash.col.rate": "정답률", "dash.col.correct": "맞힘",
+  "dash.col.list": "목록", "dash.col.total": "목록의 카드",
+  "dash.noData": "아직 데이터가 없습니다.",
+  "dash.alerts": "알림", "dash.inactiveDays": "비활동 기준(일)", "dash.noAlert": "알림이 없습니다.",
+  "dash.al.inactive": "{n}일 이상 활동 없는 계정", "dash.al.inactiveLine": "{n}일째 활동 없음 · 마지막 활동 {d}",
+  "dash.al.streak": "어제 끊긴 연속 기록", "dash.al.streakLine": "{n}일 연속 기록이 끊김",
+  "dash.al.claude": "오류가 난 Claude 요청",
+  "dash.al.props": "확인 대기 제안 500개 초과", "dash.al.propsLine": "제안 {n}개 대기 중",
+  "dash.al.sync": "반복된 동기화 오류(24시간)", "dash.al.syncLine": "오류 {n}회 · 마지막 {d}",
+  "dash.al.big": "크기 제한에 가까운 데이터", "dash.al.bigLine": "{key}: {kb}KB / 512KB",
+  "dash.seeAccount": "계정 보기", "dash.seeRequests": "요청 보기",
+  "al.a.admin_csv_export": "CSV 내보내기"
+});
+Object.assign(I18N.fr, {
+  "dash.accounts": "Comptes", "dash.nAccounts": "{n} comptes", "dash.csv": "Exporter CSV", "dash.csvDone": "Fichier CSV enregistré ({n} lignes)",
+  "dash.yes": "oui", "dash.c.created": "Créé le", "dash.c.last": "Dernière connexion", "dash.c.cards": "Cartes",
+  "dash.c.date": "Date", "dash.c.indicator": "Indicateur", "dash.c.value": "Valeur",
+  "dash.accGone": "Compte introuvable dans la liste",
+  "dash.missing": "Lancez le script SQL de l'étape 25 (supabase-etape25.sql) dans Supabase pour afficher le tableau de bord.",
+  "dash.kpis": "Chiffres clés",
+  "dash.k.accounts": "Comptes", "dash.k.new7": "+{n} sur 7 j",
+  "dash.k.activeToday": "Actifs aujourd'hui", "dash.k.active": "7 j : {a} · 30 j : {b}",
+  "dash.k.reviewsToday": "Révisions aujourd'hui", "dash.k.reviews7": "7 j : {n}",
+  "dash.k.cards": "Cartes (tous comptes)", "dash.k.claude": "Demandes Claude en attente", "dash.k.claudeErr": "en erreur : {n}",
+  "dash.k.proposals": "À valider (tous comptes)",
+  "dash.r.accounts": "Comptes", "dash.r.new7": "Nouveaux comptes (7 j)", "dash.r.active1": "Comptes actifs aujourd'hui", "dash.r.active7": "Comptes actifs (7 j)",
+  "dash.r.active30": "Comptes actifs (30 j)", "dash.r.cards": "Cartes (total)", "dash.r.rev1": "Révisions aujourd'hui", "dash.r.rev7": "Révisions (7 j)",
+  "dash.r.cPending": "Demandes Claude en attente", "dash.r.cErr": "Demandes Claude en erreur", "dash.r.props": "Propositions « À valider » en attente",
+  "dash.charts": "Graphiques", "dash.p30d": "30 jours", "dash.p12m": "12 mois",
+  "dash.ch.reviews": "Révisions", "dash.ch.active": "Comptes actifs", "dash.ch.new": "Nouveaux comptes", "dash.ch.added": "Cartes ajoutées", "dash.ch.claude": "Demandes Claude",
+  "dash.total": "Total : {n}", "dash.maxDay": "Maximum : {n}", "dash.tap": "Touchez un graphique pour voir la valeur d'un point.",
+  "dash.ranks": "Classements", "dash.p7": "7 jours", "dash.p30": "30 jours",
+  "dash.rk.active": "Comptes les plus actifs", "dash.rk.streaks": "Meilleures séries en cours", "dash.rk.success": "Meilleur taux de réussite", "dash.rk.lists": "Listes les plus révisées",
+  "dash.rk.streaksNote": "Jours consécutifs avec au moins une carte révisée (ne dépend pas de la période).",
+  "dash.rk.successNote": "Seulement les comptes avec 50 cartes révisées ou plus sur la période.",
+  "dash.rk.listsNote": "Cartes révisées par liste pendant les sessions. ≈ : estimation pour les anciennes versions de l'appli (date de dernière révision).",
+  "dash.col.rank": "#", "dash.col.reviewed": "Cartes révisées", "dash.col.sessions": "Sessions", "dash.col.minutes": "Minutes",
+  "dash.col.streak": "Série (jours)", "dash.col.since": "Depuis", "dash.col.rate": "Réussite", "dash.col.correct": "Sues",
+  "dash.col.list": "Liste", "dash.col.total": "Cartes de la liste",
+  "dash.noData": "Pas encore de données.",
+  "dash.alerts": "Alertes", "dash.inactiveDays": "Inactif depuis (jours)", "dash.noAlert": "Aucune alerte.",
+  "dash.al.inactive": "Comptes inactifs depuis {n} jours ou plus", "dash.al.inactiveLine": "inactif depuis {n} j · dernière activité : {d}",
+  "dash.al.streak": "Séries perdues hier", "dash.al.streakLine": "série de {n} jours perdue",
+  "dash.al.claude": "Demandes Claude en erreur",
+  "dash.al.props": "Plus de 500 propositions « À valider » en attente", "dash.al.propsLine": "{n} propositions en attente",
+  "dash.al.sync": "Erreurs de synchro répétées (24 h)", "dash.al.syncLine": "{n} erreurs · dernière : {d}",
+  "dash.al.big": "Données proches de la limite de taille", "dash.al.bigLine": "{key} : {kb} Ko / 512 Ko",
+  "dash.seeAccount": "Voir le compte", "dash.seeRequests": "Voir les demandes",
+  "al.a.admin_csv_export": "export CSV"
+});
+Object.assign(I18N.en, {
+  "dash.accounts": "Accounts", "dash.nAccounts": "{n} accounts", "dash.csv": "Export CSV", "dash.csvDone": "CSV file saved ({n} rows)",
+  "dash.yes": "yes", "dash.c.created": "Created", "dash.c.last": "Last sign-in", "dash.c.cards": "Cards",
+  "dash.c.date": "Date", "dash.c.indicator": "Indicator", "dash.c.value": "Value",
+  "dash.accGone": "Account not found in the list",
+  "dash.missing": "Run the step 25 SQL script (supabase-etape25.sql) in Supabase to show the dashboard.",
+  "dash.kpis": "Key figures",
+  "dash.k.accounts": "Accounts", "dash.k.new7": "+{n} in 7 days",
+  "dash.k.activeToday": "Active today", "dash.k.active": "7 d: {a} · 30 d: {b}",
+  "dash.k.reviewsToday": "Reviews today", "dash.k.reviews7": "7 d: {n}",
+  "dash.k.cards": "Cards (all accounts)", "dash.k.claude": "Claude requests waiting", "dash.k.claudeErr": "failed: {n}",
+  "dash.k.proposals": "To review (all accounts)",
+  "dash.r.accounts": "Accounts", "dash.r.new7": "New accounts (7 d)", "dash.r.active1": "Active accounts today", "dash.r.active7": "Active accounts (7 d)",
+  "dash.r.active30": "Active accounts (30 d)", "dash.r.cards": "Cards (total)", "dash.r.rev1": "Reviews today", "dash.r.rev7": "Reviews (7 d)",
+  "dash.r.cPending": "Claude requests waiting", "dash.r.cErr": "Failed Claude requests", "dash.r.props": "Suggestions waiting in “To review”",
+  "dash.charts": "Charts", "dash.p30d": "30 days", "dash.p12m": "12 months",
+  "dash.ch.reviews": "Reviews", "dash.ch.active": "Active accounts", "dash.ch.new": "New accounts", "dash.ch.added": "Cards added", "dash.ch.claude": "Claude requests",
+  "dash.total": "Total: {n}", "dash.maxDay": "Maximum: {n}", "dash.tap": "Tap a chart to see the value of a point.",
+  "dash.ranks": "Rankings", "dash.p7": "7 days", "dash.p30": "30 days",
+  "dash.rk.active": "Most active accounts", "dash.rk.streaks": "Best current streaks", "dash.rk.success": "Best success rate", "dash.rk.lists": "Most reviewed lists",
+  "dash.rk.streaksNote": "Consecutive days with at least one card reviewed (does not depend on the period).",
+  "dash.rk.successNote": "Only accounts with 50 or more cards reviewed in the period.",
+  "dash.rk.listsNote": "Cards reviewed per list during sessions. ≈: estimate for older app versions (last review date).",
+  "dash.col.rank": "#", "dash.col.reviewed": "Cards reviewed", "dash.col.sessions": "Sessions", "dash.col.minutes": "Minutes",
+  "dash.col.streak": "Streak (days)", "dash.col.since": "Since", "dash.col.rate": "Success", "dash.col.correct": "Known",
+  "dash.col.list": "List", "dash.col.total": "Cards in list",
+  "dash.noData": "No data yet.",
+  "dash.alerts": "Alerts", "dash.inactiveDays": "Inactive for (days)", "dash.noAlert": "No alerts.",
+  "dash.al.inactive": "Accounts inactive for {n} days or more", "dash.al.inactiveLine": "inactive for {n} d · last activity: {d}",
+  "dash.al.streak": "Streaks lost yesterday", "dash.al.streakLine": "{n}-day streak lost",
+  "dash.al.claude": "Failed Claude requests",
+  "dash.al.props": "More than 500 suggestions waiting in “To review”", "dash.al.propsLine": "{n} suggestions waiting",
+  "dash.al.sync": "Repeated sync errors (24 h)", "dash.al.syncLine": "{n} errors · last: {d}",
+  "dash.al.big": "Data close to the size limit", "dash.al.bigLine": "{key}: {kb} KB / 512 KB",
+  "dash.seeAccount": "View account", "dash.seeRequests": "View requests",
+  "al.a.admin_csv_export": "CSV export"
+});
+
+// Étape 26 : fiche d'un compte (admin).
+Object.assign(I18N.ko, {
+  "fc.open": "계정 상세",
+  "fc.missing": "이 계정의 복습 기록과 데이터 상태를 보려면 Supabase에서 étape 26 SQL 스크립트(supabase-etape26.sql)를 실행하세요.",
+  "fc.none": "선택한 계정이 없습니다. 계정 목록에서 여세요.",
+  "fc.title": "계정 상세 — {id}",
+  "fc.loading": "{id} 계정 정보를 계산하는 중…",
+  "fc.gone": "계정을 찾을 수 없습니다(삭제됨?).",
+  "fc.journal": "계정 활동 기록",
+  "fc.requests": "Claude 요청",
+  "fc.csv": "상세 정보 내보내기(CSV)",
+  "fc.actions": "작업…",
+  "fc.header": "기본 정보",
+  "fc.blocked": "차단됨",
+  "fc.active": "활성",
+  "fc.devSeen": "마지막 사용 {d}",
+  "fc.lastAct": "마지막 활동",
+  "fc.state": "상태",
+  "fc.streak": "연속 기록",
+  "fc.days": "{n}일",
+  "fc.best": "최고 기록",
+  "fc.freezes": "연속 기록 보호",
+  "fc.goal": "오늘의 목표",
+  "fc.uiLang": "화면 언어",
+  "fc.langs": "학습 언어",
+  "fc.devices": "기기",
+  "fc.friends": "친구",
+  "fc.streakNote": "연속 기록과 최고 기록: 하루에 카드 1장 이상 복습한 연속 일수(현재 규칙). 보호, 오늘의 목표, 친구는 28·29단계에서 추가됩니다.",
+  "fc.reviews": "복습",
+  "fc.pAll": "처음부터",
+  "fc.activeDays": "활동한 날",
+  "fc.logSince": "세션, 시간(분), 시간대, 모드: 활동 기록 기준(첫 기록 {d}). 복습한 카드: 그 이전 기록도 포함.",
+  "fc.noLog": "활동 기록이 아직 없습니다. 복습한 카드 수(기록)만 알 수 있습니다.",
+  "fc.modes": "사용한 모드",
+  "fc.calendar": "최근 12주",
+  "fc.calTap": "날짜를 누르면 자세히 보입니다.",
+  "fc.frozen": "보호됨",
+  "fc.calLine": "카드 {n}장 복습 · 세션 {s}회",
+  "fc.calNone": "활동 없음",
+  "fc.less": "적음",
+  "fc.more": "많음",
+  "fc.hours": "주로 공부하는 시간",
+  "fc.nSessions": "세션 {n}회",
+  "fc.hoursTap": "막대를 누르면 자세히 보입니다(이 기기의 시간).",
+  "fc.hourLine": "{h}시: 세션 {n}회 · 카드 {c}장",
+  "fc.content": "내용",
+  "fc.folders": "폴더",
+  "fc.lists": "목록",
+  "fc.cards": "카드",
+  "fc.gaps": "보완할 카드",
+  "fc.pending": "확인 대기",
+  "fc.shared": "공유 목록",
+  "fc.byTypeBox": "종류별·상자별 카드",
+  "fc.type": "종류",
+  "fc.box": "{n}번 상자",
+  "fc.total": "합계",
+  "fc.boxNote": "0번 상자 = 몰라요, 1-2번 = 다시 보기, 3-5번 = 알아요.",
+  "fc.byLang": "학습 언어별",
+  "fc.lang": "언어",
+  "fc.diff": "어려운 부분",
+  "fc.missed": "가장 많이 틀린 카드 20장",
+  "fc.tenses": "가장 많이 틀린 시제",
+  "fc.tense": "시제",
+  "fc.wrong": "틀림",
+  "fc.seen": "본 횟수",
+  "fc.blocked0": "0번 상자에 멈춘 카드({n})",
+  "fc.blockedNote": "{n}번 이상 봤지만 한 번도 맞히지 못한 카드.",
+  "fc.noBlocked": "멈춘 카드가 없습니다.",
+  "fc.seenN": "{n}번 봄",
+  "fc.andMore": "… 외 {n}개",
+  "fc.browse": "목록 보기",
+  "fc.readOnly": "읽기 전용: 여기서는 수정할 수 없습니다.",
+  "fc.search": "단어 검색",
+  "fc.nCards": "카드 {n}장",
+  "fc.noCards": "빈 목록",
+  "fc.nLists": "목록 {n}개",
+  "fc.noLists": "목록 없음",
+  "fc.found": "카드 {n}장 찾음",
+  "fc.health": "데이터 상태",
+  "fc.kb": "KB",
+  "fc.nChunks": "조각 {n}개",
+  "fc.biggest": "가장 큰 조각",
+  "fc.lastSync": "마지막 동기화 성공",
+  "fc.version": "데이터 형식 버전",
+  "fc.versionOld": "(다음 실행 때 {v}(으)로 업데이트)",
+  "fc.bigWarn": "{kb}KB가 넘는 조각 {n}개: 512KB 제한에 가깝습니다.",
+  "fc.chunks": "조각별 크기",
+  "fc.chunk": "조각",
+  "fc.size": "크기",
+  "fc.updated": "수정일",
+  "fc.issues": "동기화 오류와 충돌(30일)",
+  "fc.noIssues": "오류나 충돌이 없습니다.",
+  "fc.blockedOne": "0번 상자에 멈춤",
+  "fc.c.section": "구분"
+});
+Object.assign(I18N.fr, {
+  "fc.open": "Fiche du compte",
+  "fc.missing": "Lancez le script SQL de l'étape 26 (supabase-etape26.sql) dans Supabase pour voir les révisions et la santé des données de ce compte.",
+  "fc.none": "Aucun compte choisi. Ouvrez une fiche depuis la liste des comptes.",
+  "fc.title": "Fiche — {id}",
+  "fc.loading": "Calcul de la fiche de {id}…",
+  "fc.gone": "Compte introuvable (supprimé ?).",
+  "fc.journal": "Journal du compte",
+  "fc.requests": "Demandes à Claude",
+  "fc.csv": "Exporter la fiche (CSV)",
+  "fc.actions": "Actions…",
+  "fc.header": "En-tête",
+  "fc.blocked": "Bloqué",
+  "fc.active": "Actif",
+  "fc.devSeen": "vu le {d}",
+  "fc.lastAct": "Dernière activité",
+  "fc.state": "État",
+  "fc.streak": "Série",
+  "fc.days": "{n} j",
+  "fc.best": "Record",
+  "fc.freezes": "Gels",
+  "fc.goal": "Objectif du jour",
+  "fc.uiLang": "Langue de l'interface",
+  "fc.langs": "Langues apprises",
+  "fc.devices": "Appareils",
+  "fc.friends": "Amis",
+  "fc.streakNote": "Série et record : jours consécutifs avec au moins une carte révisée (règle actuelle). Gels, objectif du jour et amis arriveront aux étapes 28 et 29.",
+  "fc.reviews": "Révisions",
+  "fc.pAll": "Depuis le début",
+  "fc.activeDays": "Jours actifs",
+  "fc.logSince": "Sessions, minutes, heures et modes : depuis le journal (premier événement le {d}). Cartes révisées : aussi l'historique d'avant.",
+  "fc.noLog": "Pas encore d'événement dans le journal : seules les cartes révisées (historique) sont connues.",
+  "fc.modes": "Modes utilisés",
+  "fc.calendar": "12 dernières semaines",
+  "fc.calTap": "Touchez un jour pour voir le détail.",
+  "fc.frozen": "gelé",
+  "fc.calLine": "{n} cartes révisées · {s} sessions",
+  "fc.calNone": "aucune activité",
+  "fc.less": "moins",
+  "fc.more": "plus",
+  "fc.hours": "Heures habituelles",
+  "fc.nSessions": "{n} sessions",
+  "fc.hoursTap": "Touchez une barre pour voir le détail (heure de cet appareil).",
+  "fc.hourLine": "{h} h : {n} sessions · {c} cartes",
+  "fc.content": "Contenu",
+  "fc.folders": "Dossiers",
+  "fc.lists": "Listes",
+  "fc.cards": "Cartes",
+  "fc.gaps": "Cartes à compléter",
+  "fc.pending": "À valider en attente",
+  "fc.shared": "Listes partagées",
+  "fc.byTypeBox": "Cartes par type et par boîte",
+  "fc.type": "Type",
+  "fc.box": "Boîte {n}",
+  "fc.total": "Total",
+  "fc.boxNote": "Boîte 0 = pas su, boîtes 1-2 = à revoir, boîtes 3-5 = su.",
+  "fc.byLang": "Par langue apprise",
+  "fc.lang": "Langue",
+  "fc.diff": "Difficultés",
+  "fc.missed": "Les 20 cartes les plus ratées",
+  "fc.tenses": "Temps de conjugaison les plus ratés",
+  "fc.tense": "Temps",
+  "fc.wrong": "Ratés",
+  "fc.seen": "Vues",
+  "fc.blocked0": "Bloquées en boîte 0 ({n})",
+  "fc.blockedNote": "Cartes vues {n} fois ou plus, jamais sues.",
+  "fc.noBlocked": "Aucune carte bloquée.",
+  "fc.seenN": "vue {n} fois",
+  "fc.andMore": "… et {n} de plus",
+  "fc.browse": "Voir ses listes",
+  "fc.readOnly": "Lecture seule : rien ne peut être modifié ici.",
+  "fc.search": "Rechercher un mot",
+  "fc.nCards": "{n} cartes",
+  "fc.noCards": "Liste vide",
+  "fc.nLists": "{n} listes",
+  "fc.noLists": "Aucune liste",
+  "fc.found": "{n} cartes trouvées",
+  "fc.health": "Santé des données",
+  "fc.kb": "Ko",
+  "fc.nChunks": "{n} morceaux",
+  "fc.biggest": "Plus gros morceau",
+  "fc.lastSync": "Dernière synchro réussie",
+  "fc.version": "Version du format",
+  "fc.versionOld": "(mise à jour en {v} à la prochaine ouverture)",
+  "fc.bigWarn": "{n} morceau(x) de plus de {kb} Ko : proche de la limite de 512 Ko.",
+  "fc.chunks": "Taille par morceau",
+  "fc.chunk": "Morceau",
+  "fc.size": "Taille",
+  "fc.updated": "Modifié le",
+  "fc.issues": "Erreurs de synchro et conflits (30 jours)",
+  "fc.noIssues": "Aucune erreur ni conflit.",
+  "fc.blockedOne": "Bloquée en boîte 0",
+  "fc.c.section": "Section"
+});
+Object.assign(I18N.en, {
+  "fc.open": "Account details",
+  "fc.missing": "Run the step 26 SQL script (supabase-etape26.sql) in Supabase to see this account's reviews and data health.",
+  "fc.none": "No account selected. Open one from the account list.",
+  "fc.title": "Account — {id}",
+  "fc.loading": "Building the details of {id}…",
+  "fc.gone": "Account not found (deleted?).",
+  "fc.journal": "Account activity log",
+  "fc.requests": "Claude requests",
+  "fc.csv": "Export details (CSV)",
+  "fc.actions": "Actions…",
+  "fc.header": "Overview",
+  "fc.blocked": "Blocked",
+  "fc.active": "Active",
+  "fc.devSeen": "seen {d}",
+  "fc.lastAct": "Last activity",
+  "fc.state": "Status",
+  "fc.streak": "Streak",
+  "fc.days": "{n} d",
+  "fc.best": "Record",
+  "fc.freezes": "Freezes",
+  "fc.goal": "Daily goal",
+  "fc.uiLang": "Interface language",
+  "fc.langs": "Languages learned",
+  "fc.devices": "Devices",
+  "fc.friends": "Friends",
+  "fc.streakNote": "Streak and record: consecutive days with at least one card reviewed (current rule). Freezes, daily goal and friends come in steps 28 and 29.",
+  "fc.reviews": "Reviews",
+  "fc.pAll": "All time",
+  "fc.activeDays": "Active days",
+  "fc.logSince": "Sessions, minutes, hours and modes: from the activity log (first event {d}). Cards reviewed: earlier history too.",
+  "fc.noLog": "No activity log events yet: only cards reviewed (history) are known.",
+  "fc.modes": "Modes used",
+  "fc.calendar": "Last 12 weeks",
+  "fc.calTap": "Tap a day to see details.",
+  "fc.frozen": "frozen",
+  "fc.calLine": "{n} cards reviewed · {s} sessions",
+  "fc.calNone": "no activity",
+  "fc.less": "less",
+  "fc.more": "more",
+  "fc.hours": "Usual hours",
+  "fc.nSessions": "{n} sessions",
+  "fc.hoursTap": "Tap a bar to see details (this device's time).",
+  "fc.hourLine": "{h}:00: {n} sessions · {c} cards",
+  "fc.content": "Content",
+  "fc.folders": "Folders",
+  "fc.lists": "Lists",
+  "fc.cards": "Cards",
+  "fc.gaps": "Cards to fill",
+  "fc.pending": "Waiting in To review",
+  "fc.shared": "Shared lists",
+  "fc.byTypeBox": "Cards by type and box",
+  "fc.type": "Type",
+  "fc.box": "Box {n}",
+  "fc.total": "Total",
+  "fc.boxNote": "Box 0 = didn't know, boxes 1-2 = to review, boxes 3-5 = knew it.",
+  "fc.byLang": "By language learned",
+  "fc.lang": "Language",
+  "fc.diff": "Difficulties",
+  "fc.missed": "20 most missed cards",
+  "fc.tenses": "Most missed tenses",
+  "fc.tense": "Tense",
+  "fc.wrong": "Missed",
+  "fc.seen": "Seen",
+  "fc.blocked0": "Stuck in box 0 ({n})",
+  "fc.blockedNote": "Cards seen {n} times or more, never known.",
+  "fc.noBlocked": "No stuck cards.",
+  "fc.seenN": "seen {n} times",
+  "fc.andMore": "… and {n} more",
+  "fc.browse": "View their lists",
+  "fc.readOnly": "Read only: nothing can be changed here.",
+  "fc.search": "Search a word",
+  "fc.nCards": "{n} cards",
+  "fc.noCards": "Empty list",
+  "fc.nLists": "{n} lists",
+  "fc.noLists": "No lists",
+  "fc.found": "{n} cards found",
+  "fc.health": "Data health",
+  "fc.kb": "KB",
+  "fc.nChunks": "{n} pieces",
+  "fc.biggest": "Largest piece",
+  "fc.lastSync": "Last successful sync",
+  "fc.version": "Data format version",
+  "fc.versionOld": "(updated to {v} at next launch)",
+  "fc.bigWarn": "{n} piece(s) over {kb} KB: close to the 512 KB limit.",
+  "fc.chunks": "Size per piece",
+  "fc.chunk": "Piece",
+  "fc.size": "Size",
+  "fc.updated": "Modified",
+  "fc.issues": "Sync errors and conflicts (30 days)",
+  "fc.noIssues": "No errors or conflicts.",
+  "fc.blockedOne": "Stuck in box 0",
+  "fc.c.section": "Section"
+});
+
+
+// Étape 27 : gestion des comptes (admin) — blocage, annonces, listes modèles.
+Object.assign(I18N.fr, {
+  "st27.missing": "Lancez le script SQL de l'étape 27 (supabase-etape27.sql) dans Supabase pour utiliser cette fonction.",
+  "blk.title": "Compte bloqué",
+  "blk.text": "Le compte « {id} » a été bloqué par l'administrateur. Vous avez été déconnecté.",
+  "blk.reason": "Raison",
+  "blk.help": "Vos données sont conservées. Pour toute question, contactez l'administrateur.",
+  "blk.ok": "OK",
+  "blk.tag": "Bloqué",
+  "blk.block": "Bloquer le compte",
+  "blk.unblock": "Réactiver le compte",
+  "blk.ask": "Le compte « {id} » ne pourra plus utiliser l'appli : à sa prochaine ouverture, il verra la raison puis sera déconnecté. Ses données sont gardées.",
+  "blk.reasonHint": "Obligatoire, montrée à la personne (300 caractères max).",
+  "blk.askUnblock": "Réactiver le compte « {id} » ? Il pourra de nouveau se connecter, avec toutes ses données.",
+  "blk.err.reason": "Indiquez une raison.",
+  "blk.err.self": "Impossible de bloquer son propre compte.",
+  "blk.done": "Compte « {id} » bloqué",
+  "blk.undone": "Compte « {id} » réactivé",
+  "ann.title": "Annonce",
+  "ann.ok": "OK",
+  "an.open": "Annonces",
+  "an.title": "Annonces",
+  "an.intro": "Une annonce s'affiche une seule fois, au lancement de l'appli, jusqu'à ce que la personne touche « OK ». Elle est montrée dans la langue de l'interface, sinon dans une autre langue disponible.",
+  "an.new": "Nouvelle annonce",
+  "an.editTitle": "Modifier l'annonce",
+  "an.empty": "Aucune annonce pour l'instant.",
+  "an.st.active": "En cours", "an.st.scheduled": "Programmée", "an.st.ended": "Terminée", "an.st.inactive": "Désactivée",
+  "an.toAll": "Tous les comptes",
+  "an.toSome": "Comptes choisis",
+  "an.toN": "{n} compte(s)",
+  "an.langs": "Langues",
+  "an.from": "Du {d}",
+  "an.to": "au {d}",
+  "an.noEnd": "sans date de fin",
+  "an.reads": "Lue par {r} / {n}",
+  "an.edit": "Modifier",
+  "an.readsBtn": "Lectures",
+  "an.off": "Désactiver",
+  "an.on": "Réactiver",
+  "an.langHint": "Remplissez au moins une langue. Une personne dont la langue manque voit une autre langue disponible.",
+  "an.fTitle": "Titre",
+  "an.fBody": "Texte",
+  "an.titlePh": "Titre (facultatif)",
+  "an.bodyPh": "Texte de l'annonce",
+  "an.target": "Pour qui",
+  "an.targetHint": "Tous les comptes = tous sauf les admins (aussi les comptes créés plus tard).",
+  "an.nChosen": "{n} compte(s) choisi(s)",
+  "an.start": "Début",
+  "an.end": "Fin",
+  "an.endHint": "Vide = sans fin.",
+  "an.err.text": "Écrivez l'annonce dans au moins une langue.",
+  "an.err.targets": "Choisissez au moins un compte.",
+  "an.err.dates": "La fin doit être après le début.",
+  "an.saved": "Annonce enregistrée",
+  "an.offDone": "Annonce désactivée",
+  "an.onDone": "Annonce réactivée",
+  "an.readsTitle": "Lectures",
+  "an.readBy": "Lue par {n} compte(s)",
+  "an.unreadBy": "Pas encore lue ({n})",
+  "an.nobody": "Personne pour l'instant.",
+  "an.everyone": "Tous les comptes visés l'ont lue.",
+  "tp.open": "Listes modèles",
+  "tp.title": "Listes modèles",
+  "tp.intro": "Cochez « Modèle » sur vos listes ou dossiers, puis envoyez-les à un ou plusieurs comptes : les cartes sont copiées sans progression (boîte 0).",
+  "tp.nMarked": "{n} modèle(s)",
+  "tp.metaFolder": "{l} liste(s) · {n} carte(s)",
+  "tp.metaList": "{n} carte(s)",
+  "tp.noLists": "Aucune liste dans votre compte.",
+  "tp.model": "Modèle",
+  "tp.send": "Envoyer…",
+  "tp.marked": "Marqué comme modèle",
+  "tp.unmarked": "Marque « Modèle » retirée",
+  "tp.recv": "Reçu par {n} compte(s) · dernier envoi le {d}",
+  "tp.never": "Jamais envoyé",
+  "tp.gone": "Modèles supprimés de vos listes",
+  "tp.unmark": "Retirer la marque",
+  "tp.goneOne": "Cette liste ou ce dossier n'existe plus.",
+  "tp.emptyTpl": "Ce modèle ne contient aucune carte.",
+  "tp.noAccounts": "Aucun autre compte.",
+  "tp.sendTitle": "Envoyer",
+  "tp.sendIntro": "« {name} » : {n} carte(s) dans {l} liste(s). À quels comptes l'envoyer ?",
+  "tp.all": "Tous les comptes ({n})",
+  "tp.next": "Suivant",
+  "tp.reading": "Lecture des comptes…",
+  "tp.toN": "{n} compte(s)",
+  "tp.dest": "Dossier de destination",
+  "tp.dNew": "Nouveau dossier",
+  "tp.dExist": "Dossier existant",
+  "tp.dNone": "Sans dossier",
+  "tp.folderName": "Nom du nouveau dossier",
+  "tp.folderExist": "Dossier",
+  "tp.existHint": "Entre parenthèses : nombre de comptes qui ont déjà ce dossier. Il est créé chez les autres.",
+  "tp.noneHint": "Les listes seront rangées dans « Sans dossier ».",
+  "tp.already": "{n} compte(s) ont déjà reçu ce modèle : {ids}.",
+  "tp.addNew": "Ajouter seulement les nouvelles cartes",
+  "tp.skip": "Ignorer ces comptes",
+  "tp.alreadyHint": "Les nouvelles cartes vont dans la liste déjà reçue si elle existe encore, sinon dans une nouvelle liste.",
+  "tp.go": "Envoyer",
+  "tp.err.folder": "Indiquez le nom du dossier.",
+  "tp.sending": "Envoi en cours…",
+  "tp.reportTitle": "Bilan de l'envoi",
+  "tp.sum": "Comptes — envoyé : {sent} · nouvelles cartes ajoutées : {added} · déjà à jour : {up} · ignorés : {skip} · erreurs : {err} — {cards} carte(s) copiée(s) en tout.",
+  "tp.result": "Résultat",
+  "tp.r.sent": "Envoyé : {n} carte(s), {l} liste(s)",
+  "tp.r.added": "Nouvelles cartes : {n} (nouvelles listes : {l})",
+  "tp.r.uptodate": "Déjà à jour, rien à ajouter",
+  "tp.r.skipped": "Ignoré (déjà reçu)",
+  "tp.r.error": "Erreur, rien n'a été envoyé",
+  "tp.r.notrack": "Cartes envoyées, mais le suivi n'a pas été enregistré",
+  "al.a.admin_block": "compte bloqué",
+  "al.a.admin_unblock": "compte réactivé",
+  "al.a.admin_announce_create": "annonce créée",
+  "al.a.admin_announce_edit": "annonce modifiée",
+  "al.a.admin_announce_on": "annonce réactivée",
+  "al.a.admin_announce_off": "annonce désactivée",
+  "al.a.admin_template_send": "modèle envoyé"
+});
+Object.assign(I18N.ko, {
+  "st27.missing": "이 기능을 사용하려면 Supabase에서 27단계 SQL 스크립트(supabase-etape27.sql)를 실행하세요.",
+  "blk.title": "차단된 계정",
+  "blk.text": "관리자가 「{id}」 계정을 차단했습니다. 로그아웃되었습니다.",
+  "blk.reason": "사유",
+  "blk.help": "데이터는 그대로 보관됩니다. 문의 사항은 관리자에게 연락하세요.",
+  "blk.ok": "확인",
+  "blk.tag": "차단됨",
+  "blk.block": "계정 차단",
+  "blk.unblock": "계정 다시 활성화",
+  "blk.ask": "「{id}」 계정은 더 이상 앱을 사용할 수 없습니다. 다음에 열 때 사유가 표시되고 로그아웃됩니다. 데이터는 보관됩니다.",
+  "blk.reasonHint": "필수, 사용자에게 표시됩니다 (최대 300자).",
+  "blk.askUnblock": "「{id}」 계정을 다시 활성화할까요? 모든 데이터와 함께 다시 로그인할 수 있습니다.",
+  "blk.err.reason": "사유를 입력하세요.",
+  "blk.err.self": "자신의 계정은 차단할 수 없습니다.",
+  "blk.done": "「{id}」 계정 차단됨",
+  "blk.undone": "「{id}」 계정 다시 활성화됨",
+  "ann.title": "공지",
+  "ann.ok": "확인",
+  "an.open": "공지",
+  "an.title": "공지",
+  "an.intro": "공지는 앱을 열 때 한 번만 표시되며, 사용자가 「확인」을 누를 때까지 남아 있습니다. 화면 언어로 표시되고, 없으면 다른 언어로 표시됩니다.",
+  "an.new": "새 공지",
+  "an.editTitle": "공지 수정",
+  "an.empty": "아직 공지가 없습니다.",
+  "an.st.active": "게시 중", "an.st.scheduled": "예약됨", "an.st.ended": "종료됨", "an.st.inactive": "비활성",
+  "an.toAll": "모든 계정",
+  "an.toSome": "선택한 계정",
+  "an.toN": "계정 {n}개",
+  "an.langs": "언어",
+  "an.from": "{d}부터",
+  "an.to": "{d}까지",
+  "an.noEnd": "종료일 없음",
+  "an.reads": "읽음 {r} / {n}",
+  "an.edit": "수정",
+  "an.readsBtn": "읽은 계정",
+  "an.off": "비활성화",
+  "an.on": "다시 활성화",
+  "an.langHint": "최소 한 언어는 입력하세요. 해당 언어가 없으면 다른 언어로 표시됩니다.",
+  "an.fTitle": "제목",
+  "an.fBody": "내용",
+  "an.titlePh": "제목 (선택)",
+  "an.bodyPh": "공지 내용",
+  "an.target": "대상",
+  "an.targetHint": "모든 계정 = 관리자를 제외한 모든 계정 (나중에 만든 계정 포함).",
+  "an.nChosen": "계정 {n}개 선택됨",
+  "an.start": "시작",
+  "an.end": "종료",
+  "an.endHint": "비워 두면 종료일 없음.",
+  "an.err.text": "최소 한 언어로 공지를 작성하세요.",
+  "an.err.targets": "계정을 하나 이상 선택하세요.",
+  "an.err.dates": "종료는 시작 이후여야 합니다.",
+  "an.saved": "공지 저장됨",
+  "an.offDone": "공지 비활성화됨",
+  "an.onDone": "공지 다시 활성화됨",
+  "an.readsTitle": "읽은 계정",
+  "an.readBy": "읽은 계정 {n}개",
+  "an.unreadBy": "아직 안 읽음 ({n})",
+  "an.nobody": "아직 없습니다.",
+  "an.everyone": "대상 계정이 모두 읽었습니다.",
+  "tp.open": "템플릿 목록",
+  "tp.title": "템플릿 목록",
+  "tp.intro": "목록이나 폴더에 「템플릿」을 체크한 뒤 하나 이상의 계정에 보내세요. 카드는 학습 기록 없이 (0번 상자) 복사됩니다.",
+  "tp.nMarked": "템플릿 {n}개",
+  "tp.metaFolder": "목록 {l}개 · 카드 {n}장",
+  "tp.metaList": "카드 {n}장",
+  "tp.noLists": "계정에 목록이 없습니다.",
+  "tp.model": "템플릿",
+  "tp.send": "보내기…",
+  "tp.marked": "템플릿으로 표시됨",
+  "tp.unmarked": "템플릿 표시 해제됨",
+  "tp.recv": "계정 {n}개가 받음 · 마지막 전송 {d}",
+  "tp.never": "보낸 적 없음",
+  "tp.gone": "목록에서 삭제된 템플릿",
+  "tp.unmark": "표시 해제",
+  "tp.goneOne": "이 목록 또는 폴더가 더 이상 없습니다.",
+  "tp.emptyTpl": "이 템플릿에는 카드가 없습니다.",
+  "tp.noAccounts": "다른 계정이 없습니다.",
+  "tp.sendTitle": "보내기",
+  "tp.sendIntro": "「{name}」: 목록 {l}개에 카드 {n}장. 어느 계정에 보낼까요?",
+  "tp.all": "모든 계정 ({n})",
+  "tp.next": "다음",
+  "tp.reading": "계정 읽는 중…",
+  "tp.toN": "계정 {n}개",
+  "tp.dest": "보낼 폴더",
+  "tp.dNew": "새 폴더",
+  "tp.dExist": "기존 폴더",
+  "tp.dNone": "폴더 없음",
+  "tp.folderName": "새 폴더 이름",
+  "tp.folderExist": "폴더",
+  "tp.existHint": "괄호 안: 이 폴더가 이미 있는 계정 수. 없는 계정에는 새로 만듭니다.",
+  "tp.noneHint": "목록은 「폴더 없음」에 들어갑니다.",
+  "tp.already": "계정 {n}개가 이미 이 템플릿을 받았습니다: {ids}.",
+  "tp.addNew": "새 카드만 추가",
+  "tp.skip": "이 계정 건너뛰기",
+  "tp.alreadyHint": "새 카드는 이미 받은 목록이 남아 있으면 그 목록에, 없으면 새 목록에 들어갑니다.",
+  "tp.go": "보내기",
+  "tp.err.folder": "폴더 이름을 입력하세요.",
+  "tp.sending": "보내는 중…",
+  "tp.reportTitle": "전송 결과",
+  "tp.sum": "계정 — 보냄: {sent} · 새 카드 추가: {added} · 이미 최신: {up} · 건너뜀: {skip} · 오류: {err} — 총 {cards}장 복사.",
+  "tp.result": "결과",
+  "tp.r.sent": "보냄: 카드 {n}장, 목록 {l}개",
+  "tp.r.added": "새 카드 {n}장 (새 목록 {l}개)",
+  "tp.r.uptodate": "이미 최신, 추가할 카드 없음",
+  "tp.r.skipped": "건너뜀 (이미 받음)",
+  "tp.r.error": "오류, 아무것도 보내지 않음",
+  "tp.r.notrack": "카드는 보냈지만 전송 기록을 저장하지 못함",
+  "al.a.admin_block": "계정 차단",
+  "al.a.admin_unblock": "계정 다시 활성화",
+  "al.a.admin_announce_create": "공지 작성",
+  "al.a.admin_announce_edit": "공지 수정",
+  "al.a.admin_announce_on": "공지 다시 활성화",
+  "al.a.admin_announce_off": "공지 비활성화",
+  "al.a.admin_template_send": "템플릿 전송"
+});
+Object.assign(I18N.en, {
+  "st27.missing": "Run the step 27 SQL script (supabase-etape27.sql) in Supabase to use this feature.",
+  "blk.title": "Account blocked",
+  "blk.text": "The account “{id}” has been blocked by the administrator. You have been signed out.",
+  "blk.reason": "Reason",
+  "blk.help": "Your data is kept. For any question, contact the administrator.",
+  "blk.ok": "OK",
+  "blk.tag": "Blocked",
+  "blk.block": "Block account",
+  "blk.unblock": "Reactivate account",
+  "blk.ask": "The account “{id}” will no longer be able to use the app: next time it opens, it will see the reason and be signed out. Its data is kept.",
+  "blk.reasonHint": "Required, shown to the person (300 characters max).",
+  "blk.askUnblock": "Reactivate the account “{id}”? It will be able to sign in again, with all its data.",
+  "blk.err.reason": "Enter a reason.",
+  "blk.err.self": "You can't block your own account.",
+  "blk.done": "Account “{id}” blocked",
+  "blk.undone": "Account “{id}” reactivated",
+  "ann.title": "Announcement",
+  "ann.ok": "OK",
+  "an.open": "Announcements",
+  "an.title": "Announcements",
+  "an.intro": "An announcement is shown only once, when the app opens, until the person taps “OK”. It is shown in the interface language, otherwise in another available language.",
+  "an.new": "New announcement",
+  "an.editTitle": "Edit announcement",
+  "an.empty": "No announcements yet.",
+  "an.st.active": "Live", "an.st.scheduled": "Scheduled", "an.st.ended": "Ended", "an.st.inactive": "Deactivated",
+  "an.toAll": "All accounts",
+  "an.toSome": "Chosen accounts",
+  "an.toN": "{n} account(s)",
+  "an.langs": "Languages",
+  "an.from": "From {d}",
+  "an.to": "to {d}",
+  "an.noEnd": "no end date",
+  "an.reads": "Read by {r} / {n}",
+  "an.edit": "Edit",
+  "an.readsBtn": "Reads",
+  "an.off": "Deactivate",
+  "an.on": "Reactivate",
+  "an.langHint": "Fill in at least one language. Someone whose language is missing sees another available language.",
+  "an.fTitle": "Title",
+  "an.fBody": "Text",
+  "an.titlePh": "Title (optional)",
+  "an.bodyPh": "Announcement text",
+  "an.target": "For whom",
+  "an.targetHint": "All accounts = everyone except admins (including accounts created later).",
+  "an.nChosen": "{n} account(s) chosen",
+  "an.start": "Start",
+  "an.end": "End",
+  "an.endHint": "Empty = no end.",
+  "an.err.text": "Write the announcement in at least one language.",
+  "an.err.targets": "Choose at least one account.",
+  "an.err.dates": "The end must be after the start.",
+  "an.saved": "Announcement saved",
+  "an.offDone": "Announcement deactivated",
+  "an.onDone": "Announcement reactivated",
+  "an.readsTitle": "Reads",
+  "an.readBy": "Read by {n} account(s)",
+  "an.unreadBy": "Not read yet ({n})",
+  "an.nobody": "Nobody yet.",
+  "an.everyone": "Every targeted account has read it.",
+  "tp.open": "Template lists",
+  "tp.title": "Template lists",
+  "tp.intro": "Tick “Template” on your lists or folders, then send them to one or more accounts: cards are copied without progress (box 0).",
+  "tp.nMarked": "{n} template(s)",
+  "tp.metaFolder": "{l} list(s) · {n} card(s)",
+  "tp.metaList": "{n} card(s)",
+  "tp.noLists": "No lists in your account.",
+  "tp.model": "Template",
+  "tp.send": "Send…",
+  "tp.marked": "Marked as template",
+  "tp.unmarked": "Template mark removed",
+  "tp.recv": "Received by {n} account(s) · last sent on {d}",
+  "tp.never": "Never sent",
+  "tp.gone": "Templates deleted from your lists",
+  "tp.unmark": "Remove mark",
+  "tp.goneOne": "This list or folder no longer exists.",
+  "tp.emptyTpl": "This template has no cards.",
+  "tp.noAccounts": "No other accounts.",
+  "tp.sendTitle": "Send",
+  "tp.sendIntro": "“{name}”: {n} card(s) in {l} list(s). Which accounts should get it?",
+  "tp.all": "All accounts ({n})",
+  "tp.next": "Next",
+  "tp.reading": "Reading accounts…",
+  "tp.toN": "{n} account(s)",
+  "tp.dest": "Destination folder",
+  "tp.dNew": "New folder",
+  "tp.dExist": "Existing folder",
+  "tp.dNone": "No folder",
+  "tp.folderName": "New folder name",
+  "tp.folderExist": "Folder",
+  "tp.existHint": "In brackets: number of accounts that already have this folder. It is created for the others.",
+  "tp.noneHint": "Lists will go to “No folder”.",
+  "tp.already": "{n} account(s) already received this template: {ids}.",
+  "tp.addNew": "Add only the new cards",
+  "tp.skip": "Skip these accounts",
+  "tp.alreadyHint": "New cards go into the list already received if it still exists, otherwise into a new list.",
+  "tp.go": "Send",
+  "tp.err.folder": "Enter the folder name.",
+  "tp.sending": "Sending…",
+  "tp.reportTitle": "Sending report",
+  "tp.sum": "Accounts — sent: {sent} · new cards added: {added} · already up to date: {up} · skipped: {skip} · errors: {err} — {cards} card(s) copied in total.",
+  "tp.result": "Result",
+  "tp.r.sent": "Sent: {n} card(s), {l} list(s)",
+  "tp.r.added": "New cards: {n} (new lists: {l})",
+  "tp.r.uptodate": "Already up to date, nothing to add",
+  "tp.r.skipped": "Skipped (already received)",
+  "tp.r.error": "Error, nothing was sent",
+  "tp.r.notrack": "Cards sent, but tracking was not saved",
+  "al.a.admin_block": "account blocked",
+  "al.a.admin_unblock": "account reactivated",
+  "al.a.admin_announce_create": "announcement created",
+  "al.a.admin_announce_edit": "announcement edited",
+  "al.a.admin_announce_on": "announcement reactivated",
+  "al.a.admin_announce_off": "announcement deactivated",
+  "al.a.admin_template_send": "template sent"
 });
 
 function t(key, vars) {
@@ -3544,8 +4449,10 @@ function applyTheme() {
 }
 
 // === NAVIGATION ===
-const SCREENS = ["home", "review", "lists", "stats", "pending", "settings", "admin", "requests", "adminreq", "adminlog"];
-const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal" }; // "settings" est réservé dans l'URL
+const SCREENS = ["home", "review", "lists", "stats", "pending", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl"];
+const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles" }; // "settings" est réservé dans l'URL
+const ADMIN_SCREENS = ["admin", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl"];
+const ADMIN_SB_SCREENS = ["adminreq", "adminlog", "adminfiche", "adminann", "admintpl"];   // mode Supabase seulement
 let currentScreen = "home";
 
 function screenFromHash() {
@@ -3555,8 +4462,8 @@ function screenFromHash() {
 function showScreen(name) {
   if (!Storage.getUser()) { showAuth(auth.view); return; } // personne de connecté : écran de connexion
   currentScreen = SCREENS.includes(name) ? name : "home";
-  if ((currentScreen === "admin" || currentScreen === "adminreq" || currentScreen === "adminlog") && !auth.isAdmin) currentScreen = "settings"; // Administration : admin seulement
-  if ((currentScreen === "adminreq" || currentScreen === "adminlog") && auth.mode !== "supabase") currentScreen = "admin";
+  if (ADMIN_SCREENS.includes(currentScreen) && !auth.isAdmin) currentScreen = "settings"; // Administration : admin seulement
+  if (ADMIN_SB_SCREENS.includes(currentScreen) && auth.mode !== "supabase") currentScreen = "admin";
   if (currentScreen === "requests" && !Queue.usable()) currentScreen = "settings"; // Demandes à Claude : mode Supabase seulement
   document.querySelectorAll(".screen").forEach(el => el.classList.toggle("active", el.id === "screen-" + currentScreen));
   document.querySelectorAll("nav.bottom button").forEach(b => b.classList.toggle("active", b.dataset.nav === currentScreen));
@@ -8383,6 +9290,8 @@ function openAskClaude(scope) {
 // l'appli marche comme avant. Jamais d'erreur visible pour l'utilisateur.
 // - Événements (table activity_log) : login, session, cards_added, import, validate, claude_request, pin_change, logout,
 //   sync_error, conflict, admin_*. data = petit objet, jamais le contenu des cartes.
+//   session (étape 26) : data.by_list = { id de liste: nombre de cartes révisées } (30 listes max), pour le classement
+//   « listes les plus révisées » et la fiche du compte.
 // - File locale par compte (localStorage vocabfr.activity:q:<identifiant>), envoyée regroupée toutes les 30 s, à la mise
 //   en arrière-plan et au retour de la connexion (fonction activity_add). Chaque événement a un id (uuid) choisi ici :
 //   un renvoi après une coupure n'est gardé qu'une fois. Un événement ne quitte la file qu'après un envoi réussi.
@@ -8464,6 +9373,12 @@ const Activity = (() => {
       if (typeof v === "number" && isFinite(v)) o[k] = Math.round(v * 100) / 100;
       else if (typeof v === "boolean") o[k] = v;
       else if (typeof v === "string") o[k] = v.slice(0, 120);
+      else if (k === "by_list" && v && typeof v === "object" && !Array.isArray(v)) {
+        // { id de liste: nombre de cartes } (événement session, étape 26) : 30 listes max, jamais de contenu
+        const m = {};
+        Object.keys(v).slice(0, 30).forEach(id => { const n = v[id]; if (id.length <= 60 && typeof n === "number" && isFinite(n) && n > 0) m[id] = Math.round(n); });
+        o[k] = m;
+      }
     });
     return o;
   }
@@ -8594,10 +9509,12 @@ const Activity = (() => {
       s.logged = true;
       const cards = ids.map(id => state.cards.find(c => c.id === id)).filter(Boolean);
       const langs = [...new Set(cards.map(c => cardLangs(c).target))];
+      const byList = {};                                 // ids des listes révisées + nombre de cartes (étape 26)
+      cards.forEach(c => { byList[c.listId] = (byList[c.listId] || 0) + 1; });
       log("session", {
         mode: s.mode, cards: ids.length, known: n.known, review: n.review, unknown: n.unknown,
         seconds: Math.round((Date.now() - num(s.startedAt, Date.now())) / 1000),
-        lists: new Set(cards.map(c => c.listId)).size, lang: langs.join(",")
+        lists: Object.keys(byList).length, lang: langs.join(","), by_list: byList
       });
     } catch (e) {}
   }
@@ -9343,45 +10260,126 @@ function showUndo(msg, snap) {
   undoTimer = setTimeout(hide, CONFIG.UNDO_MS);
 }
 
+// === ANNONCES ===
+// Étape 27, mode Supabase seulement (script supabase-etape27.sql). Au lancement (après l'ouverture des données),
+// fonction my_announcements : annonces actives qui visent ce compte et pas encore lues (un admin n'en reçoit pas).
+// Une fenêtre par annonce, l'une après l'autre, qui ne se ferme qu'avec « OK » ; « OK » enregistre la lecture
+// (announcement_mark_read), une seule fois par compte. Hors connexion : lecture gardée sur l'appareil
+// (vocabfr.ann:read:<compte>), l'annonce n'est plus montrée ici et la lecture est renvoyée au lancement suivant.
+// Langue : celle de l'interface, sinon une autre langue disponible (français, anglais, coréen, dans cet ordre).
+// Script pas lancé : rien ne s'affiche, sans erreur.
+const Ann = (() => {
+  const FALLBACK = ["fr", "en", "ko"];
+  let busy = false, token = 0;
+  const shown = new Set();
+  function key() { return CONFIG.LS_USER_PREFIX + "ann:read:" + auth.sbUid; }
+  function pending() { try { return arr(JSON.parse(localStorage.getItem(key()) || "[]")).filter(x => UUID_RE.test(String(x))); } catch (e) { return []; } }
+  function setPending(ids) { try { if (ids.length) localStorage.setItem(key(), JSON.stringify(ids.slice(-100))); else localStorage.removeItem(key()); } catch (e) {} }
+  // Langue à afficher : interface, puis français, anglais, coréen ; seulement une langue qui a un texte.
+  function pickLang(a, ui) {
+    const has = l => !!(a && ((a.body && String(a.body[l] || "").trim()) || (a.title && String(a.title[l] || "").trim())));
+    return [ui].concat(FALLBACK.filter(l => l !== ui)).find(has) || null;
+  }
+  function texts(a, ui) {
+    const l = pickLang(a, ui);
+    if (!l) return null;
+    return { lang: l, title: String((a.title && a.title[l]) || "").trim(), body: String((a.body && a.body[l]) || "").trim() };
+  }
+  async function send(id) {
+    try { await aqRpc("announcement_mark_read", { p_id: id }); return true; } catch (e) { return false; }
+  }
+  async function markRead(id) {
+    const p = pending();
+    if (!p.includes(id)) { p.push(id); setPending(p); }
+    if (await send(id)) setPending(pending().filter(x => x !== id));
+  }
+  async function flush() {
+    for (const id of pending()) { if (await send(id)) setPending(pending().filter(x => x !== id)); else break; }
+  }
+  function showOne(a) {
+    return new Promise(res => {
+      const tx = texts(a, state.settings.uiLang);
+      if (!tx) { res(); return; }
+      const body = el("div", "ann-body", tx.body);
+      body.lang = tx.lang;
+      openModal(tx.title || t("ann.title"), body, [
+        { label: t("ann.ok"), kind: "primary", onClick: () => { markRead(a.id); res(); } }
+      ], { locked: true });
+      const hs = document.querySelectorAll(".modal-bg .modal h3"), h = hs[hs.length - 1];
+      if (h && tx.title) h.lang = tx.lang;
+    });
+  }
+  async function check() {
+    if (busy || auth.mode !== "supabase" || !auth.sbUid || auth.isAdmin || !Supa.client()) return;
+    busy = true;
+    const my = ++token, who = auth.sbUid;
+    try {
+      await flush();
+      const list = arr(await aqRpc("my_announcements"));
+      const done = new Set(pending());
+      for (const a of list) {
+        if (my !== token || auth.sbUid !== who || !Storage.getUser()) break;
+        if (!a || !a.id || done.has(a.id) || shown.has(a.id)) continue;
+        shown.add(a.id);
+        await showOne(a);
+      }
+    } catch (e) { /* script de l'étape 27 pas lancé, ou hors connexion : rien */ }
+    finally { busy = false; }
+  }
+  function reset() { token++; busy = false; shown.clear(); }
+  return { check, reset, pickLang, texts };
+})();
+
 // === ADMINISTRATION ===
 // Écran #admin, visible seulement par l'admin (mode Supabase, compte présent dans la table admins).
 // Liste des comptes (fonction admin_list_accounts), réinitialiser le PIN (admin_reset_pin : changement obligatoire ensuite),
 // exporter / importer les données d'un compte, copier des dossiers ou des listes vers un autre compte,
 // supprimer un compte (admin_delete_account, double confirmation). Les fonctions SQL vérifient que l'appelant est admin.
+// Étape 26 : toucher un compte de la liste ouvre sa fiche (#admin-fiche, voir « Fiche d'un compte » plus bas) ;
+// les actions (PIN, export, import, copie, suppression) restent dans le menu « Actions… » de la fiche.
+// Étape 27 : bloquer / réactiver (menu « Actions… » de la fiche, état visible dans la liste et la fiche), annonces
+// (#admin-annonces) et listes modèles (#admin-modeles) — voir « Gestion des comptes (admin, étape 27) » plus bas.
 // Données d'un autre compte : lignes user_data lues / écrites directement (RLS : accès total pour l'admin).
 // Si ce compte est ouvert sur un autre appareil, il verra un conflit à son prochain envoi (choix des données à garder).
-const adm = { list: null, loading: false, error: false };
+// Étape 27 : adm.blocked = { user_id: { reason, at } } (fonction admin_blocked_accounts) ; adm.blockMissing = script pas lancé.
+const adm = { list: null, loading: false, error: false, focus: null, blocked: {}, blockMissing: false };
 
+// Date au format AAAA-MM-JJ (exports CSV), vide si absente.
+function admDay(ts) { if (!ts) return ""; const d = new Date(ts); return isNaN(d) ? String(ts).slice(0, 10) : todayStr(d); }
 function admDate(ts) {
   if (!ts) return t("admin.never");
   try { return new Date(ts).toLocaleDateString(state.settings.uiLang); } catch (e) { return String(ts).slice(0, 10); }
 }
-function renderAdmin() {
-  const root = $("#screen-admin");
+// Liste des comptes : écran #admin-comptes (depuis l'étape 25, l'accueil de l'Administration est le tableau de bord).
+// adm.focus = compte à montrer (lien « voir le compte » du tableau de bord) : ligne mise en évidence et amenée à l'écran.
+function renderAdminAccounts() {
+  const root = $("#screen-adminacc");
+  if (!root) return;
   root.textContent = "";
-  const back = el("button", "link-btn", t("admin.back"));
-  back.addEventListener("click", () => { location.hash = "#" + HASH_OF.settings; });
+  const back = el("button", "link-btn", t("aq.back"));
+  back.addEventListener("click", () => { location.hash = "#" + HASH_OF.admin; });
   root.appendChild(back);
   const top = el("div", "adm-top");
-  top.appendChild(el("h2", null, t("admin.title")));
+  top.appendChild(el("h2", null, t("dash.accounts")));
   const ref = el("button", "link-btn", t("admin.refresh"));
   ref.addEventListener("click", loadAdmin);
   top.appendChild(ref);
   root.appendChild(top);
-  const req = el("button", "btn adm-reqbtn", t("aq.open"));      // suivi des demandes à Claude (étape 23)
-  req.addEventListener("click", () => { location.hash = "#" + HASH_OF.adminreq; });
-  const jr = el("button", "btn adm-reqbtn", t("al.open"));         // journal d'activité (étape 24)
-  jr.addEventListener("click", () => { location.hash = "#" + HASH_OF.adminlog; });
-  const nav = el("div", "btns two adm-navbtns");
-  nav.append(req, jr);
-  root.appendChild(nav);
   if (!adm.list && !adm.loading && !adm.error) { loadAdmin(); return; }
   if (adm.loading) { root.appendChild(el("div", "empty", t("admin.loading"))); return; }
   if (adm.error || !adm.list) { root.appendChild(el("div", "empty", t("admin.error"))); return; }
   if (!adm.list.length) { root.appendChild(el("div", "empty", t("admin.empty"))); return; }
+  if (adm.blockMissing) root.appendChild(el("div", "card q-err", t("st27.missing")));
+  const bar = el("div", "al-bar");
+  bar.appendChild(el("span", "muted", t("dash.nAccounts", { n: adm.list.length })));
+  const csv = el("button", "btn", t("dash.csv"));
+  csv.addEventListener("click", adminAccountsCsv);
+  bar.appendChild(csv);
+  root.appendChild(bar);
   const box = el("div", "items");
+  let focusRow = null;
   adm.list.forEach(a => {
-    const row = el("button", "item");
+    const row = el("button", "item" + (adm.focus === a.user_id ? " adm-focus" : ""));
     const main = el("div", "main");
     main.appendChild(el("div", "t1", a.identifiant));
     main.appendChild(el("div", "t2", [t("admin.created", { d: admDate(a.created_at) }), t("admin.last", { d: admDate(a.last_login) }), t("admin.cards", { n: num(Number(a.nb_cartes), 0) })].join(" · ")));
@@ -9389,26 +10387,55 @@ function renderAdmin() {
     if (a.user_id === auth.sbUid) tags.appendChild(el("span", "tag", t("admin.you")));
     if (a.est_admin) tags.appendChild(el("span", "tag", t("admin.isAdmin")));
     if (a.pin_a_changer) tags.appendChild(el("span", "tag warn", t("admin.mustChange")));
+    if (admIsBlocked(a.user_id)) tags.appendChild(el("span", "tag bad", t("blk.tag")));
     if (tags.childNodes.length) main.appendChild(tags);
     row.append(main, el("span", "chev", "›"));
-    row.addEventListener("click", () => adminActions(a));
+    row.addEventListener("click", () => openAccountFiche(a.user_id, "adminacc"));   // fiche du compte (étape 26)
+    if (adm.focus === a.user_id) focusRow = row;
     box.appendChild(row);
   });
   root.appendChild(box);
+  if (focusRow) {
+    const r = focusRow;
+    setTimeout(() => { try { r.scrollIntoView({ block: "center" }); } catch (e) {} }, 0);
+  } else if (adm.focus) toast(t("dash.accGone"));
+  adm.focus = null;   // une seule fois
 }
 async function loadAdmin() {
   adm.loading = true; adm.error = false;
-  if (currentScreen === "admin") renderAdmin();
+  if (currentScreen === "adminacc") renderAdminAccounts();
   try { adm.list = arr(await Supa.listAccounts()); }
   catch (e) { adm.list = null; adm.error = true; }
+  await admLoadBlocked();
   adm.loading = false;
-  if (currentScreen === "admin") renderAdmin();
+  if (currentScreen === "adminacc") renderAdminAccounts();
+  else if (currentScreen === "admin") renderAdmin();
   alCleanup();   // journal : événements de plus de 90 jours effacés (une fois par ouverture de l'appli)
+}
+// Comptes bloqués (étape 27). Script pas lancé : adm.blockMissing, la liste des comptes marche comme avant.
+async function admLoadBlocked() {
+  try {
+    const m = {};
+    arr(await aqRpc("admin_blocked_accounts")).forEach(b => { if (b && b.user_id) m[b.user_id] = { reason: String(b.blocked_reason || ""), at: b.blocked_at || null }; });
+    adm.blocked = m; adm.blockMissing = false;
+  } catch (e) { adm.blocked = {}; adm.blockMissing = alIsMissing(e); }
+}
+function admIsBlocked(userId) { return !!(adm.blocked && adm.blocked[userId]); }
+// Export CSV de la liste des comptes.
+function adminAccountsCsv() {
+  const yes = t("dash.yes"), no = "";
+  const rows = arr(adm.list).map(a => [a.identifiant, admDay(a.created_at), admDay(a.last_login), num(Number(a.nb_cartes), 0),
+    a.est_admin ? yes : no, a.pin_a_changer ? yes : no, admIsBlocked(a.user_id) ? yes : no, admIsBlocked(a.user_id) ? adm.blocked[a.user_id].reason : ""]);
+  dashSaveCsv("comptes", [t("aq.f.account"), t("dash.c.created"), t("dash.c.last"), t("dash.c.cards"), t("admin.isAdmin"), t("admin.mustChange"),
+    t("blk.tag"), t("blk.reason")], rows);
 }
 function adminActions(a) {
   const self = a.user_id === auth.sbUid;
   const acts = [];
   if (!self) acts.push({ label: t("admin.resetPin"), onClick: () => { setTimeout(() => adminResetPin(a), 0); } });
+  // Étape 27 : bloquer / réactiver (jamais son propre compte)
+  if (!self && admIsBlocked(a.user_id)) acts.push({ label: t("blk.unblock"), onClick: () => { setTimeout(() => adminUnblock(a), 0); } });
+  else if (!self) acts.push({ label: t("blk.block"), kind: "danger", onClick: () => { setTimeout(() => adminBlock(a), 0); } });
   acts.push({ label: t("admin.export"), onClick: () => { adminExport(a); } });
   acts.push({ label: t("admin.import"), onClick: () => { setTimeout(() => adminImport(a), 0); } });
   if (adm.list.length > 1) acts.push({ label: t("admin.copy"), onClick: () => { adminCopy(a); } });
@@ -9477,6 +10504,69 @@ function adminDelete(a) {
     } }
   ]);
 }
+// --- Bloquer / réactiver un compte (étape 27) : admin_block_account (raison obligatoire), admin_unblock_account ---
+// Le compte bloqué voit l'écran « Compte bloqué » à sa prochaine connexion (ou ouverture) ; ses données sont gardées.
+function admAfterBlock() {
+  loadAdmin();
+  if (currentScreen === "adminfiche") { fc.started = false; renderAdminFiche(); }
+}
+function admBlockErr(e) {
+  if (alIsMissing(e)) return t("st27.missing");
+  const h = String((e && e.hint) || "");
+  if (h === "self") return t("blk.err.self");
+  if (h === "reason") return t("blk.err.reason");
+  if (h === "gone") return t("dash.accGone");
+  return aqErrText(e);
+}
+function adminBlock(a) {
+  if (a.user_id === auth.sbUid) { toast(t("blk.err.self")); return; }
+  const wrap = el("div");
+  wrap.appendChild(el("p", null, t("blk.ask", { id: a.identifiant })));
+  const ta = el("textarea", "input blk-ta");
+  ta.maxLength = 300; ta.rows = 3;
+  wrap.appendChild(formField(t("blk.reason"), ta, true, t("blk.reasonHint")));
+  let busy = false;
+  const close = openModal(t("blk.block") + " — " + a.identifiant, wrap, [
+    { label: t("cancel") },
+    { label: t("blk.block"), kind: "danger", onClick: () => {
+      const reason = ta.value.trim();
+      if (!reason) { toast(t("blk.err.reason")); ta.focus(); return false; }
+      if (busy) return false;
+      busy = true;
+      (async () => {
+        try {
+          await aqRpc("admin_block_account", { p_user: a.user_id, p_reason: reason });
+          Activity.log("admin_block", { target: a.identifiant, reason: reason.slice(0, 100) });
+          toast(t("blk.done", { id: a.identifiant }));
+          close();
+          admAfterBlock();
+        } catch (e) { busy = false; toast(admBlockErr(e)); }
+      })();
+      return false;
+    } }
+  ]);
+  setTimeout(() => { try { ta.focus(); } catch (e) {} }, 50);
+}
+function adminUnblock(a) {
+  const b = adm.blocked[a.user_id] || {};
+  const wrap = el("div");
+  wrap.appendChild(el("p", null, t("blk.askUnblock", { id: a.identifiant })));
+  if (b.reason) wrap.appendChild(el("p", "muted", t("blk.reason") + " : " + b.reason));
+  openModal(t("blk.unblock") + " — " + a.identifiant, wrap, [
+    { label: t("cancel") },
+    { label: t("blk.unblock"), kind: "primary", onClick: () => {
+      (async () => {
+        try {
+          await aqRpc("admin_unblock_account", { p_user: a.user_id });
+          Activity.log("admin_unblock", { target: a.identifiant });
+          toast(t("blk.undone", { id: a.identifiant }));
+          admAfterBlock();
+        } catch (e) { toast(admBlockErr(e)); }
+      })();
+    } }
+  ]);
+}
+
 // Copie de dossiers et de listes vers un autre compte : nouvelles cartes sans progression.
 // Les langues effectives sont recopiées (les réglages par défaut des deux comptes peuvent différer).
 async function adminCopy(src) {
@@ -9565,6 +10655,404 @@ async function runAdminCopy(d, dest, selF, selL) {
     Activity.log("admin_copy", { target: dest.identifiant, folders: Object.keys(fMap).length, lists: Object.keys(lMap).length, cards: n });
     loadAdmin();
   } catch (e) { toast(t("admin.err")); }
+}
+
+// --- Tableau de bord (admin, étape 25) : écran #admin, accueil de l'Administration ---
+// Fonctions SQL du script supabase-etape25.sql (security definer, contrôle is_admin()) : admin_dash_kpis (chiffres clés,
+// + ménage du journal > 90 j et du contenu des demandes Claude > 30 j), admin_dash_series (30 jours / 12 mois),
+// admin_dash_rankings (top 10, 7 j / 30 j), admin_dash_alerts (seuil d'inactivité réglable, 7 j par défaut).
+// « Aujourd'hui » = date dans le fuseau horaire de cet appareil. Graphiques SVG dessinés ici, à la largeur de l'écran ;
+// toucher un graphique = valeur du point le plus proche. Export CSV (";" + UTF-8 avec BOM) sur chaque tableau.
+// Script pas lancé : message « Lancez le script SQL de l'étape 25 », les autres écrans admin restent accessibles.
+const DASH_CHARTS = [["reviews", "dash.ch.reviews"], ["active", "dash.ch.active"], ["new_accounts", "dash.ch.new"], ["cards_added", "dash.ch.added"], ["claude", "dash.ch.claude"]];
+const DASH_RANKS = [["active", "dash.rk.active"], ["streaks", "dash.rk.streaks"], ["success", "dash.rk.success"], ["lists", "dash.rk.lists"]];
+const dash = {
+  kpis: null, series: {}, period: "day", rank: {}, rankDays: 7, alerts: null, inactive: 7,
+  busy: {}, err: {}, missing: false, started: false, sel: {}
+};
+function dashTz() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; } catch (e) { return "UTC"; } }
+function dashRerender() { if (currentScreen === "admin") renderAdmin(); }
+// Charge une partie du tableau de bord ("kpis" | "series" | "rank" | "alerts"). Les autres parties restent affichées.
+async function dashLoadPart(part) {
+  const tz = dashTz();
+  dash.busy[part] = true; dash.err[part] = "";
+  dashRerender();
+  try {
+    if (part === "kpis") {
+      const k = await aqRpc("admin_dash_kpis", { p_tz: tz });
+      dash.kpis = k || {};
+      alCleaned = true; aq.cleaned = true;            // ménage déjà fait par admin_dash_kpis
+      if (Number(dash.kpis.cleaned_log) > 0) Activity.log("admin_activity_cleanup", { n: Number(dash.kpis.cleaned_log) });
+    } else if (part === "series") {
+      const p = dash.period;
+      dash.series[p] = arr(await aqRpc("admin_dash_series", { p_tz: tz, p_period: p }));
+    } else if (part === "rank") {
+      const d = dash.rankDays;
+      dash.rank[d] = (await aqRpc("admin_dash_rankings", { p_tz: tz, p_days: d })) || {};
+    } else if (part === "alerts") {
+      dash.alerts = (await aqRpc("admin_dash_alerts", { p_tz: tz, p_inactive: dash.inactive })) || {};
+    }
+    dash.missing = false;
+  } catch (e) {
+    if (alIsMissing(e)) {
+      dash.missing = true;
+      alCleanup();                                       // ménage par les fonctions des étapes 23 et 24
+      if (!aq.cleaned) { aq.cleaned = true; aqRpc("admin_claude_cleanup").catch(() => {}); }
+    }
+    dash.err[part] = alIsMissing(e) ? t("dash.missing") : aqErrText(e);
+  }
+  dash.busy[part] = false;
+  dashRerender();
+}
+function dashReload() {
+  dash.started = true; dash.series = {}; dash.rank = {}; dash.sel = {};
+  ["kpis", "series", "rank", "alerts"].forEach(dashLoadPart);
+}
+// Lien « voir le compte » (alertes, classements) : ouvre la fiche du compte (étape 26).
+function dashGoAccount(userId) { openAccountFiche(userId, "admin"); }
+// Historique des demandes Claude filtré (compte, statut).
+function dashGoRequests(userId, status) {
+  aq.f = { user: userId || "", kind: "", status: status || "", days: "" };
+  aq.page = 0; aq.hist = null; aq.histErr = "";
+  location.hash = "#" + HASH_OF.adminreq;
+  if (aq.stats) aqLoadHist().then(() => { const h = $("#aqHist"); if (h) try { h.scrollIntoView({ block: "start" }); } catch (e) {} });
+}
+// Export CSV commun aux tableaux de l'administration.
+async function dashSaveCsv(base, head, rows) {
+  const csv = csvText(head, rows);
+  const okSave = await fxSave(base + "-" + todayStr() + ".csv", inClaude() ? csv : new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  if (okSave === true) { toast(t("dash.csvDone", { n: rows.length })); Activity.log("admin_csv_export", { table: base, n: rows.length }); }
+  else if (okSave !== "declined") showExportText(csv);
+}
+function dashNum(v) { return num(Number(v), 0); }
+// Taux pour le CSV : nombre seul, virgule décimale si la langue de l'interface l'utilise (lisible par Excel).
+function dashRateCsv(v) { try { return (Number(v) || 0).toLocaleString(state.settings.uiLang, { maximumFractionDigits: 1, useGrouping: false }); } catch (e) { return String(Number(v) || 0); } }
+function dashRate(v) { try { return (Number(v) || 0).toLocaleString(state.settings.uiLang, { maximumFractionDigits: 1 }) + " %"; } catch (e) { return (Number(v) || 0) + " %"; } }
+function dashFmt(v) { try { return dashNum(v).toLocaleString(state.settings.uiLang); } catch (e) { return String(dashNum(v)); } }
+function dashBucketDate(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s || "")); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(NaN); }
+function dashBucketLabel(s, month, long) {
+  const d = dashBucketDate(s);
+  if (isNaN(d)) return String(s || "");
+  const o = month ? (long ? { month: "long", year: "numeric" } : { month: "short" })
+                  : (long ? { weekday: "short", day: "numeric", month: "long" } : { day: "numeric", month: "numeric" });
+  try { return d.toLocaleDateString(state.settings.uiLang, o); } catch (e) { return String(s); }
+}
+
+function renderAdmin() {
+  const root = $("#screen-admin");
+  if (!root) return;
+  root.textContent = "";
+  const back = el("button", "link-btn", t("admin.back"));
+  back.addEventListener("click", () => { location.hash = "#" + HASH_OF.settings; });
+  root.appendChild(back);
+  const top = el("div", "adm-top");
+  top.appendChild(el("h2", null, t("admin.title")));
+  const ref = el("button", "link-btn", t("admin.refresh"));
+  ref.addEventListener("click", dashReload);
+  top.appendChild(ref);
+  root.appendChild(top);
+  // Autres écrans de l'administration
+  const nav = el("div", "dash-nav");
+  [["dash.accounts", "adminacc"], ["aq.open", "adminreq"], ["al.open", "adminlog"], ["an.open", "adminann"], ["tp.open", "admintpl"]].forEach(([k, scr]) => {
+    const b = el("button", "btn", t(k));
+    b.type = "button";
+    b.addEventListener("click", () => { location.hash = "#" + HASH_OF[scr]; });
+    nav.appendChild(b);
+  });
+  root.appendChild(nav);
+  if (!dash.started) { dashReload(); return; }
+  if (dash.missing) { root.appendChild(el("div", "card q-err", t("dash.missing"))); return; }
+  root.appendChild(dashKpiSection());
+  root.appendChild(dashChartSection());
+  root.appendChild(dashRankSection());
+  root.appendChild(dashAlertSection());
+}
+function dashHead(title, onCsv, csvDisabled) {
+  const h = el("div", "dash-h");
+  h.appendChild(el("h3", null, title));
+  if (onCsv) {
+    const b = el("button", "btn dash-csv", t("dash.csv"));
+    b.type = "button"; b.disabled = !!csvDisabled;
+    b.addEventListener("click", onCsv);
+    h.appendChild(b);
+  }
+  return h;
+}
+function dashState(part, has) {
+  if (dash.busy[part] && !has) return el("div", "empty", t("admin.loading"));
+  if (dash.err[part]) return el("div", "card q-err", dash.err[part]);
+  return null;
+}
+
+// --- Chiffres clés ---
+function dashKpiRows(k) {
+  return [
+    ["dash.r.accounts", k.accounts], ["dash.r.new7", k.accounts_new7],
+    ["dash.r.active1", k.active_today], ["dash.r.active7", k.active_7], ["dash.r.active30", k.active_30],
+    ["dash.r.cards", k.cards], ["dash.r.rev1", k.reviews_today], ["dash.r.rev7", k.reviews_7],
+    ["dash.r.cPending", k.claude_pending], ["dash.r.cErr", k.claude_error], ["dash.r.props", k.proposals]
+  ].map(([lab, v]) => [t(lab), dashNum(v)]);
+}
+function dashKpiSection() {
+  const sec = el("section", "dash-sec");
+  const k = dash.kpis;
+  sec.appendChild(dashHead(t("dash.kpis"), () => {
+    if (!dash.kpis) return;
+    const rows = dashKpiRows(dash.kpis);
+    rows.unshift([t("dash.c.date"), String(dash.kpis.today || todayStr())]);
+    dashSaveCsv("chiffres-cles", [t("dash.c.indicator"), t("dash.c.value")], rows);
+  }, !k));
+  const st = dashState("kpis", !!k);
+  if (st) { sec.appendChild(st); if (!k) return sec; }
+  if (!k) return sec;
+  const grid = el("div", "dash-kpis");
+  const tile = (label, value, sub, warn) => {
+    const c = el("div", "dash-tile");
+    c.appendChild(el("div", "dash-tl", label));
+    c.appendChild(el("div", "dash-tv", dashFmt(value)));
+    if (sub) c.appendChild(el("div", "dash-ts" + (warn ? " warn" : ""), sub));
+    grid.appendChild(c);
+  };
+  tile(t("dash.k.accounts"), k.accounts, t("dash.k.new7", { n: dashFmt(k.accounts_new7) }));
+  tile(t("dash.k.activeToday"), k.active_today, t("dash.k.active", { a: dashFmt(k.active_7), b: dashFmt(k.active_30) }));
+  tile(t("dash.k.reviewsToday"), k.reviews_today, t("dash.k.reviews7", { n: dashFmt(k.reviews_7) }));
+  tile(t("dash.k.cards"), k.cards, "");
+  tile(t("dash.k.claude"), k.claude_pending, t("dash.k.claudeErr", { n: dashFmt(k.claude_error) }), dashNum(k.claude_error) > 0);
+  tile(t("dash.k.proposals"), k.proposals, "");
+  sec.appendChild(grid);
+  return sec;
+}
+
+// --- Graphiques ---
+function dashChartSection() {
+  const sec = el("section", "dash-sec");
+  sec.appendChild(dashHead(t("dash.charts")));
+  const seg = el("div", "seg aq-period");
+  [["day", "dash.p30d"], ["month", "dash.p12m"]].forEach(([v, k]) => {
+    const b = el("button", null, t(k));
+    b.type = "button"; b.setAttribute("aria-pressed", String(dash.period === v));
+    b.addEventListener("click", () => {
+      if (dash.period === v) return;
+      dash.period = v; dash.sel = {};
+      if (dash.series[v]) dashRerender(); else dashLoadPart("series");
+    });
+    seg.appendChild(b);
+  });
+  sec.appendChild(seg);
+  const data = dash.series[dash.period];
+  const st = dashState("series", !!data);
+  if (st) { sec.appendChild(st); if (!data) return sec; }
+  if (!data) return sec;
+  sec.appendChild(el("p", "q-note", t("dash.tap")));
+  DASH_CHARTS.forEach(([key, lab]) => {
+    const card = el("div", "card dash-chart");
+    const head = el("div", "dash-ch-head");
+    head.appendChild(el("div", "dash-ch-title", t(lab)));
+    head.appendChild(el("div", "dash-ch-total", t(key === "active" ? "dash.maxDay" : "dash.total",
+      { n: dashFmt(key === "active" ? Math.max(0, ...data.map(p => dashNum(p[key]))) : data.reduce((m, p) => m + dashNum(p[key]), 0)) })));
+    card.appendChild(head);
+    const cap = el("div", "dash-ch-cap");
+    card.appendChild(cap);
+    sec.appendChild(card);
+    // Dessiné une fois la carte placée (largeur de l'écran)
+    card._draw = () => dashDrawChart(card, cap, data, key);
+  });
+  setTimeout(() => { sec.querySelectorAll(".dash-chart").forEach(c => { try { c._draw(); } catch (e) {} }); }, 0);
+  return sec;
+}
+const SVGNS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs) { const n = document.createElementNS(SVGNS, tag); Object.keys(attrs || {}).forEach(k => n.setAttribute(k, attrs[k])); return n; }
+// Graphique en ligne (une seule série) : axe des valeurs à gauche, quelques dates en bas, point touché mis en évidence.
+function dashDrawChart(card, cap, data, key) {
+  const month = dash.period === "month";
+  const W = Math.max(240, Math.floor(card.clientWidth - 24)), H = 150;
+  const m = { l: 34, r: 10, t: 10, b: 22 };
+  const pw = W - m.l - m.r, ph = H - m.t - m.b;
+  const vals = data.map(p => dashNum(p[key]));
+  let max = Math.max(...vals, 0);
+  // Échelle « ronde » : 1, 2, 5 × 10^n
+  const nice = v => { if (v <= 4) return 4; const p = Math.pow(10, Math.floor(Math.log10(v))); for (const f of [1, 2, 2.5, 5, 10]) if (f * p >= v) return f * p; return 10 * p; };
+  max = nice(max);
+  const n = vals.length;
+  const x = i => m.l + (n <= 1 ? pw / 2 : i * pw / (n - 1));
+  const y = v => m.t + ph - (v / max) * ph;
+  const svg = svgEl("svg", { width: W, height: H, viewBox: "0 0 " + W + " " + H, class: "dash-svg", role: "img", "aria-label": cap.previousSibling ? cap.previousSibling.textContent : "" });
+  // Grille et valeurs (0, moitié, max)
+  [0, max / 2, max].forEach(v => {
+    svg.appendChild(svgEl("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: "dash-grid" }));
+    const tx = svgEl("text", { x: m.l - 6, y: y(v) + 4, "text-anchor": "end", class: "dash-axis" });
+    tx.textContent = dashFmt(v);
+    svg.appendChild(tx);
+  });
+  // Dates : début, milieu, fin
+  [...new Set([0, Math.floor((n - 1) / 2), n - 1])].forEach(i => {
+    if (i < 0) return;
+    const tx = svgEl("text", { x: x(i), y: H - 6, "text-anchor": i === 0 ? "start" : i === n - 1 ? "end" : "middle", class: "dash-axis" });
+    tx.textContent = dashBucketLabel(data[i].bucket, month, false);
+    svg.appendChild(tx);
+  });
+  // Aire + ligne
+  if (n) {
+    const pts = vals.map((v, i) => x(i).toFixed(1) + "," + y(v).toFixed(1));
+    svg.appendChild(svgEl("polygon", { points: x(0).toFixed(1) + "," + y(0) + " " + pts.join(" ") + " " + x(n - 1).toFixed(1) + "," + y(0), class: "dash-area" }));
+    svg.appendChild(svgEl("polyline", { points: pts.join(" "), class: "dash-line" }));
+  }
+  // Points (petits) et repère du point touché
+  const dots = svgEl("g");
+  if (n <= 31) vals.forEach((v, i) => dots.appendChild(svgEl("circle", { cx: x(i), cy: y(v), r: 2.5, class: "dash-dot" })));
+  svg.appendChild(dots);
+  const guide = svgEl("line", { y1: m.t, y2: m.t + ph, class: "dash-guide" });
+  const mark = svgEl("circle", { r: 5, class: "dash-mark" });
+  svg.append(guide, mark);
+  const select = i => {
+    i = Math.max(0, Math.min(n - 1, i));
+    dash.sel[key] = i;
+    guide.setAttribute("x1", x(i)); guide.setAttribute("x2", x(i));
+    mark.setAttribute("cx", x(i)); mark.setAttribute("cy", y(vals[i]));
+    cap.textContent = dashBucketLabel(data[i].bucket, month, true) + " : " + dashFmt(vals[i]);
+  };
+  const pick = ev => {
+    const r = svg.getBoundingClientRect();
+    if (!r.width || !n) return;
+    const px = (ev.clientX - r.left) * (W / r.width);
+    select(Math.round(n <= 1 ? 0 : (px - m.l) / (pw / (n - 1))));
+  };
+  svg.addEventListener("pointerdown", ev => { pick(ev); try { svg.setPointerCapture(ev.pointerId); } catch (e) {} });
+  svg.addEventListener("pointermove", ev => { if (ev.buttons || ev.pointerType === "mouse") pick(ev); });
+  const old = card.querySelector("svg");
+  if (old) old.remove();
+  card.appendChild(svg);
+  if (n) select(dash.sel[key] != null ? dash.sel[key] : n - 1);   // par défaut : dernier point (aujourd'hui / ce mois)
+}
+let dashResizeT = null;
+window.addEventListener("resize", () => {
+  clearTimeout(dashResizeT);
+  dashResizeT = setTimeout(() => { if (currentScreen === "admin") document.querySelectorAll("#screen-admin .dash-chart").forEach(c => { try { c._draw && c._draw(); } catch (e) {} }); }, 200);
+});
+
+// --- Classements ---
+function dashRankDef(kind) {
+  const acc = r => r.identifiant || "?";
+  switch (kind) {
+    case "active": return { head: ["dash.col.reviewed", "dash.col.sessions", "dash.col.minutes"], cells: r => [dashNum(r.cards), dashNum(r.sessions), dashNum(r.minutes)], acc };
+    case "streaks": return { head: ["dash.col.streak", "dash.col.since"], cells: r => [dashNum(r.streak), r.since ? admDate(r.since + "T12:00:00") : ""], acc, note: "dash.rk.streaksNote" };
+    case "success": return { head: ["dash.col.rate", "dash.col.correct", "dash.col.reviewed"], cells: r => [dashRate(r.rate), dashNum(r.correct), dashNum(r.cards)], csv: r => [dashRateCsv(r.rate), dashNum(r.correct), dashNum(r.cards)], acc, note: "dash.rk.successNote" };
+    case "lists": return { head: ["dash.col.list", "dash.col.reviewed", "dash.col.total"], cells: r => [(r.list || "?") + (r.src === "estimate" ? " ≈" : ""), dashNum(r.cards), dashNum(r.total)], acc, note: "dash.rk.listsNote" };
+  }
+  return null;
+}
+function dashRankSection() {
+  const sec = el("section", "dash-sec");
+  sec.appendChild(dashHead(t("dash.ranks")));
+  const seg = el("div", "seg aq-period");
+  [[7, "dash.p7"], [30, "dash.p30"]].forEach(([v, k]) => {
+    const b = el("button", null, t(k));
+    b.type = "button"; b.setAttribute("aria-pressed", String(dash.rankDays === v));
+    b.addEventListener("click", () => {
+      if (dash.rankDays === v) return;
+      dash.rankDays = v;
+      if (dash.rank[v]) dashRerender(); else dashLoadPart("rank");
+    });
+    seg.appendChild(b);
+  });
+  sec.appendChild(seg);
+  const data = dash.rank[dash.rankDays];
+  const st = dashState("rank", !!data);
+  if (st) { sec.appendChild(st); if (!data) return sec; }
+  if (!data) return sec;
+  DASH_RANKS.forEach(([kind, lab]) => {
+    const def = dashRankDef(kind), rows = arr(data[kind]);
+    const head = [t("dash.col.rank"), t("aq.f.account")].concat(def.head.map(h => t(h)));
+    sec.appendChild(dashHead(t(lab), () => {
+      dashSaveCsv("classement-" + kind + "-" + dash.rankDays + "j", head,
+        rows.map((r, i) => [i + 1, def.acc(r)].concat(def.csv ? def.csv(r) : def.cells(r))));
+    }, !rows.length));
+    if (def.note) sec.appendChild(el("p", "q-note dash-note", t(def.note)));
+    if (!rows.length) { sec.appendChild(el("div", "empty dash-empty", t("dash.noData"))); return; }
+    const wrap = el("div", "aq-tablewrap");
+    const tb = el("table", "aq-table dash-table");
+    const hr = el("tr");
+    head.forEach((h, i) => hr.appendChild(el("th", i > 1 && !(kind === "lists" && i === 2) ? "num" : null, h)));
+    const th = el("thead"); th.appendChild(hr); tb.appendChild(th);
+    const body = el("tbody");
+    rows.forEach((r, i) => {
+      const tr = el("tr");
+      tr.appendChild(el("td", "num", String(i + 1)));
+      const td = el("td", "aq-name");
+      const a = el("button", "dash-link", def.acc(r));
+      a.type = "button"; a.title = t("dash.seeAccount");
+      a.addEventListener("click", () => dashGoAccount(r.user_id));
+      td.appendChild(a);
+      tr.appendChild(td);
+      def.cells(r).forEach((c, j) => tr.appendChild(el("td", kind === "lists" && j === 0 ? "dash-wrap" : "num", typeof c === "number" ? dashFmt(c) : String(c))));
+      body.appendChild(tr);
+    });
+    tb.appendChild(body);
+    wrap.appendChild(tb);
+    sec.appendChild(wrap);
+  });
+  return sec;
+}
+
+// --- Alertes ---
+function dashAlertSection() {
+  const sec = el("section", "dash-sec");
+  sec.appendChild(dashHead(t("dash.alerts")));
+  const f = el("label", "dash-inact");
+  f.appendChild(el("span", null, t("dash.inactiveDays")));
+  const inp = el("input", "input");
+  inp.type = "number"; inp.min = "1"; inp.max = "365"; inp.inputMode = "numeric"; inp.value = String(dash.inactive);
+  inp.addEventListener("change", () => {
+    const v = Math.max(1, Math.min(365, Math.round(Number(inp.value)) || 7));
+    inp.value = String(v);
+    if (v === dash.inactive) return;
+    dash.inactive = v;
+    dashLoadPart("alerts");
+  });
+  f.appendChild(inp);
+  sec.appendChild(f);
+  const a = dash.alerts;
+  const st = dashState("alerts", !!a);
+  if (st) { sec.appendChild(st); if (!a) return sec; }
+  if (!a) return sec;
+  const groups = [
+    ["inactive", t("dash.al.inactive", { n: dashNum(a.inactive_days) || dash.inactive }), r => t("dash.al.inactiveLine", { n: dashNum(r.days), d: admDate(r.last_day + "T12:00:00") })],
+    ["streak_lost", t("dash.al.streak"), r => t("dash.al.streakLine", { n: dashNum(r.streak) })],
+    ["claude_errors", t("dash.al.claude"), r => [t("queue.kind." + r.kind), r.label, admDate(r.created_at), r.error].filter(Boolean).join(" · ")],
+    ["proposals", t("dash.al.props"), r => t("dash.al.propsLine", { n: dashFmt(r.n) })],
+    ["sync_errors", t("dash.al.sync"), r => t("dash.al.syncLine", { n: dashNum(r.n), d: alTime(r.last_at) })],
+    ["big_chunks", t("dash.al.big"), r => t("dash.al.bigLine", { key: r.key, kb: dashFmt(r.kb) })]
+  ];
+  let any = false;
+  groups.forEach(([k, title, line]) => {
+    const rows = arr(a[k]);
+    if (!rows.length) return;
+    any = true;
+    const box = el("div", "card dash-alert");
+    box.appendChild(el("div", "dash-al-title", title + " (" + rows.length + ")"));
+    rows.forEach(r => {
+      const it = el("div", "dash-al-item");
+      const txt = el("div", "dash-al-txt");
+      txt.append(el("b", null, r.identifiant || "?"), document.createTextNode(" — " + line(r)));
+      it.appendChild(txt);
+      const acts = el("div", "dash-al-acts");
+      if (k === "claude_errors") {
+        const q = el("button", "dash-link", t("dash.seeRequests"));
+        q.type = "button";
+        q.addEventListener("click", () => dashGoRequests(r.user_id, "error"));
+        acts.appendChild(q);
+      }
+      const b = el("button", "dash-link", t("dash.seeAccount"));
+      b.type = "button";
+      b.addEventListener("click", () => dashGoAccount(r.user_id));
+      acts.appendChild(b);
+      it.appendChild(acts);
+      box.appendChild(it);
+    });
+    sec.appendChild(box);
+  });
+  if (!any) sec.appendChild(el("div", "empty dash-empty", t("dash.noAlert")));
+  return sec;
 }
 
 // --- Demandes à Claude (suivi admin, étape 23) : écran #admin-demandes ---
@@ -9659,13 +11147,25 @@ function renderAdminReq() {
   root.appendChild(seg);
   if (aq.statsLoading && !aq.stats) root.appendChild(el("div", "empty", t("admin.loading")));
   else if (aq.statsErr) root.appendChild(el("div", "card q-err", aq.statsErr));
-  else if (aq.stats) root.appendChild(aqStatsTable());
+  else if (aq.stats) {
+    const csv = el("button", "btn dash-csv aq-csv", t("dash.csv"));     // export CSV (étape 25)
+    csv.type = "button";
+    csv.addEventListener("click", aqStatsCsv);
+    root.appendChild(csv);
+    root.appendChild(aqStatsTable());
+  }
 
   // Historique
   const hh = el("h3", "aq-h", t("aq.history"));
   hh.id = "aqHist";
   root.appendChild(hh);
   root.appendChild(aqFilters());
+  if (aq.f.user) {                                   // fiche du compte filtré (étape 26)
+    const fi = el("button", "btn dash-csv aq-csv", t("fc.open"));
+    fi.type = "button";
+    fi.addEventListener("click", () => openAccountFiche(aq.f.user, "adminreq"));
+    root.appendChild(fi);
+  }
   if (aq.histLoading && !aq.hist) { root.appendChild(el("div", "empty", t("admin.loading"))); return; }
   if (aq.histErr) { root.appendChild(el("div", "card q-err", aq.histErr)); return; }
   if (!aq.hist) return;
@@ -9748,6 +11248,28 @@ function aqStatsTable() {
   return wrap;
 }
 
+// Export CSV des compteurs par compte (période choisie), avec la ligne Total, dans l'ordre de tri affiché.
+function aqStatsCsv() {
+  const rows = aq.stats.slice();
+  const { key, dir } = aq.sort;
+  rows.sort((a, b) => {
+    let x = a[key], y = b[key];
+    if (key === "identifiant") return dir * String(x || "").localeCompare(String(y || ""));
+    if (key === "derniere_demande") { x = x ? Date.parse(x) : 0; y = y ? Date.parse(y) : 0; }
+    else { x = Number(x) || 0; y = Number(y) || 0; }
+    return dir * (x - y) || String(a.identifiant).localeCompare(String(b.identifiant));
+  });
+  const tot = AQ_COLS.map(([k]) => k === "identifiant" ? t("aq.totalRow") : k === "derniere_demande" ? "" : 0);
+  const out = rows.map(r => AQ_COLS.map(([k], i) => {
+    if (k === "identifiant") return String(r[k] || "?");
+    if (k === "derniere_demande") { if (r[k] && (!tot[i] || Date.parse(r[k]) > Date.parse(tot[i]))) tot[i] = r[k]; return admDay(r[k]); }
+    const v = num(Number(r[k]), 0); tot[i] += v; return v;
+  }));
+  const li = AQ_COLS.findIndex(([k]) => k === "derniere_demande");
+  if (li >= 0) tot[li] = admDay(tot[li]);
+  out.push(tot);
+  dashSaveCsv("demandes-claude-" + (aq.period === "all" ? "tout" : aq.period + "j"), AQ_COLS.map(([, lab]) => t(lab)), out);
+}
 function aqFilters() {
   const box = el("div", "aq-filters");
   const mk = (label, opts, val, on) => {
@@ -9903,6 +11425,7 @@ async function aqOpenDetail(r0) {
   acts.push({ label: t("aq.json"), onClick: () => { setTimeout(() => aqShowJson(d), 0); return false; } });
   if (["error", "processing"].includes(r.status) && !r.content_cleared_at) acts.push({ label: t("aq.retry"), kind: "primary", onClick: () => { aqRetry(r); } });
   acts.push({ label: t("aq.delete"), kind: "danger", onClick: () => { setTimeout(() => aqDelete(r), 0); } });
+  if (r.user_id || r0.user_id) acts.push({ label: t("fc.open"), onClick: () => { openAccountFiche(r.user_id || r0.user_id, "adminreq"); } });
   acts.push({ label: t("close") });
   openModal(t("queue.kind." + r.kind) + " · " + r.identifiant, body, acts);
 }
@@ -10034,6 +11557,9 @@ function renderAdminLog() {
   csv.addEventListener("click", alExportCsv);
   bar.appendChild(csv);
   if (al.f.user) {
+    const fi = el("button", "btn", t("fc.open"));          // fiche du compte (étape 26)
+    fi.addEventListener("click", () => openAccountFiche(al.f.user, "adminlog"));
+    bar.appendChild(fi);
     const dv = el("button", "btn", t("al.devices"));
     dv.addEventListener("click", () => { const a = arr(adm.list).find(x => x.user_id === al.f.user); adminDevices(a || { user_id: al.f.user, identifiant: "?" }); });
     bar.appendChild(dv);
@@ -10106,6 +11632,7 @@ function alOpenRow(r) {
   const a = arr(adm.list).find(x => x.user_id === r.user_id);
   if (al.f.user !== r.user_id) acts.push({ label: t("al.onlyThis"), onClick: () => { al.f.user = r.user_id; al.page = 0; alLoad(); } });
   acts.push({ label: t("al.devices"), onClick: () => { setTimeout(() => adminDevices(a || { user_id: r.user_id, identifiant: r.identifiant }), 0); } });
+  if (r.user_id) acts.push({ label: t("fc.open"), onClick: () => { openAccountFiche(r.user_id, "adminlog"); } });
   acts.push({ label: t("close") });
   openModal(alKindLabel(r.kind), body, acts);
 }
@@ -10163,6 +11690,1145 @@ async function adminDevices(a) {
   void close;
 }
 
+// --- Fiche d'un compte (admin, étape 26) : écran #admin-fiche ---
+// Ouverte depuis la liste des comptes, le tableau de bord (alertes, classements), le journal et l'historique des demandes
+// Claude (openAccountFiche). Un seul compte à la fois.
+// Sources :
+//  - user_data du compte (lu par l'admin grâce aux règles RLS) → contenu, difficultés, listes en lecture seule ; calculé
+//    ici, dans le navigateur de l'admin (fcCompute), jamais enregistré ;
+//  - fonctions SQL du script supabase-etape26.sql (security definer, contrôle is_admin()) : admin_account_summary
+//    (en-tête, révisions, calendrier, heures, modes, appareils), admin_account_storage (taille par morceau, version),
+//    admin_account_issues (erreurs de synchro et conflits des 30 derniers jours).
+// Script pas lancé : « Lancez le script SQL de l'étape 26 », les parties tirées de user_data restent affichées.
+// Parties des étapes 28 à 30 (gels, objectif du jour, amis, listes partagées) : « — » en attendant.
+// Lecture seule : aucune donnée du compte n'est modifiée ici (les actions existantes ouvrent leurs propres fenêtres).
+const FC_LIMIT_KB = 512, FC_WARN_KB = 400, FC_BLOCKED_SEEN = 5, FC_SEARCH_MAX = 200;
+const fc = {
+  user: null, from: "adminacc", token: 0, loading: false,
+  acc: null,                 // ligne de la liste des comptes (identifiant, création, admin…)
+  sum: null, store: null, issues: null, part: {}, missing: false,
+  data: null, dataErr: "", version: null, view: null,
+  q: "", open: {}, cap: ""
+};
+// Ouvre la fiche d'un compte (userId) ; from = écran de retour.
+function openAccountFiche(userId, from) {
+  if (!userId) return;
+  if (fc.user !== userId) Object.assign(fc, { sum: null, store: null, issues: null, part: {}, missing: false, data: null,
+    dataErr: "", version: null, view: null, q: "", open: {}, cap: "", acc: null });
+  fc.user = userId;
+  fc.from = from || (currentScreen !== "adminfiche" ? currentScreen : fc.from) || "adminacc";
+  fc.started = false;
+  if (currentScreen === "adminfiche") renderAdminFiche();
+  else location.hash = "#" + HASH_OF.adminfiche;
+}
+function fcRerender() { if (currentScreen === "adminfiche") renderAdminFiche(); }
+// Calculs sur les données d'un autre compte avec les fonctions de l'appli : state remplacé le temps d'un calcul
+// synchrone (langue de l'interface de l'admin gardée), puis remis tel quel. Aucune sauvegarde pendant ce temps.
+function fcWith(d, fn) {
+  const keep = state;
+  state = Object.assign({}, d, { settings: Object.assign({}, d.settings, { uiLang: keep.settings.uiLang, theme: keep.settings.theme }) });
+  try { return fn(); } finally { state = keep; }
+}
+async function fcLoad() {
+  const user = fc.user, my = ++fc.token;
+  fc.loading = true; fc.started = true;
+  fcRerender();
+  const tz = dashTz();
+  if (!adm.list) { try { adm.list = arr(await Supa.listAccounts()); } catch (e) {} }
+  await admLoadBlocked();   // état bloqué / actif (étape 27), pour l'en-tête et le menu « Actions… »
+  if (my !== fc.token) return;
+  fc.acc = arr(adm.list).find(a => a.user_id === user) || fc.acc;
+  const part = async (name, fn) => {
+    try { fc[name] = await fn(); fc.part[name] = ""; }
+    catch (e) { fc[name] = null; if (alIsMissing(e)) fc.missing = true; fc.part[name] = alIsMissing(e) ? t("fc.missing") : aqErrText(e); }
+  };
+  fc.missing = false;
+  await Promise.all([
+    part("sum", () => aqRpc("admin_account_summary", { p_user: user, p_tz: tz })),
+    part("store", () => aqRpc("admin_account_storage", { p_user: user })),
+    part("issues", () => aqRpc("admin_account_issues", { p_user: user, p_days: 30 })),
+    (async () => {
+      try {
+        if (user === auth.sbUid) { fc.data = state; fc.version = state.version; }
+        else {
+          const raw = Storage.unpackRows(await Supa.readRows(user));
+          fc.version = raw ? num(Number(raw.version), null) : null;
+          fc.data = raw ? normalizeData(raw) : null;
+        }
+        fc.dataErr = "";
+      } catch (e) { fc.data = null; fc.dataErr = aqErrText(e); }
+    })()
+  ]);
+  if (my !== fc.token) return;
+  try { fc.view = fc.data ? fcCompute(fc.data) : null; } catch (e) { fc.view = null; fc.dataErr = t("admin.err"); }
+  fc.loading = false;
+  fcRerender();
+}
+
+// --- Calculs (navigateur de l'admin, ce compte seulement) ---
+function fcCompute(d) {
+  return fcWith(d, () => {
+    const cards = arr(d.cards), listIds = new Set(arr(d.lists).map(l => l.id));
+    const v = { folders: arr(d.folders).length, lists: arr(d.lists).length, cards: cards.length, types: {}, boxes: [0, 0, 0, 0, 0, 0],
+      targets: {}, gaps: 0, proposals: arr(d.proposals).length, missed: [], tenses: [], blocked: [] };
+    CARD_TYPES.forEach(ty => { v.types[ty] = [0, 0, 0, 0, 0, 0]; });
+    const tense = new Map();
+    cards.forEach(c => {
+      const ty = cardType(c), b = Math.max(0, Math.min(5, Math.round(num(c.box, 0))));
+      v.types[ty][b]++; v.boxes[b]++;
+      const lg = listIds.has(c.listId) ? cardLangs(c) : null;
+      const tg = ty === "vocab" ? (lg && lg.target) : (c.lang || (lg && lg.target));
+      if (tg) v.targets[tg] = (v.targets[tg] || 0) + 1;
+      if (lg && gapFields(c, lg).length) v.gaps++;
+      const s = c.stats || {}, seen = num(s.seen, 0), ok = num(s.correct, 0), wrong = num(s.wrong, 0);
+      if (b === 0 && seen >= FC_BLOCKED_SEEN && ok === 0) v.blocked.push(c);
+      if (wrong > 0) v.missed.push(c);
+      if (ty === "conj" && c.tense) {
+        const k = (c.lang || "") + "|" + c.tense;
+        const x = tense.get(k) || { lang: c.lang, tense: c.tense, cards: 0, seen: 0, correct: 0, wrong: 0 };
+        x.cards++; x.seen += seen; x.correct += ok; x.wrong += wrong;
+        tense.set(k, x);
+      }
+    });
+    const wr = c => num((c.stats || {}).wrong, 0), sn = c => num((c.stats || {}).seen, 0);
+    const line = c => ({ id: c.id, type: cardType(c), title: cardTitle(c), sub: cardSubtitle(c), list: (getList(c.listId) || {}).name || "?",
+      wrong: wr(c), seen: sn(c), correct: num((c.stats || {}).correct, 0), box: num(c.box, 0) });
+    v.missed = v.missed.sort((a, b) => wr(b) - wr(a) || sn(b) - sn(a)).slice(0, 20).map(line);
+    v.blocked = v.blocked.sort((a, b) => sn(b) - sn(a)).map(line);
+    v.tenses = Array.from(tense.values()).filter(x => x.wrong > 0)
+      .sort((a, b) => b.wrong - a.wrong || b.seen - a.seen).slice(0, 10)
+      .map(x => Object.assign(x, { name: tenseName(x.lang, x.tense) }));
+    // Série (règle actuelle de l'appli : au moins une carte révisée par jour) et record, d'après history
+    const days = Array.from(new Set(arr(d.history).filter(h => num(h.reviewed, 0) > 0).map(h => String(h.date)))).sort();
+    let best = 0, run = 0, prev = null;
+    days.forEach(s => {
+      const dt = dashBucketDate(s);
+      run = prev && Math.round((dt - prev) / 86400000) === 1 ? run + 1 : 1;
+      best = Math.max(best, run); prev = dt;
+    });
+    const set = new Set(days), dd = new Date();
+    if (!set.has(todayStr(dd))) dd.setDate(dd.getDate() - 1);
+    let cur = 0;
+    while (set.has(todayStr(dd))) { cur++; dd.setDate(dd.getDate() - 1); }
+    v.streak = cur; v.best = best;
+    v.uiLang = (d.settings && d.settings.uiLang) || "";
+    v.langs = Object.keys(v.targets).filter(isLang);
+    arr(d.lists).forEach(l => { const tg = listLangs(l).target; if (!v.langs.includes(tg)) v.langs.push(tg); });
+    v.frozen = new Set(arr(d.streak && d.streak.frozenDays).map(String));   // jours gelés (étape 28)
+    return v;
+  });
+}
+function fcRate(ok, seen) { return seen > 0 ? dashRate(Math.round(1000 * Math.min(ok, seen) / seen) / 10) : "—"; }
+function fcDash(v) { return v == null || v === "" ? "—" : String(v); }
+function fcKb(bytes) { const kb = num(Number(bytes), 0) / 1024; try { return kb.toLocaleString(state.settings.uiLang, { maximumFractionDigits: kb < 10 ? 1 : 0 }) + " " + t("fc.kb"); } catch (e) { return Math.round(kb) + " Ko"; } }
+function fcLastActivity() {
+  const a = fc.sum && fc.sum.account, cands = [];
+  if (a) { if (a.last_day) cands.push(Date.parse(a.last_day + "T12:00:00")); [a.last_seen_at, a.last_sign_in_at].forEach(x => { if (x) cands.push(Date.parse(x)); }); }
+  else if (fc.acc && fc.acc.last_login) cands.push(Date.parse(fc.acc.last_login));
+  const m = cands.filter(x => !isNaN(x));
+  return m.length ? new Date(Math.max(...m)).toISOString() : null;
+}
+function fcIdent() { return (fc.sum && fc.sum.account && fc.sum.account.identifiant) || (fc.acc && fc.acc.identifiant) || "?"; }
+function fcAccountObj() {
+  return fc.acc || { user_id: fc.user, identifiant: fcIdent(), created_at: fc.sum && fc.sum.account && fc.sum.account.created_at };
+}
+
+// --- Affichage ---
+function renderAdminFiche() {
+  const root = $("#screen-adminfiche");
+  if (!root) return;
+  root.textContent = "";
+  const back = el("button", "link-btn", t("aq.back"));
+  back.addEventListener("click", () => { location.hash = "#" + HASH_OF[SCREENS.includes(fc.from) && fc.from !== "adminfiche" ? fc.from : "adminacc"]; });
+  root.appendChild(back);
+  if (!fc.user) { root.appendChild(el("div", "empty", t("fc.none"))); return; }
+  if (!fc.started) { fcLoad(); return; }
+  const top = el("div", "adm-top");
+  top.appendChild(el("h2", null, t("fc.title", { id: fcIdent() })));
+  const ref = el("button", "link-btn", t("admin.refresh"));
+  ref.addEventListener("click", () => { fc.started = false; renderAdminFiche(); });
+  top.appendChild(ref);
+  root.appendChild(top);
+  if (fc.loading) {
+    const ld = el("div", "card fc-loading");
+    ld.append(el("span", "fc-spin"), el("span", null, t("fc.loading", { id: fcIdent() })));
+    root.appendChild(ld);
+    return;
+  }
+  if (fc.missing) root.appendChild(el("div", "card q-err", t("fc.missing")));
+  if (fc.sum === null && !fc.part.sum && !fc.acc) { root.appendChild(el("div", "empty", t("fc.gone"))); return; }
+  // Liens et actions
+  const nav = el("div", "fc-nav");
+  const btn = (label, on, cls) => { const b = el("button", "btn" + (cls ? " " + cls : ""), label); b.type = "button"; b.addEventListener("click", on); nav.appendChild(b); return b; };
+  btn(t("fc.journal"), () => { al.f.user = fc.user; al.f.kind = ""; al.f.days = ""; al.page = 0; al.data = null; al.err = ""; location.hash = "#" + HASH_OF.adminlog; });
+  btn(t("fc.requests"), () => dashGoRequests(fc.user, ""));
+  btn(t("fc.csv"), fcCsv);
+  btn(t("fc.actions"), () => { if (adm.list) adminActions(fcAccountObj()); else toast(t("admin.err")); });
+  root.appendChild(nav);
+  root.appendChild(fcHeader());
+  root.appendChild(fcReviews());
+  root.appendChild(fcContent());
+  root.appendChild(fcDifficulties());
+  root.appendChild(fcBrowse());
+  root.appendChild(fcHealth());
+}
+function fcSec(title, cls) {
+  const s = el("section", "dash-sec fc-sec" + (cls ? " " + cls : ""));
+  s.appendChild(el("h3", "fc-h", title));
+  return s;
+}
+function fcDl(pairs) {
+  const dl = el("dl", "fc-dl");
+  pairs.forEach(([k, v]) => { dl.append(el("dt", null, k), v instanceof Node ? (() => { const dd = el("dd"); dd.appendChild(v); return dd; })() : el("dd", null, fcDash(v))); });
+  return dl;
+}
+function fcTable(head, rows, numFrom, foot) {
+  const wrap = el("div", "aq-tablewrap");
+  const tb = el("table", "aq-table fc-table");
+  const thead = el("thead"), hr = el("tr");
+  head.forEach((h, i) => hr.appendChild(el("th", i >= numFrom ? "num" : null, h)));
+  thead.appendChild(hr); tb.appendChild(thead);
+  const body = el("tbody");
+  const addRow = (r, cls, parent) => {
+    const tr = el("tr", cls || null);
+    r.forEach((c, i) => tr.appendChild(el("td", i >= numFrom ? "num" : (i === 0 ? "fc-wrap" : null), typeof c === "number" ? dashFmt(c) : String(c == null ? "" : c))));
+    parent.appendChild(tr);
+  };
+  rows.forEach(r => addRow(r, null, body));
+  tb.appendChild(body);
+  if (foot) { const tf = el("tfoot"); addRow(foot, "aq-total", tf); tb.appendChild(tf); }
+  wrap.appendChild(tb);
+  return wrap;
+}
+function fcLangsText(codes) { return arr(codes).length ? arr(codes).map(c => langName(c)).join(", ") : "—"; }
+
+// En-tête
+function fcHeader() {
+  const sec = fcSec(t("fc.header"), "fc-head");
+  const a = (fc.sum && fc.sum.account) || {}, v = fc.view;
+  const tags = el("div", "adm-tags");
+  if (fc.user === auth.sbUid) tags.appendChild(el("span", "tag", t("admin.you")));
+  if (a.is_admin || (fc.acc && fc.acc.est_admin)) tags.appendChild(el("span", "tag", t("admin.isAdmin")));
+  if (a.must_change_pin || (fc.acc && fc.acc.pin_a_changer)) tags.appendChild(el("span", "tag warn", t("admin.mustChange")));
+  const bk = adm.blocked && adm.blocked[fc.user];
+  const blocked = a.blocked === true || (a.blocked == null && !!bk);
+  const reason0 = a.blocked_reason || (bk && bk.reason) || "";
+  const state0 = a.blocked == null && !fc.sum && !bk ? "—" : blocked ? t("fc.blocked") + (reason0 ? " — " + reason0 : "") : t("fc.active");
+  if (blocked) tags.appendChild(el("span", "tag bad", t("blk.tag")));   // étape 27
+  if (tags.childNodes.length) sec.appendChild(tags);
+  const devs = fc.sum ? arr(fc.sum.devices) : null;
+  let devNode = "—";
+  if (devs) {
+    devNode = el("div", "fc-devs");
+    if (!devs.length) devNode.appendChild(el("span", "muted", t("al.noDevice")));
+    devs.forEach(d => {
+      const row = el("div", "fc-dev");
+      row.appendChild(el("div", null, [t("al.dev." + (d.type || "desktop")), d.os, d.browser].filter(Boolean).join(" · ")));
+      row.appendChild(el("div", "muted fc-small", [d.installed ? t("al.installed") : t("al.browser"), d.app_version ? "v" + d.app_version : "", d.ui_lang ? String(d.ui_lang).toUpperCase() : "",
+        t("fc.devSeen", { d: alTime(d.last_seen) })].filter(Boolean).join(" · ")));
+      devNode.appendChild(row);
+    });
+  }
+  sec.appendChild(fcDl([
+    [t("aq.f.account"), fcIdent()],
+    [t("dash.c.created"), admDate(a.created_at || (fc.acc && fc.acc.created_at))],
+    [t("fc.lastAct"), fcLastActivity() ? admDate(fcLastActivity()) : "—"],
+    [t("fc.state"), state0],
+    [t("fc.streak"), v ? t("fc.days", { n: v.streak }) : "—"],
+    [t("fc.best"), v ? t("fc.days", { n: v.best }) : "—"],
+    [t("fc.freezes"), "—"],
+    [t("fc.goal"), "—"],
+    [t("fc.uiLang"), v && v.uiLang ? langName(v.uiLang) : "—"],
+    [t("fc.langs"), v ? fcLangsText(v.langs) : "—"],
+    [t("fc.devices"), devNode],
+    [t("fc.friends"), "—"]
+  ]));
+  if (v) sec.appendChild(el("p", "q-note", t("fc.streakNote")));
+  return sec;
+}
+
+// Révisions
+function fcReviews() {
+  const sec = fcSec(t("fc.reviews"));
+  const s = fc.sum;
+  if (!s) { sec.appendChild(el("div", "card q-err", fc.part.sum || t("fc.missing"))); return sec; }
+  const P = s.periods || {}, cols = [["d7", "dash.p7"], ["d30", "dash.p30"], ["all", "fc.pAll"]];
+  const g = (k, f) => num(Number((P[k] || {})[f]), 0);
+  const rows = [
+    [t("dash.col.sessions"), ...cols.map(([k]) => g(k, "sessions"))],
+    [t("dash.col.reviewed"), ...cols.map(([k]) => g(k, "reviewed"))],
+    [t("dash.col.rate"), ...cols.map(([k]) => fcRate(g(k, "correct"), g(k, "reviewed")))],
+    [t("fc.activeDays"), ...cols.map(([k]) => g(k, "active_days"))],
+    [t("dash.col.minutes"), ...cols.map(([k]) => g(k, "minutes"))]
+  ];
+  sec.appendChild(fcTable([""].concat(cols.map(([, l]) => t(l))), rows, 1));
+  sec.appendChild(el("p", "q-note", s.log_since ? t("fc.logSince", { d: admDate(s.log_since) }) : t("fc.noLog")));
+  sec.appendChild(fcCalendar(s.calendar || {}));
+  sec.appendChild(fcHours(arr(s.hours)));
+  // Modes utilisés
+  sec.appendChild(el("h4", "fc-h4", t("fc.modes")));
+  const modes = arr(s.modes);
+  if (!modes.length) sec.appendChild(el("p", "muted", t("dash.noData")));
+  else sec.appendChild(fcTable([t("review.mode"), t("dash.col.sessions"), t("dash.col.reviewed")],
+    modes.map(m => [I18N.fr["mode." + m.mode] ? t("mode." + m.mode) : String(m.mode || "?"), dashNum(m.sessions), dashNum(m.cards)]), 1));
+  return sec;
+}
+// Calendrier des 12 dernières semaines : une colonne par semaine (lundi → dimanche), couleur selon les cartes révisées.
+function fcLevel(n) { return n <= 0 ? 0 : n < 10 ? 1 : n < 30 ? 2 : n < 60 ? 3 : 4; }
+function fcCalendar(cal) {
+  const box = el("div", "card fc-cal");
+  box.appendChild(el("div", "dash-ch-title", t("fc.calendar")));
+  const cap = el("div", "dash-ch-cap", fc.cap || t("fc.calTap"));
+  box.appendChild(cap);
+  const from = dashBucketDate(cal.from), to = dashBucketDate(cal.to);
+  if (isNaN(from) || isNaN(to)) { box.appendChild(el("p", "muted", "—")); return box; }
+  const byDay = new Map(arr(cal.days).map(x => [String(x.day).slice(0, 10), x]));
+  const frozen = (fc.view && fc.view.frozen) || new Set();
+  const wrap = el("div", "fc-cal-wrap");
+  const lab = el("div", "fc-cal-days");
+  [0, 2, 4, 6].forEach(i => {     // lun, mer, ven, dim
+    const d = new Date(2024, 0, 1 + i);          // 1er janvier 2024 = lundi
+    const s = el("span", null, (() => { try { return d.toLocaleDateString(state.settings.uiLang, { weekday: "narrow" }); } catch (e) { return ""; } })());
+    s.style.gridRow = String(i + 1);
+    lab.appendChild(s);
+  });
+  wrap.appendChild(lab);
+  const grid = el("div", "fc-cal-grid");
+  for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
+    const k = todayStr(d), x = byDay.get(k), n = x ? dashNum(x.reviewed) : 0, ses = x ? dashNum(x.sessions) : 0;
+    const lvl = Math.max(fcLevel(n), ses > 0 ? 1 : 0);
+    const c = el("button", "fc-day l" + lvl + (frozen.has(k) ? " frozen" : "") + (k === todayStr() ? " today" : ""));
+    c.type = "button";
+    c.dataset.day = k;
+    const txt = dashBucketLabel(k, false, true) + " : " + (frozen.has(k) ? t("fc.frozen") : lvl ? t("fc.calLine", { n, s: ses }) : t("fc.calNone"));
+    c.title = txt; c.setAttribute("aria-label", txt);
+    c.addEventListener("click", () => { fc.cap = txt; cap.textContent = txt; });
+    grid.appendChild(c);
+  }
+  wrap.appendChild(grid);
+  box.appendChild(wrap);
+  const leg = el("div", "fc-legend");
+  leg.appendChild(el("span", "muted", t("fc.less")));
+  [0, 1, 2, 3, 4].forEach(l => leg.appendChild(el("span", "fc-day l" + l)));
+  leg.appendChild(el("span", "muted", t("fc.more")));
+  leg.appendChild(el("span", "fc-day frozen"));
+  leg.appendChild(el("span", "muted", t("fc.frozen")));
+  box.appendChild(leg);
+  return box;
+}
+// Heures habituelles : sessions par heure (journal, heure de l'appareil de l'admin)
+function fcHours(hours) {
+  const box = el("div", "card fc-hours");
+  const total = hours.reduce((m, h) => m + dashNum(h.sessions), 0);
+  const head = el("div", "dash-ch-head");
+  head.append(el("div", "dash-ch-title", t("fc.hours")), el("div", "dash-ch-total", t("fc.nSessions", { n: dashFmt(total) })));
+  box.appendChild(head);
+  const cap = el("div", "dash-ch-cap", total ? t("fc.hoursTap") : t("dash.noData"));
+  box.appendChild(cap);
+  if (!total) return box;
+  const max = Math.max(1, ...hours.map(h => dashNum(h.sessions)));
+  const bars = el("div", "fc-bars");
+  for (let i = 0; i < 24; i++) {
+    const h = hours.find(x => dashNum(x.h) === i) || { sessions: 0, cards: 0 };
+    const b = el("button", "fc-bar");
+    b.type = "button";
+    const fill = el("span");
+    fill.style.height = Math.round(100 * dashNum(h.sessions) / max) + "%";
+    b.appendChild(fill);
+    const txt = t("fc.hourLine", { h: String(i).padStart(2, "0"), n: dashNum(h.sessions), c: dashNum(h.cards) });
+    b.title = txt; b.setAttribute("aria-label", txt);
+    b.addEventListener("click", () => { cap.textContent = txt; bars.querySelectorAll(".fc-bar.sel").forEach(x => x.classList.remove("sel")); b.classList.add("sel"); });
+    bars.appendChild(b);
+  }
+  box.appendChild(bars);
+  const ax = el("div", "fc-bars-ax");
+  ["0", "6", "12", "18", "23"].forEach(x => ax.appendChild(el("span", null, x + " h")));
+  box.appendChild(ax);
+  return box;
+}
+
+// Contenu
+function fcContent() {
+  const sec = fcSec(t("fc.content"));
+  const v = fc.view;
+  if (!v) { sec.appendChild(el("div", fc.dataErr ? "card q-err" : "empty dash-empty", fc.dataErr || t("admin.noData"))); return sec; }
+  const grid = el("div", "dash-kpis");
+  const tile = (label, value) => { const c = el("div", "dash-tile"); c.append(el("div", "dash-tl", label), el("div", "dash-tv", typeof value === "number" ? dashFmt(value) : String(value))); grid.appendChild(c); };
+  tile(t("fc.folders"), v.folders); tile(t("fc.lists"), v.lists); tile(t("fc.cards"), v.cards);
+  tile(t("fc.gaps"), v.gaps); tile(t("fc.pending"), v.proposals); tile(t("fc.shared"), "—");
+  sec.appendChild(grid);
+  sec.appendChild(el("h4", "fc-h4", t("fc.byTypeBox")));
+  const head = [t("fc.type")].concat([0, 1, 2, 3, 4, 5].map(b => t("fc.box", { n: b })), [t("fc.total")]);
+  const rows = CARD_TYPES.filter(ty => v.types[ty].some(n => n > 0)).map(ty => [t("type." + ty)].concat(v.types[ty], [v.types[ty].reduce((m, n) => m + n, 0)]));
+  sec.appendChild(fcTable(head, rows, 1, [t("fc.total")].concat(v.boxes, [v.cards])));
+  sec.appendChild(el("p", "q-note", t("fc.boxNote")));
+  sec.appendChild(el("h4", "fc-h4", t("fc.byLang")));
+  const langs = Object.keys(v.targets).sort((a, b) => v.targets[b] - v.targets[a]);
+  if (!langs.length) sec.appendChild(el("p", "muted", "—"));
+  else sec.appendChild(fcTable([t("fc.lang"), t("fc.cards")], langs.map(c => [langName(c), v.targets[c]]), 1));
+  return sec;
+}
+
+// Difficultés
+function fcCardLine(x, extra) {
+  const r = el("div", "fc-cline");
+  const m = el("div", "fc-cmain");
+  m.appendChild(el("div", "fc-ct", (TYPE_ICON[x.type] || "") + " " + x.title));
+  const sub = [x.sub, x.list].filter(Boolean).join(" · ");
+  if (sub) m.appendChild(el("div", "muted fc-small", sub));
+  r.append(m, el("div", "fc-cnum", extra));
+  return r;
+}
+function fcDifficulties() {
+  const sec = fcSec(t("fc.diff"));
+  const v = fc.view;
+  if (!v) { sec.appendChild(el("div", "empty dash-empty", "—")); return sec; }
+  sec.appendChild(el("h4", "fc-h4", t("fc.missed")));
+  if (!v.missed.length) sec.appendChild(el("p", "muted", t("stats.noMissed")));
+  else { const b = el("div", "card fc-clist"); v.missed.forEach(x => b.appendChild(fcCardLine(x, t("stats.missedCount", { w: x.wrong, s: x.seen })))); sec.appendChild(b); }
+  sec.appendChild(el("h4", "fc-h4", t("fc.tenses")));
+  if (!v.tenses.length) sec.appendChild(el("p", "muted", t("dash.noData")));
+  else sec.appendChild(fcTable([t("fc.tense"), t("fc.wrong"), t("fc.seen"), t("dash.col.rate"), t("fc.cards")],
+    v.tenses.map(x => [x.name + (x.lang ? " (" + String(x.lang).toUpperCase() + ")" : ""), x.wrong, x.seen, fcRate(x.correct, x.seen), x.cards]), 1));
+  sec.appendChild(el("h4", "fc-h4", t("fc.blocked0", { n: v.blocked.length })));
+  sec.appendChild(el("p", "q-note", t("fc.blockedNote", { n: FC_BLOCKED_SEEN })));
+  if (!v.blocked.length) sec.appendChild(el("p", "muted", t("fc.noBlocked")));
+  else {
+    const b = el("div", "card fc-clist fc-blocked");
+    v.blocked.slice(0, 100).forEach(x => b.appendChild(fcCardLine(x, t("fc.seenN", { n: x.seen }))));
+    if (v.blocked.length > 100) b.appendChild(el("p", "muted", t("fc.andMore", { n: v.blocked.length - 100 })));
+    sec.appendChild(b);
+  }
+  return sec;
+}
+
+// Voir ses listes (lecture seule) : dossiers → listes → cartes, avec recherche
+function fcBrowse() {
+  const sec = fcSec(t("fc.browse"));
+  const d = fc.data;
+  const acts = el("div", "fc-acts");
+  const a = fcAccountObj();
+  const cp = el("button", "btn", t("admin.copy"));
+  cp.type = "button"; cp.disabled = !d || !arr(d.lists).length || !adm.list || adm.list.length < 2;
+  cp.addEventListener("click", () => adminCopy(a));
+  const ex = el("button", "btn", t("admin.export"));
+  ex.type = "button"; ex.disabled = !d;
+  ex.addEventListener("click", () => adminExport(a));
+  acts.append(cp, ex);
+  sec.appendChild(acts);
+  if (!d) { sec.appendChild(el("div", "empty dash-empty", fc.dataErr || t("admin.noData"))); return sec; }
+  sec.appendChild(el("p", "q-note", t("fc.readOnly")));
+  const inp = el("input", "input fc-search");
+  inp.type = "search"; inp.value = fc.q; inp.placeholder = t("fc.search");
+  inp.setAttribute("aria-label", t("fc.search"));
+  sec.appendChild(inp);
+  const out = el("div", "fc-tree");
+  sec.appendChild(out);
+  const draw = () => { out.textContent = ""; fcWith(d, () => (fc.q.trim() ? fcSearchResults(d, out) : fcTree(d, out))); };
+  let tm = null;
+  inp.addEventListener("input", () => { clearTimeout(tm); tm = setTimeout(() => { fc.q = inp.value; draw(); }, 200); });
+  draw();
+  return sec;
+}
+function fcCardRow(c) {
+  const r = el("div", "fc-card");
+  const m = el("div", "fc-cmain");
+  m.appendChild(el("div", "fc-ct", TYPE_ICON[cardType(c)] + " " + cardTitle(c)));
+  const sub = cardSubtitle(c);
+  if (sub) m.appendChild(el("div", "muted fc-small", sub));
+  const s = c.stats || {};
+  r.append(m, el("div", "fc-cnum", t("fc.box", { n: num(c.box, 0) }) + " · " + num(s.correct, 0) + "/" + num(s.seen, 0)));
+  return r;
+}
+function fcListBlock(d, l) {
+  const cards = arr(d.cards).filter(c => c.listId === l.id);
+  const det = el("details", "fc-list");
+  det.open = !!fc.open["l:" + l.id];
+  const sm = el("summary");
+  sm.append(el("span", "fc-ln", "📄 " + l.name), el("span", "muted fc-small", t("fc.nCards", { n: cards.length }) + " · " + pairLabel(listLangs(l))));
+  det.appendChild(sm);
+  const body = el("div", "fc-cards");
+  det.appendChild(body);
+  const fill = () => {
+    if (body.childNodes.length) return;
+    fcWith(d, () => {
+      if (!cards.length) body.appendChild(el("p", "muted", t("fc.noCards")));
+      cards.forEach(c => body.appendChild(fcCardRow(c)));
+    });
+  };
+  if (det.open) fill();
+  det.addEventListener("toggle", () => { fc.open["l:" + l.id] = det.open; if (det.open) fill(); });
+  return det;
+}
+function fcTree(d, out) {
+  const byOrder = (x, y) => num(x.order, 0) - num(y.order, 0);
+  const folders = arr(d.folders).slice().sort(byOrder);
+  folders.forEach(f => {
+    const lists = arr(d.lists).filter(l => l.folderId === f.id).sort(byOrder);
+    const det = el("details", "fc-folder");
+    det.open = fc.open["f:" + f.id] !== false;
+    const sm = el("summary");
+    sm.append(el("span", "fc-ln", "📁 " + f.name), el("span", "muted fc-small", t("fc.nLists", { n: lists.length })));
+    det.appendChild(sm);
+    if (!lists.length) det.appendChild(el("p", "muted fc-small", t("fc.noLists")));
+    lists.forEach(l => det.appendChild(fcListBlock(d, l)));
+    det.addEventListener("toggle", () => { fc.open["f:" + f.id] = det.open; });
+    out.appendChild(det);
+  });
+  const loose = arr(d.lists).filter(l => !l.folderId || !folders.some(f => f.id === l.folderId)).sort(byOrder);
+  if (loose.length) {
+    if (folders.length) out.appendChild(el("div", "hint", t("admin.noFolder")));
+    loose.forEach(l => out.appendChild(fcListBlock(d, l)));
+  }
+  if (!folders.length && !loose.length) out.appendChild(el("p", "muted", t("fc.noLists")));
+}
+function fcSearchResults(d, out) {
+  const q = normText(fc.q);
+  const found = arr(d.cards).filter(c => { try { return cardMatches(c, q); } catch (e) { return false; } });
+  out.appendChild(el("p", "muted", t("fc.found", { n: found.length })));
+  const byList = new Map();
+  found.slice(0, FC_SEARCH_MAX).forEach(c => { if (!byList.has(c.listId)) byList.set(c.listId, []); byList.get(c.listId).push(c); });
+  byList.forEach((cs, lid) => {
+    const l = getList(lid), f = l && l.folderId ? getFolder(l.folderId) : null;
+    out.appendChild(el("div", "fc-res-h", (f ? "📁 " + f.name + " › " : "") + "📄 " + (l ? l.name : "?")));
+    cs.forEach(c => out.appendChild(fcCardRow(c)));
+  });
+  if (found.length > FC_SEARCH_MAX) out.appendChild(el("p", "muted", t("fc.andMore", { n: found.length - FC_SEARCH_MAX })));
+}
+
+// Santé des données
+function fcHealth() {
+  const sec = fcSec(t("fc.health"));
+  const st = fc.store;
+  if (!st) { sec.appendChild(el("div", "card q-err", fc.part.store || t("fc.missing"))); }
+  else {
+    const rows = arr(st.rows), big = rows[0];
+    const limit = num(Number(st.limit_kb), FC_LIMIT_KB) * 1024, warn = num(Number(st.warn_kb), FC_WARN_KB) * 1024;
+    const bigB = big ? dashNum(big.bytes) : 0;
+    const bar = el("div", "fc-meter");
+    const fill = el("span", bigB > warn ? "bad" : "");
+    fill.style.width = Math.min(100, Math.round(100 * bigB / limit)) + "%";
+    bar.appendChild(fill);
+    const bigNode = el("div");
+    bigNode.append(el("div", null, big ? big.key + " — " + fcKb(bigB) + " / " + fcKb(limit) + " (" + Math.round(100 * bigB / limit) + " %)" : "—"), bar);
+    const ver = st.version != null ? st.version : fc.version;
+    sec.appendChild(fcDl([
+      [t("fc.total"), fcKb(st.total_bytes) + " · " + t("fc.nChunks", { n: dashNum(st.count) })],
+      [t("fc.biggest"), bigNode],
+      [t("fc.lastSync"), st.last_update ? alTime(st.last_update) : "—"],
+      [t("fc.version"), ver == null ? "—" : String(ver) + (Number(ver) < DATA_VERSION ? " " + t("fc.versionOld", { v: DATA_VERSION }) : "")]
+    ]));
+    const over = rows.filter(r => dashNum(r.bytes) > warn);
+    if (over.length) sec.appendChild(el("div", "card q-err", t("fc.bigWarn", { n: over.length, kb: FC_WARN_KB })));
+    sec.appendChild(el("h4", "fc-h4", t("fc.chunks")));
+    if (rows.length) {
+      const wrap = fcTable([t("fc.chunk"), t("fc.size"), t("fc.updated")], rows.map(r => [r.key, fcKb(r.bytes), r.updated_at ? alTime(r.updated_at) : ""]), 1);
+      wrap.classList.add("fc-scroll");
+      rows.forEach((r, i) => { if (dashNum(r.bytes) > warn) { const tr = wrap.querySelectorAll("tbody tr")[i]; if (tr) tr.classList.add("fc-warnrow"); } });
+      sec.appendChild(wrap);
+    } else sec.appendChild(el("p", "muted", t("admin.noData")));
+  }
+  sec.appendChild(el("h4", "fc-h4", t("fc.issues")));
+  const is = fc.issues;
+  if (!is) sec.appendChild(el("div", "card q-err", fc.part.issues || t("fc.missing")));
+  else if (!is.length) sec.appendChild(el("p", "muted", t("fc.noIssues")));
+  else {
+    const b = el("div", "card fc-clist");
+    is.forEach(r => {
+      const line = el("div", "fc-cline");
+      const m = el("div", "fc-cmain");
+      m.appendChild(el("div", "fc-ct", alKindLabel(r.kind) + (alSummary(r) ? " — " + alSummary(r) : "")));
+      const dv = alDevLabel(r.device);
+      m.appendChild(el("div", "muted fc-small", [alTime(r.created_at), dv].filter(Boolean).join(" · ")));
+      line.appendChild(m);
+      b.appendChild(line);
+    });
+    sec.appendChild(b);
+  }
+  return sec;
+}
+
+// Export CSV de la fiche : une ligne par information (section ; information ; valeur).
+function fcCsv() {
+  const rows = [], S = (sec, k, v) => rows.push([sec, k, v == null || v === "" ? "—" : v]);
+  const a = (fc.sum && fc.sum.account) || {}, v = fc.view, H = t("fc.header");
+  S(H, t("aq.f.account"), fcIdent());
+  S(H, t("dash.c.created"), admDay(a.created_at || (fc.acc && fc.acc.created_at)));
+  S(H, t("fc.lastAct"), admDay(fcLastActivity()));
+  S(H, t("fc.state"), fc.sum ? (a.blocked === true ? t("fc.blocked") : t("fc.active")) : "—");
+  S(H, t("fc.streak"), v ? v.streak : "—"); S(H, t("fc.best"), v ? v.best : "—");
+  S(H, t("fc.freezes"), "—"); S(H, t("fc.goal"), "—");
+  S(H, t("fc.uiLang"), v && v.uiLang ? langName(v.uiLang) : "—"); S(H, t("fc.langs"), v ? fcLangsText(v.langs) : "—");
+  arr(fc.sum && fc.sum.devices).forEach(d => S(H, t("fc.devices"), [t("al.dev." + (d.type || "desktop")), d.os, d.browser, d.installed ? t("al.installed") : t("al.browser"), d.app_version ? "v" + d.app_version : "", admDay(d.last_seen)].filter(Boolean).join(" · ")));
+  S(H, t("fc.friends"), "—");
+  if (fc.sum) {
+    const R = t("fc.reviews"), P = fc.sum.periods || {};
+    [["d7", "dash.p7"], ["d30", "dash.p30"], ["all", "fc.pAll"]].forEach(([k, l]) => {
+      const p = P[k] || {}, g = f => num(Number(p[f]), 0), per = " (" + t(l) + ")";
+      S(R, t("dash.col.sessions") + per, g("sessions"));
+      S(R, t("dash.col.reviewed") + per, g("reviewed"));
+      S(R, t("dash.col.rate") + per, g("reviewed") ? dashRateCsv(Math.round(1000 * Math.min(g("correct"), g("reviewed")) / g("reviewed")) / 10) : "—");
+      S(R, t("fc.activeDays") + per, g("active_days"));
+      S(R, t("dash.col.minutes") + per, g("minutes"));
+    });
+    arr(fc.sum.hours).filter(h => dashNum(h.sessions) > 0).forEach(h => S(R, t("fc.hours") + " " + String(h.h).padStart(2, "0") + " h", dashNum(h.sessions)));
+    arr(fc.sum.modes).forEach(m => S(R, t("fc.modes") + " : " + (I18N.fr["mode." + m.mode] ? t("mode." + m.mode) : m.mode), dashNum(m.sessions)));
+  }
+  if (v) {
+    const C = t("fc.content");
+    S(C, t("fc.folders"), v.folders); S(C, t("fc.lists"), v.lists); S(C, t("fc.cards"), v.cards);
+    CARD_TYPES.forEach(ty => { if (v.types[ty].some(n => n > 0)) v.types[ty].forEach((n, b) => S(C, t("type." + ty) + " · " + t("fc.box", { n: b }), n)); });
+    v.boxes.forEach((n, b) => S(C, t("fc.total") + " · " + t("fc.box", { n: b }), n));
+    Object.keys(v.targets).forEach(c => S(C, t("fc.lang") + " : " + langName(c), v.targets[c]));
+    S(C, t("fc.gaps"), v.gaps); S(C, t("fc.pending"), v.proposals); S(C, t("fc.shared"), "—");
+    const D = t("fc.diff");
+    v.missed.forEach((x, i) => S(D, t("fc.missed") + " " + (i + 1), [x.title, x.sub].filter(Boolean).join(" · ") + " — " + t("stats.missedCount", { w: x.wrong, s: x.seen })));
+    v.tenses.forEach(x => S(D, t("fc.tenses") + " : " + x.name, t("stats.missedCount", { w: x.wrong, s: x.seen })));
+    S(D, t("fc.blocked0", { n: v.blocked.length }), v.blocked.length);
+    v.blocked.forEach(x => S(D, t("fc.blockedOne"), [x.title, x.sub].filter(Boolean).join(" · ") + " — " + t("fc.seenN", { n: x.seen })));
+  }
+  if (fc.store) {
+    const Hh = t("fc.health");
+    S(Hh, t("fc.total"), Math.round(dashNum(fc.store.total_bytes) / 1024) + " " + t("fc.kb"));
+    S(Hh, t("fc.lastSync"), fc.store.last_update ? alTime(fc.store.last_update) : "—");
+    S(Hh, t("fc.version"), fc.store.version != null ? fc.store.version : fc.version);
+    arr(fc.store.rows).forEach(r => S(Hh, t("fc.chunk") + " " + r.key, Math.round(dashNum(r.bytes) / 1024) + " " + t("fc.kb") + (dashNum(r.bytes) > FC_WARN_KB * 1024 ? " ⚠" : "")));
+    arr(fc.issues).forEach(r => S(Hh, alKindLabel(r.kind) + " " + admDay(r.created_at), alSummary(r)));
+  }
+  dashSaveCsv("fiche-" + fcIdent(), [t("fc.c.section"), t("dash.c.indicator"), t("dash.c.value")], rows);
+}
+
+// --- Gestion des comptes (admin, étape 27) : annonces (#admin-annonces) et listes modèles (#admin-modeles) ---
+// Fonctions SQL du script supabase-etape27.sql (security definer, contrôle is_admin()).
+// Script pas lancé : « Lancez le script SQL de l'étape 27 » dans ces écrans, le reste de l'administration marche.
+function st27Missing(e) { return alIsMissing(e) ? t("st27.missing") : aqErrText(e); }
+// Liste des comptes et comptes bloqués, chargés une fois si besoin (sélection des comptes visés).
+async function admEnsureList() {
+  if (!adm.list) { try { adm.list = arr(await Supa.listAccounts()); } catch (e) {} }
+  if (!Object.keys(adm.blocked || {}).length && !adm.blockMissing) await admLoadBlocked();
+  return arr(adm.list);
+}
+// Date ISO ↔ valeur d'un champ datetime-local (heure de cet appareil).
+function anToLocal(iso) {
+  const d = iso ? new Date(iso) : new Date();
+  if (isNaN(d)) return "";
+  const p = n => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes());
+}
+function anFromLocal(v) { if (!v) return null; const d = new Date(v); return isNaN(d) ? undefined : d.toISOString(); }
+// Case à cocher d'un compte (sélection multiple) ; tags admin / bloqué.
+function admAccountCheck(a, checked, onChange) {
+  const r = el("label", "check");
+  const cb = el("input"); cb.type = "checkbox"; cb.checked = !!checked;
+  cb.addEventListener("change", () => onChange(cb.checked));
+  const sp = el("span", null, a.identifiant);
+  if (admIsBlocked(a.user_id)) sp.appendChild(el("span", "tag bad", t("blk.tag")));
+  r.append(cb, sp);
+  return { row: r, cb };
+}
+
+// ---- Annonces ----
+const AN_LANGS = ["ko", "fr", "en"];
+const an = { list: null, loading: false, err: "", missing: false, started: false };
+function anRerender() { if (currentScreen === "adminann") renderAdminAnn(); }
+async function anLoad() {
+  an.loading = true; an.err = ""; an.started = true;
+  anRerender();
+  try { an.list = arr(await aqRpc("admin_announcements")); an.missing = false; }
+  catch (e) { an.missing = alIsMissing(e); an.err = st27Missing(e); if (an.missing) an.list = null; }
+  an.loading = false;
+  anRerender();
+}
+function renderAdminAnn() {
+  const root = $("#screen-adminann");
+  if (!root) return;
+  root.textContent = "";
+  const back = el("button", "link-btn", t("aq.back"));
+  back.addEventListener("click", () => { location.hash = "#" + HASH_OF.admin; });
+  root.appendChild(back);
+  const top = el("div", "adm-top");
+  top.appendChild(el("h2", null, t("an.title")));
+  const ref = el("button", "link-btn", t("admin.refresh"));
+  ref.addEventListener("click", anLoad);
+  top.appendChild(ref);
+  root.appendChild(top);
+  if (!an.started) { anLoad(); return; }
+  if (an.loading && !an.list) { root.appendChild(el("div", "empty", t("admin.loading"))); return; }
+  if (an.err) root.appendChild(el("div", "card q-err", an.err));
+  if (an.missing) return;
+  root.appendChild(el("p", "muted an-intro", t("an.intro")));
+  const add = el("button", "btn primary", t("an.new"));
+  add.addEventListener("click", () => anEdit(null));
+  root.appendChild(add);
+  const list = arr(an.list);
+  if (!list.length) { root.appendChild(el("div", "empty", t("an.empty"))); return; }
+  const box = el("div", "an-list");
+  list.forEach(a => box.appendChild(anItem(a)));
+  root.appendChild(box);
+}
+function anStatusTag(st) {
+  const cls = { active: "ok", scheduled: "", ended: "", inactive: "warn" }[st];
+  return el("span", "tag" + (cls ? " " + cls : ""), t("an.st." + (["active", "scheduled", "ended", "inactive"].includes(st) ? st : "inactive")));
+}
+function anLangsOf(a) { return AN_LANGS.filter(l => String((a.body && a.body[l]) || (a.title && a.title[l]) || "").trim()); }
+function anItem(a) {
+  const c = el("div", "card an-item");
+  const tx = Ann.texts(a, state.settings.uiLang) || { title: "", body: "" };
+  const head = el("div", "an-head");
+  const h = el("div", "an-t", tx.title || tx.body.slice(0, 60) || "—");
+  if (tx.lang) h.lang = tx.lang;
+  head.append(h, anStatusTag(a.status));
+  c.appendChild(head);
+  if (tx.title && tx.body) { const b = el("div", "an-prev", tx.body); if (tx.lang) b.lang = tx.lang; c.appendChild(b); }
+  const names = arr(a.targets).map(x => x.identifiant);
+  const to = a.target_all ? t("an.toAll") : t("an.toN", { n: names.length }) + " : " + names.slice(0, 6).join(", ") + (names.length > 6 ? "…" : "");
+  const meta = el("div", "an-meta");
+  [
+    t("an.langs") + " : " + anLangsOf(a).map(l => l.toUpperCase()).join(" · "),
+    to,
+    t("an.from", { d: alTime(a.starts_at) }) + " — " + (a.ends_at ? t("an.to", { d: alTime(a.ends_at) }) : t("an.noEnd")),
+    t("an.reads", { r: dashFmt(a.read_count), n: dashFmt(a.target_count) })
+  ].forEach(x => meta.appendChild(el("div", null, x)));
+  c.appendChild(meta);
+  const acts = el("div", "an-acts");
+  const btn = (label, cls, on) => { const b = el("button", "btn" + (cls ? " " + cls : ""), label); b.type = "button"; b.addEventListener("click", on); acts.appendChild(b); };
+  btn(t("an.edit"), "", () => anEdit(a));
+  btn(t("an.readsBtn"), "", () => anReads(a));
+  if (a.active) btn(t("an.off"), "danger", () => anSetActive(a, false));
+  else btn(t("an.on"), "", () => anSetActive(a, true));
+  c.appendChild(acts);
+  return c;
+}
+async function anEdit(a) {
+  const accounts = (await admEnsureList()).filter(x => !x.est_admin);
+  const f = {
+    title: {}, body: {}, all: a ? !!a.target_all : true,
+    targets: new Set(a ? arr(a.targets).map(x => x.user_id) : []),
+    starts: anToLocal(a ? a.starts_at : null), ends: a && a.ends_at ? anToLocal(a.ends_at) : ""
+  };
+  AN_LANGS.forEach(l => { f.title[l] = String((a && a.title && a.title[l]) || ""); f.body[l] = String((a && a.body && a.body[l]) || ""); });
+  const wrap = el("div", "an-form");
+  wrap.appendChild(el("p", "hint", t("an.langHint")));
+  AN_LANGS.forEach(l => {
+    const fs = el("fieldset", "an-lang");
+    fs.appendChild(el("legend", null, langName(l) + " (" + l.toUpperCase() + ")"));
+    const ti = textInput(f.title[l], t("an.titlePh"), l);
+    ti.maxLength = 120;
+    ti.addEventListener("input", () => { f.title[l] = ti.value; });
+    const ta = el("textarea", "input an-ta");
+    ta.rows = 4; ta.maxLength = 4000; ta.lang = l; ta.value = f.body[l]; ta.placeholder = t("an.bodyPh");
+    ta.addEventListener("input", () => { f.body[l] = ta.value; });
+    fs.append(formField(t("an.fTitle"), ti), formField(t("an.fBody"), ta));
+    wrap.appendChild(fs);
+  });
+  // Cible
+  const seg = el("div", "seg");
+  const pick = el("div", "adm-pick an-pick");
+  const cnt = el("div", "hint");
+  const showCnt = () => { cnt.textContent = t("an.nChosen", { n: f.targets.size }); };
+  const setAll = v => {
+    f.all = v;
+    seg.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.v === "all") === v)));
+    pick.hidden = v; cnt.hidden = v;
+  };
+  [["all", "an.toAll"], ["some", "an.toSome"]].forEach(([v, k]) => {
+    const b = el("button", null, t(k)); b.type = "button"; b.dataset.v = v;
+    b.addEventListener("click", () => setAll(v === "all"));
+    seg.appendChild(b);
+  });
+  accounts.forEach(x => pick.appendChild(admAccountCheck(x, f.targets.has(x.user_id), on => { if (on) f.targets.add(x.user_id); else f.targets.delete(x.user_id); showCnt(); }).row));
+  if (!accounts.length) pick.appendChild(el("div", "hint", t("admin.empty")));
+  const tg = el("div");
+  tg.append(seg, pick, cnt);
+  wrap.appendChild(formField(t("an.target"), tg, false, t("an.targetHint")));
+  setAll(f.all); showCnt();
+  // Dates
+  const st = el("input", "input"); st.type = "datetime-local"; st.value = f.starts;
+  const en = el("input", "input"); en.type = "datetime-local"; en.value = f.ends;
+  const row = el("div", "an-dates");
+  row.append(formField(t("an.start"), st), formField(t("an.end"), en, false, t("an.endHint")));
+  wrap.appendChild(row);
+  let busy = false;
+  const close = openModal(t(a ? "an.editTitle" : "an.new"), wrap, [
+    { label: t("cancel") },
+    { label: t("save"), kind: "primary", onClick: () => {
+      if (busy) return false;
+      const title = {}, body = {};
+      AN_LANGS.forEach(l => { const ti = f.title[l].trim(), bo = f.body[l].trim(); if (ti) title[l] = ti; if (bo) body[l] = bo; });
+      if (!Object.keys(title).length && !Object.keys(body).length) { toast(t("an.err.text")); return false; }
+      if (!f.all && !f.targets.size) { toast(t("an.err.targets")); return false; }
+      const s0 = anFromLocal(st.value) || new Date().toISOString(), e0 = anFromLocal(en.value);
+      if (e0 === undefined || (e0 && Date.parse(e0) <= Date.parse(s0))) { toast(t("an.err.dates")); return false; }
+      busy = true;
+      (async () => {
+        try {
+          const id = await aqRpc("admin_announcement_save", { p_id: a ? a.id : null, p_title: title, p_body: body, p_target_all: f.all,
+            p_targets: f.all ? null : Array.from(f.targets), p_starts: s0, p_ends: e0 || null, p_active: a ? !!a.active : true });
+          const show = Ann.texts({ title, body }, state.settings.uiLang) || { title: "", body: "" };
+          Activity.log(a ? "admin_announce_edit" : "admin_announce_create", { title: (show.title || show.body).slice(0, 60),
+            to: f.all ? "all" : f.targets.size, langs: Object.keys(Object.assign({}, title, body)).join(","), id: String(id || "").slice(0, 8) });
+          toast(t("an.saved"));
+          close();
+          anLoad();
+        } catch (e) { busy = false; toast(st27Missing(e)); }
+      })();
+      return false;
+    } }
+  ]);
+}
+async function anSetActive(a, on) {
+  try {
+    await aqRpc("admin_announcement_set_active", { p_id: a.id, p_active: on });
+    const tx = Ann.texts(a, state.settings.uiLang) || { title: "", body: "" };
+    Activity.log(on ? "admin_announce_on" : "admin_announce_off", { title: (tx.title || tx.body).slice(0, 60) });
+    toast(t(on ? "an.onDone" : "an.offDone"));
+    anLoad();
+  } catch (e) { toast(st27Missing(e)); }
+}
+async function anReads(a) {
+  let d;
+  try { d = await aqRpc("admin_announcement_reads", { p_id: a.id }); } catch (e) { toast(st27Missing(e)); return; }
+  if (!d) { toast(t("admin.err")); return; }
+  const wrap = el("div", "an-reads");
+  const read = arr(d.read), unread = arr(d.unread);
+  wrap.appendChild(el("h4", "fc-h4", t("an.readBy", { n: read.length })));
+  const r1 = el("div", "items an-rl");
+  if (!read.length) r1.appendChild(el("div", "hint an-none", t("an.nobody")));
+  read.forEach(x => { const it = el("div", "an-r"); it.append(el("span", null, x.identifiant), el("span", "muted", alTime(x.read_at))); r1.appendChild(it); });
+  wrap.appendChild(r1);
+  wrap.appendChild(el("h4", "fc-h4", t("an.unreadBy", { n: unread.length })));
+  const r2 = el("div", "items an-rl");
+  if (!unread.length) r2.appendChild(el("div", "hint an-none", t("an.everyone")));
+  unread.forEach(x => { const it = el("div", "an-r"); it.appendChild(el("span", null, x.identifiant)); r2.appendChild(it); });
+  wrap.appendChild(r2);
+  const tx = Ann.texts(a, state.settings.uiLang) || { title: "" };
+  openModal(t("an.readsTitle") + (tx.title ? " — " + tx.title : ""), wrap, [{ label: t("close") }]);
+}
+
+// ---- Listes modèles ----
+// Bibliothèque = listes et dossiers de l'admin marqués « Modèle » (table template_marks). Envoi = copie des cartes sans
+// progression (boîte 0) chez chaque compte choisi, dans un dossier nouveau, existant (même nom, créé s'il manque) ou sans
+// dossier. Suivi (template_sends) : modèle d'origine → compte, date, correspondance des listes et des cartes.
+// Modèle déjà reçu par un compte : ignorer ce compte, ou ajouter seulement les cartes jamais reçues (dans la liste déjà
+// reçue si elle existe encore chez lui, sinon dans une nouvelle liste). Bilan à la fin. Chaque envoi noté au journal.
+const tp = { marks: null, loading: false, err: "", missing: false, started: false, busy: false };
+function tpRerender() { if (currentScreen === "admintpl") renderAdminTpl(); }
+async function tpLoad() {
+  tp.loading = true; tp.err = ""; tp.started = true;
+  tpRerender();
+  try { tp.marks = arr(await aqRpc("admin_templates")); tp.missing = false; }
+  catch (e) { tp.missing = alIsMissing(e); tp.err = st27Missing(e); if (tp.missing) tp.marks = null; }
+  tp.loading = false;
+  tpRerender();
+}
+function tpMark(kind, id) { return arr(tp.marks).find(m => m.kind === kind && m.item_id === id) || null; }
+// Contenu d'un modèle (données de l'admin, ouvertes dans l'appli).
+function tpSource(kind, id) {
+  let name, lists, folderLg = null;
+  if (kind === "folder") { const f = getFolder(id); if (!f) return null; name = f.name; lists = listsIn(f.id); folderLg = folderLangs(f); }
+  else { const l = getList(id); if (!l) return null; name = l.name; lists = [l]; }
+  const ids = new Set(lists.map(l => l.id));
+  return { kind, id, name, folderLg, lists: lists.map(l => ({ id: l.id, name: l.name, lg: listLangs(l) })), cards: state.cards.filter(c => ids.has(c.listId)) };
+}
+function renderAdminTpl() {
+  const root = $("#screen-admintpl");
+  if (!root) return;
+  root.textContent = "";
+  const back = el("button", "link-btn", t("aq.back"));
+  back.addEventListener("click", () => { location.hash = "#" + HASH_OF.admin; });
+  root.appendChild(back);
+  const top = el("div", "adm-top");
+  top.appendChild(el("h2", null, t("tp.title")));
+  const ref = el("button", "link-btn", t("admin.refresh"));
+  ref.addEventListener("click", tpLoad);
+  top.appendChild(ref);
+  root.appendChild(top);
+  if (!tp.started) { tpLoad(); return; }
+  if (tp.loading && !tp.marks) { root.appendChild(el("div", "empty", t("admin.loading"))); return; }
+  if (tp.err) root.appendChild(el("div", "card q-err", tp.err));
+  if (tp.missing || !tp.marks) return;
+  root.appendChild(el("p", "muted an-intro", t("tp.intro")));
+  const n = tp.marks.length;
+  root.appendChild(el("div", "hint tp-count", t("tp.nMarked", { n })));
+  const box = el("div", "items tp-items");
+  const nCards = ids => state.cards.filter(c => ids.has(c.listId)).length;
+  sortedFolders().forEach(f => {
+    const ls = listsIn(f.id);
+    box.appendChild(tpRow("folder", f.id, "📁 " + f.name, t("tp.metaFolder", { l: ls.length, n: nCards(new Set(ls.map(l => l.id))) }), false, f.name));
+    ls.forEach(l => box.appendChild(tpRow("list", l.id, l.name, t("tp.metaList", { n: cardsOf(l.id).length }), true, l.name)));
+  });
+  const loose = listsIn(null);
+  if (loose.length && state.folders.length) box.appendChild(el("div", "tp-sep", t("admin.noFolder")));
+  loose.forEach(l => box.appendChild(tpRow("list", l.id, l.name, t("tp.metaList", { n: cardsOf(l.id).length }), false, l.name)));
+  if (!state.lists.length && !state.folders.length) box.appendChild(el("div", "empty", t("tp.noLists")));
+  root.appendChild(box);
+  // Marques dont la liste ou le dossier n'existe plus
+  const gone = tp.marks.filter(m => m.kind === "folder" ? !getFolder(m.item_id) : !getList(m.item_id));
+  if (gone.length) {
+    root.appendChild(el("h3", "fc-h", t("tp.gone")));
+    const g = el("div", "items tp-items");
+    gone.forEach(m => {
+      const r = el("div", "tp-row");
+      const main = el("div", "tp-main");
+      main.append(el("div", "t1", (m.kind === "folder" ? "📁 " : "") + (m.name || "?")), el("div", "t2", tpRecvText(m)));
+      const b = el("button", "btn", t("tp.unmark"));
+      b.type = "button";
+      b.addEventListener("click", () => tpSetMark(m.kind, m.item_id, m.name, false));
+      r.append(main, b);
+      g.appendChild(r);
+    });
+    root.appendChild(g);
+  }
+}
+function tpRecvText(m) {
+  const a = num(Number(m.accounts), 0);
+  return a ? t("tp.recv", { n: a, d: admDate(m.last_sent_at) }) : t("tp.never");
+}
+function tpRow(kind, id, label, meta, sub, name) {
+  const m = tpMark(kind, id);
+  const r = el("div", "tp-row" + (sub ? " sub" : "") + (m ? " on" : ""));
+  const main = el("div", "tp-main");
+  main.appendChild(el("div", "t1", label));
+  main.appendChild(el("div", "t2", meta));
+  if (m) main.appendChild(el("div", "t2 tp-recv", tpRecvText(m)));
+  const acts = el("div", "tp-acts");
+  const lab = el("label", "check tp-check");
+  const cb = el("input"); cb.type = "checkbox"; cb.checked = !!m; cb.disabled = tp.busy;
+  cb.addEventListener("change", () => tpSetMark(kind, id, name, cb.checked));
+  lab.append(cb, el("span", null, t("tp.model")));
+  acts.appendChild(lab);
+  if (m) {
+    const b = el("button", "btn primary tp-send", t("tp.send"));
+    b.type = "button";
+    b.addEventListener("click", () => tpSend(kind, id));
+    acts.appendChild(b);
+  }
+  r.append(main, acts);
+  return r;
+}
+async function tpSetMark(kind, id, name, on) {
+  if (tp.busy) return;
+  tp.busy = true;
+  try { await aqRpc("admin_template_mark", { p_kind: kind, p_item: id, p_name: String(name || "").slice(0, 200), p_on: on }); toast(t(on ? "tp.marked" : "tp.unmarked")); }
+  catch (e) { toast(st27Missing(e)); }
+  tp.busy = false;
+  tpLoad();
+}
+// Étape 1 : comptes visés.
+async function tpSend(kind, id) {
+  const src = tpSource(kind, id);
+  if (!src) { toast(t("tp.goneOne")); return; }
+  if (!src.cards.length) { toast(t("tp.emptyTpl")); return; }
+  const accounts = (await admEnsureList()).filter(a => a.user_id !== auth.sbUid);
+  if (!accounts.length) { toast(t("tp.noAccounts")); return; }
+  const sel = new Set();
+  const wrap = el("div");
+  wrap.appendChild(el("p", null, t("tp.sendIntro", { name: src.name, n: src.cards.length, l: src.lists.length })));
+  const boxes = [];
+  const cnt = el("div", "hint");
+  const show = () => { cnt.textContent = t("an.nChosen", { n: sel.size }); allCb.checked = sel.size === accounts.length; };
+  const allRow = el("label", "check tp-all");
+  const allCb = el("input"); allCb.type = "checkbox";
+  allCb.addEventListener("change", () => { accounts.forEach((a, i) => { boxes[i].checked = allCb.checked; if (allCb.checked) sel.add(a.user_id); else sel.delete(a.user_id); }); show(); });
+  allRow.append(allCb, el("span", null, t("tp.all", { n: accounts.length })));
+  wrap.appendChild(allRow);
+  const pick = el("div", "adm-pick");
+  accounts.forEach(a => {
+    const x = admAccountCheck(a, false, on => { if (on) sel.add(a.user_id); else sel.delete(a.user_id); show(); });
+    boxes.push(x.cb); pick.appendChild(x.row);
+  });
+  wrap.append(pick, cnt);
+  show();
+  openModal(t("tp.sendTitle") + " — " + src.name, wrap, [
+    { label: t("cancel") },
+    { label: t("tp.next"), kind: "primary", onClick: () => {
+      if (!sel.size) { toast(t("an.err.targets")); return false; }
+      tpPrepare(src, accounts.filter(a => sel.has(a.user_id)));
+    } }
+  ]);
+}
+// Lecture des données des comptes visés et de ce qu'ils ont déjà reçu, puis étape 2.
+async function tpPrepare(src, targets) {
+  const pg = openProgress(t("tp.reading"), "0 / " + targets.length);
+  const data = {};
+  let recv = [];
+  try {
+    recv = arr(await aqRpc("admin_template_received", { p_kind: src.kind, p_item: src.id, p_users: targets.map(a => a.user_id) }));
+    for (let i = 0; i < targets.length; i++) {
+      const a = targets[i];
+      data[a.user_id] = await admRead(a);
+      pg.set((i + 1) / targets.length, (i + 1) + " / " + targets.length);
+    }
+  } catch (e) { pg.close(); toast(st27Missing(e)); return; }
+  pg.close();
+  tpStep2(src, targets, data, recv);
+}
+// Étape 2 : dossier de destination, et choix pour les comptes qui ont déjà reçu ce modèle.
+function tpStep2(src, targets, data, recv) {
+  const recvMap = {};
+  recv.forEach(r => { if (r && r.user_id) recvMap[r.user_id] = r; });
+  const already = targets.filter(a => recvMap[a.user_id]);
+  const opt = { dest: "new", name: src.name, exist: "", again: "add" };
+  const wrap = el("div");
+  wrap.appendChild(el("p", "muted", t("tp.toN", { n: targets.length }) + " : " + targets.map(a => a.identifiant).slice(0, 12).join(", ") + (targets.length > 12 ? "…" : "")));
+  // Dossiers existants chez les comptes visés (par nom)
+  const names = new Map();
+  targets.forEach(a => {
+    const seen = new Set();
+    arr(data[a.user_id] && data[a.user_id].folders).forEach(f => {
+      const k = String(f.name || "").trim().toLowerCase();
+      if (!k || seen.has(k)) return;
+      seen.add(k);
+      const x = names.get(k) || { name: String(f.name).trim(), n: 0 };
+      x.n++; names.set(k, x);
+    });
+  });
+  const seg = el("div", "seg");
+  const nameInp = textInput(opt.name, "");
+  nameInp.maxLength = 80;
+  nameInp.addEventListener("input", () => { opt.name = nameInp.value; });
+  const exSel = el("select", "input");
+  Array.from(names.values()).sort((x, y) => y.n - x.n || x.name.localeCompare(y.name)).forEach(x => {
+    const o = el("option", null, x.name + " (" + x.n + " / " + targets.length + ")"); o.value = x.name; exSel.appendChild(o);
+  });
+  opt.exist = exSel.value || "";
+  exSel.addEventListener("change", () => { opt.exist = exSel.value; });
+  const fNew = formField(t("tp.folderName"), nameInp);
+  const fEx = formField(t("tp.folderExist"), exSel, false, t("tp.existHint"));
+  const fNone = el("div", "hint", t("tp.noneHint"));
+  const setDest = v => {
+    opt.dest = v;
+    seg.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === v)));
+    fNew.hidden = v !== "new"; fEx.hidden = v !== "existing"; fNone.hidden = v !== "none";
+  };
+  [["new", "tp.dNew"], ["existing", "tp.dExist"], ["none", "tp.dNone"]].forEach(([v, k]) => {
+    const b = el("button", null, t(k)); b.type = "button"; b.dataset.v = v;
+    if (v === "existing" && !names.size) b.disabled = true;
+    b.addEventListener("click", () => setDest(v));
+    seg.appendChild(b);
+  });
+  const dbox = el("div");
+  dbox.append(seg, fNew, fEx, fNone);
+  wrap.appendChild(formField(t("tp.dest"), dbox));
+  setDest("new");
+  if (already.length) {
+    const c = el("div", "card tp-again");
+    c.appendChild(el("p", null, t("tp.already", { n: already.length, ids: already.map(a => a.identifiant).slice(0, 12).join(", ") + (already.length > 12 ? "…" : "") })));
+    const s2 = el("div", "seg");
+    [["add", "tp.addNew"], ["skip", "tp.skip"]].forEach(([v, k]) => {
+      const b = el("button", null, t(k)); b.type = "button";
+      b.setAttribute("aria-pressed", String(v === opt.again));
+      b.addEventListener("click", () => { opt.again = v; s2.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); });
+      s2.appendChild(b);
+    });
+    c.appendChild(s2);
+    c.appendChild(el("div", "hint", t("tp.alreadyHint")));
+    wrap.appendChild(c);
+  }
+  openModal(t("tp.sendTitle") + " — " + src.name, wrap, [
+    { label: t("cancel") },
+    { label: t("tp.go"), kind: "primary", onClick: () => {
+      const dest = { mode: opt.dest, name: (opt.dest === "existing" ? opt.exist : opt.name).trim() };
+      if (dest.mode !== "none" && !dest.name) { toast(t("tp.err.folder")); return false; }
+      tpRun(src, targets, data, recvMap, dest, opt.again);
+    } }
+  ]);
+}
+// Copie des cartes d'un modèle dans les données d'un compte (out, modifié sur place). r = ce qu'il a déjà reçu (ou null).
+// Renvoie { cards, lists, folderId, listMap, cardMap } (listMap / cardMap : seulement ce qui est créé maintenant).
+function tpApply(out, src, dest, r) {
+  const now = Date.now();
+  const res = { cards: 0, lists: 0, folderId: null, listMap: {}, cardMap: {} };
+  const maxOrder = a => a.reduce((m, x) => Math.max(m, num(x.order, -1)), -1);
+  const hasFolder = id => !!id && out.folders.some(f => f.id === id);
+  const hasList = id => !!id && out.lists.some(l => l.id === id);
+  const prevCards = (r && r.card_map && typeof r.card_map === "object") ? r.card_map : {};
+  const prevLists = (r && r.list_map && typeof r.list_map === "object") ? r.list_map : {};
+  let folderId;   // undefined = pas encore choisi
+  const destFolder = () => {
+    if (folderId !== undefined) return folderId;
+    if (r && hasFolder(r.folder_id)) return (folderId = r.folder_id);           // dossier du premier envoi, s'il existe encore
+    if (dest.mode === "none") return (folderId = null);
+    if (dest.mode === "existing") {
+      const k = dest.name.toLowerCase();
+      const f = out.folders.find(x => String(x.name || "").trim().toLowerCase() === k);
+      if (f) return (folderId = f.id);
+    }
+    const nf = { id: uid(), name: dest.name, order: maxOrder(out.folders) + 1 };
+    if (src.folderLg) { nf.target = src.folderLg.target; nf.support = src.folderLg.support.slice(); }
+    out.folders.push(nf);
+    return (folderId = nf.id);
+  };
+  const idMap = Object.assign({}, prevCards);   // carte du modèle → carte du compte (liens vers les règles)
+  const made = [];
+  src.lists.forEach(l => {
+    const cards = src.cards.filter(c => c.listId === l.id && !prevCards[c.id]);
+    let lid = hasList(prevLists[l.id]) ? prevLists[l.id] : null;
+    if (!cards.length && (r || lid)) return;      // rien de nouveau dans cette liste
+    if (!lid) {
+      const fid = destFolder();
+      const nl = { id: uid(), name: l.name, folderId: fid, order: maxOrder(out.lists.filter(x => (x.folderId || null) === fid)) + 1, createdAt: now,
+        target: l.lg.target, support: l.lg.support.slice() };
+      out.lists.push(nl);
+      lid = nl.id; res.lists++; res.listMap[l.id] = lid;
+    }
+    cards.forEach(c => {
+      const nc = JSON.parse(JSON.stringify(c));
+      nc.id = uid(); nc.listId = lid;
+      nc.box = 0; nc.dueAt = now; nc.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null };   // sans progression
+      out.cards.push(nc); made.push(nc);
+      idMap[c.id] = nc.id; res.cardMap[c.id] = nc.id; res.cards++;
+    });
+  });
+  made.forEach(c => { if (c.ruleId && idMap[c.ruleId]) c.ruleId = idMap[c.ruleId]; });
+  res.folderId = folderId !== undefined ? folderId : (r && hasFolder(r.folder_id) ? r.folder_id : null);
+  return res;
+}
+async function tpRun(src, targets, data, recvMap, dest, again) {
+  const results = [];
+  const pg = openProgress(t("tp.sending"), "0 / " + targets.length);
+  for (let i = 0; i < targets.length; i++) {
+    const a = targets[i], r = recvMap[a.user_id] || null;
+    pg.set(i / targets.length, a.identifiant + " · " + (i + 1) + " / " + targets.length);
+    if (r && again === "skip") { results.push({ a, st: "skipped" }); continue; }
+    let wrote = false;
+    try {
+      let out = data[a.user_id] ? JSON.parse(JSON.stringify(data[a.user_id])) : emptyData();
+      const res = tpApply(out, src, dest, r);
+      if (r && !res.cards && !res.lists) { results.push({ a, st: "uptodate" }); continue; }
+      out = normalizeData(out);
+      await admWrite(a, out);
+      wrote = true;
+      await aqRpc("admin_template_record_send", { p_kind: src.kind, p_item: src.id, p_name: src.name, p_user: a.user_id,
+        p_mode: r ? "new_only" : "full", p_folder: res.folderId, p_list_map: res.listMap, p_card_map: res.cardMap, p_cards: res.cards, p_lists: res.lists });
+      Activity.log("admin_template_send", { target: a.identifiant, template: src.name, mode: r ? "new_only" : "full", cards: res.cards, lists: res.lists });
+      results.push({ a, st: r ? "added" : "sent", cards: res.cards, lists: res.lists });
+    } catch (e) {
+      results.push({ a, st: wrote ? "notrack" : "error", err: st27Missing(e) });
+    }
+  }
+  pg.set(1, "");
+  pg.close();
+  tpReport(src, results);
+  loadAdmin();
+  tpLoad();
+}
+function tpReport(src, results) {
+  const c = k => results.filter(x => x.st === k).length;
+  const cards = results.reduce((s, x) => s + num(x.cards, 0), 0);
+  const wrap = el("div");
+  wrap.appendChild(el("p", null, t("tp.sum", { sent: c("sent"), added: c("added"), up: c("uptodate"), skip: c("skipped"), err: c("error") + c("notrack"), cards })));
+  const rows = results.map(x => {
+    let txt;
+    if (x.st === "sent" || x.st === "added") txt = t("tp.r." + x.st, { n: x.cards, l: x.lists });
+    else if (x.st === "error" || x.st === "notrack") txt = t("tp.r." + x.st) + (x.err ? " — " + x.err : "");
+    else txt = t("tp.r." + x.st);
+    return [x.a.identifiant, txt];
+  });
+  wrap.appendChild(fcTable([t("aq.f.account"), t("tp.result")], rows, 99));
+  openModal(t("tp.reportTitle") + " — " + src.name, wrap, [{ label: t("close"), kind: "primary" }]);
+}
+
 // === CONNEXION ===
 // Deux modes, choisis au lancement (INIT) :
 //  - "supabase" (config.js rempli) : Supabase Auth. Email technique <identifiant>@vocab.local, mot de passe = SHA-256(identifiant:PIN).
@@ -10174,7 +12840,7 @@ async function adminDevices(a) {
 // Identifiant inconnu à la connexion : proposition de créer le compte.
 const auth = {
   mode: "local", view: "loading", reg: { accounts: [], migrated: false }, legacy: null, backupAsked: false, busy: false,
-  msg: null, err: null, isAdmin: false, sbUid: null, lastPin: "", forceId: "", forceTarget: null,
+  msg: null, err: null, isAdmin: false, sbUid: null, lastPin: "", forceId: "", forceTarget: null, blocked: null,
   form: { id: "", pin: "", pin2: "", target: LANG_DEFAULT }
 };
 
@@ -10214,7 +12880,8 @@ function errText(kind) {
   return t({ net: "auth.err.net", exists: "auth.err.exists", confirm: "auth.err.confirm", same: "auth.err.same", wrong: "auth.err.wrong" }[kind] || "auth.err.server");
 }
 
-// Affiche l'écran de connexion. view : "loading" | "login" | "create" | "force" (nouveau PIN obligatoire) | "libError".
+// Affiche l'écran de connexion. view : "loading" | "login" | "create" | "force" (nouveau PIN obligatoire) | "libError"
+// | "blocked" (compte bloqué par l'admin, étape 27 : déjà déconnecté).
 function showAuth(view) {
   const v = view || "login";
   if (v !== auth.view && v !== "loading" && auth.view !== "loading") auth.err = null;
@@ -10270,6 +12937,7 @@ function renderAuth() {
     return;
   }
   if (auth.view === "force") { renderForcePin(root); return; }
+  if (auth.view === "blocked") { renderBlocked(root); return; }
   const sbMode = auth.mode === "supabase";
   const first = !sbMode && !auth.reg.accounts.length;
   const creating = first || auth.view === "create";
@@ -10421,6 +13089,8 @@ async function enterSupabase(session, target) {
     if (!prof) throw e;
   }
   const id = normId((prof && prof.identifiant) || String(session.user.email || "").split("@")[0]);
+  // Compte bloqué par l'admin (étape 27) : écran « Compte bloqué » avec la raison, puis déconnexion (données gardées).
+  if (prof && prof.blocked === true) { await showBlocked(id, prof.blocked_reason); return; }
   auth.sbUid = userUuid;
   auth.isAdmin = !!(prof && prof.is_admin);
   try { localStorage.setItem(CONFIG.LS_SB_PROFILE, JSON.stringify({ uid: userUuid, identifiant: id, is_admin: auth.isAdmin })); } catch (e) {}
@@ -10432,6 +13102,35 @@ async function enterSupabase(session, target) {
   }
   Supa.touch().catch(() => {});
   await startUser(id, null, target, userUuid);
+  Ann.check();   // annonces de l'admin (étape 27), après l'ouverture des données
+}
+// Compte bloqué (étape 27) : déconnexion tout de suite (session oubliée sur l'appareil), puis écran avec la raison.
+// Rien n'est envoyé ni effacé : les données du compte restent en ligne et dans le cache de l'appareil.
+async function showBlocked(id, reason) {
+  auth.blocked = { id, reason: String(reason || "").trim() };
+  auth.sbUid = null; auth.isAdmin = false; auth.lastPin = ""; auth.loginVia = null;
+  try { localStorage.removeItem(CONFIG.LS_SB_PROFILE); } catch (e) {}
+  Storage.setUser(null);
+  Storage.setSession(null);
+  await Supa.signOut();
+  clearAuthForm();
+  showAuth("blocked");
+}
+function renderBlocked(root) {
+  const b = auth.blocked || { id: "", reason: "" };
+  const box = el("div", "card blk-card");
+  box.setAttribute("role", "alert");
+  box.appendChild(el("h2", null, t("blk.title")));
+  box.appendChild(el("p", null, t("blk.text", { id: b.id || "?" })));
+  const r = el("div", "blk-reason");
+  r.appendChild(el("div", "muted blk-lbl", t("blk.reason")));
+  r.appendChild(el("div", "blk-txt", b.reason || "—"));
+  box.appendChild(r);
+  box.appendChild(el("p", "muted blk-help", t("blk.help")));
+  root.appendChild(box);
+  const ok = el("button", "btn primary", t("blk.ok"));
+  ok.addEventListener("click", () => { auth.blocked = null; showAuth("login"); });
+  root.appendChild(ok);
 }
 // Écran bloquant : nouveau PIN obligatoire (admin à la première connexion, ou PIN réinitialisé par l'admin).
 function renderForcePin(root) {
@@ -10654,6 +13353,7 @@ async function logout() {
   await Activity.end();   // journal : logout + envoi de ce qui attend (5 s max)
   await Storage.flushWait();
   Queue.reset();
+  Ann.reset();
   Storage.setUser(null);
   Storage.setSession(null);
   if (auth.mode === "supabase") {
@@ -10685,6 +13385,10 @@ function renderScreen() {
   else if (currentScreen === "requests") renderRequests();
   else if (currentScreen === "adminreq") renderAdminReq();
   else if (currentScreen === "adminlog") renderAdminLog();
+  else if (currentScreen === "adminacc") renderAdminAccounts();
+  else if (currentScreen === "adminfiche") renderAdminFiche();
+  else if (currentScreen === "adminann") renderAdminAnn();
+  else if (currentScreen === "admintpl") renderAdminTpl();
   renderPendingBadge();
 }
 function render() {
