@@ -8,6 +8,26 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "40", date: "2026-11-17",
+    points: {
+      ko: [
+        "새 사용법 안내: 앱의 실제 화면을 따라가며 주요 기능을 10단계로 보여 줘요.",
+        "일부 단계에서는 '직접 해 보기'로 바로 연습할 수 있어요 (예: 카드 추가).",
+        "설정이나 앱 정보에서 언제든지 안내를 다시 볼 수 있어요."
+      ],
+      fr: [
+        "Nouveau tutoriel guidé : une visite des vrais écrans de l'appli en une dizaine d'étapes.",
+        "Certaines étapes proposent « Essayer » pour s'exercer tout de suite (ex. ajouter une carte).",
+        "À revoir quand tu veux depuis Réglages ou À propos."
+      ],
+      en: [
+        "New guided tutorial: a tour of the app's real screens in about ten steps.",
+        "Some steps offer \"Try it\" so you can practice right away (e.g. adding a card).",
+        "Replay it any time from Settings or About."
+      ]
+    }
+  },
+  {
     version: "39", date: "2026-11-17",
     points: {
       ko: [

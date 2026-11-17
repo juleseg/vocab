@@ -229,6 +229,7 @@ async function doCreate() {
     if (migrate) { preset = normalizeData(auth.legacy); preset.updatedAt = Date.now(); }
     auth.legacy = null;
     clearAuthForm();
+    Tutorial.markNew(id);   // étape 40 : tutoriel lancé tout seul pour ce nouveau compte
     await startUser(id, preset, target);
     toast(t(migrate ? "auth.migrated" : "auth.welcome", { id }));
   } finally { auth.busy = false; }
@@ -240,6 +241,7 @@ async function sbCreate(id, pin, target) {
     auth.lastPin = pin;
     auth.loginVia = "create";
     clearAuthForm();
+    Tutorial.markNew(id);   // étape 40 : tutoriel lancé tout seul pour ce nouveau compte
     await enterSupabase(session, target);
     toast(t("auth.welcome", { id }));
   } catch (e) { authErrKind(sbErrKind(e)); }
@@ -272,7 +274,8 @@ async function enterSupabase(session, target) {
   // Fenêtres du lancement, l'une après l'autre (étape 38) : annonces de l'admin (étape 27), puis invitation à activer
   // les notifications (fenêtre de première ouverture ou invitation de l'admin). Migration / sauvegarde : déjà faites.
   // Étape 39 : puis « Quoi de neuf » (une fois par nouvelle version).
-  Ann.check().finally(() => NotifInvite.check()).finally(() => WhatsNew.check());
+  // Étape 40 : puis le tutoriel (nouveau compte, ou « Reprendre le tutoriel ? » s'il a été interrompu).
+  Ann.check().finally(() => NotifInvite.check()).finally(() => WhatsNew.check()).finally(() => Tutorial.check());
 }
 // Compte bloqué (étape 27) : déconnexion tout de suite (session oubliée sur l'appareil), puis écran avec la raison.
 // Rien n'est envoyé ni effacé : les données du compte restent en ligne et dans le cache de l'appareil.
@@ -413,7 +416,7 @@ async function startUser(id, preset, target, sbUid) {
   autoWeeklyCheck(id);
   Queue.start(); // file d'attente Claude (mode Supabase) : réponses arrivées pendant l'absence
   Dict.start();  // dictionnaire commun (étape 36) : envois en attente, liaison des cartes, sens modifiés
-  if (auth.mode !== "supabase") WhatsNew.check();   // étape 39 (en mode Supabase : après annonces et invitation, enterSupabase)
+  if (auth.mode !== "supabase") WhatsNew.check().finally(() => Tutorial.check());   // étapes 39 et 40 (en mode Supabase : après annonces et invitation, enterSupabase)
 }
 // Données du compte : locales tout de suite (cache), puis comparaison avec les données en ligne (syncWithRemote).
 // target : profil d'un nouveau compte { lang, support } (ou code de langue) — liste « Démo » dans cette langue.
@@ -548,6 +551,7 @@ async function logout() {
   Ann.reset();
   NotifInvite.reset();   // étape 38
   WhatsNew.reset();      // étape 39
+  Tutorial.reset();      // étape 40
   Streak.reset();
   Friends.reset();
   Shared.reset();
