@@ -65,6 +65,8 @@ function shContent(c) {
   const n = normalizeCard(Object.assign({}, c, { id: String(c.id || "x"), listId: "x" }));
   const o = {};
   Object.keys(n).forEach(k => { if (!SH_SKIP.includes(k)) o[k] = n[k]; });
+  // Exemples par langue (étape 35) : envoyés seulement s'il y en a (carte inchangée = même contenu qu'avant l'étape 35).
+  if (o.examples && typeof o.examples === "object" && !Array.isArray(o.examples) && !Object.keys(o.examples).length) delete o.examples;
   return o;
 }
 function shProg(c) { const s = c.stats || {}; return [c.box, c.dueAt, num(s.seen, 0), num(s.correct, 0), num(s.wrong, 0), s.lastSeen == null ? null : s.lastSeen]; }
@@ -356,7 +358,7 @@ const Shared = (() => {
         let id = "sh_" + r.id;
         if (getList(id)) id = uid();
         l = { id, name: r.name, folderId: fid, order: nextOrder(listsIn(fid)), createdAt: Date.now(),
-          target: r.target, support: arr(r.support).slice(), shared: s };
+          target: r.target, shared: s };   // langue d'appui : celle du profil de chacun (étape 35)
         state.lists.push(l);
         if (r.role !== "owner") notes.push(t("sh.arrived", { name: r.name, id: r.owner_ident || "?" }));
         changed = true;
@@ -365,9 +367,7 @@ const Shared = (() => {
       if (shStable(s) !== shStable(l.shared)) { l.shared = s; changed = true; }
       if (r.role !== "owner" || !cache.meta[r.id]) {
         if (r.role !== "owner" && l.name !== r.name) { l.name = r.name; changed = true; }
-        if (r.role !== "owner" && (l.target !== r.target || shStable(l.support || []) !== shStable(arr(r.support)))) {
-          l.target = r.target; l.support = arr(r.support).slice(); changed = true;
-        }
+        if (r.role !== "owner" && l.target !== r.target) { l.target = r.target; changed = true; }   // appui propre à chacun (étape 35)
       }
     });
     if (notes.length) setTimeout(() => toast(notes.slice(0, 3).join(" · ")), 0);

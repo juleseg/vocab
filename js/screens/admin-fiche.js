@@ -37,9 +37,13 @@ function openAccountFiche(userId, from) {
 function fcRerender() { if (currentScreen === "adminfiche") renderAdminFiche(); }
 // Calculs sur les données d'un autre compte avec les fonctions de l'appli : state remplacé le temps d'un calcul
 // synchrone (langue de l'interface de l'admin gardée), puis remis tel quel. Aucune sauvegarde pendant ce temps.
+// Langues affichées selon le profil de l'admin (étape 35) : langue apprise par défaut du compte gardée (1re du profil),
+// langues d'appui prises dans le profil de l'admin.
 function fcWith(d, fn) {
   const keep = state;
-  state = Object.assign({}, d, { settings: Object.assign({}, d.settings, { uiLang: keep.settings.uiLang, theme: keep.settings.theme }) });
+  const first = accountTarget(d.settings), mine = learningOf(keep.settings);
+  const learning = [{ lang: first, support: profileSupport(first, keep.settings) }].concat(mine.filter(x => x.lang !== first));
+  state = Object.assign({}, d, { settings: Object.assign({}, d.settings, { uiLang: keep.settings.uiLang, theme: keep.settings.theme, learning }) });
   try { return fn(); } finally { state = keep; }
 }
 async function fcLoad() {
@@ -134,6 +138,7 @@ function fcCompute(d) {
     v.uiLang = (d.settings && d.settings.uiLang) || "";
     v.langs = Object.keys(v.targets).filter(isLang);
     arr(d.lists).forEach(l => { const tg = listLangs(l).target; if (!v.langs.includes(tg)) v.langs.push(tg); });
+    learningOf(d.settings).forEach(x => { if (!v.langs.includes(x.lang)) v.langs.push(x.lang); });   // profil de langues (étape 35)
     v.frozen = new Set(sk.frozenDays);   // jours gelés (étape 28)
     return v;
   });

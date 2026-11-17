@@ -2,14 +2,19 @@
 
 // === IMPORT EN MASSE (TEXTE & FICHIER) ===
 // Une ligne par carte, colonnes séparées par ";" (ou tabulation, détectée automatiquement).
-// Colonnes par défaut : langues d'appui, langue apprise, exemple, tags, nature (ex. coréen;anglais;français;exemple;tags).
-// Ligne d'en-tête reconnue (codes ou noms de langues, exemple, tags, nature) : colonnes associées automatiquement.
+// Colonnes par défaut : langue de l'interface, langue d'appui, langue apprise, exemple, tags, nature
+// (ex. coréen;anglais;français;exemple;tags).
+// Colonnes souples (étape 35) : n'importe quelle langue de LANGUAGES par son code ou son nom (« it », « italien »),
+// pos_<code> (nature dans cette langue), ex_<code> (exemple dans cette langue), ex_<code>_<code2> (traduction de cet
+// exemple dans code2), tags. Une ligne peut remplir plusieurs langues et plusieurs exemples.
+// Ligne d'en-tête reconnue : colonnes associées automatiquement. Associations internes : code de langue, "pos:<code>",
+// "ex:<code>", "ex:<code>:<code2>", "tags", "ignore" (anciennes : "example" = ex:<langue apprise>, "pos" = pos:<langue apprise>).
 // Dans l'aperçu : un menu au-dessus de chaque colonne pour corriger l'association ; le dernier choix est mémorisé
 // (localStorage "vocabfr.importMap") et repris si la langue apprise y figure.
 // Un seul analyseur pour le collage et les fichiers .txt/.csv : BOM retiré, fins de ligne \r\n / \r / \n, lignes vides ignorées.
 const BULK_CHUNK = 2000;   // lignes traitées avant de rendre la main à l'écran
 const BULK_PAGE = 100;     // lignes par page dans l'aperçu
-const BULK_KINDS = ["example", "tags", "pos", "ignore"]; // en plus des codes de langue
+const BULK_KINDS = ["tags", "ignore"]; // en plus des codes de langue, pos:<code>, ex:<code>, ex:<code>:<code2>
 const yieldUI = () => new Promise(r => setTimeout(r, 0));
 
 function bulkLines(text) {
@@ -25,21 +30,36 @@ function bulkSeparator(lines) {
   }
   return tab > semi ? "\t" : ";";
 }
-// Nature d'une cellule d'en-tête : code de langue, "example", "tags", "pos", ou null (non reconnue).
+// Nature d'une cellule d'en-tête : code de langue, "pos:<code>", "ex:<code>", "ex:<code>:<code2>", "example", "tags",
+// "pos", ou null (non reconnue).
 const HEADER_WORDS = {
   example: ["example", "examples", "exemple", "exemples", "예문", "phrase"],
   tags: ["tags", "tag", "태그", "etiquettes"],
   pos: ["nature", "pos", "품사", "nature grammaticale", "part of speech"]
 };
+function langOfCell(n) { return LANG_CODES.find(code => n === code || Object.values(LANGUAGES[code].names).some(x => normText(x) === n)) || null; }
 function headerKind(cell) {
   const n = normText(cell);
   if (!n) return null;
-  for (const code of LANG_CODES) {
-    if (n === code || Object.values(LANGUAGES[code].names).some(x => normText(x) === n)) return code;
-  }
+  const code = langOfCell(n);
+  if (code) return code;
   for (const k of Object.keys(HEADER_WORDS)) if (HEADER_WORDS[k].includes(n)) return k;
+  let m = /^(?:pos|nature)[\s_:-]+([a-z]{2,3})$/.exec(n);
+  if (m && isLang(m[1])) return posField(m[1]);
+  m = /^(?:ex|exemple|example)[\s_:-]+([a-z]{2,3})[\s_:-]+([a-z]{2,3})$/.exec(n);
+  if (m && isLang(m[1]) && isLang(m[2]) && m[1] !== m[2]) return "ex:" + m[1] + ":" + m[2];
+  m = /^(?:ex|exemple|example)[\s_:-]+([a-z]{2,3})$/.exec(n);
+  if (m && isLang(m[1])) return "ex:" + m[1];
   return null;
 }
+// Association valide : langue, nature d'une langue, exemple d'une langue, traduction d'un exemple, tags, ignorer.
+function isBulkKind(k) {
+  if (isLang(k) || isPosField(k) || BULK_KINDS.includes(k)) return true;
+  const p = String(k || "").split(":");
+  return p[0] === "ex" && (p.length === 2 ? isLang(p[1]) : p.length === 3 && isLang(p[1]) && isLang(p[2]) && p[1] !== p[2]);
+}
+// Anciennes associations (avant l'étape 35) : exemple et nature = ceux de la langue apprise.
+function normKind(k, lg) { return k === "example" ? "ex:" + lg.target : k === "pos" ? posField(lg.target) : k; }
 // En-tête : au moins 2 cellules reconnues et aucune cellule remplie non reconnue.
 function parseHeader(cols) {
   const kinds = cols.map(headerKind);
@@ -48,9 +68,9 @@ function parseHeader(cols) {
   return kinds.map(k => k || "ignore");
 }
 function countBulkLines(text) { return bulkLines(text).filter(l => l.trim()).length; }
-// Association par défaut : langues d'appui, langue apprise, exemple, tags, nature, puis colonnes ignorées.
+// Association par défaut : langue de l'interface, langue d'appui, langue apprise, exemple, tags, nature, puis colonnes ignorées.
 function defaultBulkMap(n, lg) {
-  const base = lg.support.concat([lg.target, "example", "tags", "pos"]);
+  const base = lg.support.concat([lg.target, "ex:" + lg.target, "tags", posField(lg.target)]);
   const out = [];
   for (let i = 0; i < n; i++) out.push(base[i] || "ignore");
   return out;
@@ -59,21 +79,28 @@ function defaultBulkMap(n, lg) {
 function fixBulkMap(map) {
   const used = new Set();
   return map.map(k => {
-    if (k !== "ignore" && (used.has(k) || !(isLang(k) || BULK_KINDS.includes(k)))) return "ignore";
+    if (k !== "ignore" && (used.has(k) || !isBulkKind(k))) return "ignore";
     used.add(k); return k;
   });
 }
 function savedBulkMap(n, lg) {
   try {
     const m = JSON.parse(localStorage.getItem(CONFIG.LS_USER_PREFIX + "importMap") || "null");
-    if (m && Array.isArray(m.cols) && m.cols.length === n && m.cols.includes(lg.target)) return fixBulkMap(m.cols.map(String));
+    if (m && Array.isArray(m.cols) && m.cols.length === n && m.cols.includes(lg.target)) return fixBulkMap(m.cols.map(k => normKind(String(k), lg)));
   } catch (e) {}
   return null;
 }
 function rememberBulkMap(map) {
   try { localStorage.setItem(CONFIG.LS_USER_PREFIX + "importMap", JSON.stringify({ cols: map })); } catch (e) {}
 }
-function bulkKindLabel(k) { return isLang(k) ? langName(k) : t("bulk.kind." + k); }
+function bulkKindLabel(k) {
+  if (isLang(k)) return langName(k);
+  if (isPosField(k)) return t("bulk.kind.posOf", { lang: langName(k.slice(4)) });
+  const p = String(k).split(":");
+  if (p[0] === "ex" && p.length === 2) return t("bulk.kind.exOf", { lang: langName(p[1]) });
+  if (p[0] === "ex" && p.length === 3) return t("bulk.kind.exTrOf", { lang: langName(p[1]), to: langName(p[2]) });
+  return t("bulk.kind." + k);
+}
 
 // --- Lignes d'autres types de cartes ---
 // 1re colonne = vocab, conj, conjtab, trou, erreur ou regle (sinon : ligne de vocabulaire, format habituel).
@@ -177,7 +204,7 @@ async function parseBulk(text, targetId, lg, map, onProgress) {
   }
   res.ncols = ncols = Math.max(ncols, 1);
   let m = map && map.length === ncols ? map : (headerMap ? headerMap.concat(defaultBulkMap(ncols, lg).slice(headerMap.length).map(() => "ignore")) : (savedBulkMap(ncols, lg) || defaultBulkMap(ncols, lg)));
-  res.map = m = fixBulkMap(m);
+  res.map = m = fixBulkMap(m.map(k => normKind(k, lg)));
   const tgCol = m.indexOf(lg.target);
 
   for (let i = start + (headerMap ? 1 : 0); i < lines.length; i++) {
@@ -204,13 +231,18 @@ async function parseBulk(text, targetId, lg, map, onProgress) {
     if (pre === "vocab") cols = cols.slice(1);
     if (res.sample.length < 3) res.sample.push(cols);
     if (cols.length > ncols) { res.invalid.push({ lineNo, raw: line, reason: t("bulk.err.cols", { n: ncols }) }); continue; }
-    const row = { lineNo, raw: line, terms: {}, set: [], example: "", tags: [], pos: "" };
+    const row = { lineNo, raw: line, terms: {}, set: [], ex: {}, tags: [], pos: {} };
     m.forEach((k, j) => {
       const v = cols[j] || "";
-      if (isLang(k)) { row.set.push(k); if (v) row.terms[k] = v; }
-      else if (k === "example") { row.set.push(k); row.example = v; }
-      else if (k === "tags") { row.set.push(k); row.tags = parseTags(v); }
-      else if (k === "pos") { row.set.push(k); row.pos = parsePos(v, lg.target) || v; } // code reconnu, sinon texte gardé tel quel
+      if (k === "ignore") return;
+      row.set.push(k);
+      if (isLang(k)) { if (v) row.terms[k] = v; }
+      else if (k === "tags") row.tags = parseTags(v);
+      else if (isPosField(k)) { const code = k.slice(4); if (v) row.pos[code] = parsePos(v, code) || v; } // code reconnu, sinon texte gardé tel quel
+      else {                                                       // ex:<code> ou ex:<code>:<code2>
+        const p = k.split(":"), e = row.ex[p[1]] || (row.ex[p[1]] = { text: "", tr: {} });
+        if (p.length === 2) e.text = v; else if (v) e.tr[p[2]] = v;
+      }
     });
     if (tgCol < 0 || !row.terms[lg.target]) { res.invalid.push({ lineNo, raw: line, reason: t("bulk.err.target", { lang: langName(lg.target) }) }); continue; }
     // Au moins une traduction : langue d'appui, ou autre langue (gardée, cachée ; la carte est alors « à compléter », étape 31).
@@ -360,18 +392,20 @@ function openBulkImport(opts) {
   setTimeout(() => autoGrow(ta), 0);
 }
 
-// Tableau des colonnes : un menu par colonne (langue, exemple, tags, nature, ignorer) au-dessus de 3 lignes d'exemple.
+// Tableau des colonnes : un menu par colonne (langue, nature, exemple, traduction de l'exemple, tags, ignorer)
+// au-dessus de 3 lignes d'exemple.
 function bulkColumns(r, lg, onChange) {
   const scroller = el("div", "col-map");
   const table = el("table");
   const hr = el("tr");
-  // Langues proposées : langue apprise + langues d'appui calculées (étape 31). Une colonne déjà associée à une autre
-  // langue (en-tête reconnu) garde son choix : importée, mais cachée.
+  // Associations proposées : langues affichées (displayLangs), leur nature, l'exemple de la langue apprise et ses
+  // traductions. Une colonne déjà associée à autre chose (en-tête reconnu) garde son choix : importée, mais cachée.
   const shown = visibleLangs(lg);
+  const offer = shown.concat(shown.map(posField), ["ex:" + lg.target], lg.support.map(x => "ex:" + lg.target + ":" + x));
   r.map.forEach((k, i) => {
     const th = el("th");
     const s = el("select", "input");
-    const kinds = LANG_CODES.filter(x => shown.includes(x) || x === k).concat(BULK_KINDS);
+    const kinds = offer.concat(r.map.filter(x => !offer.includes(x) && !BULK_KINDS.includes(x)).filter((x, j, a) => a.indexOf(x) === j)).concat(BULK_KINDS);
     kinds.forEach(x => { const o = el("option", null, bulkKindLabel(x) + (x === lg.target ? " ★" : "")); o.value = x; s.appendChild(o); });
     s.value = k;
     s.addEventListener("change", () => {
@@ -508,7 +542,8 @@ async function runBulkImport(opts, r, nReplace, lg) {
       state.folders.push(newFolder); folderId = newFolder.id;
     } else if (folderId && !getFolder(folderId)) folderId = null;
     newList = { id: uid(), name: opts.newName, folderId, order: nextOrder(listsIn(folderId)), createdAt: Date.now() };
-    if (lg.target !== folderLangs(getFolder(folderId)).target) newList.target = lg.target;   // langues d'appui calculées (étape 31)
+    if (lg.target !== folderLangs(getFolder(folderId)).target) newList.target = lg.target;   // appui : celui du profil (étape 35)
+    ensureLearning(lg.target);
     state.lists.push(newList); listId = newList.id;
   }
   const st = state;
@@ -532,17 +567,17 @@ async function runBulkImport(opts, r, nReplace, lg) {
         state.cards.push(nc); batchIds.push(nc.id); nAdd++;
       } else if (row.card) {
         const c = row.card;
-        undo.push([c, { terms: Object.assign({}, c.terms), pos: Object.assign({}, c.pos), example: c.example, tags: c.tags }]);
+        undo.push([c, { terms: Object.assign({}, c.terms), pos: Object.assign({}, c.pos), examples: c.examples, example: c.example, tags: c.tags }]);
         // Colonnes importées : remplacent le contenu existant ; progression conservée
         row.set.forEach(k => {
           if (isLang(k)) { if (row.terms[k]) c.terms[k] = row.terms[k]; else delete c.terms[k]; }
-          else if (k === "example") c.example = row.example;
           else if (k === "tags") c.tags = row.tags;
-          else if (k === "pos") { if (row.pos) c.pos[lg.target] = row.pos; else delete c.pos[lg.target]; }
+          else if (isPosField(k)) { const code = k.slice(4); c.pos = Object.assign({}, c.pos); if (row.pos[code]) c.pos[code] = row.pos[code]; else delete c.pos[code]; }
+          else { const p = k.split(":"), e = row.ex[p[1]] || { text: "", tr: {} }; setExPart(c, p[1], p[2] || null, p[2] ? e.tr[p[2]] : e.text, p[1] === lg.target); }
         });
         nRep++;
       } else {
-        const nc = newCard(listId, row.terms, row.example, row.tags, row.pos ? { [lg.target]: row.pos } : null);
+        const nc = newCard(listId, row.terms, normExamples(row.ex), row.tags, row.pos, lg.target);
         state.cards.push(nc); batchIds.push(nc.id); nAdd++;
       }
     });

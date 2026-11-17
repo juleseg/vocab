@@ -370,21 +370,24 @@ async function runAdminCopy(d, dest, selF, selL) {
   try {
     let out = await admRead(dest);
     out = out ? JSON.parse(JSON.stringify(out)) : emptyData();
-    const acct = resolveLangs([{ target: d.settings.defaultTarget, support: d.settings.defaultSupport }]);
+    const acct = { target: accountTarget(d.settings) };   // langue apprise par défaut du compte source (étape 35)
     const now = Date.now();
     const maxOrder = a => a.reduce((m, x) => Math.max(m, num(x.order, 0)), 0);
     let fo = maxOrder(out.folders), lo = maxOrder(out.lists);
     const fMap = {}, lMap = {};
     d.folders.filter(f => selF.has(f.id)).forEach(f => {
       const lg = resolveLangs([acct, f]);
-      const nf = { id: uid(), name: f.name, order: ++fo, target: lg.target, support: lg.support.slice() };
+      const nf = { id: uid(), name: f.name, order: ++fo, target: lg.target };
+      addLearningTo(out, lg.target);
       fMap[f.id] = nf.id; out.folders.push(nf);
     });
     d.lists.filter(l => selL.has(l.id)).forEach(l => {
       const f = l.folderId ? d.folders.find(x => x.id === l.folderId) : null;
       const nl = { id: uid(), name: l.name, folderId: (l.folderId && fMap[l.folderId]) || null, order: ++lo, createdAt: now };
-      if (l.target) { nl.target = l.target; nl.support = arr(l.support).slice(); }
-      else if (!nl.folderId) { const lg = resolveLangs([acct, f, l]); nl.target = lg.target; nl.support = lg.support.slice(); }
+      if (l.target) nl.target = l.target;
+      else if (!nl.folderId) nl.target = resolveLangs([acct, f, l]).target;
+      if (supportOverride(l) !== undefined) nl.support = l.support;   // appui propre à la liste (étape 35)
+      if (nl.target) addLearningTo(out, nl.target);
       lMap[l.id] = nl.id; out.lists.push(nl);
     });
     let n = 0;

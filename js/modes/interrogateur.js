@@ -54,7 +54,7 @@ function renderQuizSession(root) {
     if (as) a.appendChild(as);
     faceExtras(f.a).forEach(n => a.appendChild(n));
     if (a0Class) a.classList.add(a0Class);
-    if (c.example) { const ex = el("div", "qz-ex", c.example); ex.lang = f.target; a.appendChild(ex); }
+    const ex = exampleNode(c, "qz-ex", f.lg); if (ex) a.appendChild(ex);   // exemple + traductions (étape 35)
   }
   root.appendChild(a);
 

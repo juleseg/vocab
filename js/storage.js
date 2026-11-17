@@ -4,7 +4,8 @@
 // Version 2 : cartes multilingues (terms), dossiers, langue apprise et langues d'appui par compte / dossier / liste.
 // Version 3 : types de cartes (champ type : vocab, conj, cloze, fix, rule — voir TYPES DE CARTES).
 // Version 4 : séries façon Duolingo (settings.dailyGoal, settings.privacy, streak — voir SÉRIES).
-const DATA_VERSION = 4;
+// Version 5 : profil de langues (settings.learning) et exemples par langue (cards[].examples) — étape 35, voir LANGUES.
+const DATA_VERSION = 5;
 const PRIVACY_KEYS = ["streak", "today", "week", "success", "badges", "ranking", "shared"];   // ce que mes amis voient (étape 29 ; shared : étape 30)
 function defaultPrivacy() { const o = {}; PRIVACY_KEYS.forEach(k => { o[k] = true; }); return o; }
 function normPrivacy(p) { const o = defaultPrivacy(); if (p && typeof p === "object") PRIVACY_KEYS.forEach(k => { if (p[k] === false) o[k] = false; }); return o; }
@@ -17,27 +18,29 @@ function defaultLang() {
   return "en"; // anglais, ou toute autre langue du téléphone
 }
 
-function defaultSettings(target) {
-  const tg = isLang(target) ? target : resolveLangs([]).target;
+// target : 1re langue apprise ; support : sa langue d'appui (facultative, null = aucune).
+function defaultSettings(target, support) {
+  const tg = isLang(target) ? target : (isLang(LANG_DEFAULT) ? LANG_DEFAULT : LANG_CODES[0]);
   return {
     uiLang: defaultLang(), theme: "auto", sessionSize: 20,
-    defaultTarget: tg, defaultSupport: defaultSupportFor(tg),
+    learning: normLearning([{ lang: tg, support: isLang(support) ? support : null }]),   // profil de langues (étape 35)
+    defaultTarget: tg, defaultSupport: [],                                             // anciens champs, ignorés
     audio: { auto: true, langs: "target" },
     dailyGoal: 10, privacy: defaultPrivacy()
   };
 }
 
-function emptyData(target) {
+function emptyData(target, support) {
   return {
     version: DATA_VERSION,
     updatedAt: 0,
-    settings: defaultSettings(target),
-    folders: [],     // { id, name, order, target?, support? }
-    lists: [],       // { id, name, folderId|null, order, target?, support?, createdAt }
+    settings: defaultSettings(target, support),
+    folders: [],     // { id, name, order, target?, legacySupport? }
+    lists: [],       // { id, name, folderId|null, order, target?, support? (code | null : remplace l'appui du profil), legacySupport?, createdAt }
     cards: [],       // { id, listId, type, ... } (voir newCard et TYPES DE CARTES)
     history: [],
     streak: normStreak(null, []),   // série (voir SÉRIES)
-    proposals: [],   // propositions « À valider » : { id, cardId, field (code de langue | example | pos:<code> | dup), type, oldValue, newValue, reason, createdAt }
+    proposals: [],   // propositions « À valider » : { id, cardId, field (code de langue | example | extr:<code> | pos:<code> | dup), type, oldValue, newValue, reason, createdAt }
     rejected: [],    // clés des propositions refusées (carte|champ|empreinte de la valeur) : jamais reproposées
     lastCheckAt: 0,  // dernière vérification automatique (0 = pas encore démarrée)
     checkedSig: {},  // { idCarte: empreinte } des cartes déjà vérifiées par Claude
@@ -46,12 +49,23 @@ function emptyData(target) {
 }
 
 // terms : { fr: "...", ko: "...", ... } (une entrée par langue, vide permis)
-function newCard(listId, terms, example, tags, pos) {
+// example : texte (exemple dans la langue apprise de la liste, ou de target si donné) ou objet examples ({ it: { text, tr } }).
+function newCard(listId, terms, example, tags, pos, target) {
+  let examples = {}, ex = "";
+  if (example && typeof example === "object") examples = normExamples(example);
+  else if (example) {
+    ex = String(example).trim();
+    let tg = isLang(target) ? target : "";
+    if (!tg) { try { if (getList(listId)) tg = listLangs(listId).target; } catch (e) {} }
+    if (tg && ex) examples[tg] = { text: ex, tr: {} };
+  }
+  if (isLang(target) && examples[target]) ex = examples[target].text;
   return {
     id: uid(), listId, type: "vocab",
     terms: normTerms(terms),
     pos: normTerms(pos),
-    example: example || "",
+    examples,
+    example: ex,
     tags: tags || [],
     auto: [],
     box: 0,
@@ -71,9 +85,16 @@ function normTerms(o) {
   }
   return out;
 }
+// Langue apprise d'un dossier / d'une liste, et remplacement de l'appui (étape 35 : code ou null).
+// Ancien tableau support (étapes 1 à 34, ignoré depuis l'étape 31) : gardé dans legacySupport.
 function normLangPair(o) {
-  if (!o || !isLang(o.target)) return {};
-  return { target: o.target, support: cleanSupport(o.support, o.target) };
+  const out = {};
+  if (!o) return out;
+  if (isLang(o.target)) out.target = o.target;
+  if (Array.isArray(o.legacySupport)) out.legacySupport = cleanSupport(o.legacySupport, o.target);
+  if (Array.isArray(o.support)) { if (!out.legacySupport && isLang(o.target)) out.legacySupport = cleanSupport(o.support, o.target); }
+  else { const ov = supportOverride(o); if (ov !== undefined) out.support = ov; }
+  return out;
 }
 
 // Carte v3 ; carte v2 (sans type → "vocab") ; carte v1 (un champ par langue : { ko, en, fr }) convertie.
@@ -96,7 +117,8 @@ function normalizeCard(c) {
     dueAt: num(c.dueAt, Date.now()),
     stats: { seen: num(st.seen, 0), correct: num(st.correct, 0), wrong: num(st.wrong, 0), lastSeen: num(st.lastSeen, null) }
   };
-  return type === "vocab" ? out : Object.assign(out, normTypedFields(type, c));
+  if (type === "vocab") { out.examples = normExamples(c.examples); return out; }   // étape 35 (fiche de règle : examples = liste)
+  return Object.assign(out, normTypedFields(type, c));
 }
 
 // Date de la dernière « Mise à jour » d'une liste ou d'un dossier (absente si jamais faite).
@@ -109,10 +131,13 @@ function dataVersion(raw) { return (raw && typeof raw === "object") ? num(raw.ve
 // Migration v2 → v3 : toutes les cartes existantes reçoivent type "vocab" (normalizeCard).
 // Migration v3 → v4 : dailyGoal 10, privacy tout à true, streak calculé depuis history (série actuelle gardée, 0 gel).
 //   Si la clé streak existe déjà (écrite par un autre appareil ou par l'admin), elle est gardée telle quelle.
+// Migration v4 → v5 (étape 35) : settings.learning déduit des dossiers / listes (voir migrateLearning), example de chaque
+//   carte de vocabulaire → examples[langue apprise].text ; rien n'est supprimé (example, defaultTarget, defaultSupport,
+//   anciens tableaux support → legacySupport). Aucun nouveau morceau : settings, lists, folders et cards existent déjà.
 function normalizeData(raw) {
   const d = (raw && typeof raw === "object") ? raw : {};
   const s = d.settings || {};
-  const tg = isLang(s.defaultTarget) ? s.defaultTarget : resolveLangs([]).target;
+  const tg = isLang(s.defaultTarget) ? s.defaultTarget : (isLang(LANG_DEFAULT) ? LANG_DEFAULT : LANG_CODES[0]);
   const sup = cleanSupport(s.defaultSupport, tg);
   const au = s.audio || {};
   const out = {
@@ -122,8 +147,9 @@ function normalizeData(raw) {
       uiLang: ["ko", "fr", "en"].includes(s.uiLang) ? s.uiLang : defaultLang(),
       theme: ["light", "dark", "auto"].includes(s.theme) ? s.theme : "auto",
       sessionSize: clampInt(s.sessionSize, 1, 500, 20),
+      learning: normLearning(s.learning),
       defaultTarget: tg,
-      defaultSupport: sup.length ? sup : defaultSupportFor(tg),
+      defaultSupport: sup,
       audio: { auto: au.auto !== false, langs: ["target", "support", "both"].includes(au.langs) ? au.langs : "target" },
       dailyGoal: clampInt(s.dailyGoal, 5, 100, 10),
       privacy: normPrivacy(s.privacy)
@@ -137,7 +163,7 @@ function normalizeData(raw) {
       .map(h => ({ date: h.date, reviewed: num(h.reviewed, 0), correct: num(h.correct, 0) })),
     streak: null,
     proposals: arr(d.proposals)
-      .filter(p => p && p.id && p.cardId && (isLang(p.field) || isPosField(p.field) || isTypedField(p.field) || ["example", "dup"].includes(p.field)) && ["completion", "correction"].includes(p.type))
+      .filter(p => p && p.id && p.cardId && (isLang(p.field) || isPosField(p.field) || isTypedField(p.field) || isExTrField(p.field) || ["example", "dup"].includes(p.field)) && ["completion", "correction"].includes(p.type))
       .map(p => Object.assign({ id: String(p.id), cardId: String(p.cardId), field: p.field, type: p.type,
         oldValue: String(p.oldValue || ""), newValue: String(p.newValue || ""), reason: String(p.reason || ""), createdAt: num(p.createdAt, 0) }, propReqFields(p)))
       .concat(arr(d.proposals).map(normNewProposal).filter(Boolean)),   // « Nouvelle carte » (étape 17)
@@ -179,14 +205,34 @@ function normalizeData(raw) {
     out.lists.push(l);
     orphans.forEach(c => { c.listId = l.id; });
   }
+  // Profil de langues (étape 35) : absent (données v4 et moins) → déduit des dossiers / listes.
+  if (!out.settings.learning.length) out.settings.learning = migrateLearning(out, s);
+  out.settings.defaultTarget = accountTarget(out.settings);   // ancien champ, gardé pour les anciennes versions
+  const tgOfList = new Map(out.lists.map(l => [l.id, resolveLangs([out.folders.find(f => f.id === l.folderId), l], null, out.settings).target]));
   // Cartes d'un autre type sans langue (JSON modifié à la main) : langue apprise de leur liste.
-  const acct = { target: out.settings.defaultTarget, support: out.settings.defaultSupport };
   out.cards.forEach(c => {
     if (isVocab(c) || isLang(c.lang)) return;
-    const l = out.lists.find(x => x.id === c.listId);
-    c.lang = resolveLangs([acct, l && out.folders.find(f => f.id === l.folderId), l]).target;
+    c.lang = tgOfList.get(c.listId) || accountTarget(out.settings);
+  });
+  // Migration v4 → v5 : example → examples[langue apprise de la liste].text (seulement depuis l'ancien format).
+  if (dataVersion(raw) < 5) out.cards.forEach(c => {
+    if (!isVocab(c) || !c.example) return;
+    const lt = tgOfList.get(c.listId);
+    if (lt && !c.examples[lt]) c.examples[lt] = { text: c.example, tr: {} };
   });
   return out;
+}
+// Profil déduit (migration 4 → 5) : une entrée par langue apprise des dossiers / listes (langue du compte d'abord si une
+// liste en hérite), appui = équivalent de l'ancienne règle de l'étape 31 (legacySupportFor).
+function migrateLearning(out, s) {
+  const ui = out.settings.uiLang, acct = isLang(s.defaultTarget) ? s.defaultTarget : (isLang(LANG_DEFAULT) ? LANG_DEFAULT : LANG_CODES[0]);
+  const found = [];
+  const add = x => { if (isLang(x) && !found.includes(x)) found.push(x); };
+  out.lists.forEach(l => { const f = out.folders.find(x => x.id === l.folderId); add(isLang(l.target) ? l.target : f && isLang(f.target) ? f.target : acct); });
+  out.folders.forEach(f => add(f.target));
+  if (!out.lists.length) add(acct);
+  else if (found.includes(acct)) { found.splice(found.indexOf(acct), 1); found.unshift(acct); }
+  return normLearning(found.map(lang => ({ lang, support: legacySupportFor(lang, ui) })));
 }
 
 // Proposition « Nouvelle carte » : { id, cardId: "", listId, field: "new", type: "newcard", cards: [{ type, fields, ruleRef }], reason, createdAt }.
@@ -194,7 +240,7 @@ function normNewProposal(p) {
   if (!p || !p.id || p.field !== "new" || p.type !== "newcard" || !p.listId) return null;
   const cards = arr(p.cards).filter(d => d && CARD_TYPES.includes(d.type) && d.fields && typeof d.fields === "object").map(d => {
     const f = d.type === "vocab"
-      ? { terms: normTerms(d.fields.terms), pos: normTerms(d.fields.pos), example: String(d.fields.example || "") }
+      ? { terms: normTerms(d.fields.terms), pos: normTerms(d.fields.pos), example: String(d.fields.example || ""), exTr: normTerms(d.fields.exTr) }
       : normTypedFields(d.type, d.fields);
     return { type: d.type, fields: f, ruleRef: String(d.ruleRef || "") };
   });

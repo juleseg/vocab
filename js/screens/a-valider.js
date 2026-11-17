@@ -13,9 +13,12 @@
 const pv = { folder: "", list: "", type: "", field: "", page: 0, sel: new Set(), editing: new Set(), edits: {}, refreshBar: null };
 // Dossier : id, "__none__" (sans dossier) ou "" (tous).
 function pvFolderOf(listId) { const l = getList(listId); return l && l.folderId ? l.folderId : "__none__"; }
-// Filtre par champ : une traduction (code de langue), l'exemple, la nature (« pos » = toutes les langues) ou les doublons.
+// Filtre par champ : une traduction (code de langue), l'exemple (et ses traductions, étape 35), la nature (« pos » = toutes
+// les langues) ou les doublons.
 const PV_FIELDS = LANG_CODES.concat(["example", "pos", "typed", "dup"]);
-function pvFieldMatch(p, f) { return f === "pos" ? isPosField(p.field) : f === "typed" ? isTypedField(p.field) : p.field === f; }
+function pvFieldMatch(p, f) { return f === "pos" ? isPosField(p.field) : f === "typed" ? isTypedField(p.field) : f === "example" ? (p.field === "example" || isExTrField(p.field)) : p.field === f; }
+// Champ « généré, non validé » (c.auto) d'un champ de proposition.
+function autoKeyOf(f) { return f === "example" ? "example" : isPosField(f) ? "pos." + f.slice(4) : isExTrField(f) ? "extr." + f.slice(5) : "terms." + f; }
 // Nature affichée : « n.f. — nom féminin » (abréviation dans la langue du mot, nom dans la langue de l'interface).
 function pvPosText(code, lng) { return code ? posLabel(code, lng) + (POS_CODES.includes(code) ? " — " + t("pos." + code) : "") : ""; }
 let undoTimer = null;
@@ -29,10 +32,11 @@ function pvFieldLabel(f) {
   if (f === "typed") return t("pv.field.typed");
   if (isTypedField(f)) { const k = f.slice(2); return t(k === "examples" ? "type.rule.examples" : k === "hint" ? "type.hint" : "type." + k).replace(/\s*:\s*$/, ""); }
   if (isPosField(f)) return t("pv.field.pos", { lang: langName(f.slice(4)) });
+  if (isExTrField(f)) return t("card.exampleTr", { lang: langName(f.slice(5)) });
   return langName(f);
 }
-// Propositions sur une langue cachée (ni apprise ni d'appui, étape 31) : gardées, mais ni affichées ni comptées ;
-// elles réapparaissent si la langue de l'interface change.
+// Propositions sur une langue cachée (ni apprise ni affichée : displayLangs, étape 35) : gardées, mais ni affichées
+// ni comptées ; elles réapparaissent si le profil de langues change.
 function liveProposals() {
   const byId = new Map(state.cards.map(c => [c.id, c]));
   const lgs = new Map();
@@ -41,7 +45,7 @@ function liveProposals() {
     if (p.field === "new") return !!getList(p.listId);
     const c = byId.get(p.cardId);
     if (!c) return false;
-    const code = isPosField(p.field) ? p.field.slice(4) : isLang(p.field) ? p.field : "";
+    const code = fieldCode(p.field);
     return !code || !isVocab(c) || vis(c).includes(code);
   });
 }
@@ -194,6 +198,7 @@ function pvRow(p, c) {
   const lg = cardLangs(c);
   const w = el("div", "pv-fr", targetTerm(c, lg) || "—"); w.lang = lg.target;
   m.append(top, w);
+  if (isExTrField(p.field)) { const tx = exText(c, lg.target); if (tx) { const e = el("div", "pv-field", tx); e.lang = lg.target; m.appendChild(e); } }
   if (p.field === "dup") {
     const sub = supportText(c, lg);
     if (sub) m.appendChild(el("div", "pv-field", sub));
@@ -227,7 +232,7 @@ function pvRow(p, c) {
     if (!editing) d.appendChild(wrDiffNode(r.B, r.mb, "wr-miss"));
     m.appendChild(d);
     if (editing) { // édition directe de la nouvelle valeur, puis « Accepter »
-      const inp = textInput(pv.edits[p.id] != null ? pv.edits[p.id] : p.newValue, "", isLang(p.field) ? p.field : lg.target);
+      const inp = textInput(pv.edits[p.id] != null ? pv.edits[p.id] : p.newValue, "", fieldCode(p.field) || lg.target);
       inp.addEventListener("input", () => { pv.edits[p.id] = inp.value; });
       m.appendChild(inp);
     }
@@ -240,8 +245,13 @@ function pvRow(p, c) {
 // --- Propositions « Nouvelle carte » (écran « Générer des cartes ») ---
 function pvNewRank(p) { return p.cards.some(d => d.type === "rule") ? 0 : 1; }
 // Carte temporaire pour l'affichage (titres, sous-titres) d'un brouillon.
+// Exemples d'un brouillon de vocabulaire : { <langue apprise>: { text, tr } } (étape 35).
+function draftExamples(d, tg) {
+  const text = String(d.fields.example || "").trim(), tr = normTerms(d.fields.exTr);
+  return text || Object.keys(tr).length ? { [tg]: { text, tr } } : {};
+}
 function draftCard(d, listId) {
-  if (d.type === "vocab") return Object.assign(newCard(listId, d.fields.terms, d.fields.example, [], d.fields.pos), { id: "" });
+  if (d.type === "vocab") return Object.assign(newCard(listId, d.fields.terms, draftExamples(d, listLangs(listId).target), [], d.fields.pos, listLangs(listId).target), { id: "" });
   return Object.assign({ type: d.type, listId, id: "", examples: [] }, d.fields);
 }
 function pvNewRow(p) {
@@ -283,7 +293,7 @@ function pvNewRow(p) {
       if (extra) box.appendChild(el("div", "pv-new-t2", extra));
     }
   } else if (editing) {
-    pvNewInputs(box, ds, ty === "vocab" ? ["t:" + lg.target].concat(lg.support.map(x => "t:" + x), ["example"]) : (TYPE_FIELDS[ty] || []).filter(f => !["lang", "ruleId"].includes(f)).concat(ty === "rule" ? ["examples"] : []), lg);
+    pvNewInputs(box, ds, ty === "vocab" ? ["t:" + lg.target].concat(lg.support.map(x => "t:" + x), ["example"], lg.support.map(x => "x:" + x)) : (TYPE_FIELDS[ty] || []).filter(f => !["lang", "ruleId"].includes(f)).concat(ty === "rule" ? ["examples"] : []), lg);
   } else {
     const d = ds[0], c = draftCard(d, p.listId);
     const t1 = el("div", "pv-new-t1", ty === "vocab" ? (term(c, lg.target) + (d.fields.pos && d.fields.pos[lg.target] ? "  " + posLabel(d.fields.pos[lg.target], lg.target) : "")) : cardTitle(c));
@@ -291,7 +301,7 @@ function pvNewRow(p) {
     box.appendChild(t1);
     const sub = ty === "vocab" ? supportText(c, lg) : cardSubtitle(c);
     if (sub) box.appendChild(el("div", "pv-new-t2", sub));
-    const more = ty === "vocab" ? [d.fields.example] : [d.fields.hint ? t("type.hint") + " " + d.fields.hint : "", d.fields.explanation, ty === "rule" ? arr(d.fields.examples).join(" · ") : "", d.fields.translation];
+    const more = ty === "vocab" ? [d.fields.example].concat(lg.support.map(x => (d.fields.exTr || {})[x])) : [d.fields.hint ? t("type.hint") + " " + d.fields.hint : "", d.fields.explanation, ty === "rule" ? arr(d.fields.examples).join(" · ") : "", d.fields.translation];
     more.filter(Boolean).forEach(x => box.appendChild(el("div", "pv-new-t2", x)));
     if (d.ruleRef) box.appendChild(el("div", "pv-new-t2", "§ " + d.ruleRef));
   }
@@ -308,6 +318,7 @@ function pvNewInputs(box, ds, fields, lg) {
   fields.forEach(f => {
     let label, get, set, multi = false, lng = d.fields.lang || lg.target;
     if (f.startsWith("t:")) { const code = f.slice(2); label = langName(code); lng = code; get = () => (d.fields.terms || {})[code] || ""; set = v => { d.fields.terms = Object.assign({}, d.fields.terms, { [code]: v }); }; }
+    else if (f.startsWith("x:")) { const code = f.slice(2); label = t("card.exampleTr", { lang: langName(code) }); lng = code; get = () => (d.fields.exTr || {})[code] || ""; set = v => { d.fields.exTr = Object.assign({}, d.fields.exTr, { [code]: v }); }; }
     else if (f === "examples") { label = t("type.rule.examples"); multi = true; get = () => arr(d.fields.examples).join("\n"); set = v => { d.fields.examples = v.split("\n").map(x => x.trim()).filter(Boolean); }; }
     else {
       const LBL = { example: "card.example", sentence: "type.cloze.sentence", answer: "type.cloze.answer", hint: "type.hint", explanation: "type.explanation",
@@ -318,7 +329,7 @@ function pvNewInputs(box, ds, fields, lg) {
       set = v => { ds.forEach(x => { x.fields[f] = v; }); };   // conjugaison : traduction / note communes au tableau
     }
     w.appendChild(el("label", null, label));
-    const inp = multi ? el("textarea", "input") : textInput(get(), "", ["translation", "explanation", "hint", "note"].includes(f) ? "" : lng);
+    const inp = multi ? el("textarea", "input") : textInput(get(), "", ["translation", "explanation", "hint", "note"].includes(f) ? "" : f.startsWith("x:") ? f.slice(2) : lng);
     if (multi) inp.value = get();
     inp.addEventListener("input", () => set(inp.value));
     inp.addEventListener("click", stop);
@@ -339,7 +350,7 @@ function pvAcceptNew(p, edited) {
     let c;
     if (d.type === "vocab") {
       const terms = {}; Object.keys(d.fields.terms || {}).forEach(k => { const v = String(d.fields.terms[k] || "").replace(/\s+/g, " ").trim(); if (v) terms[k] = v; });
-      c = newCard(listId, terms, String(d.fields.example || "").trim(), [], d.fields.pos || {});
+      c = newCard(listId, terms, draftExamples(d, lg.target), [], d.fields.pos || {}, lg.target);
     } else c = newTypedCard(listId, d.type, Object.assign({}, d.fields, { lang: d.fields.lang || lg.target }));
     const k = isVocab(c) ? "vocab|" + dupKey(c.terms, lg) : typedKey(c.type, c);
     if (have.has(k)) { dups++; return; }
@@ -475,11 +486,11 @@ function pvAcceptPart(ids, edits) {
     const cur = fieldVal(c, p.field);
     const stale = p.type === "completion" ? !!cur.trim() : cur !== p.oldValue; // champ modifié entre-temps : jamais écrasé
     if (stale) { done.add(p.id); skipped++; return; }
-    const next = Object.assign({}, c, { terms: Object.assign({}, c.terms), pos: Object.assign({}, c.pos) });
+    const next = Object.assign({}, c, { terms: Object.assign({}, c.terms), pos: Object.assign({}, c.pos) });   // setFieldVal ne modifie pas examples en place
     setFieldVal(next, p.field, nv);
     if (!nv || !cardUsable(next)) { skipped++; return; } // valeur non valide : la ligne reste
     setFieldVal(c, p.field, nv);
-    c.auto = c.auto.filter(a => a !== (p.field === "example" ? "example" : isPosField(p.field) ? "pos." + p.field.slice(4) : "terms." + p.field)); // validé à la main
+    c.auto = c.auto.filter(a => a !== autoKeyOf(p.field)); // validé à la main
     if (isVocab(c)) state.checkedSig[c.id] = cardSig(c);
     done.add(p.id); ok++;
     QStats.decide(p, "accepted");                        // suivi admin (proposition venue de la file d'attente)

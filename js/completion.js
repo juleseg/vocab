@@ -38,15 +38,24 @@ const AI = (() => {
 
 // === COMPLÉTION & VÉRIFICATION ===
 // Toutes les propositions vont dans state.proposals (section « À valider ») : rien n'est écrit directement dans les cartes.
-// Champs d'une proposition : code de langue (traduction), "example", "pos:<code>" (nature grammaticale) ou "dup".
-// Complétion : langues d'appui, exemple et nature (de chaque langue de la carte) vides
-// (la langue apprise est la référence, jamais complétée).
+// Champs d'une proposition : code de langue (traduction), "example", "extr:<code>" (traduction de l'exemple, étape 35),
+// "pos:<code>" (nature grammaticale) ou "dup".
+// Complétion : langues affichées (displayLangs), exemple dans la langue apprise et ses traductions dans les langues
+// affichées, nature (de chaque langue affichée) vides (la langue apprise est la référence, jamais complétée).
 // Vérification : fautes, accents, traductions douteuses (Claude) + doublons (détectés localement).
 let aiJob = null; // traitement en cours (un seul à la fois)
 
 function posFields(lg) { return [lg.target].concat(lg.support).map(posField); }
-function fillFields(c, lg) { if (!isVocab(c)) return []; lg = lg || cardLangs(c); return lg.support.concat(["example"], posFields(lg)); }
-function checkFields(c, lg) { if (!isVocab(c)) return TYPED_FILL_FIELDS.filter(k => (TYPE_FIELDS[c.type] || []).includes(k) || (k === "examples" && c.type === "rule")).map(typedField); lg = lg || cardLangs(c); return [lg.target].concat(lg.support, ["example"], posFields(lg)); }
+function exFields(lg) { return ["example"].concat(lg.support.map(exTrField)); }
+function fillFields(c, lg) { if (!isVocab(c)) return []; lg = lg || cardLangs(c); return lg.support.concat(exFields(lg), posFields(lg)); }
+function checkFields(c, lg) { if (!isVocab(c)) return TYPED_FILL_FIELDS.filter(k => (TYPE_FIELDS[c.type] || []).includes(k) || (k === "examples" && c.type === "rule")).map(typedField); lg = lg || cardLangs(c); return [lg.target].concat(lg.support, exFields(lg), posFields(lg)); }
+// Lignes de consigne « exemple » communes (accès direct, file d'attente, copier-coller).
+function exPromptLines(prefix) {
+  return [
+    prefix + "example : une phrase d'exemple courte et simple DANS LA LANGUE APPRISE (niveau débutant) qui utilise le mot.",
+    prefix + "extr:<code de langue> : traduction de la phrase d'exemple (celle de la carte, ou celle que tu proposes) dans cette langue."
+  ];
+}
 // Consignes « nature grammaticale » communes (accès direct et « Préparer pour Claude »).
 function posPromptLines(prefix, codes) {
   const L = codes || LANG_CODES;
@@ -68,6 +77,12 @@ function cardsLangs(cards) {
   cards.forEach(c => { if (isVocab(c)) visibleLangs(cardLangs(c)).forEach(x => set.add(x)); });
   return LANG_CODES.filter(x => set.has(x));
 }
+// Langues affichées en plus de la langue apprise (traductions de l'exemple), dans l'ordre de LANGUAGES.
+function cardsSupportLangs(cards) {
+  const set = new Set();
+  cards.forEach(c => { if (isVocab(c)) cardLangs(c).support.forEach(x => set.add(x)); });
+  return LANG_CODES.filter(x => set.has(x));
+}
 
 function strHash(s) {
   let h = 2166136261;
@@ -76,9 +91,9 @@ function strHash(s) {
   return (h >>> 0).toString(36);
 }
 // Empreinte : langue apprise, langues d'appui (dans l'ordre), exemple. Pour une liste fr ← ko, en : identique à la version 1.
-function cardSig(c) { const lg = cardLangs(c); return strHash([lg.target].concat(lg.support).map(x => term(c, x)).concat([c.example]).join("\u0001")); }
+function cardSig(c) { const lg = cardLangs(c); return strHash([lg.target].concat(lg.support).map(x => term(c, x)).concat([fieldVal(c, "example", lg)]).join("\u0001")); }
 function rejectKey(cardId, field, value) { return cardId + "|" + field + "|" + strHash(normText(value)); }
-function missingFields(c) { return fillFields(c).filter(f => !fieldVal(c, f).trim()); }
+function missingFields(c) { const lg = cardLangs(c); return fillFields(c, lg).filter(f => !fieldVal(c, f, lg).trim()); }
 // Nom sans genre dans une langue à genre (« n », ou « nom » importé tel quel) : à corriger (proposition de type Correction).
 function posNeedsGender(c, code) {
   if (!LANGUAGES[code] || !LANGUAGES[code].gender) return false;
@@ -158,7 +173,7 @@ function aiItems(batch, withMissing, want) {
     const lg = cardLangs(c);
     const o = { id: "k" + i, target: lg.target };
     [lg.target].concat(lg.support).forEach(code => { const v = term(c, code); if (v) o[code] = v; });
-    if (c.example) o.example = c.example;
+    exFields(lg).forEach(f => { const v = fieldVal(c, f, lg); if (v) o[f] = v; });   // exemple et ses traductions (étape 35)
     if (withMissing) o.missing = (want || missingFields)(c);
     return o;
   });
@@ -170,11 +185,10 @@ function completionPrompt(batch, want) {
     "Pour chaque carte, \"target\" est la langue apprise ; le champ de cette langue est la référence : ne le change pas.",
     "Complète UNIQUEMENT les champs listés dans \"missing\" (un champ pos: listé alors que le nom n'a pas de genre : donne le code avec le genre) :",
     "- un code de langue : traduction courte et naturelle du mot de la langue apprise dans cette langue ;",
-    "- example : une phrase d'exemple courte et simple DANS LA LANGUE APPRISE (niveau débutant) qui utilise le mot.",
-  ].concat(posPromptLines("- ", cardsLangs(batch)), [
+  ].concat(exPromptLines("- "), posPromptLines("- ", cardsLangs(batch)), [
     "Si le mot de la langue apprise contient plusieurs sens séparés par \"/\", tu peux donner plusieurs traductions séparées par \" / \".",
     "Réponds uniquement avec un tableau JSON, un objet par carte, avec l'id et seulement les champs demandés.",
-    "Exemple : [{\"id\":\"k0\",\"en\":\"shelf\",\"example\":\"Le livre est sur l'étagère.\",\"pos:fr\":\"nf\",\"pos:en\":\"n\"}]",
+    "Exemple : [{\"id\":\"k0\",\"en\":\"shelf\",\"example\":\"Le livre est sur l'étagère.\",\"extr:en\":\"The book is on the shelf.\",\"pos:fr\":\"nf\",\"pos:en\":\"n\"}]",
     "",
     "Cartes :",
     JSON.stringify(aiItems(batch, true, want))
@@ -183,9 +197,9 @@ function completionPrompt(batch, want) {
 function verifyPrompt(batch) {
   return [
     "Tu vérifies des cartes de vocabulaire d'apprenants en langues. Codes de langue : " + langLegend(cardsLangs(batch)) + ".",
-    "Pour chaque carte, \"target\" est la langue apprise. Champs : un code de langue par mot (celui de la langue apprise est la réponse attendue ; plusieurs réponses séparées par \"/\"), example (phrase d'exemple dans la langue apprise).",
+    "Pour chaque carte, \"target\" est la langue apprise. Champs : un code de langue par mot (celui de la langue apprise est la réponse attendue ; plusieurs réponses séparées par \"/\"), example (phrase d'exemple dans la langue apprise), extr:<code> (traduction de cette phrase dans cette langue).",
     "Signale seulement les vraies erreurs : fautes d'orthographe, accents manquants ou faux, traductions fausses ou douteuses, exemple incorrect. Pas de remarques de style. Rien pour un champ absent.",
-    "Pour chaque erreur : field = le code de langue ou example, la valeur corrigée COMPLÈTE du champ, et une raison très courte en " + uiLangNameFr() + ".",
+    "Pour chaque erreur : field = le code de langue, example ou extr:<code>, la valeur corrigée COMPLÈTE du champ, et une raison très courte en " + uiLangNameFr() + ".",
     "Réponds uniquement avec un tableau JSON, vide [] si tout est correct.",
     "Exemple : [{\"id\":\"k0\",\"field\":\"fr\",\"value\":\"l'école\",\"reason\":\"accent manquant\"}]",
     "",
@@ -423,26 +437,30 @@ function renderAiCard() {
 // Correspondance au réimport : nom de la liste + mot de la langue apprise de cette liste (sans casse ni accents).
 const PREP_LIST_WORDS = ["liste", "list", "목록"];
 
-// Code de langue ou "example" pour un nom de champ (code, nom de langue, exemple…), sinon null.
+// Code de langue, "example" ou "extr:<code>" pour un nom de champ (code, nom de langue, exemple…), sinon null.
 function fieldAlias(s) {
   const m = /^(?:pos|nature)\s*[:_\-\s]\s*([a-z]{2,3})$/i.exec(String(s || "").trim()); // pos:fr, nature fr…
   if (m && isLang(m[1].toLowerCase())) return posField(m[1].toLowerCase());
+  const x = /^(?:extr|trad_exemple|example_tr)\s*[:_\-\s]\s*([a-z]{2,3})$/i.exec(String(s || "").trim()); // extr:en (étape 35)
+  if (x && isLang(x[1].toLowerCase())) return exTrField(x[1].toLowerCase());
   const k = headerKind(s); return isLang(k) || k === "example" ? k : null;
 }
 function prepCell(s) { return String(s || "").replace(/[;\r\n]+/g, " ").trim(); }
 function prepListName(id) { const l = getList(id); return prepCell(l ? l.name : ""); }
-// Colonnes de langue : langues visibles des cartes (apprise + appui, étape 31) ; case d'une langue cachée pour une carte : vide.
+// Colonnes de langue : langues affichées des cartes (displayLangs, étape 35) ; case d'une langue cachée pour une carte : vide.
+// Exemple : colonne example (langue apprise) puis extr:<code> (sa traduction) pour chaque langue affichée en plus.
 function prepText(kind, cards) {
   const langs = cardsLangs(cards);
   const posCols = kind === "complete" ? langs.map(posField) : [];
-  const cols = ["liste"].concat(langs, ["example"], posCols);
+  const exCols = cardsSupportLangs(cards).map(exTrField);
+  const cols = ["liste"].concat(langs, ["example"], exCols, posCols);
   // Langue apprise et langues d'appui de chaque liste présente
   const seen = new Set(), perList = [];
   cards.forEach(c => {
     if (seen.has(c.listId)) return;
     seen.add(c.listId);
     const lg = listLangs(c.listId);
-    perList.push("- " + prepListName(c.listId) + " : langue apprise " + lg.target + ", langues d'appui " + lg.support.join(", "));
+    perList.push("- " + prepListName(c.listId) + " : langue apprise " + lg.target + ", langues d'appui " + (lg.support.join(", ") || "—"));
   });
   const head = kind === "complete" ? [
     "Complète les champs vides de ces cartes de vocabulaire, pour des apprenants en langues.",
@@ -450,9 +468,9 @@ function prepText(kind, cards) {
     "Langues de chaque liste :"
   ].concat(perList, [
     "Colonnes (voir la ligne d'en-tête) : " + cols.join(";"),
-    "- Remplis seulement les champs vides des langues d'appui de la liste, l'exemple et la nature (colonnes pos:) des mots présents ou que tu ajoutes. Ne change jamais la liste, le mot de la langue apprise, ni un champ déjà rempli. Une colonne de langue qui n'est ni la langue apprise ni une langue d'appui de la liste reste vide.",
+    "- Remplis seulement les champs vides des langues d'appui de la liste, l'exemple, ses traductions (colonnes extr:) et la nature (colonnes pos:) des mots présents ou que tu ajoutes. Ne change jamais la liste, le mot de la langue apprise, ni un champ déjà rempli. Une colonne d'une langue qui n'est ni la langue apprise ni une langue d'appui de la liste reste vide.",
     "- Seule exception : une nature « n » (nom sans genre) dans une langue avec genre : remplace-la par le code avec le genre.",
-    "- Traductions courtes ; exemple : une phrase courte et simple DANS LA LANGUE APPRISE de la liste (niveau débutant) qui utilise le mot."
+    "- Traductions courtes ; exemple : une phrase courte et simple DANS LA LANGUE APPRISE de la liste (niveau débutant) qui utilise le mot ; extr:<code> = traduction de cette phrase dans cette langue."
   ], posPromptLines("- ", langs), [
     "- Pas de « ; » à l'intérieur d'un champ.",
     "Réponds uniquement avec la ligne d'en-tête puis les lignes complétées, dans le même format, une par ligne, sans autre texte."
@@ -465,15 +483,15 @@ function prepText(kind, cards) {
     "Repère seulement les vraies erreurs : fautes d'orthographe, accents manquants ou faux, traductions fausses ou douteuses, exemple incorrect.",
     "Réponds uniquement avec une ligne par erreur, au format : liste;mot;champ;valeur corrigée;raison",
     "- mot = le mot de la langue apprise de la liste, tel qu'il est écrit ci-dessous, même s'il contient l'erreur.",
-    "- champ = le code de langue (" + langs.join(", ") + ") ou example.",
+    "- champ = le code de langue (" + langs.join(", ") + "), example ou extr:<code>.",
     "- valeur corrigée = le contenu complet du champ corrigé, sans « ; ».",
     "- raison = très courte, en " + uiLangNameFr() + ".",
     "Si tout est correct, réponds seulement : RAS"
   ]);
   const lines = cards.map(c => {
-    const vis = visibleLangs(cardLangs(c));
-    const own = f => vis.includes(isPosField(f) ? f.slice(4) : f) ? fieldVal(c, f) : "";   // langue cachée : jamais envoyée
-    return [prepListName(c.listId)].concat(langs.map(own), [c.example], posCols.map(own)).map(prepCell).join(";");
+    const lg = cardLangs(c), vis = visibleLangs(lg);
+    const own = f => (isExTrField(f) ? lg.support.includes(fieldCode(f)) : vis.includes(fieldCode(f))) ? fieldVal(c, f, lg) : "";   // langue cachée : jamais envoyée
+    return [prepListName(c.listId)].concat(langs.map(own), [fieldVal(c, "example", lg)], exCols.map(own), posCols.map(own)).map(prepCell).join(";");
   });
   return head.concat([""], [cols.join(";")], lines).join("\n");
 }
@@ -612,13 +630,13 @@ const FX_TYPED_COLS = {
   fix: [["phrase_fautive", "i:wrong"], ["phrase_corrigee", "i:correct"], ["explication", "f:explanation"]],
   rule: [["titre", "i:title"], ["texte", "i:body"], ["exemples", "f:examples"], ["traduction", "f:translation"]]
 };
-const FX_CHOICES = ["tr", "pos", "example", "other"];
+const FX_CHOICES = ["tr", "pos", "example", "other"];   // example : exemple et ses traductions (étape 35)
 
 function fxCell(s) { return String(s == null ? "" : s).replace(/[;\t\r\n]+/g, " ").replace(/\s+/g, " ").trim(); }
 // Empreinte du contenu d'une carte (changement entre l'export et l'import).
 function fxSig(c) {
   const o = isVocab(c)
-    ? { t: Object.keys(c.terms || {}).sort().map(k => [k, c.terms[k]]), p: Object.keys(c.pos || {}).sort().map(k => [k, c.pos[k]]), e: c.example || "" }
+    ? { t: Object.keys(c.terms || {}).sort().map(k => [k, c.terms[k]]), p: Object.keys(c.pos || {}).sort().map(k => [k, c.pos[k]]), e: fieldVal(c, "example"), x: JSON.stringify(exMap(c) || {}) }
     : normTypedFields(c.type, c);
   return strHash(cardType(c) + "\u0001" + JSON.stringify(o));
 }
@@ -626,7 +644,7 @@ function fxSig(c) {
 function fxFillable(c, lg) {
   if (!isVocab(c)) return (FX_TYPED[c.type] || []).map(typedField);
   lg = lg || cardLangs(c);
-  return lg.support.concat(posFields(lg), ["example"]);
+  return lg.support.concat(posFields(lg), exFields(lg));
 }
 // Cases demandées (vides) pour les choix cochés.
 function fxWanted(c, choice, lg) {
@@ -642,7 +660,7 @@ function fxWanted(c, choice, lg) {
     if (fieldVal(c, f).trim()) return;
     if (term(c, code).trim() || (choice.tr && code !== lg.target)) out.push(f);   // nature d'un mot présent ou demandé
   });
-  if (choice.example && !String(c.example || "").trim()) out.push("example");
+  if (choice.example) exFields(lg).forEach(f => { if (!fieldVal(c, f, lg).trim()) out.push(f); });
   return out;
 }
 function fxScopeCards(scope) {
@@ -661,19 +679,21 @@ function fxSlug(s) { return String(s || "").normalize("NFC").toLowerCase().repla
 function fxFileName(scope, i, n) { return "vocab-completion-" + fxSlug(fxScopeName(scope)) + (n > 1 ? "-partie-" + i + "-sur-" + n : "") + ".txt"; }
 
 // En-tête des colonnes d'une section.
-function fxHeader(type, langs) {
-  if (type === "vocab") return ["id", "type", "liste", "target"].concat(langs, langs.map(x => "pos_" + x), ["exemple", "sig"]);
+// Vocabulaire : trad_exemple_<code> = traduction de l'exemple dans cette langue (étape 35).
+function fxHeader(type, langs, exLangs) {
+  if (type === "vocab") return ["id", "type", "liste", "target"].concat(langs, langs.map(x => "pos_" + x), ["exemple"], arr(exLangs).map(x => "trad_exemple_" + x), ["sig"]);
   return ["id", "type", "liste", "target"].concat(FX_TYPED_COLS[type].map(x => x[0]), ["sig"]);
 }
 // Texte d'un fichier (une partie).
 function fxFileText(cards, choice, i, n) {
   const lgs = new Map(), lgOf = c => { let x = lgs.get(c.listId); if (!x) { x = cardLangs(c); lgs.set(c.listId, x); } return x; };
-  const langs = LANG_CODES.filter(code => cards.some(c => isVocab(c) && visibleLangs(lgOf(c)).includes(code)));   // langues visibles seulement (étape 31)
+  const langs = LANG_CODES.filter(code => cards.some(c => isVocab(c) && visibleLangs(lgOf(c)).includes(code)));   // langues affichées seulement (displayLangs)
+  const exLangs = LANG_CODES.filter(code => cards.some(c => isVocab(c) && lgOf(c).support.includes(code)));
   const seenL = new Set(), perList = [];
   cards.forEach(c => {
     if (seenL.has(c.listId)) return; seenL.add(c.listId);
     const lg = lgOf(c), nm = code => code + " (" + LANGUAGES[code].names.fr.toLowerCase() + ")";
-    perList.push("#   - " + prepListName(c.listId) + " : langue apprise " + nm(lg.target) + " ; langues d'appui " + lg.support.map(nm).join(", "));
+    perList.push("#   - " + prepListName(c.listId) + " : langue apprise " + nm(lg.target) + " ; langues d'appui " + (lg.support.map(nm).join(", ") || "—"));
   });
   const types = CARD_TYPES.filter(ty => cards.some(c => cardType(c) === ty));
   const g = langs.filter(c => LANGUAGES[c].gender), ng = langs.filter(c => !LANGUAGES[c].gender);
@@ -693,7 +713,8 @@ function fxFileText(cards, choice, i, n) {
     "# - Colonnes pos_<langue> : nature grammaticale du mot de cette langue, avec UN de ces codes : nm, nf, nmf, nmpl, nfpl, n, v, vpr, adj, adv, prep, conj, pron, interj, expr.",
     "#   " + [g.length ? "Langues avec genre (" + g.join(", ") + ") : un nom a toujours son genre (nm, nf, nmf, nmpl, nfpl), jamais n." : "",
       ng.length ? "Langues sans genre (" + ng.join(", ") + ") : n pour un nom." : ""].filter(Boolean).join(" "),
-    "# - Colonne exemple : une phrase courte et simple DANS LA LANGUE APPRISE (target), niveau débutant, qui utilise le mot."
+    "# - Colonne exemple : une phrase courte et simple DANS LA LANGUE APPRISE (target), niveau débutant, qui utilise le mot.",
+    "# - Colonnes trad_exemple_<langue> : traduction de la phrase de la colonne exemple dans cette langue."
   ]);
   if (types.some(ty => ty !== "vocab")) head.push(
     "# - Autres types de cartes : traduction = sens dans les langues d'appui de la liste ; explication = explication courte de la réponse (dans la 1re langue d'appui) ;",
@@ -705,15 +726,15 @@ function fxFileText(cards, choice, i, n) {
   );
   const out = head.slice();
   types.forEach(ty => {
-    out.push(fxHeader(ty, langs).join(";"));
+    out.push(fxHeader(ty, langs, exLangs).join(";"));
     cards.filter(c => cardType(c) === ty).forEach(c => {
       const lg = lgOf(c), want = new Set(fxWanted(c, choice, lg));
       const vis = isVocab(c) ? visibleLangs(lg) : null;
-      const hidden = f => !!vis && (isLang(f) || isPosField(f)) && !vis.includes(isPosField(f) ? f.slice(4) : f);
+      const hidden = f => !!vis && (isExTrField(f) ? !lg.support.includes(fieldCode(f)) : (isLang(f) || isPosField(f)) && !vis.includes(fieldCode(f)));
       // Langue cachée pour cette carte (ni apprise ni d'appui) : jamais envoyée, case « - » (étape 31).
       const cell = f => { if (hidden(f)) return FX_EMPTY; const v = fxCell(fieldVal(c, f)); return v || (want.has(f) ? "" : FX_EMPTY); };
       let row = [c.id, ty, prepListName(c.listId), isVocab(c) ? lg.target : cardLang(c)];
-      if (ty === "vocab") row = row.concat(langs.map(cell), langs.map(x => cell(posField(x))), [cell("example")]);
+      if (ty === "vocab") row = row.concat(langs.map(cell), langs.map(x => cell(posField(x))), [cell("example")], exLangs.map(x => cell(exTrField(x))));
       else row = row.concat(FX_TYPED_COLS[ty].map(([, k]) => k.startsWith("f:") ? cell(k) :
         fxCell(k === "i:tense" ? tenseName(c.lang, c.tense) : k === "i:person" ? personLabel(c.lang, c.tense, c.person) : c[k.slice(2)])));
       row.push(fxSig(c));
@@ -872,6 +893,8 @@ function fxColKey(cell) {
   const m = /^(?:pos|nature)[_:]([a-z]{2,3})$/.exec(n);
   if (m && isLang(m[1])) return posField(m[1]);
   if (["exemple", "example"].includes(n)) return "example";
+  const x = /^(?:trad_exemple|extr|exemple_tr)[_:]([a-z]{2,3})$/.exec(n);   // traduction de l'exemple (étape 35)
+  if (x && isLang(x[1])) return exTrField(x[1]);
   for (const ty of Object.keys(FX_TYPED_COLS)) { const x = FX_TYPED_COLS[ty].find(([nm]) => nm === n); if (x) return x[1]; }
   if (n === "examples") return "f:examples";
   return isLang(n) ? n : "ignore";
@@ -1097,7 +1120,7 @@ function genDefaults(listId) {
 function genLangs(o) {
   if (o.listId !== "__new__" && getList(o.listId)) return listLangs(o.listId);
   const fl = folderLangs(getFolder(o.folder));
-  return fl.target === o.newTarget ? fl : { target: o.newTarget, support: defaultSupportFor(o.newTarget) };
+  return fl.target === o.newTarget ? fl : langsFor(o.newTarget);
 }
 function genVerbs(o) { return [...new Set(String(o.verbs || "").split(/[\n,;]+/).map(x => x.trim()).filter(Boolean))]; }
 // Temps choisis (ids) encore valables pour la langue ; par défaut le 1er temps.
@@ -1139,18 +1162,16 @@ function openGenerate(listId) {
     fs.value = getFolder(o.folder) ? o.folder : "";
     fs.addEventListener("change", () => { o.folder = fs.value; redraw(); });
     wrap.appendChild(formField(t("folders.folder"), fs));
-    const tg = el("select", "input");
-    LANG_CODES.forEach(c => { const op = el("option", null, langName(c)); op.value = c; tg.appendChild(op); });
-    tg.value = o.newTarget;
-    tg.addEventListener("change", () => { o.newTarget = tg.value; redraw(); });
-    wrap.appendChild(formField(t("langs.target"), tg));
+    wrap.appendChild(formField(t("langs.target"), targetSelect(o.newTarget, v => { o.newTarget = v; redraw(); })));
   }
   const lg = genLangs(o), L = lg.target;
   wrap.appendChild(el("div", "gen-info", pairLabel(lg)));
 
   // Type de carte
   const ts = el("select", "input");
-  GEN_TYPES.forEach(ty => { const op = el("option", null, TYPE_ICON[ty] + " " + t("type." + ty)); op.value = ty; ts.appendChild(op); });
+  const okTypes = GEN_TYPES.filter(ty => typesFor(L).includes(ty));   // pas de conjugaison sans grammaire (étape 35)
+  if (!okTypes.includes(o.type)) o.type = "vocab";
+  okTypes.forEach(ty => { const op = el("option", null, TYPE_ICON[ty] + " " + t("type." + ty)); op.value = ty; ts.appendChild(op); });
   ts.value = o.type;
   ts.addEventListener("change", () => { o.type = ts.value; redraw(); });
   wrap.appendChild(formField(t("type.label"), ts));
@@ -1244,7 +1265,8 @@ function genListId(req) {
   if (req.createdId && getList(req.createdId)) return req.createdId;
   const folderId = req.folder && getFolder(req.folder) ? req.folder : null;
   const nl = { id: uid(), name: req.newName || t("gen.title"), folderId, order: nextOrder(listsIn(folderId)), createdAt: Date.now() };
-  if (req.lg.target !== folderLangs(getFolder(folderId)).target) nl.target = req.lg.target;   // langues d'appui calculées (étape 31)
+  if (req.lg.target !== folderLangs(getFolder(folderId)).target) nl.target = req.lg.target;   // appui : celui du profil (étape 35)
+  ensureLearning(req.lg.target);
   state.lists.push(nl);
   req.createdId = nl.id;
   return nl.id;
@@ -1293,8 +1315,9 @@ function genPrompt(req, verbs) {
     body.push("Exemple : " + genConjExample(L, req.tenses[0]));
   } else if (req.type === "vocab") {
     body.push("Crée " + req.count + " cartes de vocabulaire" + (req.topic ? " sur le thème : " + req.topic : "") + ".");
-    body.push("Format : vocab;mot en " + Ln + ";" + req.lg.support.map(c => "traduction en " + LANGUAGES[c].names.fr.toLowerCase()).join(";") + ";exemple;nature");
-    body.push("- exemple = une phrase courte en " + Ln + " qui utilise le mot ; nature = un code : nm, nf, nmf, nmpl, nfpl, n (nom sans genre), v, vpr, adj, adv, prep, conj, pron, interj, expr.");
+    const sn = req.lg.support.map(c => LANGUAGES[c].names.fr.toLowerCase());
+    body.push("Format : vocab;mot en " + Ln + ";" + sn.map(x => "traduction en " + x).join(";") + (sn.length ? ";" : "") + "exemple;" + sn.map(x => "traduction de l'exemple en " + x).join(";") + (sn.length ? ";" : "") + "nature");
+    body.push("- exemple = une phrase courte en " + Ln + " qui utilise le mot" + (sn.length ? ", suivie de sa traduction dans chaque langue (" + sn.join(", ") + ")" : "") + " ; nature = un code : nm, nf, nmf, nmpl, nfpl, n (nom sans genre), v, vpr, adj, adv, prep, conj, pron, interj, expr.");
     if (LANGUAGES[L].gender) body.push("- en " + Ln + ", un nom a toujours son genre (nm, nf…) ; le mot sans article (ex. « étagère »).");
   } else if (req.type === "cloze") {
     body.push("Crée " + req.count + " textes à trous en " + Ln + " sur : " + req.topic + ".");
@@ -1345,12 +1368,14 @@ function parseGenReply(text, req) {
     if (!kind) return;                                   // texte d'accompagnement ignoré
     out.lines++;
     if (kind === "vocab") {
+      // vocab;mot;traductions…;exemple;traductions de l'exemple…;nature (étape 35) — ancien format sans les traductions de l'exemple accepté
       const terms = {}; terms[L] = cols[1] || "";
       sup.forEach((c, i) => { if (cols[2 + i]) terms[c] = cols[2 + i]; });
-      const example = cols[2 + sup.length] || "";
-      const pv = parsePos(cols[3 + sup.length] || "", L);
-      if (!terms[L] || !sup.some(c => terms[c])) { out.errors.push(line); return; }
-      out.drafts.push({ type: "vocab", fields: { terms, example, pos: pv ? { [L]: pv } : {} } });
+      const example = cols[2 + sup.length] || "", withTr = cols.length >= 4 + 2 * sup.length, exTr = {};
+      if (withTr) sup.forEach((c, i) => { if (cols[3 + sup.length + i]) exTr[c] = cols[3 + sup.length + i]; });
+      const pv = parsePos(cols[(withTr ? 3 + 2 * sup.length : 3 + sup.length)] || "", L);
+      if (!terms[L] || (sup.length && !sup.some(c => terms[c]))) { out.errors.push(line); return; }
+      out.drafts.push({ type: "vocab", fields: { terms, example, exTr, pos: pv ? { [L]: pv } : {} } });
       return;
     }
     const r = parseTypedLine(kind, cols, L);
@@ -1499,7 +1524,7 @@ function openGenReply(req) {
 // Trous d'une carte : champs vides (langues d'appui, exemple, natures) + noms sans genre.
 function gapFields(c, lg) {
   lg = lg || cardLangs(c);
-  return fillFields(c, lg).filter(f => !fieldVal(c, f).trim()).concat(genderFields(c, lg));
+  return fillFields(c, lg).filter(f => !fieldVal(c, f, lg).trim()).concat(genderFields(c, lg));
 }
 function listGapCount(l) { if (!canEditList(l)) return 0; const lg = listLangs(l); return cardsOf(l.id).filter(c => gapFields(c, lg).length).length; }
 function folderGapCount(f) { return listsIn(f.id).reduce((n, l) => n + listGapCount(l), 0); }
@@ -1534,7 +1559,7 @@ function analyzeUpdate(cards) {
     g.forEach(f => a.genderLangs.add(f.slice(4)));
     if (g.length || posFields(lg).some(f => !fieldVal(c, f).trim())) a.pos++;
     if (g.length) a.gender++;
-    if (!String(c.example || "").trim()) a.example++;
+    if (exFields(lg).some(f => !fieldVal(c, f, lg).trim())) a.example++;   // exemple ou une de ses traductions (étape 35)
     if (pend.has(c.id) || c.auto.length) a.pending++;
     if (state.checkedSig[c.id] !== cardSig(c)) a.verify++;
   });
@@ -1547,7 +1572,7 @@ function updWant(cats) {
   return c => {
     const lg = cardLangs(c), out = [];
     lg.support.forEach(code => { if (cats.includes("tr:" + code) && !term(c, code).trim()) out.push(code); });
-    if (cats.includes("example") && !String(c.example || "").trim()) out.push("example");
+    if (cats.includes("example")) exFields(lg).forEach(f => { if (!fieldVal(c, f, lg).trim()) out.push(f); });
     if (cats.includes("pos")) posFields(lg).forEach(f => { if (!fieldVal(c, f).trim() || posNeedsGender(c, f.slice(4))) out.push(f); });
     return out;
   };

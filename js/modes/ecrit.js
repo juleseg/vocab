@@ -156,7 +156,7 @@ function renderWriteSession(root) {
     } else if (alts.length > 1) {
       box.appendChild(el("div", "wr-lbl", t("write.all", { a: f.a.main + (f.a.sub ? " · " + f.a.sub : "") })));
     }
-    if (c.example) { const ex = el("div", "wr-ex", c.example); ex.lang = f.target; box.appendChild(ex); }
+    const ex = exampleNode(c, "wr-ex", f.lg); if (ex) box.appendChild(ex);   // exemple + traductions (étape 35)
     root.appendChild(box);
 
     // Résultat proposé + correction possible

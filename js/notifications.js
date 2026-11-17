@@ -38,7 +38,7 @@ const UserStatus = (() => {
   function on() { return auth.mode === "supabase" && !!auth.sbUid && !!Supa.client() && !!Storage.getUser(); }
   function row() {
     const langs = new Set();
-    try { langs.add(accountLangs().target); } catch (e) {}
+    try { learningOf().forEach(x => langs.add(x.lang)); langs.add(accountLangs().target); } catch (e) {}   // profil de langues (étape 35)
     arr(state.lists).forEach(l => { try { if (cardsOf(l.id).length) langs.add(listLangs(l).target); } catch (e) {} });
     let pending = 0;
     try { pending = liveProposals().length; } catch (e) {}

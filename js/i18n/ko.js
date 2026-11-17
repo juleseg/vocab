@@ -1073,3 +1073,21 @@ Object.assign(I18N.ko, {
   "np.al.schedule_resume": "예약 알림 다시 시작", "np.al.schedule_delete": "예약 알림 삭제",
   "np.al.rule_on": "규칙 켬", "np.al.rule_off": "규칙 끔", "np.al.rule_edit": "규칙 수정"
 });
+
+// --- Étape 35 : profil de langues souple ---
+Object.assign(I18N.ko, {
+  "auth.targetHint": "첫 번째 학습 언어입니다. 설정에서 다른 언어를 추가할 수 있어요.",
+  "prof.title": "언어", "prof.help": "화면 언어: {ui}. 학습 언어마다 보조 언어를 하나 고를 수 있어요(선택). 카드에는 학습 언어, 화면 언어, 보조 언어 순서로 표시됩니다.",
+  "prof.none": "없음", "prof.support": "보조 언어 (선택)", "prof.supportHint": "화면 언어와 함께 표시됩니다 (예: 한국어를 배울 때 영어).",
+  "prof.otherLangs": "다른 언어 (프로필에 추가됨)", "prof.shown": "표시되는 언어", "prof.shownHint": "학습 언어, 화면 언어, 그리고 프로필의 보조 언어.",
+  "prof.likeProfile": "프로필과 같게 ({lang})", "prof.listSupportHint": "이 목록에서만 프로필의 보조 언어를 바꿉니다.",
+  "prof.noSupportWarn": "번역이 표시되지 않습니다: 학습 언어가 화면 언어와 같아요. 보조 언어를 고르세요.",
+  "prof.default": "기본", "prof.remove": "빼기", "prof.add": "학습 언어 추가",
+  "prof.added": "{lang}을(를) 학습 언어에 추가했어요", "prof.allAdded": "모든 언어가 이미 프로필에 있어요",
+  "prof.removeTitle": "빼기: {lang}", "prof.removeText": "목록은 삭제되지 않아요 (이 언어의 목록 {n}개). 언어는 그대로, 보조 언어 없이 남습니다.",
+  "card.exampleTr": "예문 번역 ({lang})",
+  "bulk.kind.posOf": "품사 ({lang})", "bulk.kind.exOf": "예문 ({lang})", "bulk.kind.exTrOf": "예문 번역 {lang} → {to}",
+  "bulk.format": "기본 열: 화면 언어;보조 언어;학습 언어;예문;태그;품사 — 태그는 쉼표로 구분, 빈 열 가능. 머리글 줄(언어 코드나 이름, pos_<코드>, ex_<코드>, ex_<코드>_<코드2>, tags)이 있으면 열이 자동으로 연결됩니다.",
+  "upd.cat.example": "예문 또는 예문 번역 없음", "fx.f.example": "예문과 번역 (어휘)",
+  "save.migratedV5": "데이터를 업데이트했어요 (버전 5: 언어 프로필, 언어별 예문). 바로 전에 백업을 내보냈어요."
+});

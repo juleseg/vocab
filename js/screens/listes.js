@@ -368,58 +368,76 @@ function warnUnusable(before) {
   const n = state.cards.filter(c => !before.has(c.id) && !cardUsable(c)).length;
   if (n) setTimeout(() => toast(t("langs.unusable", { n })), 2300);
 }
-// Choix de la langue apprise ; langues d'appui affichées en lecture seule (calculées : supportLangs, étape 31).
-// onChange(target, support) : support = langues d'appui calculées pour la nouvelle langue apprise.
+// Menu « langue apprise » : langues du profil d'abord, puis les autres (une autre langue est ajoutée au profil à
+// l'enregistrement, sans langue d'appui : ensureLearning, étape 35).
+function targetSelect(value, onChange) {
+  const prof = learningOf().map(x => x.lang);
+  const s = el("select", "input");
+  const add = (parent, c) => { const o = el("option", null, langName(c)); o.value = c; parent.appendChild(o); };
+  prof.forEach(c => add(s, c));
+  const others = LANG_CODES.filter(c => !prof.includes(c));
+  if (others.length) { const g = el("optgroup"); g.label = t("prof.otherLangs"); others.forEach(c => add(g, c)); s.appendChild(g); }
+  s.value = value;
+  s.addEventListener("change", () => onChange(s.value));
+  return s;
+}
+// Langues affichées (lecture seule) : « Italien · Français · Anglais ».
+function shownLangsInfo(lg, hint) {
+  return formField(t("prof.shown"), el("div", "lang-ro", visibleLangs(lg).map(x => langName(x)).join(" · ")), false, hint || "");
+}
+// Choix de la langue apprise (nouvelle liste de l'import) ; onChange(target, support) : langues affichées calculées.
 function langPicker(target, support, onChange) {
   const wrap = el("div");
-  const seg = el("div", "seg");
-  LANG_CODES.forEach(code => {
-    const b = el("button", null, langName(code));
-    b.type = "button";
-    b.setAttribute("aria-pressed", String(code === target));
-    b.addEventListener("click", () => onChange(code, supportLangs(code)));
-    seg.appendChild(b);
-  });
-  wrap.appendChild(formField(t("langs.target"), seg));
-  wrap.appendChild(supportInfo(target));
+  wrap.appendChild(formField(t("langs.target"), targetSelect(target, code => onChange(code, langsFor(code).support))));
+  wrap.appendChild(shownLangsInfo(langsFor(target), t("prof.shownHint")));
   return wrap;
 }
-// Langues d'appui calculées pour une langue apprise (lecture seule).
-function supportInfo(target) {
-  const sup = supportLangs(target);
-  return formField(t("langs.support"), el("div", "lang-ro", sup.map(x => langName(x)).join(" · ") || "—"), false,
-    t("langs.supportAutoHint"));
-}
+// Langue apprise d'un dossier / d'une liste (héritage possible) ; liste : langue d'appui propre (remplace celle du profil
+// ou la retire). Les réglages du compte (profil) sont dans Réglages → Langues.
 function openLangEditor(kind, obj) {
-  const parent = kind === "list" ? folderLangs(getFolder(obj.folderId)) : kind === "folder" ? accountLangs() : null;
-  const cur = kind === "account" ? accountLangs() : kind === "folder" ? folderLangs(obj) : listLangs(obj);
-  let inherit = !!parent && !isLang(obj.target);
-  let target = cur.target, support = cur.support.slice();
+  if (kind === "account") { openProfileAdd(); return; }
+  const parent = kind === "list" ? folderLangs(getFolder(obj.folderId)) : accountLangs();
+  let inherit = !isLang(obj.target);
+  let target = (kind === "list" ? listLangs(obj) : folderLangs(obj)).target;
+  const ov0 = supportOverride(obj);
+  let sup = kind === "list" ? (ov0 === undefined ? "__profile__" : ov0 === null ? "" : ov0) : "__profile__";
   const wrap = el("div");
   const draw = () => {
     wrap.textContent = "";
-    if (kind !== "account") wrap.appendChild(el("p", "muted", t(kind === "list" ? "langs.forList" : "langs.forFolder", { name: obj.name })));
-    if (parent) {
-      const lab = el("label", "check-row");
-      const cb = el("input"); cb.type = "checkbox"; cb.checked = inherit;
-      cb.addEventListener("change", () => { inherit = cb.checked; if (inherit) { target = parent.target; support = parent.support.slice(); } draw(); });
-      lab.append(cb, document.createTextNode(t(kind === "list" ? "langs.inheritFolder" : "langs.inheritAccount", { pair: pairLabel(parent) })));
-      wrap.appendChild(lab);
+    wrap.appendChild(el("p", "muted", t(kind === "list" ? "langs.forList" : "langs.forFolder", { name: obj.name })));
+    const lab = el("label", "check-row");
+    const cb = el("input"); cb.type = "checkbox"; cb.checked = inherit;
+    cb.addEventListener("change", () => { inherit = cb.checked; if (inherit) target = parent.target; draw(); });
+    lab.append(cb, document.createTextNode(t(kind === "list" && obj.folderId ? "langs.inheritFolder" : "langs.inheritAccount", { pair: langName(parent.target) })));
+    wrap.appendChild(lab);
+    const tg = inherit ? parent.target : target;
+    if (!inherit) wrap.appendChild(formField(t("langs.target"), targetSelect(target, v => { target = v; if (sup === v) sup = "__profile__"; draw(); })));
+    if (kind === "list") {
+      const ps = profileSupport(tg);
+      const s = el("select", "input");
+      const opt = (v, l) => { const o = el("option", null, l); o.value = v; s.appendChild(o); };
+      opt("__profile__", t("prof.likeProfile", { lang: ps ? langName(ps) : t("prof.none") }));
+      LANG_CODES.filter(c => c !== tg).forEach(c => opt(c, langName(c)));
+      opt("", t("prof.none"));
+      s.value = sup;
+      s.addEventListener("change", () => { sup = s.value; draw(); });
+      wrap.appendChild(formField(t("prof.support"), s, false, t("prof.listSupportHint")));
     }
-    if (!inherit) wrap.appendChild(langPicker(target, support, (tg, sp) => { target = tg; support = sp; draw(); }));
-    else wrap.appendChild(supportInfo(parent.target));
-    const n = cardsUnder(kind, obj).filter(c => isVocab(c) && !term(c, inherit ? parent.target : target).trim()).length;
-    if (n) wrap.appendChild(el("div", "hint", t("langs.missing", { n, lang: langName(inherit ? parent.target : target) })));
+    const appui = sup === "__profile__" ? undefined : (sup || null);
+    const lg = { target: tg, support: supportLangs(tg, null, appui) };
+    wrap.appendChild(shownLangsInfo(lg));
+    if (!lg.support.length) wrap.appendChild(el("div", "hint", t("prof.noSupportWarn")));
+    const n = cardsUnder(kind, obj).filter(c => isVocab(c) && !term(c, tg).trim()).length;
+    if (n) wrap.appendChild(el("div", "hint", t("langs.missing", { n, lang: langName(tg) })));
   };
   draw();
   openModal(t("langs.title"), wrap, [
     { label: t("cancel") },
     { label: t("save"), kind: "primary", onClick: () => {
       const before = unusableIds();
-      // Langues d'appui calculées : les champs support existants sont gardés tels quels (ignorés, étape 31).
-      if (kind === "account") state.settings.defaultTarget = target;
-      else if (inherit) delete obj.target;
-      else obj.target = target;
+      if (inherit) delete obj.target;
+      else { obj.target = target; ensureLearning(target); }
+      if (kind === "list") { if (sup === "__profile__") delete obj.support; else obj.support = sup || null; }
       commit();
       warnUnusable(before);
     } }
@@ -595,19 +613,30 @@ function openCardEditor(cardId, listId) {
     form = type === "vocab" ? vocabForm(c, sel) : typedForm(c, sel, type);
     body.appendChild(form.node);
   };
-  sel.addEventListener("change", () => form.redraw());
+  let ts = null;
+  // Types proposés selon la langue apprise de la liste : pas de conjugaison sans grammaire (étape 35).
+  const fillTypes = () => {
+    if (!ts) return;
+    const ok = typesFor(listLangs(sel.value).target);
+    ts.textContent = "";
+    ok.forEach(x => { const o = el("option", null, TYPE_ICON[x] + "  " + t("type." + x)); o.value = x; ts.appendChild(o); });
+    if (!ok.includes(type)) { type = "vocab"; ts.value = type; build(); return true; }
+    ts.value = type;
+    return false;
+  };
+  sel.addEventListener("change", () => { if (!fillTypes()) form.redraw(); });
   const wrap = el("div");
   wrap.appendChild(formField(t("card.list"), sel));
   if (!c) {
-    const ts = el("select", "input");
-    CARD_TYPES.forEach(x => { const o = el("option", null, TYPE_ICON[x] + "  " + t("type." + x)); o.value = x; ts.appendChild(o); });
-    ts.value = type;
+    ts = el("select", "input");
+    if (!typesFor(listLangs(sel.value).target).includes(type)) type = "vocab";
+    fillTypes();
     ts.addEventListener("change", () => { type = lastNewType = ts.value; build(); });
     wrap.appendChild(formField(t("type.label"), ts));
   } else if (type !== "vocab") {
     const f = el("div", "field"); f.appendChild(typeBadge(type)); wrap.appendChild(f);
   }
-  build();
+  if (!form) build();
   wrap.append(body, formField(t("card.tags"), tags));
   const save = () => {
     const r = form.save(parseTags(tags.value));
@@ -629,18 +658,28 @@ function openCardEditor(cardId, listId) {
 }
 
 // Formulaire vocabulaire. save(tags) → { added: [ids] } ou null (champ manquant).
+// Exemple (étape 35) : phrase dans la langue apprise de la liste + sa traduction dans chaque langue affichée (interface,
+// appui) ; les exemples des autres langues apprises de la carte sont gardés tels quels.
 function vocabForm(c, sel) {
   const vals = Object.assign({}, c ? c.terms : {});
   const posVals = Object.assign({}, c ? c.pos : {});
-  let inputs = {}, posSels = {}, lg = null;
+  const exVals = {};                 // langue apprise → { text, tr } en cours de saisie
+  let inputs = {}, posSels = {}, exIn = null, exTrIns = {}, lg = null;
   const termsBox = el("div");
-  const ex = el("textarea", "input"); ex.value = c ? c.example : "";
-  const exField = formField("", ex);
+  const exBox = el("div");
   const node = el("div");
-  node.append(termsBox, exField);
+  node.append(termsBox, exBox);
+  const exGet = code => { if (!exVals[code]) { const e = c ? exEntry(c, code) : null; exVals[code] = { text: e ? e.text : "", tr: Object.assign({}, e ? e.tr : {}) }; } return exVals[code]; };
+  const keepEx = () => {
+    if (!lg || !exIn) return;
+    const e = exGet(lg.target);
+    e.text = exIn.value;
+    Object.keys(exTrIns).forEach(k => { e.tr[k] = exTrIns[k].value; });
+  };
   const draw = () => {
     Object.keys(inputs).forEach(k => { vals[k] = inputs[k].value; });
     Object.keys(posSels).forEach(k => { posVals[k] = posSels[k].value; });
+    keepEx();
     termsBox.textContent = ""; inputs = {}; posSels = {};
     lg = listLangs(sel.value);
     [lg.target].concat(lg.support).forEach((code, i) => {
@@ -661,26 +700,41 @@ function vocabForm(c, sel) {
       termsBox.appendChild(i === 0 ? formField(langName(code), row, true, t("card.frHint"))
         : formField(langName(code), row, false, (vals[code] || "").trim() ? "" : t("card.toFillOne")));   // case « à compléter » (étape 31)
     });
-    ex.lang = lg.target;
-    exField.firstChild.textContent = t("card.exampleIn", { lang: langName(lg.target) });
+    exBox.textContent = ""; exTrIns = {};
+    const e = exGet(lg.target);
+    exIn = el("textarea", "input"); exIn.value = e.text; exIn.lang = lg.target; exIn.rows = 2;
+    exBox.appendChild(formField(t("card.exampleIn", { lang: langName(lg.target) }), exIn));
+    lg.support.forEach(code => {
+      const inp = textInput(e.tr[code] || "", "", code);
+      exTrIns[code] = inp;
+      exBox.appendChild(formField(t("card.exampleTr", { lang: langName(code) }), inp));
+    });
   };
   draw();
   const save = tagList => {
     Object.keys(inputs).forEach(k => { vals[k] = inputs[k].value.trim(); });
     Object.keys(posSels).forEach(k => { posVals[k] = posSels[k].value; });
+    keepEx();
     if (!vals[lg.target]) { toast(t("card.targetRequired", { lang: langName(lg.target) })); return null; }
     if (!lg.support.some(code => vals[code])) { toast(t("card.supportRequired", { langs: lg.support.map(x => langName(x)).join(", ") })); return null; }
     const terms = normTerms(vals);
     const pos = normTerms(posVals);
+    // Exemples : ceux de la carte (autres langues gardées), plus ceux saisis.
+    const exs = Object.assign({}, c ? (exMap(c) || {}) : {});
+    if (c && !exMap(c) && c.example && !exVals[lg.target]) exs[lg.target] = { text: c.example, tr: {} };
+    Object.keys(exVals).forEach(k => { exs[k] = exVals[k]; });
+    const examples = normExamples(exs);
+    const exT = examples[lg.target] ? examples[lg.target].text : "";
     if (c) {
       // Champ modifié à la main : il n'est plus « généré, non validé »
-      c.auto = c.auto.filter(a => !(a.startsWith("terms.") && (terms[a.slice(6)] || "") !== (c.terms[a.slice(6)] || "")) && !(a === "example" && ex.value.trim() !== c.example)
+      c.auto = c.auto.filter(a => !(a.startsWith("terms.") && (terms[a.slice(6)] || "") !== (c.terms[a.slice(6)] || "")) && !(a === "example" && exT !== exText(c, lg.target))
+        && !(a.startsWith("extr.") && ((examples[lg.target] || { tr: {} }).tr[a.slice(5)] || "") !== exTr(c, lg.target, a.slice(5)))
         && !(a.startsWith("pos.") && (pos[a.slice(4)] || "") !== ((c.pos || {})[a.slice(4)] || "")));
       c.listId = sel.value; c.terms = terms; c.pos = pos;
-      c.example = ex.value.trim(); c.tags = tagList;
+      c.examples = examples; c.example = exT; c.tags = tagList;
       return { added: [] };
     }
-    const nc = newCard(sel.value, terms, ex.value.trim(), tagList, pos);
+    const nc = newCard(sel.value, terms, examples, tagList, pos, lg.target);
     state.cards.push(nc);
     return { added: [nc.id] };
   };

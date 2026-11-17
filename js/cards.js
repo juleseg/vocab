@@ -2,13 +2,14 @@
 
 // === TYPES DE CARTES ===
 // Chaque carte a un champ type. Tous les types passent par le même Leitner, les mêmes listes, dossiers, stats et « À valider ».
-//   vocab : vocabulaire (terms, pos, example)
+//   vocab : vocabulaire (terms, pos, examples { langue: { text, tr } } — étape 35 ; ancien champ example gardé)
 //   conj  : conjugaison, une forme par carte (lang, verb, tense, person, answer, translation, note)
 //   cloze : texte à trous (lang, sentence avec ___, answer, hint, explanation, translation, ruleId)
 //   fix   : corriger l'erreur (lang, wrong, correct, explanation, ruleId)
 //   rule  : fiche de règle (lang, title, body, examples [liste], translation)
 // lang = langue apprise de la liste au moment de la création. Plusieurs réponses acceptées avec "/" (conj, cloze).
 // Toutes les cartes gardent terms / pos / example (vides hors vocabulaire) : le code commun ne plante jamais.
+// conj (et le mode Tableau) : seulement pour les langues qui ont une grammaire dans LANGUAGES (hasGrammar, étape 35).
 const CARD_TYPES = ["vocab", "conj", "cloze", "fix", "rule"];
 const TYPE_FIELDS = {
   conj: ["lang", "verb", "tense", "person", "answer", "translation", "note"],
@@ -20,6 +21,8 @@ const TYPE_ICON = { vocab: "Aa", conj: "⇄", cloze: "▁", fix: "✎", rule: "�
 const CLOZE_GAP = /_{2,}/;
 
 function cardType(c) { return c && CARD_TYPES.includes(c.type) ? c.type : "vocab"; }
+// Types proposés pour une langue apprise : conj seulement si la langue a une grammaire (étape 35).
+function typesFor(lng) { return CARD_TYPES.filter(x => x !== "conj" || hasGrammar(lng)); }
 function isVocab(c) { return cardType(c) === "vocab"; }
 // Langue du contenu de la carte (langue apprise) : champ lang hors vocabulaire, sinon langue apprise de la liste.
 function cardLang(c) { return !isVocab(c) && isLang(c.lang) ? c.lang : cardLangs(c).target; }
@@ -89,7 +92,9 @@ function normTypedFields(type, c) {
   return out;
 }
 function newTypedCard(listId, type, fields, tags) {
-  return Object.assign(newCard(listId, {}, "", tags || []), normTypedFields(type, fields || {}), { type });
+  const c = Object.assign(newCard(listId, {}, "", tags || []), normTypedFields(type, fields || {}), { type });
+  if (type !== "rule") delete c.examples;   // examples (objet) : vocabulaire seulement ; règle : liste de phrases
+  return c;
 }
 function cardHasContent(c) {
   if (isVocab(c)) return Object.keys(c.terms || {}).length > 0;
@@ -132,9 +137,9 @@ function cardSubtitle(c) {
   return supportText(c);
 }
 function typeBadge(type) { return el("span", "type-badge tb-" + type, TYPE_ICON[type] + " " + t("type." + type)); }
-// Texte de recherche (écran Listes) : langues visibles seulement (langue apprise + langues d'appui, étape 31)
+// Texte de recherche (écran Listes) : langues affichées seulement (displayLangs) ; exemple et ses traductions affichées.
 function cardSearchText(c) {
-  if (isVocab(c)) return visibleLangs(cardLangs(c)).map(code => term(c, code)).concat([c.example]).join(" ");
+  if (isVocab(c)) { const lg = cardLangs(c); return visibleLangs(lg).map(code => term(c, code)).concat([exText(c, lg.target)], lg.support.map(code => exTr(c, lg.target, code))).join(" "); }
   return (TYPE_FIELDS[c.type] || []).filter(f => !["lang", "ruleId"].includes(f)).map(f => c[f]).concat(arr(c.examples)).join(" ");
 }
 
@@ -291,7 +296,7 @@ function typedAlts(c) {
 // Mots : traductions prises dans les mots de même key des autres langues ; phrase d'exemple dans la langue apprise.
 // Autres types : textes { fr, ko, en } pris dans la 1re langue d'appui qui les a (traductions : toutes les langues d'appui).
 function addDemoList(data) {
-  const lg = resolveLangs([{ target: data.settings.defaultTarget, support: data.settings.defaultSupport }]);
+  const lg = resolveLangs([], data.settings.uiLang, data.settings);
   const D = (LANGUAGES[lg.target] && LANGUAGES[lg.target].demo) || {};
   const list = { id: uid(), name: "Démo", folderId: null, order: nextOrder(data.lists.filter(l => !l.folderId)), createdAt: Date.now() };
   data.lists.push(list);
@@ -301,7 +306,7 @@ function addDemoList(data) {
       const x = arr((LANGUAGES[code].demo || {}).words).find(y => y.key === w.key);
       if (x) { terms[code] = x.term; if (x.pos) pos[code] = x.pos; }
     });
-    data.cards.push(newCard(list.id, terms, w.ex || "", arr(w.tags).slice(), pos));
+    data.cards.push(newCard(list.id, terms, w.ex || "", arr(w.tags).slice(), pos, lg.target));
   });
   const order = lg.support.concat([lg.target]);
   const one = v => (v && typeof v === "object") ? (order.map(k => v[k]).find(Boolean) || locText(v, data.settings.uiLang)) : String(v || "");
@@ -314,6 +319,7 @@ function addDemoList(data) {
       const c = newTypedCard(list.id, "rule", Object.assign(base, { title: x.title, body: one(x.body), examples: x.examples, translation: all(x.translation) }));
       rules[x.key] = c.id; data.cards.push(c);
     } else if (x.type === "conjtab") {
+      if (!hasGrammar(lg.target)) return;
       personsOf(lg.target, x.tense).forEach((p, i) => {
         if (!x.forms[i]) return;
         data.cards.push(newTypedCard(list.id, "conj", Object.assign({}, base, { verb: x.verb, tense: x.tense, person: p.id, answer: x.forms[i],

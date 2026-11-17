@@ -209,7 +209,11 @@ function renderSessionConfig(root) {
   cnt.addEventListener("change", () => { cfg.count = clampInt(cnt.value, 1, 500, state.settings.sessionSize); cnt.value = cfg.count; });
   box.appendChild(formField(t("review.count"), cnt));
 
-  box.appendChild(segField("review.mode", [["cards", "mode.cards"], ["write", "mode.write"], ["quiz", "mode.quiz"], ["table", "mode.table"]], cfg.mode, v => { cfg.mode = v; }));
+  // Mode Tableau : seulement s'il y a des cartes de conjugaison d'une langue qui a une grammaire (étape 35).
+  const modes = [["cards", "mode.cards"], ["write", "mode.write"], ["quiz", "mode.quiz"]];
+  if (conjCards.some(c => hasGrammar(c.lang))) modes.push(["table", "mode.table"]);
+  else if (cfg.mode === "table") cfg.mode = "cards";
+  box.appendChild(segField("review.mode", modes, cfg.mode, v => { cfg.mode = v; }));
   if (cfg.mode === "table") box.appendChild(el("div", "hint", t("table.modeHint")));
   root.appendChild(box);
 

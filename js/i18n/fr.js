@@ -1073,3 +1073,21 @@ Object.assign(I18N.fr, {
   "np.al.schedule_resume": "Envoi programmé repris", "np.al.schedule_delete": "Envoi programmé supprimé",
   "np.al.rule_on": "Règle activée", "np.al.rule_off": "Règle désactivée", "np.al.rule_edit": "Règle modifiée"
 });
+
+// --- Étape 35 : profil de langues souple ---
+Object.assign(I18N.fr, {
+  "auth.targetHint": "Ta première langue apprise. Tu pourras en ajouter d'autres dans les Réglages.",
+  "prof.title": "Langues", "prof.help": "Interface : {ui}. Pour chaque langue apprise, une langue d'appui facultative. Une carte affiche la langue apprise, puis la langue de l'interface, puis la langue d'appui.",
+  "prof.none": "Aucune", "prof.support": "Langue d'appui (facultative)", "prof.supportHint": "Affichée en plus de la langue de l'interface (ex. l'anglais pour apprendre le coréen).",
+  "prof.otherLangs": "Autres langues (ajoutées au profil)", "prof.shown": "Langues affichées", "prof.shownHint": "Langue apprise, langue de l'interface, puis langue d'appui du profil.",
+  "prof.likeProfile": "Comme le profil ({lang})", "prof.listSupportHint": "Remplace la langue d'appui du profil pour cette liste seulement.",
+  "prof.noSupportWarn": "Aucune traduction ne sera affichée : la langue apprise est celle de l'interface. Choisissez une langue d'appui.",
+  "prof.default": "par défaut", "prof.remove": "Retirer", "prof.add": "Ajouter une langue apprise",
+  "prof.added": "{lang} ajouté à vos langues apprises", "prof.allAdded": "Toutes les langues sont déjà dans votre profil",
+  "prof.removeTitle": "Retirer : {lang}", "prof.removeText": "Aucune liste n'est supprimée ({n} liste(s) dans cette langue). Elles gardent leur langue, sans langue d'appui.",
+  "card.exampleTr": "Traduction de l'exemple ({lang})",
+  "bulk.kind.posOf": "Nature ({lang})", "bulk.kind.exOf": "Exemple ({lang})", "bulk.kind.exTrOf": "Traduction de l'exemple {lang} → {to}",
+  "bulk.format": "Colonnes par défaut : langue de l'interface;langue d'appui;langue apprise;exemple;tags;nature — tags séparés par des virgules, colonnes vides permises. Avec une ligne d'en-tête (codes ou noms de langues, pos_<code>, ex_<code>, ex_<code>_<code2>, tags), les colonnes sont associées automatiquement.",
+  "upd.cat.example": "Exemple ou traduction de l'exemple manquant", "fx.f.example": "Exemples et leurs traductions (vocabulaire)",
+  "save.migratedV5": "Données mises à jour (version 5 : profil de langues, exemples par langue). Une sauvegarde a été exportée juste avant."
+});

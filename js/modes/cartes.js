@@ -48,7 +48,8 @@ function faceSub(cls, f, c, withPos) {
   });
   return d;
 }
-function faceNode(cls, f, c, example, exLng) {
+// example : nœud « exemple + traductions » (exampleNode) ou null.
+function faceNode(cls, f, c, example) {
   const d = el("div", "sw-face " + cls + (isVocab(c) ? "" : " ty-face ty-" + cardType(c)) + (f.long ? " sw-long" : ""));
   d.appendChild(el("div", "sw-lang", f.lang));
   const sp = speakItemsBtn(f.items);
@@ -57,7 +58,7 @@ function faceNode(cls, f, c, example, exLng) {
   b.appendChild(faceMain("sw-main", f, c, true));
   const sub = faceSub("sw-sub", f, c, true);
   if (sub) b.appendChild(sub);
-  if (example) { const e = el("div", "sw-ex", example); e.lang = exLng; b.appendChild(e); }
+  if (example) b.appendChild(example);
   faceExtras(f).forEach(n => b.appendChild(n));
   d.appendChild(b);
   return d;
@@ -91,7 +92,7 @@ function renderCardsSession(root) {
   card.setAttribute("role", "button");
   card.tabIndex = 0;
   const inner = el("div", "sw-inner" + (s.revealed ? " flipped" : ""));
-  inner.append(faceNode("sw-front", f.q, c, "", f.target), faceNode("sw-back", f.a, c, c.example, f.target));
+  inner.append(faceNode("sw-front", f.q, c, null), faceNode("sw-back", f.a, c, exampleNode(c, "sw-ex", f.lg)));   // exemple + traductions (étape 35)
   card.appendChild(inner);
   const stamps = {};
   ["known", "unknown", "review"].forEach(r => { stamps[r] = el("div", "sw-stamp sw-stamp-" + r, t("cat." + r)); card.appendChild(stamps[r]); });

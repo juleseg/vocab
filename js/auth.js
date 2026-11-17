@@ -12,7 +12,7 @@
 const auth = {
   mode: "local", view: "loading", reg: { accounts: [], migrated: false }, legacy: null, backupAsked: false, busy: false,
   msg: null, err: null, isAdmin: false, sbUid: null, lastPin: "", forceId: "", forceTarget: null, blocked: null,
-  form: { id: "", pin: "", pin2: "", target: LANG_DEFAULT }
+  form: { id: "", pin: "", pin2: "", target: LANG_DEFAULT, support: null }
 };
 
 function rememberMe() { try { return localStorage.getItem(CONFIG.LS_REMEMBER) !== "0"; } catch (e) { return true; } }
@@ -20,7 +20,7 @@ function setRememberMe(v) { try { localStorage.setItem(CONFIG.LS_REMEMBER, v ? "
 function normId(s) { return String(s || "").replace(/\s+/g, "").toLowerCase(); }
 function validId(s) { return /^[a-z0-9-]{2,20}$/.test(s); }
 function validPin(s) { return /^\d{4,6}$/.test(s); }
-function clearAuthForm() { auth.form = { id: "", pin: "", pin2: "", target: (auth.form && auth.form.target) || LANG_DEFAULT }; auth.msg = null; auth.err = null; }
+function clearAuthForm() { const o = auth.form || {}; auth.form = { id: "", pin: "", pin2: "", target: o.target || LANG_DEFAULT, support: isLang(o.support) ? o.support : null }; auth.msg = null; auth.err = null; }
 // Messages de l'écran de connexion : gardés sous forme de clé (+ variables) et traduits à l'affichage,
 // pour suivre immédiatement un changement de langue. authError : erreur affichée dans l'écran (plus de bulle éphémère).
 function authError(key, vars) { auth.err = { key, vars: vars || null }; if (!Storage.getUser()) renderAuth(); }
@@ -127,17 +127,13 @@ function renderAuth() {
   box.appendChild(formField(t("auth.pin"), pinInp, false, creating ? t("auth.pinHint") : null));
   let pin2Inp = null;
   if (creating) { pin2Inp = pinInput(f.pin2, v => { f.pin2 = v; }); box.appendChild(formField(t("auth.pin2"), pin2Inp)); }
-  // Langue apprise par défaut du nouveau compte (pas pour le premier compte qui reçoit les anciennes données : français)
+  // Profil de langues du nouveau compte (étape 35) : langue de l'interface (sélecteur en haut), première langue apprise
+  // et sa langue d'appui facultative (pas pour le premier compte qui reçoit les anciennes données : migration).
   if (creating && !(first && auth.legacy && !auth.reg.migrated)) {
-    const seg = el("div", "seg");
-    LANG_CODES.forEach(code => {
-      const b = el("button", null, langName(code));
-      b.type = "button";
-      b.setAttribute("aria-pressed", String(code === f.target));
-      b.addEventListener("click", () => { f.target = code; seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); });
-      seg.appendChild(b);
-    });
-    box.appendChild(formField(t("auth.target"), seg, false, t("auth.targetHint")));
+    const tg = langSelect(f.target, null, v => { f.target = v; if (f.support === v) f.support = null; renderAuth(); });
+    box.appendChild(formField(t("auth.target"), tg, false, t("auth.targetHint")));
+    const sp = langSelect(f.support || "", t("prof.none"), v => { f.support = v || null; }, [f.target]);
+    box.appendChild(formField(t("prof.support"), sp, false, t("prof.supportHint")));
   }
   // Rester connecté
   const rem = el("label", "check");
@@ -219,7 +215,8 @@ async function doCreate() {
   if (f.pin !== f.pin2) { authError("auth.err.pin2"); return; }
   auth.busy = true;
   try {
-    if (auth.mode === "supabase") { await sbCreate(id, f.pin, f.target); return; }
+    const target = { lang: f.target, support: f.support };   // profil de langues du nouveau compte (étape 35)
+    if (auth.mode === "supabase") { await sbCreate(id, f.pin, target); return; }
     auth.reg = await Storage.loadAccounts(); // registre à jour (autre appareil)
     if (auth.reg.accounts.some(a => a.id === id)) { authError("auth.err.exists"); return; }
     const migrate = !auth.reg.migrated && !!auth.legacy;
@@ -231,7 +228,6 @@ async function doCreate() {
     let preset = null;
     if (migrate) { preset = normalizeData(auth.legacy); preset.updatedAt = Date.now(); }
     auth.legacy = null;
-    const target = f.target;
     clearAuthForm();
     await startUser(id, preset, target);
     toast(t(migrate ? "auth.migrated" : "auth.welcome", { id }));
@@ -267,7 +263,7 @@ async function enterSupabase(session, target) {
   try { localStorage.setItem(CONFIG.LS_SB_PROFILE, JSON.stringify({ uid: userUuid, identifiant: id, is_admin: auth.isAdmin })); } catch (e) {}
   if (prof && prof.must_change_pin) {
     auth.forceId = id; auth.forceTarget = target || null;
-    auth.form = { id: "", pin: "", pin2: "", target: auth.form.target };
+    auth.form = { id: "", pin: "", pin2: "", target: auth.form.target, support: auth.form.support };
     showAuth("force");
     return;
   }
@@ -415,7 +411,7 @@ async function startUser(id, preset, target, sbUid) {
   Queue.start(); // file d'attente Claude (mode Supabase) : réponses arrivées pendant l'absence
 }
 // Données du compte : locales tout de suite (cache), puis comparaison avec les données en ligne (syncWithRemote).
-// target : langue apprise par défaut d'un nouveau compte (liste « Démo » dans cette langue).
+// target : profil d'un nouveau compte { lang, support } (ou code de langue) — liste « Démo » dans cette langue.
 async function startUserData(id, preset, target, sbUid) {
   Storage.setUser(id, sbUid);
   Storage.setSession(id);
@@ -428,7 +424,8 @@ async function startUserData(id, preset, target, sbUid) {
     if (local) { state = normalizeData(local.data); ctx.oldLocal = local.old; if (dataVersion(local.data) < DATA_VERSION) ctx.rawV1 = local.data; }
     else {
       const ui = state.settings.uiLang, theme = state.settings.theme; // choix de l'écran de connexion
-      state = addDemoList(emptyData(target)); // nouveau compte (ou nouvel appareil) : liste "Démo"
+      const tg = target && typeof target === "object" ? target.lang : target, sp = target && typeof target === "object" ? target.support : null;
+      state = addDemoList(emptyData(tg, sp)); // nouveau compte (ou nouvel appareil) : liste "Démo"
       state.settings.uiLang = ui; state.settings.theme = theme;
       state.updatedAt = 0;                    // 0 = une version en ligne existante passe devant
     }
@@ -480,7 +477,12 @@ async function syncWithRemote(id, ctx, first) {
         rawV1 = dataVersion(remote.data) < DATA_VERSION ? remote.data : null;
         if (!oldRemote && !rawV1) Storage.markSynced(state);
         render();
-      } else if (take === null) Storage.markSynced(state);
+      } else if (take === null) {
+        // Identiques, mais en ligne dans un ancien modèle (ex. v4 → v5, étape 35) : rien n'est marqué « déjà en ligne »,
+        // les morceaux migrés partent (index en dernier), après l'export de sécurité.
+        if (dataVersion(remote.data) < DATA_VERSION && !remote.old) rawV1 = rawV1 || remote.data;
+        else Storage.markSynced(state);
+      }
       else if (asked) {                          // « garder cet appareil » : tout renvoyer
         Storage.forceFullPush(remote.keys, r.updatedAt);
         state.updatedAt = Math.max(Date.now(), r.updatedAt + 1);
@@ -499,7 +501,7 @@ async function syncWithRemote(id, ctx, first) {
     if (rawV1) state.updatedAt = Math.max(Date.now(), state.updatedAt + 1); // la nouvelle version du modèle passe devant l'ancienne partout
     if (first) Storage.release();
     Storage.save(state);        // local tout de suite, en ligne regroupé (seulement si les données en ligne ont été lues)
-    const migKey = rawV1 ? (dataVersion(rawV1) < 2 ? "save.migratedV2" : dataVersion(rawV1) < 3 ? "save.migratedV3" : "save.migratedV4") : "save.migrated";
+    const migKey = rawV1 ? (dataVersion(rawV1) < 2 ? "save.migratedV2" : dataVersion(rawV1) < 3 ? "save.migratedV3" : dataVersion(rawV1) < 4 ? "save.migratedV4" : "save.migratedV5") : "save.migrated";
     if (ctx.oldLocal && Storage.dropOldLocal(state)) toast(t(migKey));
     else if (oldRemote || rawV1) toast(t(migKey));
     if (!first) { Streak.tick(true); render(); }

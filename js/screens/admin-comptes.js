@@ -459,7 +459,7 @@ function tpApply(out, src, dest, r) {
       if (f) return (folderId = f.id);
     }
     const nf = { id: uid(), name: dest.name, order: maxOrder(out.folders) + 1 };
-    if (src.folderLg) { nf.target = src.folderLg.target; nf.support = src.folderLg.support.slice(); }
+    if (src.folderLg) { nf.target = src.folderLg.target; addLearningTo(out, nf.target); }
     out.folders.push(nf);
     return (folderId = nf.id);
   };
@@ -472,7 +472,8 @@ function tpApply(out, src, dest, r) {
     if (!lid) {
       const fid = destFolder();
       const nl = { id: uid(), name: l.name, folderId: fid, order: maxOrder(out.lists.filter(x => (x.folderId || null) === fid)) + 1, createdAt: now,
-        target: l.lg.target, support: l.lg.support.slice() };
+        target: l.lg.target };   // appui : celui du profil du compte (étape 35)
+      addLearningTo(out, nl.target);
       out.lists.push(nl);
       lid = nl.id; res.lists++; res.listMap[l.id] = lid;
     }

@@ -340,7 +340,9 @@ function queueNormItems(res, ids) {
 function queueGenReq(saved) {
   if (!saved || !saved.lg || !LANGUAGES[saved.lang]) return null;
   const req = Object.assign({}, saved, { verbs: arr(saved.verbs), tenses: arr(saved.tenses), persons: arr(saved.persons) });
-  req.lg = { target: saved.lg.target, support: supportLangs(saved.lg.target) };   // langues d'appui calculées (étape 31)
+  // Langues affichées au moment de la demande (format de la réponse), sinon celles du profil (étape 35).
+  const sup = cleanSupport(saved.lg.support, saved.lg.target);
+  req.lg = Array.isArray(saved.lg.support) ? { target: saved.lg.target, support: sup } : langsFor(saved.lg.target);
   if (!getList(req.listId)) { req.listId = "__new__"; req.folder = getFolder(req.folder) ? req.folder : null; }
   return req;
 }

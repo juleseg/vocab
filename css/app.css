@@ -814,3 +814,16 @@ span.fc-day{display:inline-block;width:12px;height:12px;aspect-ratio:auto;cursor
 .np-edit .seg{margin:6px 0 8px}
 .np-why{margin:10px 0 0;font-size:15px;overflow-wrap:anywhere}
 .np-why-h{font-weight:600;margin-bottom:4px}
+
+/* === PROFIL DE LANGUES ET EXEMPLES (ÉTAPE 35) === */
+#langCard .prof-help { font-size: 0.85rem; margin-top: 0; }
+.prof-row { border-top: 1px solid var(--border); padding: 12px 0 4px; }
+.prof-row:first-of-type { border-top: 0; }
+.prof-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.prof-head b { font-size: 1.05rem; }
+.prof-head .link-btn { margin-left: auto; }
+.prof-head .link-btn:disabled { opacity: .35; }
+.prof-shown { font-size: 0.85rem; margin: -4px 0 6px; }
+#langCard > .btn { margin-top: 8px; width: 100%; }
+.sw-ex .ex-main, .wr-ex .ex-main, .qz-ex .ex-main { font-style: italic; }
+.sw-ex .ex-tr, .wr-ex .ex-tr, .qz-ex .ex-tr { font-size: 0.85em; opacity: .75; margin-top: 2px; }

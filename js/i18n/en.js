@@ -1073,3 +1073,21 @@ Object.assign(I18N.en, {
   "np.al.schedule_resume": "Scheduled notification resumed", "np.al.schedule_delete": "Scheduled notification deleted",
   "np.al.rule_on": "Rule turned on", "np.al.rule_off": "Rule turned off", "np.al.rule_edit": "Rule edited"
 });
+
+// --- Étape 35 : profil de langues souple ---
+Object.assign(I18N.en, {
+  "auth.targetHint": "Your first language to learn. You can add more in Settings.",
+  "prof.title": "Languages", "prof.help": "Interface: {ui}. For each language you learn, an optional support language. A card shows the language you learn, then the interface language, then the support language.",
+  "prof.none": "None", "prof.support": "Support language (optional)", "prof.supportHint": "Shown in addition to the interface language (e.g. English when learning Korean).",
+  "prof.otherLangs": "Other languages (added to your profile)", "prof.shown": "Languages shown", "prof.shownHint": "Language you learn, interface language, then the profile's support language.",
+  "prof.likeProfile": "Same as profile ({lang})", "prof.listSupportHint": "Replaces the profile's support language for this list only.",
+  "prof.noSupportWarn": "No translation will be shown: the language you learn is the interface language. Choose a support language.",
+  "prof.default": "default", "prof.remove": "Remove", "prof.add": "Add a language to learn",
+  "prof.added": "{lang} added to your languages", "prof.allAdded": "All languages are already in your profile",
+  "prof.removeTitle": "Remove: {lang}", "prof.removeText": "No list is deleted ({n} list(s) in this language). They keep their language, without a support language.",
+  "card.exampleTr": "Example translation ({lang})",
+  "bulk.kind.posOf": "Part of speech ({lang})", "bulk.kind.exOf": "Example ({lang})", "bulk.kind.exTrOf": "Example translation {lang} → {to}",
+  "bulk.format": "Default columns: interface language;support language;language learned;example;tags;part of speech — tags separated by commas, empty columns allowed. With a header line (language codes or names, pos_<code>, ex_<code>, ex_<code>_<code2>, tags), columns are matched automatically.",
+  "upd.cat.example": "Missing example or example translation", "fx.f.example": "Examples and their translations (vocabulary)",
+  "save.migratedV5": "Data updated (version 5: language profile, examples per language). A backup was exported just before."
+});
