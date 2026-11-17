@@ -41,7 +41,7 @@ const CONFIG = {
   PV_CHUNK: 200          // « À valider » : propositions acceptées / refusées par paquet
 };
 // Numéro de la dernière étape réalisée : affiché en bas des Réglages, envoyé au journal d'activité et dans la fiche appareil.
-const APP_VERSION = "37";
+const APP_VERSION = "38";
 
 // === I18N ===
 // Textes de l'interface : un fichier par langue (js/i18n/ko.js, fr.js, en.js), chargés après languages.js.
@@ -110,6 +110,20 @@ function openModal(title, bodyNode, actions, opts) {
   if (!(opts && opts.locked)) bg.addEventListener("click", e => { if (e.target === bg) close(); });
   document.body.appendChild(bg);
   return close;
+}
+// Étape 38 : attend qu'aucune fenêtre ne soit ouverte (ni séance de révision en cours) avant d'en ouvrir une autre,
+// pour ne jamais superposer deux fenêtres au lancement (ordre : migration / sauvegarde, annonce, invitation).
+// stillValid() : faux = abandon (déconnexion, changement de compte) ; renvoie true quand la voie est libre.
+function whenNoModal(stillValid) {
+  const free = () => !document.querySelector(".modal-bg") &&
+    !(typeof currentScreen !== "undefined" && currentScreen === "review" && typeof rv !== "undefined" && rv && rv.phase !== "config");
+  return new Promise(res => {
+    const tick = () => {
+      if (stillValid && !stillValid()) { res(false); return; }
+      if (free()) res(true); else setTimeout(tick, 600);
+    };
+    tick();
+  });
 }
 // Fenêtre avec barre de progression (ne se ferme pas en touchant le fond). Renvoie { set(fraction, texte), close }.
 function openProgress(title, text, actions) {

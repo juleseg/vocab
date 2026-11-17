@@ -73,6 +73,8 @@ function initSyncStatus() {
 // (vocabfr.ann:read:<compte>), l'annonce n'est plus montrée ici et la lecture est renvoyée au lancement suivant.
 // Langue : celle de l'interface, sinon une autre langue disponible (français, anglais, coréen, dans cet ordre).
 // Script pas lancé : rien ne s'affiche, sans erreur.
+// Étape 38 : chaque annonce attend qu'aucune autre fenêtre ne soit ouverte (whenNoModal) ; l'invitation à activer les
+// notifications (NotifInvite, js/notif-invite.js) passe après les annonces (auth.js, enterSupabase).
 const Ann = (() => {
   const FALLBACK = ["fr", "en", "ko"];
   let busy = false, token = 0;
@@ -125,6 +127,8 @@ const Ann = (() => {
       for (const a of list) {
         if (my !== token || auth.sbUid !== who || !Storage.getUser()) break;
         if (!a || !a.id || done.has(a.id) || shown.has(a.id)) continue;
+        // Étape 38 : jamais par-dessus une autre fenêtre (migration, sauvegarde, conflit…).
+        if (!(await whenNoModal(() => my === token && auth.sbUid === who && !!Storage.getUser()))) break;
         shown.add(a.id);
         await showOne(a);
       }

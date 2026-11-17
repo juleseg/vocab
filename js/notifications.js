@@ -17,6 +17,8 @@
 // - Bandeau unique après la première session terminée (vocabfr.push:offered:<identifiant>).
 // - Étape 34 : événements pour les notifications automatiques (PushEvents : palier de série atteint, gel utilisé),
 //   envoyés au serveur par push_event ; variable {ami} (demande d'ami, invitation de partage).
+// - Étape 38 : Push.ready() (état de l'appareil chargé), Push.enable() renvoie le résultat ("on" | "denied" |
+//   "dismissed" | "error"), Push.markOffered() (pas de bandeau après une fenêtre d'invitation, js/notif-invite.js).
 const PUSH_CATS = ["reminders", "streak", "friends", "announcements"];
 const PUSH_SCREENS = ["home", "review", "lists", "pending", "stats", "friends"];
 const PUSH_VARS = ["identifiant", "serie", "record", "objectif", "a_reviser", "a_valider", "jours_inactif", "ami"];
@@ -76,6 +78,7 @@ const Push = (() => {
   let loading = false, missing = false, err = "", busy = false, endpoint = null, token = 0;
   let pendingClick = null;     // ?n=<id> à l'ouverture (notification touchée)
   let saveT = null;
+  let readyP = Promise.resolve();   // dernier chargement de l'état (étape 38)
   function on() { return auth.mode === "supabase" && !!auth.sbUid && !!Supa.client() && !!Storage.getUser(); }
   function lsKey(k) { return CONFIG.LS_USER_PREFIX + "push:" + k + ":" + (Storage.getUser() || ""); }
   function flag(k) { try { return localStorage.getItem(lsKey(k)) === "1"; } catch (e) { return false; } }
@@ -131,7 +134,8 @@ const Push = (() => {
   function rerender() { if (currentScreen === "settings") renderPushCard(); }
   // État de cet appareil et préférences du compte. Si l'appareil était activé pour ce compte, réenregistre
   // l'abonnement s'il manque (reconnexion, adresse renouvelée par le navigateur).
-  async function refresh() {
+  function refresh() { readyP = doRefresh(); return readyP; }
+  async function doRefresh() {
     if (!on()) return;
     const my = ++token;
     loading = true; err = "";
@@ -152,17 +156,21 @@ const Push = (() => {
     loading = false;
     rerender();
   }
+  // Résultat (étape 38) : "on" (abonné), "denied" (refusé dans le navigateur), "dismissed" (demande fermée sans
+  // réponse), "error" (autre problème : message dans Réglages → Notifications).
+  // La demande d'autorisation part sans attente avant elle : appeler enable() directement dans le geste (toucher).
   async function enable() {
-    if (busy || support() !== "ok") return;
+    if (busy || support() !== "ok") return "error";
     busy = true; err = ""; rerender();
+    let res = "error";
     try {
       let perm = permission();
       if (perm !== "granted") perm = await Notification.requestPermission();
-      if (perm !== "granted") { err = perm === "denied" ? "" : t("np.err.notAllowed"); return; }
+      if (perm !== "granted") { err = perm === "denied" ? "" : t("np.err.notAllowed"); res = perm === "denied" ? "denied" : "dismissed"; return res; }
       const reg = await registration();
-      if (!reg || !reg.pushManager) { err = t("np.nosw"); return; }
+      if (!reg || !reg.pushManager) { err = t("np.nosw"); return res; }
       const key = (st && st.key) || await rpc("push_public_key");
-      if (!key) { err = auth.isAdmin ? t("np.noKeyAdmin") : t("np.noKey"); return; }
+      if (!key) { err = auth.isAdmin ? t("np.noKeyAdmin") : t("np.noKey"); return res; }
       let sub = await reg.pushManager.getSubscription();
       if (sub) {   // abonnement fait avec une autre clé : on le refait
         let same = true;
@@ -173,6 +181,7 @@ const Push = (() => {
       await register(sub);
       setFlag("on", true); setFlag("offered", true);
       endpoint = sub.endpoint;
+      res = "on";
       toast(t("np.enabled"));
       st = await rpc("my_push_state", { p_endpoint: endpoint });
     } catch (e) {
@@ -180,6 +189,7 @@ const Push = (() => {
       else if (String((e && e.code) || "") === "42501") err = t("am.err.account_blocked");
       else err = sbErrKind(e) === "net" ? t("np.err.net") : t("np.err.subscribe");
     } finally { busy = false; rerender(); }
+    return res;
   }
   async function disable() {
     if (busy) return;
@@ -283,7 +293,10 @@ const Push = (() => {
   }
   return {
     on, support, permission, refresh, enable, disable, setPref, start, end, listen, banner,
-    state: () => ({ st, loading, missing, err, busy, endpoint })
+    state: () => ({ st, loading, missing, err, busy, endpoint }),
+    ready: () => readyP.catch(() => {}),              // étape 38
+    markOffered: () => setFlag("offered", true)       // étape 38
+
   };
 })();
 Push.listen();

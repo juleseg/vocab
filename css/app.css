@@ -883,3 +883,17 @@ span.fc-day{display:inline-block;width:12px;height:12px;aspect-ratio:auto;cursor
 .study-sec{margin-top:14px;padding-top:10px;border-top:2px solid var(--border)}
 .study-sec-hd{font-weight:700;color:var(--accent);margin-bottom:6px}
 .study-word{color:var(--muted)}
+
+/* === INVITATION À ACTIVER LES NOTIFICATIONS (étape 38) === */
+.ni-body{font-size:16px;line-height:1.45}
+.ni-body p{margin:0 0 12px}
+.ni-body .hint{font-size:14px}
+.ni-admin{white-space:pre-line}
+.ni-steps{margin:0 0 12px;padding:10px 12px 10px 30px;background:var(--bg);border:1px solid var(--border);border-radius:12px;font-size:15px;line-height:1.5}
+p.ni-steps{padding-left:12px}
+.ni-steps li{margin:2px 0}
+.modal .ni-body + .btns .btn{min-height:48px}
+.ni-intro{margin:4px 0 12px}
+.ni-sample{word-break:break-word}
+.ni-track-h{margin-top:18px}
+.ni-row .an-acts{margin-top:8px}

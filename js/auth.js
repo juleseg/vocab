@@ -269,7 +269,9 @@ async function enterSupabase(session, target) {
   }
   Supa.touch().catch(() => {});
   await startUser(id, null, target, userUuid);
-  Ann.check();   // annonces de l'admin (étape 27), après l'ouverture des données
+  // Fenêtres du lancement, l'une après l'autre (étape 38) : annonces de l'admin (étape 27), puis invitation à activer
+  // les notifications (fenêtre de première ouverture ou invitation de l'admin). Migration / sauvegarde : déjà faites.
+  Ann.check().finally(() => NotifInvite.check());
 }
 // Compte bloqué (étape 27) : déconnexion tout de suite (session oubliée sur l'appareil), puis écran avec la raison.
 // Rien n'est envoyé ni effacé : les données du compte restent en ligne et dans le cache de l'appareil.
@@ -542,6 +544,7 @@ async function logout() {
   Queue.reset();
   Dict.reset();   // dictionnaire commun (étape 36)
   Ann.reset();
+  NotifInvite.reset();   // étape 38
   Streak.reset();
   Friends.reset();
   Shared.reset();
