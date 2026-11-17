@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vocab</title>
-<link rel="stylesheet" href="css/app.css?v=40">
+<link rel="stylesheet" href="css/app.css?v=41">
 <!-- === PWA (appli installable) === -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2f5bd3">
@@ -116,6 +116,8 @@
     <section class="screen" id="screen-adminpush"></section>
     <!-- Dictionnaire commun (admin, étape 36) -->
     <section class="screen" id="screen-admindict"></section>
+    <!-- Journal des erreurs (admin, étape 41) -->
+    <section class="screen" id="screen-adminerr"></section>
     <!-- À propos (étape 39) -->
     <section class="screen" id="screen-about"></section>
 
@@ -211,52 +213,57 @@
 <!-- Configuration Supabase (fichier séparé, absent dans Claude : l'appli passe alors au stockage de l'artifact ou du navigateur) -->
 <script src="config.js"></script>
 <!-- Scripts de l'appli, dans l'ordre (scripts classiques, sans build). -->
-<script src="js/core.js?v=40"></script>
-<script src="js/languages.js?v=40"></script>
-<script src="js/i18n/ko.js?v=40"></script>
-<script src="js/i18n/fr.js?v=40"></script>
-<script src="js/i18n/en.js?v=40"></script>
-<script src="js/i18n/tutorial-ko.js?v=40"></script>
-<script src="js/i18n/tutorial-fr.js?v=40"></script>
-<script src="js/i18n/tutorial-en.js?v=40"></script>
-<script src="js/storage.js?v=40"></script>
-<script src="js/cards.js?v=40"></script>
-<script src="js/auth.js?v=40"></script>
-<script src="js/leitner.js?v=40"></script>
-<script src="js/modes/cartes.js?v=40"></script>
-<script src="js/modes/ecrit.js?v=40"></script>
-<script src="js/modes/interrogateur.js?v=40"></script>
-<script src="js/modes/tableau.js?v=40"></script>
-<script src="js/screens/accueil.js?v=40"></script>
-<script src="js/screens/reviser.js?v=40"></script>
-<script src="js/screens/listes.js?v=40"></script>
-<script src="js/screens/stats.js?v=40"></script>
-<script src="js/screens/reglages.js?v=40"></script>
-<script src="js/screens/a-valider.js?v=40"></script>
-<script src="js/screens/amis.js?v=40"></script>
-<script src="js/screens/admin.js?v=40"></script>
-<script src="js/screens/admin-dashboard.js?v=40"></script>
-<script src="js/screens/admin-demandes.js?v=40"></script>
-<script src="js/screens/admin-journal.js?v=40"></script>
-<script src="js/screens/admin-fiche.js?v=40"></script>
-<script src="js/screens/admin-comptes.js?v=40"></script>
-<script src="js/screens/admin-notifications.js?v=40"></script>
-<script src="js/screens/admin-invite.js?v=40"></script>
-<script src="js/screens/admin-dictionnaire.js?v=40"></script>
-<script src="js/partage.js?v=40"></script>
-<script src="js/import.js?v=40"></script>
-<script src="js/completion.js?v=40"></script>
-<script src="js/queue.js?v=40"></script>
-<script src="js/dictionary.js?v=40"></script>
-<script src="js/study.js?v=40"></script>
-<script src="js/activity.js?v=40"></script>
-<script src="js/audio.js?v=40"></script>
-<script src="js/notifications.js?v=40"></script>
-<script src="js/notif-invite.js?v=40"></script>
-<script src="js/changelog.js?v=40"></script>
-<script src="js/qrcode.js?v=40"></script>
-<script src="js/screens/a-propos.js?v=40"></script>
-<script src="js/tutorial.js?v=40"></script>
-<script src="js/app.js?v=40"></script>
+<script src="js/core.js?v=41"></script>
+<script src="js/errors.js?v=41"></script>
+<script src="js/languages.js?v=41"></script>
+<script src="js/i18n/ko.js?v=41"></script>
+<script src="js/i18n/fr.js?v=41"></script>
+<script src="js/i18n/en.js?v=41"></script>
+<script src="js/i18n/tutorial-ko.js?v=41"></script>
+<script src="js/i18n/tutorial-fr.js?v=41"></script>
+<script src="js/i18n/tutorial-en.js?v=41"></script>
+<script src="js/i18n/errors-ko.js?v=41"></script>
+<script src="js/i18n/errors-fr.js?v=41"></script>
+<script src="js/i18n/errors-en.js?v=41"></script>
+<script src="js/storage.js?v=41"></script>
+<script src="js/cards.js?v=41"></script>
+<script src="js/auth.js?v=41"></script>
+<script src="js/leitner.js?v=41"></script>
+<script src="js/modes/cartes.js?v=41"></script>
+<script src="js/modes/ecrit.js?v=41"></script>
+<script src="js/modes/interrogateur.js?v=41"></script>
+<script src="js/modes/tableau.js?v=41"></script>
+<script src="js/screens/accueil.js?v=41"></script>
+<script src="js/screens/reviser.js?v=41"></script>
+<script src="js/screens/listes.js?v=41"></script>
+<script src="js/screens/stats.js?v=41"></script>
+<script src="js/screens/reglages.js?v=41"></script>
+<script src="js/screens/a-valider.js?v=41"></script>
+<script src="js/screens/amis.js?v=41"></script>
+<script src="js/screens/admin.js?v=41"></script>
+<script src="js/screens/admin-dashboard.js?v=41"></script>
+<script src="js/screens/admin-demandes.js?v=41"></script>
+<script src="js/screens/admin-journal.js?v=41"></script>
+<script src="js/screens/admin-fiche.js?v=41"></script>
+<script src="js/screens/admin-comptes.js?v=41"></script>
+<script src="js/screens/admin-notifications.js?v=41"></script>
+<script src="js/screens/admin-invite.js?v=41"></script>
+<script src="js/screens/admin-dictionnaire.js?v=41"></script>
+<script src="js/screens/admin-erreurs.js?v=41"></script>
+<script src="js/partage.js?v=41"></script>
+<script src="js/import.js?v=41"></script>
+<script src="js/completion.js?v=41"></script>
+<script src="js/queue.js?v=41"></script>
+<script src="js/dictionary.js?v=41"></script>
+<script src="js/study.js?v=41"></script>
+<script src="js/activity.js?v=41"></script>
+<script src="js/audio.js?v=41"></script>
+<script src="js/notifications.js?v=41"></script>
+<script src="js/notif-invite.js?v=41"></script>
+<script src="js/changelog.js?v=41"></script>
+<script src="js/qrcode.js?v=41"></script>
+<script src="js/screens/a-propos.js?v=41"></script>
+<script src="js/tutorial.js?v=41"></script>
+<script src="js/app.js?v=41"></script>
 </body>
 </html>

@@ -940,3 +940,14 @@ header.top .top-right{display:flex;align-items:center;gap:4px}
 .tuto-bubble button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.tuto-hole{transition:none}}
 html[lang="ko"] .tuto-title,html[lang="ko"] .tuto-text{word-break:keep-all;overflow-wrap:anywhere}
+
+/* === JOURNAL DES ERREURS (admin, étape 41) === */
+.ce-counts{margin:0 0 4px}
+.ce-tags{display:flex;flex-wrap:wrap;gap:4px;align-items:baseline}
+.al-tag.ce-st-new{color:var(--bad)}
+.al-tag.ce-st-fixed{color:var(--ok)}
+.ce-msg{margin-top:4px;font-size:14px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ce-ul{margin:0;padding-left:18px;font-size:13px}
+.ce-ul li{margin:2px 0;overflow-wrap:anywhere}
+.ce-ul .link-btn{font-size:13px;padding:0 4px}
+.ce-acts{margin-top:14px}

@@ -411,6 +411,7 @@ const Storage = (() => {
   function setErr(where, e) {
     const m = typeof e === "string" ? e : [e && e.code, e && (e.message || e.msg), e && e.status].filter(x => x !== undefined && x !== null && x !== "").join(" ") || String(e);
     lastErr = (where + " : " + m).slice(0, 160);
+    try { if (typeof ErrLog !== "undefined") ErrLog.sync(lastErr, e); } catch (x) {}   // étape 41 : journal des erreurs (message exact)
   }
   function getLastError() { return lastErr; }
 
@@ -952,7 +953,9 @@ const Supa = (() => {
     try {
       await loadLib();
       client = window.supabase.createClient(c.url, c.key, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: authStorage, storageKey: AUTH_KEY }
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: authStorage, storageKey: AUTH_KEY },
+        // Étape 41 : fetch surveillé (erreurs des appels Supabase et de send-push → journal des erreurs).
+        global: typeof ErrLog !== "undefined" ? { fetch: ErrLog.wrapFetch() } : {}
       });
       return true;
     } catch (e) { client = null; return false; }

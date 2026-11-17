@@ -8,6 +8,26 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "41", date: "2026-11-17",
+    points: {
+      ko: [
+        "앱에 문제가 생기면 자동으로 알려 줘서 더 빨리 고칠 수 있어요.",
+        "개인 정보와 카드 내용은 절대 보내지 않아요.",
+        "인터넷이 끊겨도 기다렸다가 다시 연결되면 보내요. 앱은 느려지지 않아요."
+      ],
+      fr: [
+        "Quand un problème survient, l'appli le signale toute seule pour qu'il soit corrigé plus vite.",
+        "Rien de personnel n'est envoyé : ni tes cartes, ni tes données.",
+        "Hors connexion, le signalement attend le retour du réseau, sans ralentir l'appli."
+      ],
+      en: [
+        "When something goes wrong, the app now reports it by itself so it can be fixed faster.",
+        "Nothing personal is sent: not your cards, not your data.",
+        "Offline, the report waits until you're back online, without slowing the app down."
+      ]
+    }
+  },
+  {
     version: "40", date: "2026-11-17",
     points: {
       ko: [
