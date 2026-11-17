@@ -401,12 +401,96 @@ function displayLangs(x) {
   if (typeof x === "string") { const l = getList(x); return l ? displayLangs(l) : resolveLangs([]); }
   if ("listId" in x) {                                     // carte
     const lg = displayLangs(x.listId);
+    if (isVocab(x)) {                                      // carte posée dans une autre langue étudiée (étape 37)
+      const L = studyCtxLang(x);
+      if (L && L !== lg.target && studyLangs(x.listId).includes(L)) return studyLg(L);
+    }
     if (isVocab(x) || !isLang(x.lang) || x.lang === lg.target) return lg;
     return langsFor(x.lang);                               // autre type dans une autre langue que la liste
   }
   if ("folderId" in x) return resolveLangs([x.folderId ? getFolder(x.folderId) : null, x]);   // liste
   return resolveLangs([x]);                                // dossier
 }
+// === LANGUES ÉTUDIÉES D'UNE LISTE (ÉTAPE 37) ===
+// Une liste peut être étudiée dans plusieurs langues : l.targets = [langue principale, autres langues…].
+//  - La 1re place suit toujours la langue apprise réglée (target de la liste, du dossier ou du profil) : seules les
+//    langues suivantes de l.targets sont lues ici (la 1re case enregistrée sert de repère pour la migration 5 → 6).
+//  - Une carte de vocabulaire posée dans une autre langue L : mot de L en grand, langue de l'interface et langue
+//    d'appui de L (profil) de l'autre côté, exemple examples[L]. Les autres types gardent leur langue (champ lang).
+//  - StudyCtx.cards : idCarte → langue pendant une session de révision (une seule langue par carte) ;
+//    une « vue » de statistiques (Leitner.unit) porte sa langue dans unitLang.
+const StudyCtx = { cards: new Map() };
+function studyCtxLang(c) {
+  if (!c) return "";
+  if (typeof c.unitLang === "string") return c.unitLang;
+  if (!StudyCtx.cards.size) return "";
+  try { if (!rv.s || currentScreen !== "review") return ""; } catch (e) { return ""; }   // seulement sur l'écran de révision
+  return StudyCtx.cards.get(c.id) || "";
+}
+// Langues étudiées d'une liste (objet ou id) : [principale, autres…], sans doublon.
+function studyLangs(listOrId) {
+  const l = typeof listOrId === "string" ? getList(listOrId) : listOrId;
+  if (!l) return [];
+  const out = [displayLangs(l).target];
+  arr(l.targets).slice(1).forEach(x => { if (isLang(x) && !out.includes(x)) out.push(x); });
+  return out;
+}
+function studyExtraLangs(listOrId) { return studyLangs(listOrId).slice(1); }
+// Langues affichées pour une langue étudiée en plus : interface + appui du profil pour cette langue.
+function studyLg(L) { return Object.assign(langsFor(L), { study: true }); }
+// Langue principale d'une carte (sans tenir compte d'une session) : langue de la liste, ou lang des autres types.
+function primaryLang(c) {
+  if (!c) return accountTarget();
+  if (!isVocab(c) && isLang(c.lang)) return c.lang;
+  return displayLangs(c.listId).target;
+}
+// Langues dans lesquelles une carte est étudiée : vocabulaire = langues de sa liste ; autres types = leur langue.
+function cardStudyLangs(c) { return isVocab(c) ? studyLangs(c.listId) : [primaryLang(c)]; }
+// Langues visibles d'une liste, toutes langues étudiées comprises (« À valider », dictionnaire, fichiers pour Claude).
+function studyVisibleLangs(listOrId) {
+  const out = [];
+  studyLangs(listOrId).forEach((L, i) => {
+    const lg = i === 0 ? displayLangs(typeof listOrId === "string" ? getList(listOrId) : listOrId) : studyLg(L);
+    visibleLangs(lg).forEach(x => { if (!out.includes(x)) out.push(x); });
+  });
+  return out;
+}
+// Champs absolus d'une langue étudiée en plus (complétion, « À valider ») :
+//   "exl:<L>" = phrase d'exemple dans L (examples[L].text), "exlt:<L>:<code>" = sa traduction dans code.
+function exlField(L) { return "exl:" + L; }
+function exltField(L, code) { return "exlt:" + L + ":" + code; }
+function isExlField(f) { return typeof f === "string" && /^exl:[a-z]{2,3}$/.test(f) && isLang(f.slice(4)); }
+function isExltField(f) { const m = typeof f === "string" && /^exlt:([a-z]{2,3}):([a-z]{2,3})$/.exec(f); return !!m && isLang(m[1]) && isLang(m[2]); }
+function exlParts(f) { const p = String(f).split(":"); return { L: p[1], code: p[2] || "" }; }
+// Champs à remplir pour les langues étudiées en plus d'une carte de vocabulaire : mot, nature, exemple et ses
+// traductions dans chaque langue L, plus les mots des langues affichées de L absentes de la langue principale.
+function studyExtraFields(c, only) {
+  if (!c || !isVocab(c)) return [];
+  const extra = studyExtraLangs(c.listId);
+  if (!extra.length) return [];
+  const base = visibleLangs(displayLangs(c.listId)), out = [];
+  extra.forEach(L => {
+    if (only && L !== only) return;
+    const lg = studyLg(L);
+    out.push(L, posField(L), exlField(L));
+    lg.support.forEach(code => {
+      out.push(exltField(L, code));
+      if (!base.includes(code) && !out.includes(code)) out.push(code, posField(code));
+    });
+  });
+  return out.filter((x, i, a) => a.indexOf(x) === i);
+}
+// Champs manquants d'une carte dans une langue étudiée L (bilan, badges par langue). fillFields / genderFields :
+// js/completion.js (appelés à l'exécution).
+function studyGapFields(c, L) {
+  if (!c || !isVocab(c)) return [];
+  if (L === primaryLang(c)) {
+    const lg = displayLangs(c.listId);
+    return fillFields(c, lg, true).filter(f => !fieldVal(c, f, lg).trim()).concat(genderFields(c, lg));
+  }
+  return studyExtraFields(c, L).filter(f => !fieldVal(c, f).trim());
+}
+
 function accountLangs() { return resolveLangs([]); }
 function folderLangs(folder) { return resolveLangs([folder]); }
 function listLangs(listOrId) { return displayLangs(listOrId); }
@@ -477,7 +561,7 @@ function normExamples(o) {
 function exTrField(code) { return "extr:" + code; }
 function isExTrField(f) { return typeof f === "string" && f.startsWith("extr:") && isLang(f.slice(5)); }
 // Langue concernée par un champ (traduction, nature, traduction de l'exemple), sinon "".
-function fieldCode(f) { return isLang(f) ? f : isPosField(f) ? f.slice(4) : isExTrField(f) ? f.slice(5) : ""; }
+function fieldCode(f) { return isLang(f) ? f : isPosField(f) ? f.slice(4) : isExTrField(f) ? f.slice(5) : isExlField(f) ? f.slice(4) : isExltField(f) ? exlParts(f).L : ""; }
 
 // Champ générique : code de langue, "example", "extr:<code>", "pos:<code>" (nature grammaticale dans cette langue)
 // ou "f:<champ>" (champ d'un autre type de carte : translation, hint, explanation, note, examples ; exemples séparés par « | »).
@@ -486,6 +570,8 @@ const TYPED_FILL_FIELDS = ["translation", "hint", "explanation", "note", "exampl
 function typedField(name) { return "f:" + name; }
 function isTypedField(f) { return typeof f === "string" && f.startsWith("f:") && TYPED_FILL_FIELDS.includes(f.slice(2)); }
 function fieldVal(c, f, lg) {
+  if (isExlField(f)) return isVocab(c) ? exText(c, f.slice(4)) : "";
+  if (isExltField(f)) { const x = exlParts(f); return isVocab(c) ? exTr(c, x.L, x.code) : ""; }
   if (f === "example") return isVocab(c) ? exText(c, (lg || cardLangs(c)).target) : String(c.example || "");
   if (isExTrField(f)) return isVocab(c) ? exTr(c, (lg || cardLangs(c)).target, f.slice(5)) : "";
   if (isTypedField(f)) { const k = f.slice(2); return k === "examples" ? arr(c.examples).join(" | ") : String(c[k] || ""); }
@@ -493,6 +579,8 @@ function fieldVal(c, f, lg) {
   return term(c, f);
 }
 function setFieldVal(c, f, v, lg) {
+  if (isExlField(f)) { if (isVocab(c)) setExPart(c, f.slice(4), null, v, f.slice(4) === primaryLang(c)); return; }
+  if (isExltField(f)) { const x = exlParts(f); if (isVocab(c)) setExPart(c, x.L, x.code, v); return; }
   if (f === "example") { if (isVocab(c)) setExPart(c, (lg || cardLangs(c)).target, null, v, true); else c.example = v; }
   else if (isExTrField(f)) { if (isVocab(c)) setExPart(c, (lg || cardLangs(c)).target, f.slice(5), v); }
   else if (isTypedField(f)) { const k = f.slice(2); if (k === "examples") c.examples = String(v || "").split("|").map(x => x.trim()).filter(Boolean); else c[k] = v; }

@@ -205,7 +205,7 @@ function renderSessionSummary(root) {
   const btns = el("div", "btns");
   if (missed.length) {
     const b = el("button", "btn primary", t("sum.retry", { n: missed.length }));
-    b.addEventListener("click", () => newRun(shuffle(missed.map(id => ({ id, dir: s.dirs[id] || "toT" }))), s.mode));
+    b.addEventListener("click", () => newRun(shuffle(missed.map(id => ({ id, dir: s.dirs[id] || "toT", lang: (s.langs || {})[id] }))), s.mode));
     btns.appendChild(b);
   }
   const nb = el("button", "btn" + (missed.length ? "" : " primary"), t("sum.new"));

@@ -5,13 +5,17 @@
 // rv.cfg est gardé en mémoire tant que l'appli est ouverte (pas sauvegardé).
 // Sens par carte, relatif à la liste de la carte : "toT" = langues d'appui → langue apprise, "fromT" = l'inverse.
 // Une session peut mélanger des listes de langues différentes.
+// Étape 37 : une liste peut être étudiée dans plusieurs langues. On choisit la ou les langues (cfg.langs, vide = toutes) ;
+// chaque carte est posée dans UNE seule langue (tirée au hasard parmi ses langues possibles), notée dans la file
+// ({ id, dir, lang }) et dans StudyCtx.cards pendant la session. Sens : par langue (cfg.dirs[langue], sinon cfg.dir).
 const rv = { phase: "config", cfg: null, s: null };
 const NO_FOLDER = "__none__";
 
 function defaultSessionCfg() {
   return { scope: "all", folderIds: [], listIds: [], tags: [], cat: "unknown", lang: accountLangs().target,
     types: [], tenses: [], verbs: [], persons: [],   // filtres en plus (vide = tout) : types de cartes ; conjugaison (clés « langue|… »)
-    onlyDue: true, dir: "toT", count: state.settings.sessionSize, mode: "cards" };
+    onlyDue: true, dir: "toT", count: state.settings.sessionSize, mode: "cards",
+    langs: [], dirs: {} };   // étape 37 : langues étudiées choisies (vide = toutes) ; sens par langue
 }
 // Clés des filtres de conjugaison (une session peut mélanger plusieurs langues).
 function tenseKey(c) { return c.lang + "|" + c.tense; }
@@ -29,10 +33,25 @@ function langsByList() {
   state.lists.forEach(l => m.set(l.id, listLangs(l)));
   return m;
 }
-// Langues apprises présentes dans les listes, dans l'ordre de LANGUAGES.
+// Langues étudiées présentes dans les listes (toutes les langues de chaque liste, étape 37), dans l'ordre de LANGUAGES.
 function targetLangsInUse() {
-  const s = new Set(state.lists.map(l => listLangs(l).target));
+  const s = new Set();
+  state.lists.forEach(l => studyLangs(l).forEach(L => s.add(L)));
   return LANG_CODES.filter(c => s.has(c));
+}
+// Langues dans lesquelles une carte peut être posée dans cette session (étape 37). lg = langues de sa liste.
+// stage "base" : sans le choix des langues (pour construire ce choix).
+function sessionLangs(c, cfg, now, lg, stage) {
+  const out = [];
+  cardStudyLangs(c).forEach((L, i) => {
+    if (i === 0 ? !cardUsable(c, lg) : !cardUsable(c, studyLg(L))) return;
+    if (cfg.scope === "cat" && Leitner.category(c, L) !== cfg.cat) return;
+    if (cfg.scope === "lang" && L !== cfg.lang) return;
+    if (cfg.onlyDue && !Leitner.isDue(c, now, L)) return;
+    if (stage !== "base" && arr(cfg.langs).length && !cfg.langs.includes(L)) return;
+    out.push(L);
+  });
+  return out;
 }
 // stage : "base" = sans les filtres de type / conjugaison / mode (pour construire ces filtres) ;
 //         "types" = avec le filtre de type, sans ceux de conjugaison ; absent = tous les filtres.
@@ -43,16 +62,14 @@ function sessionPool(cfg, stage) {
   const lists = new Map(state.lists.map(l => [l.id, l]));
   return state.cards.filter(c => {
     const lg = lgs.get(c.listId);
-    if (!lg || !cardUsable(c, lg)) return false;
+    if (!lg) return false;
+    if (!sessionLangs(c, cfg, now, lg, stage).length) return false;   // utilisable, catégorie, langue, à réviser (par langue)
     if (cfg.scope === "folders") {
       const l = lists.get(c.listId);
       if (!cfg.folderIds.includes(l && l.folderId ? l.folderId : NO_FOLDER)) return false;
     }
     if (cfg.scope === "lists" && !cfg.listIds.includes(c.listId)) return false;
     if (cfg.scope === "tags" && !c.tags.some(tg => cfg.tags.includes(tg))) return false;
-    if (cfg.scope === "cat" && Leitner.category(c) !== cfg.cat) return false;
-    if (cfg.scope === "lang" && lg.target !== cfg.lang) return false;
-    if (cfg.onlyDue && !Leitner.isDue(c, now)) return false;
     if (stage === "base") return true;
     if (types.length && !types.includes(cardType(c))) return false;
     if (stage === "types") return true;
@@ -154,6 +171,18 @@ function renderSessionConfig(root) {
 
   box.appendChild(segField("review.which", [[true, "which.due"], [false, "which.all"]], cfg.onlyDue, v => { cfg.onlyDue = v; }));
 
+  // Langues étudiées (étape 37) : plusieurs choix, aucun = toutes ; seulement s'il y en a plusieurs dans le périmètre
+  const now0 = Date.now(), lgs0 = langsByList(), inPool = new Set();
+  sessionPool(cfg, "base").forEach(c => sessionLangs(c, cfg, now0, lgs0.get(c.listId), "base").forEach(L => inPool.add(L)));
+  const poolLangs = LANG_CODES.filter(L => inPool.has(L));
+  cfg.langs = arr(cfg.langs).filter(L => poolLangs.includes(L));
+  if (poolLangs.length > 1) {
+    const lf = chipsField(poolLangs.map(L => ({ value: L, label: langName(L) })), cfg.langs, v => toggleIn(cfg.langs, v));
+    lf.insertBefore(el("label", null, t("study.reviewLangs")), lf.firstChild);
+    lf.appendChild(el("div", "hint", t("study.reviewLangsHint")));
+    box.appendChild(lf);
+  }
+
   // Types de cartes (plusieurs choix, aucun = tous), seulement les types présents dans le périmètre
   const base = sessionPool(cfg, "base");
   const present = CARD_TYPES.filter(ty => base.some(c => cardType(c) === ty));
@@ -192,17 +221,32 @@ function renderSessionConfig(root) {
     if (cj.childNodes.length > 1) { cj.appendChild(el("div", "hint", t("review.conjHint"))); box.appendChild(cj); }
   } else { cfg.tenses = []; cfg.verbs = []; cfg.persons = []; }
 
-  // Sens : libellés concrets si toutes les cartes du périmètre ont les mêmes langues (ex. KO·EN → FR)
+  // Sens : libellés concrets si toutes les cartes du périmètre ont les mêmes langues (ex. KO·EN → FR).
+  // Plusieurs langues étudiées dans la session (étape 37) : un choix de sens par langue.
   const pool = sessionPool(cfg);
-  const lgs = langsByList();
-  const pairs = new Map();
-  pool.forEach(c => { const lg = lgs.get(c.listId); pairs.set(pairLabel(lg), lg); });
-  let dirLabels = null;
-  if (pairs.size === 1) {
-    const lg = [...pairs.values()][0];
-    dirLabels = [pairLabel(lg), langCodes([lg.target]) + " → " + langCodes(lg.support), t("dir.mix")];
+  const lgs = langsByList(), nowP = Date.now();
+  const sesLangs = new Set();
+  pool.forEach(c => { if (isVocab(c)) sessionLangs(c, cfg, nowP, lgs.get(c.listId)).forEach(L => sesLangs.add(L)); });
+  const dirOpts = [["toT", "dir.toTarget"], ["fromT", "dir.fromTarget"], ["mix", "dir.mix"]];
+  if (sesLangs.size > 1) {
+    if (!cfg.dirs || typeof cfg.dirs !== "object") cfg.dirs = {};
+    LANG_CODES.filter(L => sesLangs.has(L)).forEach(L => {
+      const lg = studyLg(L);
+      const f = segField("review.dir", dirOpts, cfg.dirs[L] || cfg.dir, v => { cfg.dirs[L] = v; },
+        [pairLabel(lg), langCodes([L]) + " → " + langCodes(lg.support), t("dir.mix")]);
+      f.querySelector("label").textContent = t("study.dirFor", { lang: langName(L) });
+      box.appendChild(f);
+    });
+  } else {
+    const pairs = new Map();
+    pool.forEach(c => { const L = isVocab(c) ? sessionLangs(c, cfg, nowP, lgs.get(c.listId))[0] : ""; const lg = L && L !== lgs.get(c.listId).target ? studyLg(L) : lgs.get(c.listId); pairs.set(pairLabel(lg), lg); });
+    let dirLabels = null;
+    if (pairs.size === 1) {
+      const lg = [...pairs.values()][0];
+      dirLabels = [pairLabel(lg), langCodes([lg.target]) + " → " + langCodes(lg.support), t("dir.mix")];
+    }
+    box.appendChild(segField("review.dir", dirOpts, cfg.dir, v => { cfg.dir = v; }, dirLabels));
   }
-  box.appendChild(segField("review.dir", [["toT", "dir.toTarget"], ["fromT", "dir.fromTarget"], ["mix", "dir.mix"]], cfg.dir, v => { cfg.dir = v; }, dirLabels));
 
   const cnt = el("input");
   cnt.type = "number"; cnt.min = "1"; cnt.max = "500"; cnt.inputMode = "numeric"; cnt.value = cfg.count;
@@ -236,18 +280,30 @@ function startSession() {
   if (cfg.mode === "table") return startTableSession(cfg);
   const pool = shuffle(sessionPool(cfg)).slice(0, cfg.count);
   if (!pool.length) return false;
-  const queue = pool.map(c => ({ id: c.id, dir: cfg.dir === "mix" ? (Math.random() < 0.5 ? "toT" : "fromT") : cfg.dir }));
+  const lgs = langsByList(), now = Date.now();
+  const queue = pool.map(c => {
+    const ls = sessionLangs(c, cfg, now, lgs.get(c.listId));
+    const lang = ls[Math.floor(Math.random() * ls.length)] || primaryLang(c);   // une seule langue par carte
+    const d = (cfg.dirs && cfg.dirs[lang]) || cfg.dir;
+    return { id: c.id, lang, dir: d === "mix" ? (Math.random() < 0.5 ? "toT" : "fromT") : d };
+  });
   newRun(queue, cfg.mode);
   return true;
+}
+// Langue de chaque carte de la session (étape 37) : StudyCtx.cards, vidé à la fin de la session.
+function setSessionLangs(langs) {
+  StudyCtx.cards.clear();
+  Object.keys(langs || {}).forEach(id => { if (isLang(langs[id])) StudyCtx.cards.set(id, langs[id]); });
 }
 // Lance une session à partir d'une file. first = première réponse par carte (résumé, ratés) ; dirs = sens par carte (rejouer).
 // Mode Tableau : la file contient des tableaux { ids } (une file de cartes { id } est regroupée par tableau).
 function newRun(queue, mode) {
-  rv.s = { queue, mode, revealed: false, counts: { known: 0, review: 0, unknown: 0 }, log: [], first: {}, dirs: {}, startedAt: Date.now() };
+  rv.s = { queue, mode, revealed: false, counts: { known: 0, review: 0, unknown: 0 }, log: [], first: {}, dirs: {}, langs: {}, startedAt: Date.now() };
   if (mode === "table") {
     if (queue.length && !queue[0].ids) rv.s.queue = tableGroups(queue.map(q => state.cards.find(c => c.id === q.id)).filter(Boolean));
     rv.s.queue.forEach(g => g.ids.forEach(id => { rv.s.dirs[id] = "toT"; }));
-  } else queue.forEach(q => { rv.s.dirs[q.id] = q.dir; });
+  } else queue.forEach(q => { rv.s.dirs[q.id] = q.dir; if (q.lang) rv.s.langs[q.id] = q.lang; });
+  setSessionLangs(rv.s.langs);
   rv.phase = "run";
   renderReview();
   window.scrollTo(0, 0);
@@ -259,7 +315,7 @@ function gradeCurrent(result) {
   const item = s.queue.shift();
   const c = item && state.cards.find(x => x.id === item.id);
   if (!c) { renderReview(); return; }
-  const r = Leitner.grade(c, result);
+  const r = Leitner.grade(c, result, undefined, item.lang || s.langs[item.id]);
   s.counts[result]++;
   if (!(item.id in s.first)) s.first[item.id] = result;
   s.log.unshift({ word: cardTitle(c), result, from: r.from, to: r.to, dueAt: r.dueAt });
@@ -267,7 +323,7 @@ function gradeCurrent(result) {
   s.revealed = false;
   commit();
 }
-function endSession() { rv.phase = "config"; rv.s = null; Storage.flushNow(); renderReview(); } // synchro en ligne après chaque session
+function endSession() { rv.phase = "config"; rv.s = null; StudyCtx.cards.clear(); Storage.flushNow(); renderReview(); } // synchro en ligne après chaque session
 
 // Carte encore utilisable dans une session en cours (supprimée, ou langue de la liste changée entre-temps).
 function sessionCard(id) {

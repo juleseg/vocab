@@ -21,7 +21,7 @@ const SH_POLL_MS = 120000;      // synchro des listes communes : toutes les 2 mi
 const SH_BATCH = 200;           // cartes envoyées par requête
 const SH_PROG_CHUNK = 2000;     // progression : cartes max par morceau user:<id>:sharedprogress:<liste>[:<n>]
 const SH_FLAG_DAYS = 7;         // « modifiée par … » affiché 7 jours au plus (ou jusqu'à l'ouverture de la carte)
-const SH_SKIP = ["id", "listId", "box", "dueAt", "stats"];   // jamais dans la version commune
+const SH_SKIP = ["id", "listId", "box", "dueAt", "stats", "progress"];   // jamais dans la version commune (progress : étape 37)
 
 function isSharedList(l) { return !!(l && l.shared && typeof l.shared.id === "string" && l.shared.id); }
 function isSharedFolder(f) { return !!(f && f.shared && typeof f.shared.id === "string" && f.shared.id); }
@@ -49,7 +49,7 @@ function normSharedProgress(p) {
   Object.keys(p).forEach(U => {
     if (!/^[0-9a-f-]{36}$/i.test(U) || !p[U] || typeof p[U] !== "object") return;
     const m = {};
-    Object.keys(p[U]).forEach(cid => { const v = p[U][cid]; if (Array.isArray(v)) m[cid] = v.slice(0, 6); });
+    Object.keys(p[U]).forEach(cid => { const v = p[U][cid]; if (Array.isArray(v)) m[cid] = v.slice(0, 7); });
     out[U] = m;
   });
   return out;
@@ -69,12 +69,24 @@ function shContent(c) {
   if (o.examples && typeof o.examples === "object" && !Array.isArray(o.examples) && !Object.keys(o.examples).length) delete o.examples;
   return o;
 }
-function shProg(c) { const s = c.stats || {}; return [c.box, c.dueAt, num(s.seen, 0), num(s.correct, 0), num(s.wrong, 0), s.lastSeen == null ? null : s.lastSeen]; }
+// Progression personnelle d'une carte commune : [boîte, dueAt, vues, sues, ratées, dernière vue, { langue: [mêmes 6] }]
+// (7e case : progression par langue étudiée, étape 37 — ignorée par les versions 36 et moins).
+function shProgArr(b, d, s) { s = s || {}; return [b, d, num(s.seen, 0), num(s.correct, 0), num(s.wrong, 0), s.lastSeen == null ? null : s.lastSeen]; }
+function shProg(c) {
+  const out = shProgArr(c.box, c.dueAt, c.stats);
+  const pg = c.progress && typeof c.progress === "object" ? c.progress : null;
+  if (pg && Object.keys(pg).length) { const o = {}; Object.keys(pg).forEach(L => { o[L] = shProgArr(pg[L].box, pg[L].dueAt, pg[L].stats); }); out.push(o); }
+  return out;
+}
 function shWithProg(c, p) {
   if (Array.isArray(p)) {
     c.box = clampInt(p[0], 0, 5, 0); c.dueAt = num(p[1], Date.now());
     c.stats = { seen: num(p[2], 0), correct: num(p[3], 0), wrong: num(p[4], 0), lastSeen: num(p[5], null) };
-  } else { c.box = 0; c.dueAt = Date.now(); c.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null }; }
+    const o = p[6] && typeof p[6] === "object" && !Array.isArray(p[6]) ? p[6] : null, pg = {};
+    if (o) Object.keys(o).forEach(L => { const v = o[L]; if (isLang(L) && Array.isArray(v)) pg[L] = { box: clampInt(v[0], 0, 5, 0), dueAt: num(v[1], 0),
+      stats: { seen: num(v[2], 0), correct: num(v[3], 0), wrong: num(v[4], 0), lastSeen: num(v[5], null) } }; });
+    if (Object.keys(pg).length) { c.progress = pg; syncPrimaryProgress(c, primaryLang(c)); } else delete c.progress;
+  } else { c.box = 0; c.dueAt = Date.now(); c.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null }; delete c.progress; }
   return c;
 }
 // Progression à enregistrer dans user_data : depuis les cartes pour les listes chargées, sinon telle qu'elle a été lue.

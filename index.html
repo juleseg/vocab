@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vocab</title>
-<link rel="stylesheet" href="css/app.css?v=36">
+<link rel="stylesheet" href="css/app.css?v=37">
 <!-- === PWA (appli installable) === -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2f5bd3">
@@ -32,7 +32,7 @@
     <!-- ÉCRAN : ACCUEIL -->
     <section class="screen" id="screen-home">
       <div class="row2">
-        <div class="card"><div class="big-num" id="homeDue">0</div><div class="muted" data-i18n="home.due"></div></div>
+        <div class="card"><div class="big-num" id="homeDue">0</div><div class="muted" data-i18n="home.due"></div><div class="home-due-langs" id="homeDueLangs" hidden></div></div>
         <div class="card sk-home" id="homeStreakCard">
           <div class="sk-flame-row"><span class="sk-flame off" id="homeFlame" aria-hidden="true">🔥</span><span class="big-num" id="homeStreak">0</span></div>
           <div class="muted" data-i18n="home.streak"></div>
@@ -57,6 +57,7 @@
         <button class="link-btn" id="lvMove" data-i18n="folders.moveBtn"></button>
         <button class="link-btn" id="lvShare"></button>
         <button class="link-btn" id="lvLangs" data-i18n="folders.langs"></button>
+        <button class="link-btn" id="lvStudy" data-i18n="study.add"></button>
         <button class="link-btn" id="lvUpdate" data-i18n="upd.btn"></button>
         <button class="link-btn" id="lvAsk" data-i18n="queue.ask" hidden></button>
         <button class="link-btn" id="lvFxOut" data-i18n="fx.exportBtn"></button>
@@ -197,42 +198,43 @@
 <!-- Configuration Supabase (fichier séparé, absent dans Claude : l'appli passe alors au stockage de l'artifact ou du navigateur) -->
 <script src="config.js"></script>
 <!-- Scripts de l'appli, dans l'ordre (scripts classiques, sans build). -->
-<script src="js/core.js?v=36"></script>
-<script src="js/languages.js?v=36"></script>
-<script src="js/i18n/ko.js?v=36"></script>
-<script src="js/i18n/fr.js?v=36"></script>
-<script src="js/i18n/en.js?v=36"></script>
-<script src="js/storage.js?v=36"></script>
-<script src="js/cards.js?v=36"></script>
-<script src="js/auth.js?v=36"></script>
-<script src="js/leitner.js?v=36"></script>
-<script src="js/modes/cartes.js?v=36"></script>
-<script src="js/modes/ecrit.js?v=36"></script>
-<script src="js/modes/interrogateur.js?v=36"></script>
-<script src="js/modes/tableau.js?v=36"></script>
-<script src="js/screens/accueil.js?v=36"></script>
-<script src="js/screens/reviser.js?v=36"></script>
-<script src="js/screens/listes.js?v=36"></script>
-<script src="js/screens/stats.js?v=36"></script>
-<script src="js/screens/reglages.js?v=36"></script>
-<script src="js/screens/a-valider.js?v=36"></script>
-<script src="js/screens/amis.js?v=36"></script>
-<script src="js/screens/admin.js?v=36"></script>
-<script src="js/screens/admin-dashboard.js?v=36"></script>
-<script src="js/screens/admin-demandes.js?v=36"></script>
-<script src="js/screens/admin-journal.js?v=36"></script>
-<script src="js/screens/admin-fiche.js?v=36"></script>
-<script src="js/screens/admin-comptes.js?v=36"></script>
-<script src="js/screens/admin-notifications.js?v=36"></script>
-<script src="js/screens/admin-dictionnaire.js?v=36"></script>
-<script src="js/partage.js?v=36"></script>
-<script src="js/import.js?v=36"></script>
-<script src="js/completion.js?v=36"></script>
-<script src="js/queue.js?v=36"></script>
-<script src="js/dictionary.js?v=36"></script>
-<script src="js/activity.js?v=36"></script>
-<script src="js/audio.js?v=36"></script>
-<script src="js/notifications.js?v=36"></script>
-<script src="js/app.js?v=36"></script>
+<script src="js/core.js?v=37"></script>
+<script src="js/languages.js?v=37"></script>
+<script src="js/i18n/ko.js?v=37"></script>
+<script src="js/i18n/fr.js?v=37"></script>
+<script src="js/i18n/en.js?v=37"></script>
+<script src="js/storage.js?v=37"></script>
+<script src="js/cards.js?v=37"></script>
+<script src="js/auth.js?v=37"></script>
+<script src="js/leitner.js?v=37"></script>
+<script src="js/modes/cartes.js?v=37"></script>
+<script src="js/modes/ecrit.js?v=37"></script>
+<script src="js/modes/interrogateur.js?v=37"></script>
+<script src="js/modes/tableau.js?v=37"></script>
+<script src="js/screens/accueil.js?v=37"></script>
+<script src="js/screens/reviser.js?v=37"></script>
+<script src="js/screens/listes.js?v=37"></script>
+<script src="js/screens/stats.js?v=37"></script>
+<script src="js/screens/reglages.js?v=37"></script>
+<script src="js/screens/a-valider.js?v=37"></script>
+<script src="js/screens/amis.js?v=37"></script>
+<script src="js/screens/admin.js?v=37"></script>
+<script src="js/screens/admin-dashboard.js?v=37"></script>
+<script src="js/screens/admin-demandes.js?v=37"></script>
+<script src="js/screens/admin-journal.js?v=37"></script>
+<script src="js/screens/admin-fiche.js?v=37"></script>
+<script src="js/screens/admin-comptes.js?v=37"></script>
+<script src="js/screens/admin-notifications.js?v=37"></script>
+<script src="js/screens/admin-dictionnaire.js?v=37"></script>
+<script src="js/partage.js?v=37"></script>
+<script src="js/import.js?v=37"></script>
+<script src="js/completion.js?v=37"></script>
+<script src="js/queue.js?v=37"></script>
+<script src="js/dictionary.js?v=37"></script>
+<script src="js/study.js?v=37"></script>
+<script src="js/activity.js?v=37"></script>
+<script src="js/audio.js?v=37"></script>
+<script src="js/notifications.js?v=37"></script>
+<script src="js/app.js?v=37"></script>
 </body>
 </html>

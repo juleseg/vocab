@@ -47,13 +47,18 @@ let aiJob = null; // traitement en cours (un seul à la fois)
 
 function posFields(lg) { return [lg.target].concat(lg.support).map(posField); }
 function exFields(lg) { return ["example"].concat(lg.support.map(exTrField)); }
-function fillFields(c, lg) { if (!isVocab(c)) return []; lg = lg || cardLangs(c); return lg.support.concat(exFields(lg), posFields(lg)); }
-function checkFields(c, lg) { if (!isVocab(c)) return TYPED_FILL_FIELDS.filter(k => (TYPE_FIELDS[c.type] || []).includes(k) || (k === "examples" && c.type === "rule")).map(typedField); lg = lg || cardLangs(c); return [lg.target].concat(lg.support, exFields(lg), posFields(lg)); }
+// Étape 37 : + champs des langues étudiées en plus de la liste (mot, nature, exl:<L>, exlt:<L>:<code> — voir
+// studyExtraFields), sauf avec noExtra ou des langues d'une langue étudiée (lg.study).
+function withStudyFields(c, lg, base, noExtra) { return noExtra || lg.study ? base : base.concat(studyExtraFields(c).filter(f => !base.includes(f))); }
+function fillFields(c, lg, noExtra) { if (!isVocab(c)) return []; lg = lg || cardLangs(c); return withStudyFields(c, lg, lg.support.concat(exFields(lg), posFields(lg)), noExtra); }
+function checkFields(c, lg) { if (!isVocab(c)) return TYPED_FILL_FIELDS.filter(k => (TYPE_FIELDS[c.type] || []).includes(k) || (k === "examples" && c.type === "rule")).map(typedField); lg = lg || cardLangs(c); return withStudyFields(c, lg, [lg.target].concat(lg.support, exFields(lg), posFields(lg))); }
 // Lignes de consigne « exemple » communes (accès direct, file d'attente, copier-coller).
 function exPromptLines(prefix) {
   return [
     prefix + "example : une phrase d'exemple courte et simple DANS LA LANGUE APPRISE (niveau débutant) qui utilise le mot.",
-    prefix + "extr:<code de langue> : traduction de la phrase d'exemple (celle de la carte, ou celle que tu proposes) dans cette langue."
+    prefix + "extr:<code de langue> : traduction de la phrase d'exemple (celle de la carte, ou celle que tu proposes) dans cette langue.",
+    prefix + "exl:<code de langue> : phrase d'exemple courte et simple DANS CETTE LANGUE (langue étudiée en plus, niveau débutant), qui utilise le mot de cette langue.",
+    prefix + "exlt:<code>:<code2> : traduction de la phrase exl:<code> dans la langue code2."
   ];
 }
 // Consignes « nature grammaticale » communes (accès direct et « Préparer pour Claude »).
@@ -74,9 +79,17 @@ function langLegend(codes) { return (codes || LANG_CODES).map(c => c + " = " + L
 // Langues visibles (apprise + appui) des cartes de vocabulaire données, dans l'ordre de LANGUAGES.
 function cardsLangs(cards) {
   const set = new Set();
-  cards.forEach(c => { if (isVocab(c)) visibleLangs(cardLangs(c)).forEach(x => set.add(x)); });
+  cards.forEach(c => { if (isVocab(c)) studyVisibleLangs(c.listId).forEach(x => set.add(x)); });   // langues étudiées comprises (étape 37)
   return LANG_CODES.filter(x => set.has(x));
 }
+// Colonnes d'exemple des langues étudiées en plus (exl:<L>, exlt:<L>:<code>) présentes dans ces cartes (étape 37).
+function cardsStudyExCols(cards) {
+  const out = [];
+  cards.forEach(c => studyExtraFields(c).forEach(f => { if ((isExlField(f) || isExltField(f)) && !out.includes(f)) out.push(f); }));
+  return out;
+}
+// « it (italien) » … : langues étudiées en plus d'une liste, pour les consignes.
+function studyExtraText(listId) { return studyExtraLangs(listId).join(", "); }
 // Langues affichées en plus de la langue apprise (traductions de l'exemple), dans l'ordre de LANGUAGES.
 function cardsSupportLangs(cards) {
   const set = new Set();
@@ -174,6 +187,7 @@ function aiItems(batch, withMissing, want) {
     const o = { id: "k" + i, target: lg.target };
     [lg.target].concat(lg.support).forEach(code => { const v = term(c, code); if (v) o[code] = v; });
     exFields(lg).forEach(f => { const v = fieldVal(c, f, lg); if (v) o[f] = v; });   // exemple et ses traductions (étape 35)
+    studyExtraFields(c).forEach(f => { const v = fieldVal(c, f); if (v) o[f] = v; });   // langues étudiées en plus (étape 37)
     if (withMissing) o.missing = (want || missingFields)(c);
     return o;
   });
@@ -444,6 +458,9 @@ function fieldAlias(s) {
   if (m && isLang(m[1].toLowerCase())) return posField(m[1].toLowerCase());
   const x = /^(?:extr|trad_exemple|example_tr)\s*[:_\-\s]\s*([a-z]{2,3})$/i.exec(String(s || "").trim()); // extr:en (étape 35)
   if (x && isLang(x[1].toLowerCase())) return exTrField(x[1].toLowerCase());
+  const y = /^exl\s*:\s*([a-z]{2,3})$/i.exec(String(s || "").trim()), z = /^exlt\s*:\s*([a-z]{2,3})\s*:\s*([a-z]{2,3})$/i.exec(String(s || "").trim());   // étape 37
+  if (y && isLang(y[1].toLowerCase())) return exlField(y[1].toLowerCase());
+  if (z && isLang(z[1].toLowerCase()) && isLang(z[2].toLowerCase())) return exltField(z[1].toLowerCase(), z[2].toLowerCase());
   const k = headerKind(s); return isLang(k) || k === "example" ? k : null;
 }
 function prepCell(s) { return String(s || "").replace(/[;\r\n]+/g, " ").trim(); }
@@ -453,7 +470,7 @@ function prepListName(id) { const l = getList(id); return prepCell(l ? l.name : 
 function prepText(kind, cards) {
   const langs = cardsLangs(cards);
   const posCols = kind === "complete" ? langs.map(posField) : [];
-  const exCols = cardsSupportLangs(cards).map(exTrField);
+  const exCols = cardsSupportLangs(cards).map(exTrField).concat(cardsStudyExCols(cards));   // + exl:/exlt: (étape 37)
   const cols = ["liste"].concat(langs, ["example"], exCols, posCols);
   // Langue apprise et langues d'appui de chaque liste présente
   const seen = new Set(), perList = [];
@@ -461,7 +478,8 @@ function prepText(kind, cards) {
     if (seen.has(c.listId)) return;
     seen.add(c.listId);
     const lg = listLangs(c.listId);
-    perList.push("- " + prepListName(c.listId) + " : langue apprise " + lg.target + ", langues d'appui " + (lg.support.join(", ") || "—"));
+    const ex = studyExtraText(c.listId);
+    perList.push("- " + prepListName(c.listId) + " : langue apprise " + lg.target + ", langues d'appui " + (lg.support.join(", ") || "—") + (ex ? ", langues étudiées en plus " + ex : ""));
   });
   const head = kind === "complete" ? [
     "Complète les champs vides de ces cartes de vocabulaire, pour des apprenants en langues.",
@@ -471,7 +489,8 @@ function prepText(kind, cards) {
     "Colonnes (voir la ligne d'en-tête) : " + cols.join(";"),
     "- Remplis seulement les champs vides des langues d'appui de la liste, l'exemple, ses traductions (colonnes extr:) et la nature (colonnes pos:) des mots présents ou que tu ajoutes. Ne change jamais la liste, le mot de la langue apprise, ni un champ déjà rempli. Une colonne d'une langue qui n'est ni la langue apprise ni une langue d'appui de la liste reste vide.",
     "- Seule exception : une nature « n » (nom sans genre) dans une langue avec genre : remplace-la par le code avec le genre.",
-    "- Traductions courtes ; exemple : une phrase courte et simple DANS LA LANGUE APPRISE de la liste (niveau débutant) qui utilise le mot ; extr:<code> = traduction de cette phrase dans cette langue."
+    "- Traductions courtes ; exemple : une phrase courte et simple DANS LA LANGUE APPRISE de la liste (niveau débutant) qui utilise le mot ; extr:<code> = traduction de cette phrase dans cette langue.",
+    "- Langue étudiée en plus d'une liste : remplis aussi le mot dans cette langue (traduction du mot de la langue apprise), sa nature (pos:), exl:<code> = phrase d'exemple courte dans cette langue, exlt:<code>:<code2> = traduction de cette phrase dans code2."
   ], posPromptLines("- ", langs), [
     "- Pas de « ; » à l'intérieur d'un champ.",
     "Réponds uniquement avec la ligne d'en-tête puis les lignes complétées, dans le même format, une par ligne, sans autre texte."
@@ -490,8 +509,8 @@ function prepText(kind, cards) {
     "Si tout est correct, réponds seulement : RAS"
   ]);
   const lines = cards.map(c => {
-    const lg = cardLangs(c), vis = visibleLangs(lg);
-    const own = f => (isExTrField(f) ? lg.support.includes(fieldCode(f)) : vis.includes(fieldCode(f))) ? fieldVal(c, f, lg) : "";   // langue cachée : jamais envoyée
+    const lg = cardLangs(c), vis = studyVisibleLangs(c.listId), ext = studyExtraFields(c);
+    const own = f => ((isExlField(f) || isExltField(f)) ? ext.includes(f) : isExTrField(f) ? lg.support.includes(fieldCode(f)) : vis.includes(fieldCode(f))) ? fieldVal(c, f, lg) : "";   // langue cachée : jamais envoyée
     return [prepListName(c.listId)].concat(langs.map(own), [fieldVal(c, "example", lg)], exCols.map(own), posCols.map(own)).map(prepCell).join(";");
   });
   return head.concat([""], [cols.join(";")], lines).join("\n");
@@ -645,7 +664,7 @@ function fxSig(c) {
 function fxFillable(c, lg) {
   if (!isVocab(c)) return (FX_TYPED[c.type] || []).map(typedField);
   lg = lg || cardLangs(c);
-  return lg.support.concat(posFields(lg), exFields(lg));
+  return withStudyFields(c, lg, lg.support.concat(posFields(lg), exFields(lg)));   // + langues étudiées en plus (étape 37)
 }
 // Cases demandées (vides) pour les choix cochés.
 function fxWanted(c, choice, lg) {
@@ -662,6 +681,10 @@ function fxWanted(c, choice, lg) {
     if (term(c, code).trim() || (choice.tr && code !== lg.target)) out.push(f);   // nature d'un mot présent ou demandé
   });
   if (choice.example) exFields(lg).forEach(f => { if (!fieldVal(c, f, lg).trim()) out.push(f); });
+  if (!lg.study) studyExtraFields(c).forEach(f => {                    // langues étudiées en plus (étape 37)
+    if (fieldVal(c, f).trim() || out.includes(f)) return;
+    if (isExlField(f) || isExltField(f) ? choice.example : isPosField(f) ? choice.pos : choice.tr) out.push(f);
+  });
   return out;
 }
 function fxScopeCards(scope) {
@@ -681,20 +704,23 @@ function fxFileName(scope, i, n) { return "vocab-completion-" + fxSlug(fxScopeNa
 
 // En-tête des colonnes d'une section.
 // Vocabulaire : trad_exemple_<code> = traduction de l'exemple dans cette langue (étape 35).
-function fxHeader(type, langs, exLangs) {
-  if (type === "vocab") return ["id", "type", "liste", "target"].concat(langs, langs.map(x => "pos_" + x), ["exemple"], arr(exLangs).map(x => "trad_exemple_" + x), ["sig"]);
+function fxHeader(type, langs, exLangs, stCols) {
+  const st = arr(stCols).map(f => { const x = exlParts(f); return isExlField(f) ? "exemple_" + x.L : "trad_exemple_" + x.L + "_" + x.code; });   // étape 37
+  if (type === "vocab") return ["id", "type", "liste", "target"].concat(langs, langs.map(x => "pos_" + x), ["exemple"], arr(exLangs).map(x => "trad_exemple_" + x), st, ["sig"]);
   return ["id", "type", "liste", "target"].concat(FX_TYPED_COLS[type].map(x => x[0]), ["sig"]);
 }
 // Texte d'un fichier (une partie).
 function fxFileText(cards, choice, i, n) {
   const lgs = new Map(), lgOf = c => { let x = lgs.get(c.listId); if (!x) { x = cardLangs(c); lgs.set(c.listId, x); } return x; };
-  const langs = LANG_CODES.filter(code => cards.some(c => isVocab(c) && visibleLangs(lgOf(c)).includes(code)));   // langues affichées seulement (displayLangs)
+  const langs = LANG_CODES.filter(code => cards.some(c => isVocab(c) && studyVisibleLangs(c.listId).includes(code)));   // langues affichées (et étudiées, étape 37) seulement
   const exLangs = LANG_CODES.filter(code => cards.some(c => isVocab(c) && lgOf(c).support.includes(code)));
+  const stCols = cardsStudyExCols(cards);   // exemple_<L>, trad_exemple_<L>_<code> (étape 37)
   const seenL = new Set(), perList = [];
   cards.forEach(c => {
     if (seenL.has(c.listId)) return; seenL.add(c.listId);
     const lg = lgOf(c), nm = code => code + " (" + LANGUAGES[code].names.fr.toLowerCase() + ")";
-    perList.push("#   - " + prepListName(c.listId) + " : langue apprise " + nm(lg.target) + " ; langues d'appui " + (lg.support.map(nm).join(", ") || "—"));
+    const ex = studyExtraLangs(c.listId);
+    perList.push("#   - " + prepListName(c.listId) + " : langue apprise " + nm(lg.target) + " ; langues d'appui " + (lg.support.map(nm).join(", ") || "—") + (ex.length ? " ; langues étudiées en plus " + ex.map(nm).join(", ") : ""));
   });
   const types = CARD_TYPES.filter(ty => cards.some(c => cardType(c) === ty));
   const g = langs.filter(c => LANGUAGES[c].gender), ng = langs.filter(c => !LANGUAGES[c].gender);
@@ -717,6 +743,10 @@ function fxFileText(cards, choice, i, n) {
     "# - Colonne exemple : une phrase courte et simple DANS LA LANGUE APPRISE (target), niveau débutant, qui utilise le mot.",
     "# - Colonnes trad_exemple_<langue> : traduction de la phrase de la colonne exemple dans cette langue."
   ]);
+  if (stCols.length) head.push(
+    "# - Langue étudiée en plus (voir les listes) : sa colonne de langue = traduction du mot de la langue apprise ; exemple_<langue> = phrase courte et simple",
+    "#   dans cette langue qui utilise ce mot ; trad_exemple_<langue>_<langue2> = traduction de cette phrase dans langue2."
+  );
   if (types.some(ty => ty !== "vocab")) head.push(
     "# - Autres types de cartes : traduction = sens dans les langues d'appui de la liste ; explication = explication courte de la réponse (dans la 1re langue d'appui) ;",
     "#   indice = indice court (ex. « article + nom ») ; exemples (fiche de règle) = 2 ou 3 phrases courtes dans la langue apprise, séparées par « | »."
@@ -727,15 +757,15 @@ function fxFileText(cards, choice, i, n) {
   );
   const out = head.slice();
   types.forEach(ty => {
-    out.push(fxHeader(ty, langs, exLangs).join(";"));
+    out.push(fxHeader(ty, langs, exLangs, stCols).join(";"));
     cards.filter(c => cardType(c) === ty).forEach(c => {
       const lg = lgOf(c), want = new Set(fxWanted(c, choice, lg));
-      const vis = isVocab(c) ? visibleLangs(lg) : null;
-      const hidden = f => !!vis && (isExTrField(f) ? !lg.support.includes(fieldCode(f)) : (isLang(f) || isPosField(f)) && !vis.includes(fieldCode(f)));
+      const vis = isVocab(c) ? studyVisibleLangs(c.listId) : null, ext = isVocab(c) ? studyExtraFields(c) : [];
+      const hidden = f => !!vis && ((isExlField(f) || isExltField(f)) ? !ext.includes(f) : isExTrField(f) ? !lg.support.includes(fieldCode(f)) : (isLang(f) || isPosField(f)) && !vis.includes(fieldCode(f)));
       // Langue cachée pour cette carte (ni apprise ni d'appui) : jamais envoyée, case « - » (étape 31).
       const cell = f => { if (hidden(f)) return FX_EMPTY; const v = fxCell(fieldVal(c, f)); return v || (want.has(f) ? "" : FX_EMPTY); };
       let row = [c.id, ty, prepListName(c.listId), isVocab(c) ? lg.target : cardLang(c)];
-      if (ty === "vocab") row = row.concat(langs.map(cell), langs.map(x => cell(posField(x))), [cell("example")], exLangs.map(x => cell(exTrField(x))));
+      if (ty === "vocab") row = row.concat(langs.map(cell), langs.map(x => cell(posField(x))), [cell("example")], exLangs.map(x => cell(exTrField(x))), stCols.map(cell));
       else row = row.concat(FX_TYPED_COLS[ty].map(([, k]) => k.startsWith("f:") ? cell(k) :
         fxCell(k === "i:tense" ? tenseName(c.lang, c.tense) : k === "i:person" ? personLabel(c.lang, c.tense, c.person) : c[k.slice(2)])));
       row.push(fxSig(c));
@@ -898,6 +928,10 @@ function fxColKey(cell) {
   if (["exemple", "example"].includes(n)) return "example";
   const x = /^(?:trad_exemple|extr|exemple_tr)[_:]([a-z]{2,3})$/.exec(n);   // traduction de l'exemple (étape 35)
   if (x && isLang(x[1])) return exTrField(x[1]);
+  const y = /^(?:exemple|example|exl)[_:]([a-z]{2,3})$/.exec(n);              // exemple d'une langue étudiée en plus (étape 37)
+  if (y && isLang(y[1])) return exlField(y[1]);
+  const z = /^(?:trad_exemple|exlt)[_:]([a-z]{2,3})[_:]([a-z]{2,3})$/.exec(n);
+  if (z && isLang(z[1]) && isLang(z[2])) return exltField(z[1], z[2]);
   for (const ty of Object.keys(FX_TYPED_COLS)) { const x = FX_TYPED_COLS[ty].find(([nm]) => nm === n); if (x) return x[1]; }
   if (n === "examples") return "f:examples";
   return isLang(n) ? n : "ignore";
@@ -1120,8 +1154,12 @@ function genDefaults(listId) {
     newTarget: accountLangs().target, type: "conj", verbs: "", tenses: [], persons: [], topic: "", count: 10, withRule: false };
 }
 // Langues de la destination (liste existante, ou nouvelle liste : langue choisie + langues d'appui par défaut).
+// Étape 37 : o.lang = autre langue étudiée de la liste (cartes conj / trou / erreur / règle dans cette langue).
 function genLangs(o) {
-  if (o.listId !== "__new__" && getList(o.listId)) return listLangs(o.listId);
+  if (o.listId !== "__new__" && getList(o.listId)) {
+    if (o.lang && studyExtraLangs(o.listId).includes(o.lang)) return studyLg(o.lang);
+    return listLangs(o.listId);
+  }
   const fl = folderLangs(getFolder(o.folder));
   return fl.target === o.newTarget ? fl : langsFor(o.newTarget);
 }
@@ -1140,9 +1178,10 @@ function genPersons(o, lng, tenseId) {
   return sel.length ? sel : ps;
 }
 
-function openGenerate(listId) {
+function openGenerate(listId, lang) {
   if (!gv) gv = genDefaults(listId);
   else if (listId && getList(listId)) { gv.listId = listId; gv.folder = getList(listId).folderId || ""; }
+  if (listId) gv.lang = lang || "";                                       // langue étudiée choisie (étape 37)
   if (gv.listId !== "__new__" && !getList(gv.listId)) gv.listId = state.lists.length ? orderedLists()[0].id : "__new__";
   const o = gv;
   const wrap = el("div");
@@ -1167,13 +1206,22 @@ function openGenerate(listId) {
     wrap.appendChild(formField(t("folders.folder"), fs));
     wrap.appendChild(formField(t("langs.target"), targetSelect(o.newTarget, v => { o.newTarget = v; redraw(); })));
   }
+  // Liste étudiée dans plusieurs langues (étape 37) : langue des cartes à générer
+  const stl = o.listId !== "__new__" && getList(o.listId) ? studyLangs(o.listId) : [];
+  if (stl.length > 1) {
+    const sl = el("select", "input");
+    stl.forEach(x => { const op = el("option", null, langName(x)); op.value = x; sl.appendChild(op); });
+    sl.value = stl.includes(o.lang) ? o.lang : stl[0];
+    sl.addEventListener("change", () => { o.lang = sl.value === stl[0] ? "" : sl.value; redraw(); });
+    wrap.appendChild(formField(t("study.genLang"), sl));
+  } else o.lang = "";
   const lg = genLangs(o), L = lg.target;
   wrap.appendChild(el("div", "gen-info", pairLabel(lg)));
 
-  // Type de carte
+  // Type de carte (autre langue étudiée : pas de vocabulaire, les mots de la liste servent déjà dans cette langue)
   const ts = el("select", "input");
-  const okTypes = GEN_TYPES.filter(ty => typesFor(L).includes(ty));   // pas de conjugaison sans grammaire (étape 35)
-  if (!okTypes.includes(o.type)) o.type = "vocab";
+  const okTypes = GEN_TYPES.filter(ty => typesFor(L).includes(ty) && !(lg.study && ty === "vocab"));   // pas de conjugaison sans grammaire (étape 35)
+  if (!okTypes.includes(o.type)) o.type = okTypes[0] || "vocab";
   okTypes.forEach(ty => { const op = el("option", null, TYPE_ICON[ty] + " " + t("type." + ty)); op.value = ty; ts.appendChild(op); });
   ts.value = o.type;
   ts.addEventListener("change", () => { o.type = ts.value; redraw(); });
@@ -1553,10 +1601,11 @@ function analyzeUpdate(cards) {
   const lgs = new Map();
   const L = c => { let x = lgs.get(c.listId); if (!x) { x = cardLangs(c); lgs.set(c.listId, x); } return x; };
   const pend = new Set(state.proposals.map(p => p.cardId));
-  const a = { total: cards.length, tr: {}, pos: 0, gender: 0, genderLangs: new Set(), example: 0, pending: 0, verify: 0, dup: 0, legacy: 0 };
+  const a = { total: cards.length, tr: {}, pos: 0, gender: 0, genderLangs: new Set(), example: 0, pending: 0, verify: 0, dup: 0, legacy: 0, study: {} };
   cards.forEach(c => {
     if (isLegacyCard(c)) { a.legacy++; return; }
     const lg = L(c);
+    studyExtraLangs(c.listId).forEach(x => { if (!(x in a.study)) a.study[x] = 0; if (studyGapFields(c, x).length) a.study[x]++; });   // étape 37
     lg.support.forEach(code => { if (!(code in a.tr)) a.tr[code] = 0; if (!term(c, code).trim()) a.tr[code]++; });
     const g = genderFields(c, lg);
     g.forEach(f => a.genderLangs.add(f.slice(4)));
@@ -1577,6 +1626,7 @@ function updWant(cats) {
     lg.support.forEach(code => { if (cats.includes("tr:" + code) && !term(c, code).trim()) out.push(code); });
     if (cats.includes("example")) exFields(lg).forEach(f => { if (!fieldVal(c, f, lg).trim()) out.push(f); });
     if (cats.includes("pos")) posFields(lg).forEach(f => { if (!fieldVal(c, f).trim() || posNeedsGender(c, f.slice(4))) out.push(f); });
+    studyExtraLangs(c.listId).forEach(x => { if (cats.includes("study:" + x)) studyGapFields(c, x).forEach(f => { if (!out.includes(f)) out.push(f); }); });   // étape 37
     return out;
   };
 }
@@ -1633,6 +1683,7 @@ async function openUpdate(scope) {
   LANG_CODES.filter(code => code in a.tr).forEach(code => row("tr:" + code, t("upd.cat.tr", { lang: langName(code) }), a.tr[code], "", true));
   row("pos", t("upd.cat.pos"), a.pos, a.gender ? t("upd.cat.gender", { n: a.gender, langs: [...a.genderLangs].map(x => langName(x)).join(", ") }) : "", true);
   row("example", t("upd.cat.example"), a.example, "", true);
+  LANG_CODES.filter(x => x in a.study).forEach(x => row("study:" + x, t("study.updCat", { lang: langName(x) }), a.study[x], t("study.updCatHint"), true));   // étape 37
   row("pending", t("upd.cat.pending"), a.pending, t("upd.cat.pendingHint"), true);
   const calls = Math.ceil(a.verify / CONFIG.AI_BATCH);
   row("verify", t("upd.cat.verify"), a.verify, t("upd.cat.verifyHint") + (AI.isOn() && calls ? " · " + t("upd.calls", { b: calls }) : ""), false);

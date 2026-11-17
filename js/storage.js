@@ -5,7 +5,8 @@
 // Version 3 : types de cartes (champ type : vocab, conj, cloze, fix, rule — voir TYPES DE CARTES).
 // Version 4 : séries façon Duolingo (settings.dailyGoal, settings.privacy, streak — voir SÉRIES).
 // Version 5 : profil de langues (settings.learning) et exemples par langue (cards[].examples) — étape 35, voir LANGUES.
-const DATA_VERSION = 5;
+// Version 6 : langues étudiées d'une liste (lists[].targets) et progression par langue (cards[].progress) — étape 37.
+const DATA_VERSION = 6;
 const PRIVACY_KEYS = ["streak", "today", "week", "success", "badges", "ranking", "shared"];   // ce que mes amis voient (étape 29 ; shared : étape 30)
 function defaultPrivacy() { const o = {}; PRIVACY_KEYS.forEach(k => { o[k] = true; }); return o; }
 function normPrivacy(p) { const o = defaultPrivacy(); if (p && typeof p === "object") PRIVACY_KEYS.forEach(k => { if (p[k] === false) o[k] = false; }); return o; }
@@ -36,7 +37,7 @@ function emptyData(target, support) {
     updatedAt: 0,
     settings: defaultSettings(target, support),
     folders: [],     // { id, name, order, target?, legacySupport? }
-    lists: [],       // { id, name, folderId|null, order, target?, support? (code | null : remplace l'appui du profil), legacySupport?, createdAt }
+    lists: [],       // { id, name, folderId|null, order, target?, targets? (langues étudiées, étape 37), support? (code | null : remplace l'appui du profil), legacySupport?, createdAt }
     cards: [],       // { id, listId, type, ... } (voir newCard et TYPES DE CARTES)
     history: [],
     streak: normStreak(null, []),   // série (voir SÉRIES)
@@ -117,6 +118,8 @@ function normalizeCard(c) {
     dueAt: num(c.dueAt, Date.now()),
     stats: { seen: num(st.seen, 0), correct: num(st.correct, 0), wrong: num(st.wrong, 0), lastSeen: num(st.lastSeen, null) }
   };
+  const pg = normProgress(c.progress);                                               // étape 37 : progression par langue
+  if (Object.keys(pg).length) out.progress = pg;
   if (type === "vocab") {
     out.examples = normExamples(c.examples);                                         // étape 35 (fiche de règle : examples = liste)
     // Dictionnaire commun (étape 36) : sens relié et cases « version perso » ; absents si la carte n'est pas reliée.
@@ -127,6 +130,23 @@ function normalizeCard(c) {
   }
   return Object.assign(out, normTypedFields(type, c));
 }
+
+// Progression par langue étudiée (étape 37) : { <langue>: { box, dueAt, stats } }.
+// box / dueAt / stats de la carte = copie de la progression de sa langue principale (anciennes versions, fiche admin…).
+function normProgress(p) {
+  const out = {};
+  if (!p || typeof p !== "object" || Array.isArray(p)) return out;
+  Object.keys(p).forEach(L => {
+    const v = p[L];
+    if (!isLang(L) || !v || typeof v !== "object") return;
+    const st = v.stats || {};
+    out[L] = { box: clampInt(v.box, 0, 5, 0), dueAt: num(v.dueAt, 0),
+      stats: { seen: num(st.seen, 0), correct: num(st.correct, 0), wrong: num(st.wrong, 0), lastSeen: num(st.lastSeen, null) } };
+  });
+  return out;
+}
+// Langues étudiées enregistrées d'une liste (étape 37) : codes connus, sans doublon.
+function normTargets(t) { const out = []; arr(t).forEach(x => { if (isLang(x) && !out.includes(x)) out.push(x); }); return out.length ? { targets: out } : {}; }
 
 // Date de la dernière « Mise à jour » d'une liste ou d'un dossier (absente si jamais faite).
 function lastUpdateOf(o) { const v = num(o && o.lastUpdate, 0); return v > 0 ? { lastUpdate: v } : {}; }
@@ -141,6 +161,9 @@ function dataVersion(raw) { return (raw && typeof raw === "object") ? num(raw.ve
 // Migration v4 → v5 (étape 35) : settings.learning déduit des dossiers / listes (voir migrateLearning), example de chaque
 //   carte de vocabulaire → examples[langue apprise].text ; rien n'est supprimé (example, defaultTarget, defaultSupport,
 //   anciens tableaux support → legacySupport). Aucun nouveau morceau : settings, lists, folders et cards existent déjà.
+// Migration v5 → v6 (étape 37) : lists[].targets = [langue apprise] ; box / dueAt / stats → cards[].progress[langue]
+//   (voir syncPrimaryProgress) ; history[].langs ajouté au fil des révisions. Aucun nouveau morceau (règle 33b) :
+//   tout reste dans les morceaux lists et cards. Export JSON de sécurité avant (syncWithRemote, DATA_VERSION).
 function normalizeData(raw) {
   const d = (raw && typeof raw === "object") ? raw : {};
   const s = d.settings || {};
@@ -167,10 +190,10 @@ function normalizeData(raw) {
     cards: arr(d.cards).filter(c => c && c.id).map(normalizeCard).filter(cardHasContent),
     history: arr(d.history)
       .filter(h => h && /^\d{4}-\d{2}-\d{2}$/.test(h.date))
-      .map(h => ({ date: h.date, reviewed: num(h.reviewed, 0), correct: num(h.correct, 0) })),
+      .map(h => Object.assign({ date: h.date, reviewed: num(h.reviewed, 0), correct: num(h.correct, 0) }, normHistLangs(h.langs))),
     streak: null,
     proposals: arr(d.proposals)
-      .filter(p => p && p.id && p.cardId && (isLang(p.field) || isPosField(p.field) || isTypedField(p.field) || isExTrField(p.field) || ["example", "dup"].includes(p.field)) && ["completion", "correction"].includes(p.type))
+      .filter(p => p && p.id && p.cardId && (isLang(p.field) || isPosField(p.field) || isTypedField(p.field) || isExTrField(p.field) || isExlField(p.field) || isExltField(p.field) || ["example", "dup"].includes(p.field)) && ["completion", "correction"].includes(p.type))
       .map(p => Object.assign({ id: String(p.id), cardId: String(p.cardId), field: p.field, type: p.type,
         oldValue: String(p.oldValue || ""), newValue: String(p.newValue || ""), reason: String(p.reason || ""), createdAt: num(p.createdAt, 0) }, propReqFields(p)))
       .concat(arr(d.proposals).map(normNewProposal).filter(Boolean)),   // « Nouvelle carte » (étape 17)
@@ -186,7 +209,7 @@ function normalizeData(raw) {
     id: String(l.id), name: String(l.name || ""),
     folderId: l.folderId && folderIds.has(String(l.folderId)) ? String(l.folderId) : null,
     order: num(l.order, i), createdAt: num(l.createdAt, Date.now())
-  }, normLangPair(l), lastUpdateOf(l), normSharedMark(l)));
+  }, normLangPair(l), normTargets(l.targets), lastUpdateOf(l), normSharedMark(l)));
   // Ordres renumérotés 0, 1, 2… (dossiers, puis listes de chaque dossier)
   const renum = items => items.map((x, i) => [x, i]).sort((a, b) => a[0].order - b[0].order || a[1] - b[1]).forEach(([x], i) => { x.order = i; });
   renum(out.folders);
@@ -227,7 +250,34 @@ function normalizeData(raw) {
     const lt = tgOfList.get(c.listId);
     if (lt && !c.examples[lt]) c.examples[lt] = { text: c.example, tr: {} };
   });
+  // Migration v5 → v6 (étape 37) : targets = [target] pour chaque liste ; box, dueAt, stats → progress[langue d'origine]
+  // (langue de la liste, ou lang des autres types). Rien n'est supprimé (box / dueAt / stats gardés en copie).
+  out.lists.forEach(l => { if (!l.targets) l.targets = [tgOfList.get(l.id)]; });
+  out.cards.forEach(c => syncPrimaryProgress(c, isVocab(c) ? tgOfList.get(c.listId) : c.lang));
   return out;
+}
+// Progression de la langue principale ⇄ champs box / dueAt / stats de la carte (étape 37).
+//  - aucune progression par langue (données v5, nouvelle carte) : progress[langue principale] = box / dueAt / stats ;
+//  - sinon box / dueAt / stats = copie de progress[langue principale] (à zéro si cette langue n'a pas encore été révisée).
+function syncPrimaryProgress(c, L) {
+  if (!c || !isLang(L)) return;
+  const pg = c.progress && typeof c.progress === "object" ? c.progress : {};
+  if (!Object.keys(pg).length) {
+    c.progress = { [L]: { box: c.box, dueAt: c.dueAt, stats: Object.assign({}, c.stats) } };
+    return;
+  }
+  if (!pg[L]) pg[L] = { box: 0, dueAt: 0, stats: { seen: 0, correct: 0, wrong: 0, lastSeen: null } };
+  c.progress = pg;
+  c.box = pg[L].box; c.dueAt = pg[L].dueAt; c.stats = Object.assign({}, pg[L].stats);
+}
+// Révisions du jour par langue (étape 37) : { langs: { <langue>: [révisées, sues] } }.
+function normHistLangs(m) {
+  const o = {};
+  if (m && typeof m === "object" && !Array.isArray(m)) Object.keys(m).forEach(L => {
+    const v = m[L];
+    if (isLang(L) && Array.isArray(v)) o[L] = [num(v[0], 0), num(v[1], 0)];
+  });
+  return Object.keys(o).length ? { langs: o } : {};
 }
 // Profil déduit (migration 4 → 5) : une entrée par langue apprise des dossiers / listes (langue du compte d'abord si une
 // liste en hérite), appui = équivalent de l'ancienne règle de l'étape 31 (legacySupportFor).

@@ -396,7 +396,7 @@ async function runAdminCopy(d, dest, selF, selL) {
       if (!lMap[c.listId]) return;
       const nc = JSON.parse(JSON.stringify(c));
       nc.id = uid(); nc.listId = lMap[c.listId];
-      nc.box = 0; nc.dueAt = now; nc.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null };
+      nc.box = 0; nc.dueAt = now; nc.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null }; delete nc.progress;
       out.cards.push(nc); n++;
       idMap[c.id] = nc.id;
     });

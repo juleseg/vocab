@@ -5,7 +5,14 @@
 function computeStreak() { return Streak.data().current; }
 function renderHome() {
   const now = Date.now();
-  $("#homeDue").textContent = state.cards.filter(c => Leitner.isDue(c, now)).length;
+  $("#homeDue").textContent = dueCount(state.cards, now);
+  // À réviser par langue étudiée (étape 37), s'il y en a plusieurs
+  const byL = dueByLang(state.cards, now), dl = $("#homeDueLangs");
+  if (dl) {
+    const ls = LANG_CODES.filter(L => byL[L]);
+    dl.textContent = ls.length > 1 ? ls.map(L => t("study.langDueShort", { l: L.toUpperCase(), n: byL[L] })).join(" · ") : "";
+    dl.hidden = ls.length < 2;
+  }
   // Série : flamme allumée quand l'objectif du jour est atteint, record, gels disponibles
   const s = Streak.data(), done = Streak.doneToday();
   $("#homeStreak").textContent = s.current;

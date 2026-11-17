@@ -4,6 +4,8 @@
 // Filtres gardés en mémoire tant que l'appli est ouverte :
 //   stv.lang  : langue apprise ("" = toutes) ; stv.scope : "" (tout) | "f:<idDossier>" | "l:<idListe>".
 // Taux de réussite = réponses « Su » / toutes les réponses (stats.correct / stats.seen).
+// Étape 37 : on compte des « vues » (carte, langue étudiée) — Leitner.units — : une carte étudiée en coréen et en
+// italien compte deux fois (une par langue) ; filtre de langue = une seule langue. Bloc « Par langue étudiée ».
 const stv = { lang: "", scope: "", cap: "" };
 
 function catCounts(cards) {
@@ -49,8 +51,7 @@ function renderStats() {
   if (stv.scope.startsWith("l:") && !getList(stv.scope.slice(2))) stv.scope = "";
   if (!state.cards.length) { root.appendChild(el("div", "empty", t("stats.empty"))); return; }
 
-  const lgs = langsByList();
-  const inLang = l => !stv.lang || lgs.get(l.id).target === stv.lang;
+  const inLang = l => !stv.lang || studyLangs(l).includes(stv.lang);
   const lists = orderedLists().filter(inLang);
   if (stv.scope.startsWith("l:") && !lists.some(l => l.id === stv.scope.slice(2))) stv.scope = "";
 
@@ -92,7 +93,7 @@ function renderStats() {
   if (stv.scope.startsWith("f:")) scopeLists = lists.filter(l => l.folderId === stv.scope.slice(2));
   else if (stv.scope.startsWith("l:")) scopeLists = lists.filter(l => l.id === stv.scope.slice(2));
   const ids = new Set(scopeLists.map(l => l.id));
-  const cards = state.cards.filter(c => ids.has(c.listId));
+  const cards = Leitner.units(state.cards.filter(c => ids.has(c.listId)), stv.lang || null);   // une vue par langue étudiée
   if (!cards.length) { root.appendChild(el("div", "empty", t("lists.noCards"))); return; }
   const now = Date.now();
   const rate = rateOf(cards);
@@ -109,6 +110,8 @@ function renderStats() {
   top.appendChild(tiles);
   if (rate.seen) top.appendChild(el("div", "hint", t("stats.rateHint", { c: rate.ok, s: rate.seen })));
   root.appendChild(top);
+  const byL = statsByLang(cards, now);
+  if (byL) root.appendChild(byL);
   root.appendChild(statsStreak());
 
   // Par catégorie
@@ -188,7 +191,7 @@ function renderStats() {
   if (!stv.scope.startsWith("l:") && scopeLists.length > 1) {
     const pl = el("div", "card");
     pl.appendChild(el("h2", null, t("stats.byList")));
-    scopeLists.forEach(l => pl.appendChild(stGroupRow(stv.scope ? l.name : listLabel(l), cardsOf(l.id))));
+    scopeLists.forEach(l => pl.appendChild(stGroupRow(stv.scope ? l.name : listLabel(l), cards.filter(c => c.listId === l.id))));
     root.appendChild(pl);
   }
 
@@ -199,11 +202,12 @@ function renderStats() {
   const ms = el("div", "card");
   ms.appendChild(el("h2", null, t("stats.missed")));
   if (!missed.length) ms.appendChild(el("div", "muted", t("stats.noMissed")));
+  const multiL = new Set(cards.map(c => c.unitLang)).size > 1;
   missed.forEach(c => {
-    const lg = lgs.get(c.listId);
+    const lg = cardLangs(c);   // langues de la vue (langue étudiée, étape 37)
     const row = el("div", "st-miss");
     const m = el("div", "main");
-    const f = el("div", "t1", isVocab(c) ? (targetTerm(c, lg) || "—") : cardTitle(c)); f.lang = cardLang(c);
+    const f = el("div", "t1", (isVocab(c) ? (targetTerm(c, lg) || "—") : cardTitle(c)) + (multiL ? " (" + c.unitLang.toUpperCase() + ")" : "")); f.lang = lg.target;
     if (!isVocab(c)) f.insertBefore(typeBadge(c.type), f.firstChild);
     m.appendChild(f);
     const sub = isVocab(c) ? supportText(c, lg) : cardSubtitle(c);
@@ -212,6 +216,24 @@ function renderStats() {
     ms.appendChild(row);
   });
   root.appendChild(ms);
+}
+
+// Par langue étudiée (étape 37), s'il y en a plusieurs : cartes, à réviser, réussite, catégories, révisions sur 7 jours,
+// jours d'affilée avec au moins une révision dans cette langue (la série et l'objectif du jour restent pour toutes les langues).
+function statsByLang(units, now) {
+  const ls = LANG_CODES.filter(L => units.some(u => u.unitLang === L));
+  if (ls.length < 2) return null;
+  const card = el("div", "card");
+  card.appendChild(el("h2", null, t("study.byLang")));
+  ls.forEach(L => {
+    const us = units.filter(u => u.unitLang === L);
+    const row = stGroupRow(langName(L), us);
+    row.querySelector(".st-list-sub").textContent = t("study.statLine", { n: us.length, d: dueCount(us, now), r: pctText(rateOf(us)) });
+    const w = langReviewed(L, 7);
+    row.appendChild(el("div", "st-list-sub", t("study.statDays", { r: w.reviewed, p: w.reviewed ? Math.round(w.correct * 100 / w.reviewed) : 0, s: langRunDays(L) })));
+    card.appendChild(row);
+  });
+  return card;
 }
 
 // Série (étape 28) : chiffres, calendrier des 12 dernières semaines (jours gelés, objectif atteint), badges.

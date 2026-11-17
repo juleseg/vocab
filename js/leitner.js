@@ -241,41 +241,121 @@ function badgeIcon(days) { return days >= 365 ? "👑" : days >= 100 ? "🏆" : 
 // === LEITNER ===
 // Boîte 0 = nouveau ou pas su (revient dans la session). Boîtes 1 à 5 : 1, 3, 7, 14, 30 jours.
 // Intervalles en jours calendaires : la carte redevient due à minuit (heure locale) du jour J+N.
+// Étape 37 : progression par langue étudiée — card.progress = { <langue>: { box, dueAt, stats } }.
+//  - Langue utilisée sans précision : celle de la session (StudyCtx), sinon la langue principale de la carte.
+//  - Langue jamais révisée : boîte 0, due tout de suite (part de zéro, sans toucher aux autres langues).
+//  - Carte sans progression par langue (nouvelle carte) : ses champs box / dueAt / stats = langue principale.
+//  - Après une réponse dans la langue principale, box / dueAt / stats de la carte en sont la copie (voir syncPrimaryProgress).
+//  - Leitner.unit(carte, langue) : vue en lecture seule (box, dueAt, stats de cette langue) pour les statistiques.
 const Leitner = (() => {
   const MAX_BOX = 5;
+  const ZERO = Object.freeze({ box: 0, dueAt: 0, stats: Object.freeze({ seen: 0, correct: 0, wrong: 0, lastSeen: null }) });
   function dayStart(ts) { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); }
   function addDays(ts, n) { const d = new Date(dayStart(ts)); d.setDate(d.getDate() + n); return d.getTime(); }
-  function isDue(c, now) { return c.dueAt <= (now || Date.now()); }
+  function isUnit(c) { return !!c && Object.prototype.hasOwnProperty.call(c, "unitLang"); }
+  function hasProg(c) { return !!(c.progress && typeof c.progress === "object" && Object.keys(c.progress).length); }
+  function langOf(c, lang) { return lang || studyCtxLang(c) || primaryLang(c); }
+  // Progression d'une carte dans une langue (objet { box, dueAt, stats }, à ne pas modifier).
+  function prog(c, lang) {
+    if (isUnit(c) && (!lang || lang === c.unitLang)) return c;
+    const L = langOf(c, lang);
+    const P = c.progress && c.progress[L];
+    if (P) return P;
+    if (!hasProg(c) && L === primaryLang(c)) return c;
+    return ZERO;
+  }
+  // Progression modifiable (créée si besoin ; la langue principale garde ses valeurs actuelles).
+  function ensure(c, L) {
+    if (!hasProg(c)) c.progress = { [primaryLang(c)]: { box: c.box, dueAt: c.dueAt, stats: Object.assign({}, c.stats) } };
+    if (!c.progress[L]) c.progress[L] = { box: 0, dueAt: 0, stats: { seen: 0, correct: 0, wrong: 0, lastSeen: null } };
+    return c.progress[L];
+  }
+  function isDue(c, now, lang) { return prog(c, lang).dueAt <= (now || Date.now()); }
   // "unknown" = Pas su (boîte 0), "review" = À revoir (1-2), "known" = Su (3-5)
-  function category(c) { return c.box === 0 ? "unknown" : (c.box <= 2 ? "review" : "known"); }
-  function logHistory(now, known) {
+  function category(c, lang) { const b = prog(c, lang).box; return b === 0 ? "unknown" : (b <= 2 ? "review" : "known"); }
+  // Langues étudiées où la carte est à réviser maintenant. Langue en plus : seulement si la carte y est utilisable
+  // (mot rempli) ; langue principale : comme avant l'étape 37.
+  function dueLangs(c, now) {
+    now = now || Date.now();
+    const ls = cardStudyLangs(c);
+    return ls.filter((L, i) => isDue(c, now, L) && (i === 0 || cardUsable(c, studyLg(L))));
+  }
+  function unit(c, L) {
+    const P = prog(c, L), u = Object.create(c);
+    Object.defineProperty(u, "unitLang", { value: L, enumerable: false });
+    u.box = P.box; u.dueAt = P.dueAt; u.stats = P.stats;
+    return u;
+  }
+  // Vues (carte, langue) d'une liste de cartes : toutes les langues étudiées (only = une seule langue).
+  // Langue en plus : seulement les cartes utilisables dans cette langue.
+  function units(cards, only) {
+    const out = [];
+    arr(cards).forEach(c => cardStudyLangs(c).forEach((L, i) => {
+      if (only && L !== only) return;
+      if (i > 0 && !cardUsable(c, studyLg(L))) return;
+      out.push(unit(c, L));
+    }));
+    return out;
+  }
+  function logHistory(now, known, L) {
     const date = todayStr(new Date(now));
     let h = state.history.find(x => x.date === date);
     if (!h) { h = { date, reviewed: 0, correct: 0 }; state.history.push(h); }
     h.reviewed++;
     if (known) h.correct++;
-    Streak.onReview(date);   // objectif du jour, gels, badges (étape 28)
-  }
-  // result : "known" (Su) | "review" (À revoir) | "unknown" (Pas su).
-  // Modifie la carte et l'historique, sans sauvegarder (l'appelant fait commit()).
-  function grade(c, result, now) {
-    now = now || Date.now();
-    const from = c.box;
-    if (result === "known") {
-      c.box = Math.min(MAX_BOX, c.box + 1);              // boîte 5 : reste en 5, revient dans 30 j
-      c.dueAt = addDays(now, CONFIG.LEITNER_INTERVALS_DAYS[c.box]);
-    } else if (result === "review") {
-      c.dueAt = addDays(now, 1);                        // même boîte, revient demain
-    } else {
-      c.box = 0;
-      c.dueAt = now;                                    // revient dans la session
+    if (isLang(L)) {                                      // révisions par langue (étape 37)
+      if (!h.langs || typeof h.langs !== "object") h.langs = {};
+      const v = h.langs[L] || (h.langs[L] = [0, 0]);
+      v[0]++; if (known) v[1]++;
     }
-    c.stats.seen++;
-    c.stats.lastSeen = now;
-    if (result === "known") c.stats.correct++;
-    if (result === "unknown") c.stats.wrong++;
-    logHistory(now, result === "known");
-    return { from, to: c.box, dueAt: c.dueAt };
+    Streak.onReview(date);   // objectif du jour, gels, badges (étape 28) : toutes langues confondues
   }
-  return { dayStart, addDays, isDue, category, grade };
+  // result : "known" (Su) | "review" (À revoir) | "unknown" (Pas su). lang : langue révisée (facultatif).
+  // Modifie la carte et l'historique, sans sauvegarder (l'appelant fait commit()).
+  function grade(c, result, now, lang) {
+    now = now || Date.now();
+    const L = langOf(c, lang);
+    const P = ensure(c, L);
+    const from = P.box;
+    if (result === "known") {
+      P.box = Math.min(MAX_BOX, P.box + 1);              // boîte 5 : reste en 5, revient dans 30 j
+      P.dueAt = addDays(now, CONFIG.LEITNER_INTERVALS_DAYS[P.box]);
+    } else if (result === "review") {
+      P.dueAt = addDays(now, 1);                        // même boîte, revient demain
+    } else {
+      P.box = 0;
+      P.dueAt = now;                                    // revient dans la session
+    }
+    P.stats.seen++;
+    P.stats.lastSeen = now;
+    if (result === "known") P.stats.correct++;
+    if (result === "unknown") P.stats.wrong++;
+    if (L === primaryLang(c)) { c.box = P.box; c.dueAt = P.dueAt; c.stats = Object.assign({}, P.stats); }
+    logHistory(now, result === "known", L);
+    return { from, to: P.box, dueAt: P.dueAt, lang: L };
+  }
+  // Remise à zéro d'une carte (copie sans progression) : toutes les langues.
+  function clear(c, now) {
+    c.box = 0; c.dueAt = now || Date.now(); c.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null };
+    delete c.progress;
+    return c;
+  }
+  return { dayStart, addDays, isDue, category, grade, prog, dueLangs, unit, units, clear, isUnit };
 })();
+
+// Jours d'affilée avec au moins une révision dans une langue (statistiques par langue, étape 37) ; aujourd'hui
+// compte s'il y a déjà une révision, sinon la suite s'arrête à hier.
+function langRunDays(L) {
+  const days = new Set(state.history.filter(h => h.langs && h.langs[L] && h.langs[L][0] > 0).map(h => h.date));
+  const today = todayStr();
+  let d = days.has(today) ? today : skAdd(today, -1), n = 0;
+  while (days.has(d)) { n++; d = skAdd(d, -1); }
+  return n;
+}
+// Révisions dans une langue sur les n derniers jours (aujourd'hui compris) : { reviewed, correct }.
+function langReviewed(L, n) {
+  const from = skAdd(todayStr(), -(n - 1));
+  let r = 0, c = 0;
+  state.history.forEach(h => { if (h.date >= from && h.langs && h.langs[L]) { r += h.langs[L][0]; c += h.langs[L][1]; } });
+  return { reviewed: r, correct: c };
+}

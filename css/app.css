@@ -860,3 +860,26 @@ span.fc-day{display:inline-block;width:12px;height:12px;aspect-ratio:auto;cursor
 .ad-ver { border-top: 1px solid var(--border); padding: 6px 0; }
 .ad-ver-h { font-size: 0.9rem; overflow-wrap: anywhere; }
 .ad-ver .lv-links { margin: 0; }
+
+/* === LANGUES ÉTUDIÉES (étape 37) === */
+.home-due-langs{margin-top:6px;font-size:13px;font-weight:600;color:var(--muted)}
+.study-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.study-pill{display:inline-block;max-width:100%;font-size:12px;font-weight:600;line-height:1.5;padding:1px 8px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--text);white-space:normal;overflow-wrap:anywhere}
+.study-pill.main{border-color:var(--accent);color:var(--accent)}
+.study-pill.gaps{border-color:var(--warn)}
+.study-list{display:flex;flex-direction:column}
+.study-row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--border)}
+.study-row:first-child{border-top:0}
+.study-row .main{flex:1;min-width:0}
+.study-row .t1{font-weight:600}
+.study-row .t2{font-size:13px;color:var(--muted);margin-top:2px}
+.study-tag{display:inline-block;margin-left:8px;font-size:11px;font-weight:700;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--accent-text);vertical-align:middle}
+.study-acts{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+.study-acts .link-btn{min-height:36px}
+.study-b{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--border);font-size:15px}
+.study-b.ok b{color:var(--ok)}
+.study-b.warn b{color:var(--warn)}
+.study-ok{color:var(--ok);font-weight:600}
+.study-sec{margin-top:14px;padding-top:10px;border-top:2px solid var(--border)}
+.study-sec-hd{font-weight:700;color:var(--accent);margin-bottom:6px}
+.study-word{color:var(--muted)}

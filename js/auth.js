@@ -502,7 +502,7 @@ async function syncWithRemote(id, ctx, first) {
     if (rawV1) state.updatedAt = Math.max(Date.now(), state.updatedAt + 1); // la nouvelle version du modèle passe devant l'ancienne partout
     if (first) Storage.release();
     Storage.save(state);        // local tout de suite, en ligne regroupé (seulement si les données en ligne ont été lues)
-    const migKey = rawV1 ? (dataVersion(rawV1) < 2 ? "save.migratedV2" : dataVersion(rawV1) < 3 ? "save.migratedV3" : dataVersion(rawV1) < 4 ? "save.migratedV4" : "save.migratedV5") : "save.migrated";
+    const migKey = rawV1 ? (dataVersion(rawV1) < 2 ? "save.migratedV2" : dataVersion(rawV1) < 3 ? "save.migratedV3" : dataVersion(rawV1) < 4 ? "save.migratedV4" : dataVersion(rawV1) < 5 ? "save.migratedV5" : "save.migratedV6") : "save.migrated";
     if (ctx.oldLocal && Storage.dropOldLocal(state)) toast(t(migKey));
     else if (oldRemote || rawV1) toast(t(migKey));
     if (!first) { Streak.tick(true); render(); }

@@ -168,7 +168,8 @@ function dictShownKey(c, k) {
   const p = k.split(":"), shown = [lg.target].concat(lg.support);
   if (p[0] === "t") return p[1] === lg.target && shown.includes(p[2]);
   if (p[0] === "e") return p[1] === lg.target;
-  return shown.includes(p[1]);
+  if (shown.includes(p[1])) return true;
+  return isVocab(c) && studyVisibleLangs(c.listId).includes(p[1]);   // langues étudiées en plus de la liste (étape 37)
 }
 // Compatibilité carte / sens : -1 si un mot diffère dans une langue remplie des deux côtés ; sinon nombre de
 // langues (hors langue cherchée) où le mot est le même.

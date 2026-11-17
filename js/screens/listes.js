@@ -32,7 +32,15 @@ function parseTags(s) { return String(s || "").split(",").map(x => x.trim()).fil
 function cardMatches(c, q) {
   return normText(cardSearchText(c) + " " + c.tags.join(" ")).includes(q);
 }
-function dueCount(cards, now) { now = now || Date.now(); return cards.filter(c => Leitner.isDue(c, now)).length; }
+// À réviser : une unité par langue étudiée (étape 37) ; vue de statistiques (Leitner.unit) : sa seule langue.
+function dueCount(cards, now) { now = now || Date.now(); return cards.reduce((n, c) => n + (Leitner.isUnit(c) ? (Leitner.isDue(c, now) ? 1 : 0) : Leitner.dueLangs(c, now).length), 0); }
+// À réviser par langue étudiée : { <langue>: n }.
+function dueByLang(cards, now) {
+  now = now || Date.now();
+  const o = {};
+  cards.forEach(c => Leitner.dueLangs(c, now).forEach(L => { o[L] = (o[L] || 0) + 1; }));
+  return o;
+}
 
 // --- Dossiers repliés (sur cet appareil) ---
 function collapsedKey() { return CONFIG.LS_USER_PREFIX + "collapsed:" + (Storage.getUser() || ""); }
@@ -53,7 +61,8 @@ function renderLists() {
   $("#lvMore").hidden = !!list;
   $("#lvBack").textContent = "‹ " + t("nav.lists");
   $("#lvTitle").textContent = list ? list.name : "";
-  $("#lvSub").textContent = list ? (getFolder(list.folderId) ? "▸ " + getFolder(list.folderId).name + " · " : "") + pairLabel(listLangs(list)) + " · " + updDate(list.lastUpdate)
+  $("#lvSub").textContent = list ? (getFolder(list.folderId) ? "▸ " + getFolder(list.folderId).name + " · " : "") + pairLabel(listLangs(list))
+    + studyExtraLangs(list).map(L => " +" + L.toUpperCase()).join("") + " · " + updDate(list.lastUpdate)
     + (isSharedList(list) ? " · " + shTag(list) : "") : "";
   if (list) { const g = listGapCount(list); $("#lvUpdate").textContent = g ? t("upd.btnN", { n: g }) : t("upd.btn"); }
   $("#lvAsk").hidden = $("#lvAskAll").hidden = !Queue.usable();
@@ -121,7 +130,7 @@ function folderSection(f, idx, total, isCollapsed, now) {
   if (isSharedFolder(f)) nm.append(document.createTextNode(" "), el("span", "sh-mark", "👥"));
   const fb = updBadge(folderGapCount(f));
   if (fb) nm.append(document.createTextNode(" "), fb);
-  const meta = el("div", "fd-meta", t("folders.meta", { l: lists.length, c: cards.length, d: dueCount(cards, now) }) + " · " + pairLabel(folderLangs(f))
+  const meta = el("div", "fd-meta", t("folders.meta", { l: lists.length, c: cards.length, d: dueCount(cards, now) }) + " · " + pairLabel(folderLangs(f)) + studyFolderExtra(f)
     + (isSharedFolder(f) ? " · " + shTag(f) : ""));
   tg.append(nm, meta);
   tg.addEventListener("click", () => { toggleCollapsed(f.id); renderLists(); });
@@ -154,6 +163,8 @@ function listItems(lists, now) {
     if (fl) t1.append(document.createTextNode(" "), el("span", "sh-flag", "✎ " + fl));
     m.append(t1,
       el("div", "t2", t("lists.count", { n: cards.length }) + (due ? " · " + t("lists.due", { n: due }) : "") + " · " + pairLabel(listLangs(l))));
+    const sp = studyLangsNode(l, cards, now);   // langues étudiées : à réviser / à compléter par langue (étape 37)
+    if (sp) m.appendChild(sp);
     if (isSharedList(l)) m.appendChild(el("div", "t2 sh-line", shTag(l)));
     b.appendChild(m);
     if (lv.reorder) b.appendChild(orderBtns(lists, i, lists.length));
@@ -238,9 +249,18 @@ function cardItem(c, showList) {
     });
     m.appendChild(t2);
   }
+  const stMiss = [];
+  studyExtraLangs(c.listId).forEach(L => {         // autres langues étudiées de la liste (étape 37)
+    const w = term(c, L);
+    if (!w) { stMiss.push(L); return; }
+    const t3 = el("div", "t2 study-word", L.toUpperCase() + " · " + w); t3.lang = L;
+    const p = posTag(c, L);
+    if (p) t3.appendChild(p);
+    m.appendChild(t3);
+  });
   const extra = el("div");
   if (showList) { const l = getList(c.listId); if (l) extra.appendChild(el("span", "tag", "▸ " + l.name)); }
-  const miss = missingSupport(c, lg);               // traduction manquante dans une langue d'appui (étape 31)
+  const miss = missingSupport(c, lg).concat(stMiss);  // traduction manquante dans une langue d'appui (étape 31) ou étudiée (étape 37)
   if (miss.length) extra.appendChild(el("span", "tag warn", t("card.toFill", { langs: miss.map(x => langName(x)).join(", ") })));
   shFlagTag(c, extra);
   c.tags.forEach(tg => extra.appendChild(el("span", "tag", "#" + tg)));
@@ -293,6 +313,7 @@ function initLists() {
   $("#lvRename").addEventListener("click", () => openListName(lv.listId));
   $("#lvMove").addEventListener("click", () => openMoveList(lv.listId));
   $("#lvLangs").addEventListener("click", () => { const l = getList(lv.listId); if (l) openLangEditor("list", l); });
+  $("#lvStudy").addEventListener("click", () => { if (lv.listId) openStudyLangs("list", lv.listId); });   // étape 37
   $("#lvDelete").addEventListener("click", () => confirmDeleteList(lv.listId));
   $("#lvShare").addEventListener("click", () => { const l = getList(lv.listId); if (!l) return; if (isSharedList(l)) openShareManage("list", l.id); else openShare("list", l.id); });
   $("#lvNewFolder").addEventListener("click", () => openFolderName(null));
@@ -486,6 +507,7 @@ function openFolderMenu(id) {
     roF ? null : { label: t("ai.importReply"), onClick: () => { openFxImport(); } },
     notOwner ? null : { label: t("folders.rename"), onClick: () => { openFolderName(id); } },
     notOwner ? null : { label: t("folders.langs"), onClick: () => { openLangEditor("folder", f); } },
+    { label: t("study.add"), onClick: () => { openStudyLangs("folder", id); } },   // étape 37
     { label: t(notOwner ? "sh.leaveFolder" : "folders.delete"), kind: "danger", onClick: () => { confirmDeleteFolder(id); } },
     { label: t("cancel") }
   ].filter(Boolean));
@@ -667,12 +689,13 @@ function vocabForm(c, sel) {
   const vals = Object.assign({}, c ? c.terms : {});
   const posVals = Object.assign({}, c ? c.pos : {});
   const exVals = {};                 // langue apprise → { text, tr } en cours de saisie
-  let inputs = {}, posSels = {}, exIn = null, exTrIns = {}, lg = null;
+  let inputs = {}, posSels = {}, exIn = null, exTrIns = {}, lg = null, stEx = {};
   const termsBox = el("div");
   const exBox = el("div");
+  const stBox = el("div");                 // autres langues étudiées de la liste (étape 37) : mot, nature, exemple
   const dictBox = el("div", "dict-box");   // dictionnaire commun (étape 36)
   const node = el("div");
-  node.append(dictBox, termsBox, exBox);
+  node.append(dictBox, termsBox, exBox, stBox);
   // --- Dictionnaire commun (étape 36) : carte pas encore reliée → recherche du mot tapé (en quittant le champ) ---
   // Un seul sens probable : cases vides remplies tout de suite (marquées « auto ») ; plusieurs : choix ; aucun : nouveau sens.
   const dict = { pick: null, cands: null, q: "", auto: new Set(), busy: 0 };
@@ -754,6 +777,7 @@ function vocabForm(c, sel) {
     const e = exGet(lg.target);
     e.text = exIn.value;
     Object.keys(exTrIns).forEach(k => { e.tr[k] = exTrIns[k].value; });
+    Object.keys(stEx).forEach(L => { const x = exGet(L); x.text = stEx[L].text.value; Object.keys(stEx[L].tr).forEach(k => { x.tr[k] = stEx[L].tr[k].value; }); });
   };
   const draw = () => {
     Object.keys(inputs).forEach(k => { vals[k] = inputs[k].value; });
@@ -761,10 +785,10 @@ function vocabForm(c, sel) {
     keepEx();
     termsBox.textContent = ""; inputs = {}; posSels = {};
     lg = listLangs(sel.value);
-    [lg.target].concat(lg.support).forEach((code, i) => {
+    const termRow = (box, code, i, noDict) => {
       const inp = textInput(vals[code] || "", langSample(code), code);
       inputs[code] = inp;
-      inp.addEventListener("change", () => { dictLookup(code, inp.value); });   // dictionnaire commun (étape 36)
+      if (!noDict) inp.addEventListener("change", () => { dictLookup(code, inp.value); });   // dictionnaire commun (étape 36)
       // Nature grammaticale du mot dans cette langue (abréviation de la langue + nom dans la langue de l'interface)
       const ps = el("select", "input");
       ps.setAttribute("aria-label", t("pos.label") + " (" + langName(code) + ")");
@@ -778,9 +802,10 @@ function vocabForm(c, sel) {
       const row = el("div", "term-row");
       row.append(inp, ps);
       const isAuto = !!(c && c.auto.includes("terms." + code) && (vals[code] || "").trim());   // rempli automatiquement, pas encore vérifié
-      termsBox.appendChild(i === 0 ? formField(langName(code), row, true, isAuto ? t("card.autoField") : t("card.frHint"))
+      box.appendChild(i === 0 ? formField(langName(code), row, true, isAuto ? t("card.autoField") : t("card.frHint"))
         : formField(langName(code), row, false, isAuto ? t("card.autoField") : (vals[code] || "").trim() ? "" : t("card.toFillOne")));   // case « à compléter » (étape 31)
-    });
+    };
+    [lg.target].concat(lg.support).forEach((code, i) => termRow(termsBox, code, i));
     exBox.textContent = ""; exTrIns = {};
     const e = exGet(lg.target);
     exIn = el("textarea", "input"); exIn.value = e.text; exIn.lang = lg.target; exIn.rows = 2;
@@ -789,6 +814,23 @@ function vocabForm(c, sel) {
       const inp = textInput(e.tr[code] || "", "", code);
       exTrIns[code] = inp;
       exBox.appendChild(formField(t("card.exampleTr", { lang: langName(code) }), inp));
+    });
+    // Autres langues étudiées (étape 37) : mot (et mots des langues affichées de cette langue), nature, exemple + traductions
+    stBox.textContent = ""; stEx = {};
+    studyExtraLangs(sel.value).forEach(L => {
+      const lgL = studyLg(L), sec = el("div", "study-sec");
+      sec.appendChild(el("div", "study-sec-hd", t("study.current") + " · " + langName(L)));
+      [L].concat(lgL.support).forEach(code => { if (!inputs[code]) termRow(sec, code, 1, true); });
+      const x = exGet(L), ta = el("textarea", "input");
+      ta.value = x.text; ta.lang = L; ta.rows = 2;
+      stEx[L] = { text: ta, tr: {} };
+      sec.appendChild(formField(t("card.exampleIn", { lang: langName(L) }), ta));
+      lgL.support.forEach(code => {
+        const inp = textInput(x.tr[code] || "", "", code);
+        stEx[L].tr[code] = inp;
+        sec.appendChild(formField(t("card.exampleTr", { lang: langName(code) }), inp));
+      });
+      stBox.appendChild(sec);
     });
     dictDraw();
   };

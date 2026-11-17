@@ -16,9 +16,9 @@ function pvFolderOf(listId) { const l = getList(listId); return l && l.folderId 
 // Filtre par champ : une traduction (code de langue), l'exemple (et ses traductions, étape 35), la nature (« pos » = toutes
 // les langues) ou les doublons.
 const PV_FIELDS = LANG_CODES.concat(["example", "pos", "typed", "dup"]);
-function pvFieldMatch(p, f) { return f === "pos" ? isPosField(p.field) : f === "typed" ? isTypedField(p.field) : f === "example" ? (p.field === "example" || isExTrField(p.field)) : p.field === f; }
-// Champ « généré, non validé » (c.auto) d'un champ de proposition.
-function autoKeyOf(f) { return f === "example" ? "example" : isPosField(f) ? "pos." + f.slice(4) : isExTrField(f) ? "extr." + f.slice(5) : "terms." + f; }
+function pvFieldMatch(p, f) { return f === "pos" ? isPosField(p.field) : f === "typed" ? isTypedField(p.field) : f === "example" ? (p.field === "example" || isExTrField(p.field) || isExlField(p.field) || isExltField(p.field)) : p.field === f; }
+// Champ « généré, non validé » (c.auto) d'un champ de proposition (exl / exlt : étape 37, sans marque).
+function autoKeyOf(f) { return f === "example" ? "example" : isPosField(f) ? "pos." + f.slice(4) : isExTrField(f) ? "extr." + f.slice(5) : isExlField(f) || isExltField(f) ? "" : "terms." + f; }
 // Nature affichée : « n.f. — nom féminin » (abréviation dans la langue du mot, nom dans la langue de l'interface).
 function pvPosText(code, lng) { return code ? posLabel(code, lng) + (POS_CODES.includes(code) ? " — " + t("pos." + code) : "") : ""; }
 let undoTimer = null;
@@ -33,6 +33,8 @@ function pvFieldLabel(f) {
   if (isTypedField(f)) { const k = f.slice(2); return t(k === "examples" ? "type.rule.examples" : k === "hint" ? "type.hint" : "type." + k).replace(/\s*:\s*$/, ""); }
   if (isPosField(f)) return t("pv.field.pos", { lang: langName(f.slice(4)) });
   if (isExTrField(f)) return t("card.exampleTr", { lang: langName(f.slice(5)) });
+  if (isExlField(f)) return t("study.exField", { lang: langName(f.slice(4)) });                                   // étape 37
+  if (isExltField(f)) { const x = exlParts(f); return t("study.exTrField", { lang: langName(x.L), to: langName(x.code) }); }
   return langName(f);
 }
 // Propositions sur une langue cachée (ni apprise ni affichée : displayLangs, étape 35) : gardées, mais ni affichées
@@ -40,7 +42,7 @@ function pvFieldLabel(f) {
 function liveProposals() {
   const byId = new Map(state.cards.map(c => [c.id, c]));
   const lgs = new Map();
-  const vis = c => { let x = lgs.get(c.listId); if (!x) { x = visibleLangs(cardLangs(c)); lgs.set(c.listId, x); } return x; };
+  const vis = c => { let x = lgs.get(c.listId); if (!x) { x = studyVisibleLangs(c.listId); lgs.set(c.listId, x); } return x; };   // langues étudiées comprises (étape 37)
   return state.proposals.filter(p => {
     if (p.field === "new") return !!getList(p.listId);
     const c = byId.get(p.cardId);
@@ -199,6 +201,11 @@ function pvRow(p, c) {
   const w = el("div", "pv-fr", targetTerm(c, lg) || "—"); w.lang = lg.target;
   m.append(top, w);
   if (isExTrField(p.field)) { const tx = exText(c, lg.target); if (tx) { const e = el("div", "pv-field", tx); e.lang = lg.target; m.appendChild(e); } }
+  if (isExltField(p.field) || isExlField(p.field)) {                    // langue étudiée en plus (étape 37) : mot (et exemple) dans cette langue
+    const L = exlParts(p.field).L, wd = term(c, L), tx = isExltField(p.field) ? exText(c, L) : "";
+    if (wd) { const e = el("div", "pv-field", langCodes([L]) + " · " + wd); e.lang = L; m.appendChild(e); }
+    if (tx) { const e = el("div", "pv-field", tx); e.lang = L; m.appendChild(e); }
+  }
   if (p.field === "dup") {
     const sub = supportText(c, lg);
     if (sub) m.appendChild(el("div", "pv-field", sub));
