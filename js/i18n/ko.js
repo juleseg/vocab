@@ -175,6 +175,7 @@ Object.assign(I18N.ko, {
   "account.logout": "로그아웃", "account.changePin": "PIN 바꾸기",
   "pin.title": "PIN 바꾸기", "pin.old": "현재 PIN", "pin.new": "새 PIN (숫자 4~6자리)", "pin.new2": "새 PIN 확인",
   "pin.done": "PIN이 바뀌었습니다", "pin.err.old": "현재 PIN이 올바르지 않습니다",
+  "storage.errDetail": "오류: {msg}",
   "storage.offline": "오프라인",
   "storage.info.offline": "인터넷 연결이 없습니다. 변경 내용은 이 기기에 저장되고, 연결되면 자동으로 보내집니다.",
   "save.retry": "온라인 저장에 실패했습니다. 데이터는 이 기기에 있습니다. 자동으로 다시 시도합니다.",

@@ -175,6 +175,7 @@ Object.assign(I18N.en, {
   "account.logout": "Sign out", "account.changePin": "Change PIN",
   "pin.title": "Change PIN", "pin.old": "Current PIN", "pin.new": "New PIN (4 to 6 digits)", "pin.new2": "Confirm new PIN",
   "pin.done": "PIN changed", "pin.err.old": "Wrong current PIN",
+  "storage.errDetail": "Error: {msg}",
   "storage.offline": "Offline",
   "storage.info.offline": "No connection. Changes are kept on this device and will be sent automatically when you are back online.",
   "save.retry": "Online save failed. Your data is kept on this device. Retrying automatically.",

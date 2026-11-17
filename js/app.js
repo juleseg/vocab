@@ -55,6 +55,15 @@ function renderSyncStatus(mode) {
   const infoKey = mode === "error" ? "storage.info.error" : mode === "offline" ? "storage.info.offline" : (mode === "local" ? "storage.info.local" : "storage.info.cloud");
   $("#storageInfo").textContent = t(infoKey);
 }
+// Étape 33b : toucher l'indicateur en erreur (ou hors ligne) affiche le message exact de la dernière erreur.
+function initSyncStatus() {
+  const el = $("#syncStatus");
+  el.addEventListener("click", () => {
+    const m = Storage.getMode();
+    if (m !== "error" && m !== "offline") return;
+    toast(t("storage.errDetail", { msg: Storage.getLastError() || "—" }));
+  });
+}
 
 // === ANNONCES ===
 // Étape 27, mode Supabase seulement (script supabase-etape27.sql). Au lancement (après l'ouverture des données),
@@ -166,6 +175,7 @@ function render() {
 // 3) Sans Supabase : cloud de l'artifact (sinon ce navigateur) et registre des comptes, comme avant.
 async function init() {
   initNav();
+  initSyncStatus();   // étape 33b
   initSettings();
   initLists();
   Streak.watch();   // changement de jour pendant que l'appli est ouverte (étape 28)

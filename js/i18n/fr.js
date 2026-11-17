@@ -175,6 +175,7 @@ Object.assign(I18N.fr, {
   "account.logout": "Se déconnecter", "account.changePin": "Changer de code PIN",
   "pin.title": "Changer de code PIN", "pin.old": "Code actuel", "pin.new": "Nouveau code (4 à 6 chiffres)", "pin.new2": "Confirmer le nouveau code",
   "pin.done": "Code PIN modifié", "pin.err.old": "Code actuel incorrect",
+  "storage.errDetail": "Erreur : {msg}",
   "storage.offline": "Hors ligne",
   "storage.info.offline": "Pas de connexion. Les modifications sont gardées sur cet appareil et seront envoyées automatiquement au retour de la connexion.",
   "save.retry": "L'envoi en ligne a échoué. Les données sont gardées sur cet appareil. Nouvel essai automatique.",

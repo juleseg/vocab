@@ -293,6 +293,7 @@ const Storage = (() => {
   let remoteSaved = new Map(); // clé → JSON déjà présent dans le cloud
   let localFullWarned = false;
   let beforeSaveFn = null;     // étape 30 : modifications des listes communes repérées avant chaque sauvegarde
+  let lastErr = "";            // étape 33b : dernière erreur de synchro (message court, affiché en touchant l'indicateur)
   const listeners = [];
 
   function setMode(m) { mode = m; listeners.forEach(fn => { try { fn(m); } catch (e) {} }); }
@@ -303,6 +304,12 @@ const Storage = (() => {
   // Supabase : pas de registre de comptes local (Supabase Auth s'en charge).
   function useSupabase(client) { sb = client; backend = null; setMode("cloud"); }
   function failMode() { setMode(navigator.onLine === false ? "offline" : "error"); }
+  // Message court, sans contenu de données : code / message de l'erreur, clé du morceau en cause.
+  function setErr(where, e) {
+    const m = typeof e === "string" ? e : [e && e.code, e && (e.message || e.msg), e && e.status].filter(x => x !== undefined && x !== null && x !== "").join(" ") || String(e);
+    lastErr = (where + " : " + m).slice(0, 160);
+  }
+  function getLastError() { return lastErr; }
 
   // --- Synchro : updatedAt des données en ligne à la dernière synchro réussie (null = inconnu) ---
   function getSynced() {
@@ -311,10 +318,12 @@ const Storage = (() => {
   }
   function setSynced(v) { if (userId) { try { localStorage.setItem(CONFIG.LS_SYNCED + userId, String(v)); } catch (e) {} } }
   // Les données en ligne sont identiques à data : on retient leurs morceaux (évite de tout renvoyer).
+  // Étape 33b : seulement les morceaux vraiment lus en ligne (initRemote). Un morceau qui n'existe pas encore en ligne
+  // (ex. « streak » ajouté par la migration v3 → v4) reste à envoyer : l'index ne doit jamais citer un morceau absent.
   function markSynced(data) {
     if (!userId) return;
-    const { pieces, index } = split(data);
-    remoteSaved = new Map(pieces); remoteSaved.set(pre() + "index", index);
+    const { pieces, index } = split(data), known = remoteSaved;
+    remoteSaved = new Map(Array.from(pieces).filter(([k]) => known.has(k))); remoteSaved.set(pre() + "index", index);
     setSynced(data.updatedAt);
   }
   // « Garder les données de cet appareil » : tout renvoyer et supprimer les morceaux en ligne en trop.
@@ -497,9 +506,11 @@ const Storage = (() => {
     };
     const ids = [];
     let missing = 0;
+    const lost = [];
     arr(idx.keys).forEach(k => {
       const v = getPiece(k);
-      if (v === undefined) { missing++; return; }
+      // « streak » absent (étape 33b) : pas bloquant, la série est recalculée depuis history (comme en v3) puis renvoyée.
+      if (v === undefined) { if (k !== P + "streak") { missing++; lost.push(k.slice(P.length)); } return; }
       if (k.startsWith(P + "cards:")) { out.cards.push(...arr(v.cards)); Object.assign(out.checkedSig, v.sig || {}); }
       else if (k.startsWith(P + "proposals:")) out.proposals.push(...arr(v));
       else if (k.startsWith(P + "resume:")) ids.push(...arr(v));
@@ -509,14 +520,14 @@ const Storage = (() => {
       }
     });
     if (s.aiResume && s.aiResume.kind) out.aiResume = { kind: s.aiResume.kind, ids };
-    return { data: out, missing };
+    return { data: out, missing, lost };
   }
 
   // --- Compte connecté ---
   // sbUid : identifiant Supabase (auth.uid()) du compte, en mode Supabase.
   function setUser(id, sbUid) {
     clearTimeout(timer); timer = null; lastData = null; held = false;
-    clearTimeout(retryTimer); retryTimer = null; failWarned = false; conflictOpen = false; remoteOk = false;
+    clearTimeout(retryTimer); retryTimer = null; failWarned = false; conflictOpen = false; remoteOk = false; lastErr = "";
     localSaved = new Map(); remoteSaved = new Map(); localFullWarned = false;
     userId = id || null;
     if (!userId) remote = null;
@@ -614,8 +625,8 @@ const Storage = (() => {
           }
         }
         if (userId !== id) return null;
-        const { data, missing } = assemble(idx, k => got.has(k) ? JSON.parse(got.get(k)) : undefined);
-        if (missing) throw new Error("incomplete");
+        const { data, missing, lost } = assemble(idx, k => got.has(k) ? JSON.parse(got.get(k)) : undefined);
+        if (missing) throw new Error("incomplete (" + lost.slice(0, 3).join(", ") + ")");
         remoteSaved = new Map(Array.from(got).filter(([k]) => k === P + "index" || keys.includes(k)));
         remoteOk = true;
         setMode("cloud");
@@ -628,7 +639,7 @@ const Storage = (() => {
       setMode("cloud");
       return looksLikeAppData(old) ? { data: old, old: true, keys: [] } : undefined;
     } catch (e) {
-      if (userId === id) { remoteOk = false; failMode(); scheduleRetry(); }
+      if (userId === id) { remoteOk = false; setErr("lecture", e); failMode(); scheduleRetry(); }
       return null;
     }
   }
@@ -644,7 +655,7 @@ const Storage = (() => {
     const idxChanged = remoteSaved.get(P + "index") !== index;
     const gone = Array.from(remoteSaved.keys()).filter(k => k !== P + "index" && !pieces.has(k));
     if (!todo.length && !idxChanged && !gone.length) { if (mode !== "cloud") setMode("cloud"); return true; }
-    if (todo.some(([, json]) => byteLen(json) > CONFIG.MAX_DOC_BYTES)) { setMode("error"); toast(t("save.tooBig")); syncErr("too big"); return false; }
+    if (todo.some(([, json]) => byteLen(json) > CONFIG.MAX_DOC_BYTES)) { setErr("envoi", "too big"); setMode("error"); toast(t("save.tooBig")); syncErr("too big"); return false; }
     try {
       setMode("syncing");
       const S = getSynced();
@@ -654,6 +665,7 @@ const Storage = (() => {
         const r = rIdx ? num(JSON.parse(rIdx).updatedAt, 0) : 0;
         if (r > S && r !== lastData.updatedAt) {            // modifié ailleurs depuis la dernière synchro
           conflictOpen = true;
+          setErr("envoi", "conflict");
           setMode("error");
           if (onConflictFn) setTimeout(() => { try { onConflictFn(); } catch (e) {} }, 0);
           return false;
@@ -673,6 +685,7 @@ const Storage = (() => {
       return true;
     } catch (e) {
       if (userId === id) {
+        setErr("envoi", e);
         failMode();
         if (navigator.onLine !== false && sbErrKind(e) !== "net") syncErr((e && (e.code || e.message)) || e);   // journal (pas « hors ligne »)
         if (!failWarned && navigator.onLine !== false) { failWarned = true; toast(t("save.retry")); }
@@ -701,7 +714,7 @@ const Storage = (() => {
     lastData = data;
     if (held) return true;
     const ok = writeLocal(data);
-    if (!ok) { setMode("error"); if (!localFullWarned) { localFullWarned = true; toast(t("save.localFull")); } }
+    if (!ok) { setErr("appareil", "localStorage full"); setMode("error"); if (!localFullWarned) { localFullWarned = true; toast(t("save.localFull")); } }
     else localFullWarned = false;
     if (remote) {
       clearTimeout(timer);
@@ -716,7 +729,7 @@ const Storage = (() => {
     lastData = data;
     clearTimeout(timer); timer = null;
     const local = writeLocal(data);
-    if (!local) { setMode("error"); return { local: false, remote: false }; }
+    if (!local) { setErr("appareil", "localStorage full"); setMode("error"); return { local: false, remote: false }; }
     const r = (remote && remoteOk) ? await flush() : true;  // en ligne pas encore relu : envoi plus tard
     return { local: true, remote: r };
   }
@@ -738,7 +751,7 @@ const Storage = (() => {
     connect, isCloud, isSupabase, useSupabase, onMode, getMode,
     loadAccounts, saveAccounts, readLegacy, readLegacyLocal, getSession, setSession,
     setUser, getUser, hold, release, readLocal, writeLocal, dropOldLocal, initRemote, save, saveNow, flushNow, flushWait,
-    getSynced, markSynced, forceFullPush, onConflict, onRetryInit, onSyncError, setConflictOpen, packRows, unpackRows, onBeforeSave
+    getSynced, markSynced, forceFullPush, onConflict, onRetryInit, onSyncError, setConflictOpen, packRows, unpackRows, onBeforeSave, getLastError
   };
 })();
 
