@@ -15,9 +15,11 @@
 // - Notification touchée : sw.js ouvre l'appli sur ?n=<id>#écran (ou envoie un message à l'onglet ouvert) ;
 //   l'appli enregistre le clic (push_mark_clicked) puis retire ?n= de l'adresse.
 // - Bandeau unique après la première session terminée (vocabfr.push:offered:<identifiant>).
+// - Étape 34 : événements pour les notifications automatiques (PushEvents : palier de série atteint, gel utilisé),
+//   envoyés au serveur par push_event ; variable {ami} (demande d'ami, invitation de partage).
 const PUSH_CATS = ["reminders", "streak", "friends", "announcements"];
 const PUSH_SCREENS = ["home", "review", "lists", "pending", "stats", "friends"];
-const PUSH_VARS = ["identifiant", "serie", "record", "objectif", "a_reviser", "a_valider", "jours_inactif"];
+const PUSH_VARS = ["identifiant", "serie", "record", "objectif", "a_reviser", "a_valider", "jours_inactif", "ami"];
 const PUSH_FALLBACK = ["fr", "en", "ko"];   // même ordre de repli que les annonces et la fonction send-push
 const PUSH_FN = "send-push";
 
@@ -246,6 +248,7 @@ const Push = (() => {
     if (!on()) return;
     refresh();
     if (pendingClick) { const id = pendingClick; pendingClick = null; markClicked(id); }
+    PushEvents.flush();
   }
   // Déconnexion : cet appareil ne reçoit plus les notifications de ce compte.
   async function end() {
@@ -284,6 +287,56 @@ const Push = (() => {
   };
 })();
 Push.listen();
+
+// === ÉVÉNEMENTS POUR LES NOTIFICATIONS AUTOMATIQUES (étape 34) ===
+// Palier de série atteint (badge 7 / 30 / 100 / 365) et gel utilisé (jour gelé) : envoyés au serveur (push_event),
+// qui décide d'envoyer ou non une notification (règles automatiques de l'admin). File locale par compte
+// (vocabfr.push:events:<identifiant>, 20 au maximum), envoyée au lancement et dès qu'un événement arrive ; hors ligne :
+// gardée et renvoyée plus tard. Jamais d'erreur visible. Script de l'étape 34 absent : file vidée, rien n'est envoyé.
+const PushEvents = (() => {
+  let busy = false, missing = false;
+  function key() { return CONFIG.LS_USER_PREFIX + "push:events:" + (Storage.getUser() || ""); }
+  function load() { try { const v = JSON.parse(localStorage.getItem(key()) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+  function store(q) { try { if (q.length) localStorage.setItem(key(), JSON.stringify(q.slice(-20))); else localStorage.removeItem(key()); } catch (e) {} }
+  function add(kind, ref) {
+    if (auth.mode !== "supabase" || !Storage.getUser() || missing) return;
+    const q = load();
+    if (!q.some(x => x.kind === kind && x.ref === ref)) { q.push({ kind, ref }); store(q); }
+  }
+  // Événements de Streak (leitner.js) : { k: "badge", days } et { k: "frozen", day } (2 derniers jours seulement).
+  function fromStreak(ev) {
+    try {
+      const old = skAdd(todayStr(), -2);
+      let n = 0;
+      arr(ev).forEach(e => {
+        if (e && e.k === "badge" && STREAK_BADGES.includes(e.days)) { add("streak_milestone", String(e.days)); n++; }
+        else if (e && e.k === "frozen" && skDay(e.day) && e.day >= old) { add("freeze_used", e.day); n++; }
+      });
+      if (n) flush();
+    } catch (e) {}
+  }
+  async function flush() {
+    if (busy || missing || !Push.on()) return;
+    busy = true;
+    try {
+      let q = load();
+      while (q.length) {
+        const ev = q[0];
+        try {
+          const r = await withTimeout(Supa.client().rpc("push_event", { p_kind: ev.kind, p_ref: ev.ref }), 15000);
+          if (r && r.error) throw r.error;
+        } catch (e) {
+          if (pushIsMissing(e)) { missing = true; store([]); return; }
+          if (sbErrKind(e) === "net" || String((e && e.message) || "") === "timeout") return;   // plus tard
+          // Autre erreur (événement refusé, compte bloqué) : événement abandonné.
+        }
+        q = load().filter(x => !(x.kind === ev.kind && x.ref === ev.ref));
+        store(q);
+      }
+    } finally { busy = false; }
+  }
+  return { fromStreak, flush };
+})();
 
 // Réglages → Notifications.
 function renderPushCard() {

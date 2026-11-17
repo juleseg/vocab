@@ -164,10 +164,12 @@ const Streak = (() => {
     lastDay = today;
     const before = JSON.stringify(s);
     streakApplyAdj(s, today).forEach(a => notices.push({ k: "adj", a }));
-    notices.push(...streakRoll(s, today));
+    const rolled = streakRoll(s, today);
+    notices.push(...rolled);
     const ev = streakValidate(s, today, reviewedOn(today), goal());
     if (JSON.stringify(s) !== before) commit();
     celebrate(ev);
+    skPushEvents(rolled.concat(ev));
     if (show) showNotices();
     Friends.publish();   // série, objectif du jour, semaine : résumé public pour mes amis (étape 29)
   }
@@ -175,8 +177,11 @@ const Streak = (() => {
   function onReview(day) {
     const s = data();
     lastDay = todayStr();
-    notices.push(...streakRoll(s, day));
-    celebrate(streakValidate(s, day, reviewedOn(day), goal()));
+    const rolled = streakRoll(s, day);
+    notices.push(...rolled);
+    const ev = streakValidate(s, day, reviewedOn(day), goal());
+    celebrate(ev);
+    skPushEvents(rolled.concat(ev));
   }
   function celebrate(ev) {
     if (!ev.length) return;
@@ -227,6 +232,10 @@ const Streak = (() => {
   function reset() { notices = []; lastDay = null; }
   return { goal, reviewedOn, data, doneToday, tick, onReview, showNotices, watch, reset };
 })();
+// Palier atteint, gel utilisé → événements pour les notifications automatiques (étape 34, js/notifications.js).
+function skPushEvents(ev) {
+  try { if (ev.length && typeof PushEvents !== "undefined") PushEvents.fromStreak(ev); } catch (e) {}
+}
 function badgeIcon(days) { return days >= 365 ? "👑" : days >= 100 ? "🏆" : days >= 30 ? "🥇" : "🏅"; }
 
 // === LEITNER ===
