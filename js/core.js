@@ -41,7 +41,7 @@ const CONFIG = {
   PV_CHUNK: 200          // « À valider » : propositions acceptées / refusées par paquet
 };
 // Numéro de la dernière étape réalisée : affiché en bas des Réglages, envoyé au journal d'activité et dans la fiche appareil.
-const APP_VERSION = "35";
+const APP_VERSION = "36";
 
 // === I18N ===
 // Textes de l'interface : un fichier par langue (js/i18n/ko.js, fr.js, en.js), chargés après languages.js.
@@ -151,7 +151,8 @@ const Wake = (() => {
   };
 })();
 
-// Bandeau(x) en haut de l'écran : complétion interrompue (state.aiResume) et Accepter / Refuser interrompu (pvJobSaved()).
+// Bandeau(x) en haut de l'écran : complétion interrompue (state.aiResume), Accepter / Refuser interrompu (pvJobSaved())
+// et liaison au dictionnaire commun en pause (étape 36).
 function renderResumeBars() {
   const box = $("#resumeBars");
   if (!box) return;
@@ -181,6 +182,7 @@ function renderResumeBars() {
         () => { box.textContent = ""; pvRun(pj.kind, pj.ids, pj.edits || {}, null); },
         () => { pvJobStore(null); renderResumeBars(); toast(t("rs.dropped")); });
     }
+    Dict.resumeBar(box);   // liaison au dictionnaire commun en pause (étape 36)
   } catch (e) { box.textContent = ""; }
 }
 

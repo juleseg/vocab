@@ -647,7 +647,10 @@ function openCardEditor(cardId, listId) {
       r.added.forEach(id => { const x = state.cards.find(y => y.id === id); if (x) per[x.listId] = (per[x.listId] || 0) + 1; });
       Object.keys(per).forEach(l => Activity.cardsAdded(l, per[l]));
     }
-    if (r.added && r.added.length && type === "vocab") offerCompletion(r.added); // champs vides : proposer de les compléter
+    // Dictionnaire commun (étape 36) : liaison de la carte (sens choisi, sinon recherche), puis proposition de complétion
+    const linkIds = type === "vocab" ? (r.added && r.added.length ? r.added : r.link || []) : [];
+    const afterDict = linkIds.length ? Dict.afterAdd(linkIds, r.dict) : Promise.resolve();
+    if (r.added && r.added.length && type === "vocab") afterDict.then(() => offerCompletion(r.added)); // champs vides : proposer de les compléter
     if (r.msg) toast(r.msg);
   };
   openModal(t(c ? "card.editTitle" : "card.newTitle"), wrap, c
@@ -667,8 +670,84 @@ function vocabForm(c, sel) {
   let inputs = {}, posSels = {}, exIn = null, exTrIns = {}, lg = null;
   const termsBox = el("div");
   const exBox = el("div");
+  const dictBox = el("div", "dict-box");   // dictionnaire commun (étape 36)
   const node = el("div");
-  node.append(termsBox, exBox);
+  node.append(dictBox, termsBox, exBox);
+  // --- Dictionnaire commun (étape 36) : carte pas encore reliée → recherche du mot tapé (en quittant le champ) ---
+  // Un seul sens probable : cases vides remplies tout de suite (marquées « auto ») ; plusieurs : choix ; aucun : nouveau sens.
+  const dict = { pick: null, cands: null, q: "", auto: new Set(), busy: 0 };
+  const canDict = () => Dict.on() && !(c && c.senseId);
+  const formVals = () => {
+    const o = {};
+    Object.keys(inputs).forEach(k => { const v = inputs[k].value.trim(); if (v) o["w:" + k] = v; });
+    Object.keys(vals).forEach(k => { if (!inputs[k] && isLang(k) && String(vals[k] || "").trim()) o["w:" + k] = String(vals[k]).trim(); });
+    return o;
+  };
+  const dictDraw = () => {
+    dictBox.textContent = "";
+    if (c && c.senseId) { dictBox.appendChild(el("p", "hint dict-hint", t("dict.edLinked"))); return; }
+    if (!canDict()) return;
+    if (dict.busy) { dictBox.appendChild(el("p", "hint dict-hint", t("dict.edSearching"))); return; }
+    if (dict.pick === "new") { dictBox.appendChild(el("p", "hint dict-hint", t("dict.edNone"))); return; }
+    if (dict.pick && dict.pick.id) {
+      dictBox.appendChild(el("p", "hint dict-hint", t("dict.edFound")));
+      dictBox.appendChild(dictSenseNode(dict.pick, [lg.target].concat(lg.support), dict.q.split("|")[0]));
+      if (dict.cands && dict.cands.length > 1) {
+        const b = el("button", "link-btn", t("dict.edChange")); b.type = "button";
+        b.addEventListener("click", () => { dict.pick = null; dictDraw(); });
+        dictBox.appendChild(b);
+      }
+      return;
+    }
+    if (dict.cands && dict.cands.length) {
+      dictBox.appendChild(el("p", "hint dict-hint", t("dict.edMany")));
+      const qL = dict.q.split("|")[0];
+      dict.cands.forEach(s => {
+        const b = el("button", "btn dict-opt"); b.type = "button";
+        b.appendChild(dictSenseNode(s, [lg.target].concat(lg.support), qL));
+        b.addEventListener("click", () => dictApply(s));
+        dictBox.appendChild(b);
+      });
+      const bn = el("button", "btn dict-opt dict-new", t("dict.newSense")); bn.type = "button";
+      bn.addEventListener("click", () => { dict.pick = "new"; dictDraw(); });
+      dictBox.appendChild(bn);
+    }
+  };
+  // Sens choisi : cases vides du formulaire remplies avec les valeurs du commun.
+  const dictApply = s => {
+    dict.pick = s;
+    const v = s.vals || {};
+    [lg.target].concat(lg.support).forEach(code => {
+      const x = v[code] || {};
+      if (inputs[code] && !inputs[code].value.trim() && x.w) { inputs[code].value = x.w; dict.auto.add("w:" + code); }
+      const ps = posSels[code];
+      if (ps && !ps.value && x.p && [...ps.options].some(o => o.value === x.p)) { ps.value = x.p; dict.auto.add("p:" + code); }
+    });
+    const xt = v[lg.target] || {};
+    if (exIn && !exIn.value.trim() && xt.e) { exIn.value = xt.e; dict.auto.add("e:" + lg.target); }
+    Object.keys(exTrIns).forEach(code => {
+      const tr = xt.t && xt.t[code];
+      if (tr && !exTrIns[code].value.trim()) { exTrIns[code].value = tr; dict.auto.add("t:" + lg.target + ":" + code); }
+    });
+    dictDraw();
+  };
+  const dictLookup = async (code, w) => {
+    w = String(w || "").trim();
+    if (!canDict() || !w) return;
+    if (dict.pick && dict.pick.id && code !== lg.target && dict.q.split("|")[0] !== code) return;   // déjà relié : autre langue tapée, rien à chercher
+    const q = code + "|" + dictNorm(w);
+    if (q === dict.q) return;
+    dict.q = q; dict.busy++; dictDraw();
+    const res = await Dict.search(code, w);
+    dict.busy--;
+    if (dict.q !== q) return;                      // autre recherche lancée entre-temps
+    if (res === null) { dict.q = ""; dictDraw(); return; }   // hors connexion : liaison à l'enregistrement
+    dict.cands = res; dict.pick = null;
+    const d = dictDecide(formVals(), res, code);
+    if (d === "new") dict.pick = "new";
+    else if (d && d.id) dictApply(d);
+    dictDraw();
+  };
   const exGet = code => { if (!exVals[code]) { const e = c ? exEntry(c, code) : null; exVals[code] = { text: e ? e.text : "", tr: Object.assign({}, e ? e.tr : {}) }; } return exVals[code]; };
   const keepEx = () => {
     if (!lg || !exIn) return;
@@ -685,6 +764,7 @@ function vocabForm(c, sel) {
     [lg.target].concat(lg.support).forEach((code, i) => {
       const inp = textInput(vals[code] || "", langSample(code), code);
       inputs[code] = inp;
+      inp.addEventListener("change", () => { dictLookup(code, inp.value); });   // dictionnaire commun (étape 36)
       // Nature grammaticale du mot dans cette langue (abréviation de la langue + nom dans la langue de l'interface)
       const ps = el("select", "input");
       ps.setAttribute("aria-label", t("pos.label") + " (" + langName(code) + ")");
@@ -697,8 +777,9 @@ function vocabForm(c, sel) {
       posSels[code] = ps;
       const row = el("div", "term-row");
       row.append(inp, ps);
-      termsBox.appendChild(i === 0 ? formField(langName(code), row, true, t("card.frHint"))
-        : formField(langName(code), row, false, (vals[code] || "").trim() ? "" : t("card.toFillOne")));   // case « à compléter » (étape 31)
+      const isAuto = !!(c && c.auto.includes("terms." + code) && (vals[code] || "").trim());   // rempli automatiquement, pas encore vérifié
+      termsBox.appendChild(i === 0 ? formField(langName(code), row, true, isAuto ? t("card.autoField") : t("card.frHint"))
+        : formField(langName(code), row, false, isAuto ? t("card.autoField") : (vals[code] || "").trim() ? "" : t("card.toFillOne")));   // case « à compléter » (étape 31)
     });
     exBox.textContent = ""; exTrIns = {};
     const e = exGet(lg.target);
@@ -709,6 +790,7 @@ function vocabForm(c, sel) {
       exTrIns[code] = inp;
       exBox.appendChild(formField(t("card.exampleTr", { lang: langName(code) }), inp));
     });
+    dictDraw();
   };
   draw();
   const save = tagList => {
@@ -726,17 +808,30 @@ function vocabForm(c, sel) {
     const examples = normExamples(exs);
     const exT = examples[lg.target] ? examples[lg.target].text : "";
     if (c) {
+      const snap = Dict.track(c);                    // dictionnaire commun (étape 36) : cases modifiées → commun
       // Champ modifié à la main : il n'est plus « généré, non validé »
       c.auto = c.auto.filter(a => !(a.startsWith("terms.") && (terms[a.slice(6)] || "") !== (c.terms[a.slice(6)] || "")) && !(a === "example" && exT !== exText(c, lg.target))
         && !(a.startsWith("extr.") && ((examples[lg.target] || { tr: {} }).tr[a.slice(5)] || "") !== exTr(c, lg.target, a.slice(5)))
         && !(a.startsWith("pos.") && (pos[a.slice(4)] || "") !== ((c.pos || {})[a.slice(4)] || "")));
       c.listId = sel.value; c.terms = terms; c.pos = pos;
       c.examples = examples; c.example = exT; c.tags = tagList;
-      return { added: [] };
+      Dict.changed(c, snap);
+      // Carte pas encore reliée : sens choisi dans le formulaire (ou recherche) appliqué après l'enregistrement
+      return { added: [], link: c.senseId ? [] : [c.id], dict: dictOpts(c.id) };
     }
     const nc = newCard(sel.value, terms, examples, tagList, pos, lg.target);
     state.cards.push(nc);
-    return { added: [nc.id] };
+    return { added: [nc.id], dict: dictOpts(nc.id) };
+  };
+  // Choix fait dans le formulaire (sens ou « nouveau sens ») et cases remplies depuis le commun (marquées « auto »).
+  const dictOpts = id => {
+    const o = {};
+    if (dict.pick) o.picks = new Map([[id, dict.pick]]);
+    if (dict.auto.size) {
+      const keep = new Set([...dict.auto].filter(k => { const p = k.split(":"); return p[0] === "w" ? !!vals[p[1]] : true; }));
+      o.auto = new Map([[id, keep]]);
+    }
+    return o;
   };
   return { node, redraw: draw, save };
 }

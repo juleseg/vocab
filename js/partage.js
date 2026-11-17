@@ -960,8 +960,10 @@ function shAcceptInto(x, folderId) {
     if (x.kind === "copy") {
       if (!state.lists.some(l => l.copiedFrom === x.id)) {
         const payload = await Shared.rpc("share_invite_payload", { p_id: x.id });
+        const before = new Set(state.cards.map(c => c.id));
         shAddCopy(payload || {}, x, folderId);
         commit();
+        Dict.afterAdd(state.cards.filter(c => !before.has(c.id)).map(c => c.id));   // dictionnaire commun (étape 36)
       }
       await Shared.rpc("share_invite_answer", { p_id: x.id, p_accept: true, p_folder: null });
     } else {

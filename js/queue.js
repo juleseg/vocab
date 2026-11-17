@@ -286,6 +286,7 @@ function queueCardRows(kind, cards, want, label) {
 // Envoi d'une demande complete / verify. want : champs demandés par carte (complétion), null = champs vides.
 async function queueSubmitCards(kind, cards, want, label) {
   cards = cards.filter(isVocab);
+  if (kind === "complete") await Dict.fillFromCommon(cards);   // dictionnaire commun d'abord (étape 36)
   if (kind === "complete") cards = cards.filter(c => (want || missingFields)(c).length);
   if (!cards.length) { toast(t(kind === "complete" ? "ai.nothingToComplete" : "ai.noCards")); return; }
   const rows = queueCardRows(kind, cards, want, label);

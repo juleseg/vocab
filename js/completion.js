@@ -347,6 +347,7 @@ async function startCompletion(ids, want, fromResume) {
   const cats = fromResume ? updResumeCats() : null;
   if (cats) want = updWant(cats);
   const set = ids ? new Set(ids) : null;
+  await Dict.fillFromCommon(state.cards.filter(c => isVocab(c) && (!set || set.has(c.id))));   // d'abord le dictionnaire commun (étape 36)
   const cards = state.cards.filter(c => (!set || set.has(c.id)) && (want ? want(c) : missingFields(c)).length);
   if (!cards.length) { toast(t("ai.nothingToComplete")); return; }
   if (AI.isOn()) await runAiJob("complete", cards, { want, resumeCats: cats });
@@ -826,7 +827,9 @@ async function fxDeliver(files, mode) {
 }
 
 // Fenêtre « Télécharger le fichier pour Claude ». scope : "all" | "folder:<id>" | "list:<id>".
-function openFxExport(scope) {
+function openFxExport(scope, dictDone) {
+  // Dictionnaire commun d'abord (étape 36) : le fichier ne contient que ce qui manque encore.
+  if (!dictDone && Dict.on()) { Dict.fillFromCommon(fxScopeCards(scope || "all")).then(() => openFxExport(scope, true)); return; }
   const o = { scope: scope || "all", choice: { tr: true, pos: true, example: true, other: true } };
   const wrap = el("div");
   wrap.appendChild(el("p", "muted", t("fx.help")));
@@ -1611,6 +1614,7 @@ async function openUpdate(scope) {
   const cards = updScopeCards(scope);
   if (!cards.length) { toast(t("ai.noCards")); return; }
   await AI.ready();
+  await Dict.fillFromCommon(cards);   // dictionnaire commun d'abord (étape 36) : le bilan ne compte que ce qui manque encore
   const a = analyzeUpdate(cards);
   const checked = new Set();
   const wrap = el("div");

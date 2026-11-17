@@ -567,7 +567,8 @@ async function runBulkImport(opts, r, nReplace, lg) {
         state.cards.push(nc); batchIds.push(nc.id); nAdd++;
       } else if (row.card) {
         const c = row.card;
-        undo.push([c, { terms: Object.assign({}, c.terms), pos: Object.assign({}, c.pos), examples: c.examples, example: c.example, tags: c.tags }]);
+        undo.push([c, { terms: Object.assign({}, c.terms), pos: Object.assign({}, c.pos), examples: c.examples, example: c.example, tags: c.tags, own: c.own }]);
+        const snap = Dict.track(c);                     // dictionnaire commun (étape 36)
         // Colonnes importées : remplacent le contenu existant ; progression conservée
         row.set.forEach(k => {
           if (isLang(k)) { if (row.terms[k]) c.terms[k] = row.terms[k]; else delete c.terms[k]; }
@@ -575,6 +576,7 @@ async function runBulkImport(opts, r, nReplace, lg) {
           else if (isPosField(k)) { const code = k.slice(4); c.pos = Object.assign({}, c.pos); if (row.pos[code]) c.pos[code] = row.pos[code]; else delete c.pos[code]; }
           else { const p = k.split(":"), e = row.ex[p[1]] || { text: "", tr: {} }; setExPart(c, p[1], p[2] || null, p[2] ? e.tr[p[2]] : e.text, p[1] === lg.target); }
         });
+        Dict.changed(c, snap);                          // valeurs remplacées : commun rempli ou proposition
         nRep++;
       } else {
         const nc = newCard(listId, row.terms, normExamples(row.ex), row.tags, row.pos, lg.target);
@@ -617,8 +619,10 @@ async function runBulkImport(opts, r, nReplace, lg) {
   }
   if (stop) {
     openModal(t("bulk.stopTitle"), el("p", null, t(stop.key, { n: added + replaced, line: stop.line })), [{ label: t("close"), kind: "primary" }]);
+    Dict.afterAdd(addedIds);                    // dictionnaire commun (étape 36) : cartes déjà importées
     return;
   }
   toast(t("bulk.done", { n: added, m: replaced }));
-  offerCompletion(addedIds); // champs vides : proposer de les compléter
+  // Dictionnaire commun (étape 36) : cartes reliées (cases vides remplies tout de suite), puis complétion proposée
+  Dict.afterAdd(addedIds).then(() => offerCompletion(addedIds)); // champs vides : proposer de les compléter
 }

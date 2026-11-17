@@ -98,7 +98,7 @@ function renderAdmin() {
   root.appendChild(top);
   // Autres écrans de l'administration
   const nav = el("div", "dash-nav");
-  [["dash.accounts", "adminacc"], ["aq.open", "adminreq"], ["al.open", "adminlog"], ["an.open", "adminann"], ["tp.open", "admintpl"], ["np.open", "adminpush"]].forEach(([k, scr]) => {
+  [["dash.accounts", "adminacc"], ["aq.open", "adminreq"], ["al.open", "adminlog"], ["an.open", "adminann"], ["tp.open", "admintpl"], ["np.open", "adminpush"], ["dict.open", "admindict"]].forEach(([k, scr]) => {
     const b = el("button", "btn", t(k));
     b.type = "button";
     b.addEventListener("click", () => { location.hash = "#" + HASH_OF[scr]; });

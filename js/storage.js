@@ -117,7 +117,14 @@ function normalizeCard(c) {
     dueAt: num(c.dueAt, Date.now()),
     stats: { seen: num(st.seen, 0), correct: num(st.correct, 0), wrong: num(st.wrong, 0), lastSeen: num(st.lastSeen, null) }
   };
-  if (type === "vocab") { out.examples = normExamples(c.examples); return out; }   // étape 35 (fiche de règle : examples = liste)
+  if (type === "vocab") {
+    out.examples = normExamples(c.examples);                                         // étape 35 (fiche de règle : examples = liste)
+    // Dictionnaire commun (étape 36) : sens relié et cases « version perso » ; absents si la carte n'est pas reliée.
+    if (typeof c.senseId === "string" && /^[0-9a-f-]{36}$/i.test(c.senseId)) out.senseId = c.senseId;
+    const own = [...new Set(arr(c.own).filter(k => typeof k === "string" && /^[wpet]:[a-z]/.test(k)))].slice(0, 200);
+    if (out.senseId && own.length) out.own = own;
+    return out;
+  }
   return Object.assign(out, normTypedFields(type, c));
 }
 

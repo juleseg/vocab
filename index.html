@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vocab</title>
-<link rel="stylesheet" href="css/app.css?v=35">
+<link rel="stylesheet" href="css/app.css?v=36">
 <!-- === PWA (appli installable) === -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2f5bd3">
@@ -110,6 +110,8 @@
     <section class="screen" id="screen-admintpl"></section>
     <!-- Notifications push (admin, étape 32) -->
     <section class="screen" id="screen-adminpush"></section>
+    <!-- Dictionnaire commun (admin, étape 36) -->
+    <section class="screen" id="screen-admindict"></section>
 
     <section class="screen" id="screen-settings">
       <div class="card">
@@ -195,40 +197,42 @@
 <!-- Configuration Supabase (fichier séparé, absent dans Claude : l'appli passe alors au stockage de l'artifact ou du navigateur) -->
 <script src="config.js"></script>
 <!-- Scripts de l'appli, dans l'ordre (scripts classiques, sans build). -->
-<script src="js/core.js?v=35"></script>
-<script src="js/languages.js?v=35"></script>
-<script src="js/i18n/ko.js?v=35"></script>
-<script src="js/i18n/fr.js?v=35"></script>
-<script src="js/i18n/en.js?v=35"></script>
-<script src="js/storage.js?v=35"></script>
-<script src="js/cards.js?v=35"></script>
-<script src="js/auth.js?v=35"></script>
-<script src="js/leitner.js?v=35"></script>
-<script src="js/modes/cartes.js?v=35"></script>
-<script src="js/modes/ecrit.js?v=35"></script>
-<script src="js/modes/interrogateur.js?v=35"></script>
-<script src="js/modes/tableau.js?v=35"></script>
-<script src="js/screens/accueil.js?v=35"></script>
-<script src="js/screens/reviser.js?v=35"></script>
-<script src="js/screens/listes.js?v=35"></script>
-<script src="js/screens/stats.js?v=35"></script>
-<script src="js/screens/reglages.js?v=35"></script>
-<script src="js/screens/a-valider.js?v=35"></script>
-<script src="js/screens/amis.js?v=35"></script>
-<script src="js/screens/admin.js?v=35"></script>
-<script src="js/screens/admin-dashboard.js?v=35"></script>
-<script src="js/screens/admin-demandes.js?v=35"></script>
-<script src="js/screens/admin-journal.js?v=35"></script>
-<script src="js/screens/admin-fiche.js?v=35"></script>
-<script src="js/screens/admin-comptes.js?v=35"></script>
-<script src="js/screens/admin-notifications.js?v=35"></script>
-<script src="js/partage.js?v=35"></script>
-<script src="js/import.js?v=35"></script>
-<script src="js/completion.js?v=35"></script>
-<script src="js/queue.js?v=35"></script>
-<script src="js/activity.js?v=35"></script>
-<script src="js/audio.js?v=35"></script>
-<script src="js/notifications.js?v=35"></script>
-<script src="js/app.js?v=35"></script>
+<script src="js/core.js?v=36"></script>
+<script src="js/languages.js?v=36"></script>
+<script src="js/i18n/ko.js?v=36"></script>
+<script src="js/i18n/fr.js?v=36"></script>
+<script src="js/i18n/en.js?v=36"></script>
+<script src="js/storage.js?v=36"></script>
+<script src="js/cards.js?v=36"></script>
+<script src="js/auth.js?v=36"></script>
+<script src="js/leitner.js?v=36"></script>
+<script src="js/modes/cartes.js?v=36"></script>
+<script src="js/modes/ecrit.js?v=36"></script>
+<script src="js/modes/interrogateur.js?v=36"></script>
+<script src="js/modes/tableau.js?v=36"></script>
+<script src="js/screens/accueil.js?v=36"></script>
+<script src="js/screens/reviser.js?v=36"></script>
+<script src="js/screens/listes.js?v=36"></script>
+<script src="js/screens/stats.js?v=36"></script>
+<script src="js/screens/reglages.js?v=36"></script>
+<script src="js/screens/a-valider.js?v=36"></script>
+<script src="js/screens/amis.js?v=36"></script>
+<script src="js/screens/admin.js?v=36"></script>
+<script src="js/screens/admin-dashboard.js?v=36"></script>
+<script src="js/screens/admin-demandes.js?v=36"></script>
+<script src="js/screens/admin-journal.js?v=36"></script>
+<script src="js/screens/admin-fiche.js?v=36"></script>
+<script src="js/screens/admin-comptes.js?v=36"></script>
+<script src="js/screens/admin-notifications.js?v=36"></script>
+<script src="js/screens/admin-dictionnaire.js?v=36"></script>
+<script src="js/partage.js?v=36"></script>
+<script src="js/import.js?v=36"></script>
+<script src="js/completion.js?v=36"></script>
+<script src="js/queue.js?v=36"></script>
+<script src="js/dictionary.js?v=36"></script>
+<script src="js/activity.js?v=36"></script>
+<script src="js/audio.js?v=36"></script>
+<script src="js/notifications.js?v=36"></script>
+<script src="js/app.js?v=36"></script>
 </body>
 </html>

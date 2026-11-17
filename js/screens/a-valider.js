@@ -364,7 +364,7 @@ function pvAcceptNew(p, edited) {
   });
   if (bad) return { added: 0, dupOnly: false };            // une case non valide : rien n'est créé, la ligne reste (à modifier)
   state.cards.push(...fresh);
-  fresh.forEach(c => { if (isVocab(c)) state.checkedSig[c.id] = cardSig(c); });
+  fresh.forEach(c => { if (isVocab(c)) { state.checkedSig[c.id] = cardSig(c); pvNewIds.push(c.id); } });
   return { added: fresh.length, dupOnly: !fresh.length && dups > 0 };
 }
 
@@ -376,6 +376,7 @@ function pvSnapshot() {
 
 // --- Accepter / Refuser groupés : paquets de CONFIG.PV_CHUNK, reprise possible ---
 let pvJob = null;   // traitement en cours { kind, stop }
+let pvNewIds = [];  // cartes de vocabulaire créées par « Nouvelle carte » : reliées au dictionnaire commun à la fin (étape 36)
 // Reste à faire, gardé sur cet appareil : { kind: "accept"|"reject", ids, edits, total }
 function pvJobKey() { return CONFIG.LS_USER_PREFIX + "pvJob:" + (Storage.getUser() || ""); }
 function pvJobSaved() {
@@ -445,6 +446,7 @@ async function pvRun(kind, ids, edits, snap) {
     if (prog) prog.close();
   }
   if (state !== st || Storage.getUser() !== who) return;
+  if (pvNewIds.length) { const ids = pvNewIds; pvNewIds = []; Dict.afterAdd(ids); }   // dictionnaire commun (étape 36)
   if (ok || skipped) Activity.log("validate", { action: kind, n: ok, skipped });   // journal : une action groupée = un événement
   UserStatus.publish();   // « À valider » en attente : résumé pour les notifications (étape 32)
   Storage.flushNow();
@@ -489,7 +491,9 @@ function pvAcceptPart(ids, edits) {
     const next = Object.assign({}, c, { terms: Object.assign({}, c.terms), pos: Object.assign({}, c.pos) });   // setFieldVal ne modifie pas examples en place
     setFieldVal(next, p.field, nv);
     if (!nv || !cardUsable(next)) { skipped++; return; } // valeur non valide : la ligne reste
+    const snap = Dict.track(c);                          // dictionnaire commun (étape 36)
     setFieldVal(c, p.field, nv);
+    Dict.changed(c, snap);                               // case vide du commun → remplie ; déjà remplie → proposition
     c.auto = c.auto.filter(a => a !== autoKeyOf(p.field)); // validé à la main
     if (isVocab(c)) state.checkedSig[c.id] = cardSig(c);
     done.add(p.id); ok++;

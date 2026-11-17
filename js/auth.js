@@ -409,6 +409,7 @@ async function startUser(id, preset, target, sbUid) {
   auth.loginVia = null;
   autoWeeklyCheck(id);
   Queue.start(); // file d'attente Claude (mode Supabase) : réponses arrivées pendant l'absence
+  Dict.start();  // dictionnaire commun (étape 36) : envois en attente, liaison des cartes, sens modifiés
 }
 // Données du compte : locales tout de suite (cache), puis comparaison avec les données en ligne (syncWithRemote).
 // target : profil d'un nouveau compte { lang, support } (ou code de langue) — liste « Démo » dans cette langue.
@@ -539,6 +540,7 @@ async function logout() {
   await Push.end();       // notifications : cet appareil ne reçoit plus celles de ce compte (étape 32)
   await Storage.flushWait();
   Queue.reset();
+  Dict.reset();   // dictionnaire commun (étape 36)
   Ann.reset();
   Streak.reset();
   Friends.reset();
