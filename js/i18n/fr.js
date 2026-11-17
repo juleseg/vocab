@@ -1297,3 +1297,25 @@ Object.assign(I18N.fr, {
   "np.al.invite_send": "Invitation à activer envoyée",
   "np.al.invite_stop": "Invitation à activer arrêtée"
 });
+
+// === Étape 39 : À propos, partage de l'appli, nouveautés ===
+Object.assign(I18N.fr, {
+  "about.title": "À propos",
+  "about.open": "À propos de l'appli",
+  "about.version": "Version {v}",
+  "about.desc": "Appli de révision de langues : vocabulaire, conjugaison et grammaire.",
+  "about.tutorial": "Revoir le tutoriel",
+  "about.shareTitle": "Partager l'appli",
+  "about.shareHelp": "Envoyez l'appli à quelqu'un, ou montrez-lui le QR code.",
+  "about.share": "Partager",
+  "about.copy": "Copier le lien",
+  "about.shareText": "J'apprends des langues avec Vocab, une appli gratuite. Essaie-la :",
+  "about.copied": "Lien copié",
+  "about.copyFail": "Copie impossible. Adresse : {url}",
+  "about.qrAlt": "QR code de l'adresse de l'appli",
+  "about.qrHelp": "À scanner avec l'appareil photo d'un téléphone.",
+  "about.news": "Nouveautés",
+  "wn.title": "Quoi de neuf (version {v})",
+  "wn.all": "Tout voir",
+  "wn.ok": "OK"
+});

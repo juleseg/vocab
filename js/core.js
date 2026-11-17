@@ -41,7 +41,7 @@ const CONFIG = {
   PV_CHUNK: 200          // « À valider » : propositions acceptées / refusées par paquet
 };
 // Numéro de la dernière étape réalisée : affiché en bas des Réglages, envoyé au journal d'activité et dans la fiche appareil.
-const APP_VERSION = "38";
+const APP_VERSION = "39";
 
 // === I18N ===
 // Textes de l'interface : un fichier par langue (js/i18n/ko.js, fr.js, en.js), chargés après languages.js.
@@ -57,6 +57,7 @@ function t(key, vars) {
 function applyI18n() {
   document.documentElement.lang = state.settings.uiLang;
   document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el => { const s = t(el.dataset.i18nAria); el.setAttribute("aria-label", s); el.title = s; });   // étape 39
   document.title = t("appTitle");
 }
 
@@ -112,7 +113,8 @@ function openModal(title, bodyNode, actions, opts) {
   return close;
 }
 // Étape 38 : attend qu'aucune fenêtre ne soit ouverte (ni séance de révision en cours) avant d'en ouvrir une autre,
-// pour ne jamais superposer deux fenêtres au lancement (ordre : migration / sauvegarde, annonce, invitation).
+// pour ne jamais superposer deux fenêtres au lancement (ordre : migration / sauvegarde, annonce, invitation,
+// puis « Quoi de neuf » : étape 39).
 // stillValid() : faux = abandon (déconnexion, changement de compte) ; renvoie true quand la voie est libre.
 function whenNoModal(stillValid) {
   const free = () => !document.querySelector(".modal-bg") &&

@@ -897,3 +897,25 @@ p.ni-steps{padding-left:12px}
 .ni-sample{word-break:break-word}
 .ni-track-h{margin-top:18px}
 .ni-row .an-acts{margin-top:8px}
+
+/* === À PROPOS, PARTAGE ET NOUVEAUTÉS (étape 39) === */
+header.top .top-right{display:flex;align-items:center;gap:4px}
+.about-btn{border:0;background:none;color:var(--muted);width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%}
+.about-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.about-btn:active{background:rgba(127,127,127,.15)}
+.ab-top{text-align:center}
+.ab-top .btn{margin-top:4px}
+.ab-name{font-size:24px;font-weight:700}
+.ab-desc{margin:8px 0 12px}
+.ab-share .btns{margin-top:4px}
+.ab-url{margin:12px 0 4px;text-align:center;font-size:14px;color:var(--muted);word-break:break-all;user-select:all}
+.ab-qr{display:flex;justify-content:center;margin-top:12px}
+.ab-qr svg{width:min(220px,70vw);height:auto;border-radius:12px;background:#fff}
+.ab-qr-help{text-align:center;margin:8px 0 0;font-size:14px}
+.ab-ver{padding:12px 0;border-top:1px solid var(--border)}
+.ab-ver.first{border-top:0;padding-top:4px}
+.ab-ver-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.ab-ver-head .muted{font-size:13px}
+.ab-points{margin:6px 0 0;padding-left:20px;line-height:1.45}
+.ab-points li{margin:3px 0}
+.wn-body .ab-points{margin-top:0}

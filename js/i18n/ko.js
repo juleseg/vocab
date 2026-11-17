@@ -1297,3 +1297,25 @@ Object.assign(I18N.ko, {
   "np.al.invite_send": "알림 켜기 안내 보냄",
   "np.al.invite_stop": "알림 켜기 안내 중지"
 });
+
+// === 39단계: 앱 정보, 앱 공유, 새로운 기능 ===
+Object.assign(I18N.ko, {
+  "about.title": "앱 정보",
+  "about.open": "앱 정보 보기",
+  "about.version": "버전 {v}",
+  "about.desc": "언어 복습 앱: 단어, 동사 활용, 문법.",
+  "about.tutorial": "사용법 다시 보기",
+  "about.shareTitle": "앱 공유하기",
+  "about.shareHelp": "앱을 다른 사람에게 보내거나 QR 코드를 보여 주세요.",
+  "about.share": "공유",
+  "about.copy": "링크 복사",
+  "about.shareText": "Vocab이라는 무료 앱으로 언어를 공부하고 있어요. 한번 써 보세요:",
+  "about.copied": "링크를 복사했어요",
+  "about.copyFail": "복사할 수 없어요. 주소: {url}",
+  "about.qrAlt": "앱 주소 QR 코드",
+  "about.qrHelp": "휴대폰 카메라로 스캔하세요.",
+  "about.news": "새로운 기능",
+  "wn.title": "새로운 기능 (버전 {v})",
+  "wn.all": "모두 보기",
+  "wn.ok": "확인"
+});

@@ -1297,3 +1297,25 @@ Object.assign(I18N.en, {
   "np.al.invite_send": "Invitation to turn on sent",
   "np.al.invite_stop": "Invitation to turn on stopped"
 });
+
+// === Step 39: About, app sharing, what's new ===
+Object.assign(I18N.en, {
+  "about.title": "About",
+  "about.open": "About the app",
+  "about.version": "Version {v}",
+  "about.desc": "A language review app: vocabulary, conjugation and grammar.",
+  "about.tutorial": "Replay the tutorial",
+  "about.shareTitle": "Share the app",
+  "about.shareHelp": "Send the app to someone, or show them the QR code.",
+  "about.share": "Share",
+  "about.copy": "Copy link",
+  "about.shareText": "I'm learning languages with Vocab, a free app. Give it a try:",
+  "about.copied": "Link copied",
+  "about.copyFail": "Couldn't copy. Address: {url}",
+  "about.qrAlt": "QR code of the app address",
+  "about.qrHelp": "Scan it with a phone camera.",
+  "about.news": "What's new",
+  "wn.title": "What's new (version {v})",
+  "wn.all": "See all",
+  "wn.ok": "OK"
+});

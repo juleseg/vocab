@@ -16,8 +16,8 @@ function applyTheme() {
 }
 
 // === NAVIGATION ===
-const SCREENS = ["home", "review", "lists", "stats", "pending", "friends", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict"];
-const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", friends: "amis", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles", adminpush: "admin-notifications", admindict: "admin-dictionnaire" }; // "settings" est réservé dans l'URL
+const SCREENS = ["home", "review", "lists", "stats", "pending", "friends", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "about"];
+const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", friends: "amis", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles", adminpush: "admin-notifications", admindict: "admin-dictionnaire", about: "a-propos" }; // "settings" est réservé dans l'URL
 const ADMIN_SCREENS = ["admin", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict"];
 const ADMIN_SB_SCREENS = ["adminreq", "adminlog", "adminfiche", "adminann", "admintpl", "adminpush", "admindict"];   // mode Supabase seulement
 let currentScreen = "home";
@@ -57,6 +57,12 @@ function renderSyncStatus(mode) {
 }
 // Étape 33b : toucher l'indicateur en erreur (ou hors ligne) affiche le message exact de la dernière erreur.
 function initSyncStatus() {
+  // Étape 39 : bouton ⓘ de l'en-tête → À propos.
+  const ab = $("#btnAbout");
+  if (ab) ab.addEventListener("click", () => {
+    try { history.replaceState(null, "", "#" + HASH_OF.about); } catch (e) {}
+    showScreen("about");
+  });
   const el = $("#syncStatus");
   el.addEventListener("click", () => {
     const m = Storage.getMode();
@@ -160,6 +166,7 @@ function renderScreen() {
   else if (currentScreen === "admintpl") renderAdminTpl();
   else if (currentScreen === "adminpush") renderAdminPush();   // notifications push (étape 32)
   else if (currentScreen === "admindict") renderAdminDict();   // dictionnaire commun (étape 36)
+  else if (currentScreen === "about") renderAbout();   // À propos (étape 39)
   renderPendingBadge();
   Friends.renderBadge();   // demandes d'amis reçues (étape 29)
   Streak.showNotices();   // messages de série en attente (pas pendant une session de révision)

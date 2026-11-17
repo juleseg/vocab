@@ -66,6 +66,7 @@ function initSettings() {
   $("#btnLogout").addEventListener("click", () => { logout(); });
   $("#btnChangePin").addEventListener("click", openChangePin);
   $("#btnAdmin").addEventListener("click", () => { location.hash = "#" + HASH_OF.admin; });
+  $("#btnAboutSet").addEventListener("click", () => { location.hash = "#" + HASH_OF.about; });   // À propos (étape 39)
   $("#btnImport").addEventListener("click", openImport);
   $("#importFile").addEventListener("change", onImportFile);
 }

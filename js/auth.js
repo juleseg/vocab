@@ -271,7 +271,8 @@ async function enterSupabase(session, target) {
   await startUser(id, null, target, userUuid);
   // Fenêtres du lancement, l'une après l'autre (étape 38) : annonces de l'admin (étape 27), puis invitation à activer
   // les notifications (fenêtre de première ouverture ou invitation de l'admin). Migration / sauvegarde : déjà faites.
-  Ann.check().finally(() => NotifInvite.check());
+  // Étape 39 : puis « Quoi de neuf » (une fois par nouvelle version).
+  Ann.check().finally(() => NotifInvite.check()).finally(() => WhatsNew.check());
 }
 // Compte bloqué (étape 27) : déconnexion tout de suite (session oubliée sur l'appareil), puis écran avec la raison.
 // Rien n'est envoyé ni effacé : les données du compte restent en ligne et dans le cache de l'appareil.
@@ -412,6 +413,7 @@ async function startUser(id, preset, target, sbUid) {
   autoWeeklyCheck(id);
   Queue.start(); // file d'attente Claude (mode Supabase) : réponses arrivées pendant l'absence
   Dict.start();  // dictionnaire commun (étape 36) : envois en attente, liaison des cartes, sens modifiés
+  if (auth.mode !== "supabase") WhatsNew.check();   // étape 39 (en mode Supabase : après annonces et invitation, enterSupabase)
 }
 // Données du compte : locales tout de suite (cache), puis comparaison avec les données en ligne (syncWithRemote).
 // target : profil d'un nouveau compte { lang, support } (ou code de langue) — liste « Démo » dans cette langue.
@@ -545,6 +547,7 @@ async function logout() {
   Dict.reset();   // dictionnaire commun (étape 36)
   Ann.reset();
   NotifInvite.reset();   // étape 38
+  WhatsNew.reset();      // étape 39
   Streak.reset();
   Friends.reset();
   Shared.reset();
