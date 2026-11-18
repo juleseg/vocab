@@ -8,6 +8,29 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "53", date: "2026-11-19",
+    points: {
+      ko: [
+        "친구를 응원하세요: 친구 정보의 ‘💬 응원하기’로 준비된 메시지를 보낼 수 있어요. 친구는 자기 앱 언어로 읽어요.",
+        "친구 화면의 ‘친구 소식’: 연속 학습 달성, 새 레벨, 배지, 오늘 목표, 대결 승리… 한 번 눌러 축하하세요.",
+        "‘받은 메시지’에서 응원을 읽고 ‘고마워요’로 답할 수 있어요. 응원 받기는 설정 → 친구에서 끌 수 있어요.",
+        "설정과 앱 정보의 ‘팀에 문의하기’로 Vocab 팀에 직접 메시지를 보내고 답변을 받아 보세요."
+      ],
+      fr: [
+        "Encourage tes amis : « 💬 Encourager » sur la fiche d'un ami envoie un message tout prêt, qu'il lit dans la langue de son appli.",
+        "« Ce que font tes amis » (écran Amis) : palier de série, nouveau niveau, badge, objectif du jour, duel gagné… félicite-les en un toucher.",
+        "Lis tes encouragements dans « Messages reçus » et réponds « Merci » en un toucher. Tu peux couper les encouragements (Réglages → Amis).",
+        "« Écrire à l'équipe » (Réglages et À propos) : envoie un message à l'équipe Vocab et reçois sa réponse dans l'appli."
+      ],
+      en: [
+        "Cheer your friends on: “💬 Cheer” on a friend's card sends a ready-made message, which they read in their app language.",
+        "“What your friends are up to” (Friends screen): streak milestone, new level, badge, daily goal, duel won… congratulate them in one tap.",
+        "Read your cheers in “Messages received” and reply “Thanks” in one tap. You can turn cheers off (Settings → Friends).",
+        "“Write to the team” (Settings and About): send a message to the Vocab team and get the reply in the app."
+      ]
+    }
+  },
+  {
     version: "52", date: "2026-11-18",
     points: {
       ko: [

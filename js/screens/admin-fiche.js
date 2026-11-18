@@ -198,6 +198,7 @@ function renderAdminFiche() {
   btn(t("fc.journal"), () => { al.f.user = fc.user; al.f.kind = ""; al.f.days = ""; al.page = 0; al.data = null; al.err = ""; location.hash = "#" + HASH_OF.adminlog; });
   btn(t("fc.requests"), () => dashGoRequests(fc.user, ""));
   btn(t("fc.csv"), fcCsv);
+  btn(t("amg.fcBtn"), () => amgOpenThread(fc.user, "adminfiche"));   // conversation avec ce compte (étape 53)
   btn(t("fc.actions"), () => { if (adm.list) adminActions(fcAccountObj()); else toast(t("admin.err")); });
   root.appendChild(nav);
   root.appendChild(fcHeader());

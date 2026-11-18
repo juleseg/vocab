@@ -15,6 +15,9 @@
 // - Étape 44 : carte « Duels » (js/duel.js) et carte « Ligue de la semaine » (js/league.js), chargées avec l'écran
 //   (load) ; badge du menu = demandes d'amis + invitations de partage + invitations de duel ; partie de duel en cours
 //   affichée à la place de l'écran.
+// - Étape 53 (js/messages.js) : cartes « Messages reçus » et « Ce que font tes amis » (Messages.friendsCards), bouton
+//   « 💬 Encourager » sur la fiche d'un ami, réglage « Recevoir les encouragements » (Réglages → Amis) ; badge du menu
+//   + messages non lus ; chargés avec l'écran (Messages.loadAll), jamais d'erreur levée.
 const FRIENDS_MAX_PENDING = 20;
 const FRIENDS_POLL_MS = 300000;   // badge des demandes reçues : toutes les 5 min (et au retour au premier plan)
 const PRIVACY_ORDER = ["streak", "today", "week", "success", "badges", "xp", "ranking", "shared"];   // xp : « XP et niveau » (étape 43)
@@ -116,12 +119,13 @@ const Friends = (() => {
     try { incoming = num(Number(await rpc("friend_incoming_count")), 0); status = "ok"; }
     catch (e) { if (isMissing(e)) { status = "missing"; incoming = 0; } }
     await Duels.refreshBadge();   // invitations de duel reçues (étape 44)
+    await Messages.refreshUnread();   // messages non lus (étape 53)
     renderBadge();
   }
   function renderBadge() {
     const b = $("#friendsBadge");
     if (!b) return;
-    const n = on() ? incoming + Shared.inviteCount() + Duels.inviteCount() : 0;   // demandes d'amis + invitations de partage (étape 30) + duels (étape 44)
+    const n = on() ? incoming + Shared.inviteCount() + Duels.inviteCount() + Messages.unreadCount() : 0;   // demandes d'amis + invitations de partage (étape 30) + duels (étape 44) + messages non lus (étape 53)
     b.hidden = !n;
     b.textContent = n > 99 ? "99+" : String(n);
   }
@@ -137,7 +141,8 @@ const Friends = (() => {
       const today = todayStr();
       const [d, s, r] = await Promise.all([rpc("my_friends"), rpc("friends_stats", { p_today: today }), rpc("friends_ranking", { p_today: today }),
         Shared.loadFriendsView(),   // invitations de partage et progression sur les listes partagées (étape 30)
-        League.load(today), Duels.load()]);   // ligue et duels (étape 44) : jamais d'erreur, « script pas lancé » géré à part
+        League.load(today), Duels.load(),   // ligue et duels (étape 44) : jamais d'erreur, « script pas lancé » géré à part
+        Messages.loadAll()]);   // messages reçus et événements des amis (étape 53) : jamais d'erreur
       if (my !== token) return;
       data = d || { incoming: [], outgoing: [], friends: [], blocked: [] };
       stats = arr(s); ranking = r || null; status = "ok"; loadedAt = Date.now();
@@ -201,6 +206,7 @@ const Friends = (() => {
     if (!on()) return;
     status = "unknown";
     publish(true).then(() => refreshBadge());
+    Messages.start();   // étape 53 : liste des messages prédéfinis et non lus
     pollTimer = setInterval(() => { if (on() && document.visibilityState !== "hidden") refreshBadge(); }, FRIENDS_POLL_MS);
   }
   function stop() { clearInterval(pollTimer); pollTimer = null; }
@@ -208,6 +214,7 @@ const Friends = (() => {
     stop(); token++;
     status = "unknown"; incoming = 0; data = null; stats = null; ranking = null; loadedAt = 0; loading = false; err = "";
     League.reset(); Duels.reset();   // étape 44
+    Messages.reset();   // étape 53
     lastPub = ""; view.input = ""; view.rankTab = "cards"; view.busy = false;
     renderBadge();
   }
@@ -262,6 +269,7 @@ function renderFriends() {
     ])));
     root.appendChild(c);
   }
+  Messages.friendsCards(root, arr(d.friends).length);   // messages reçus, ce que font tes amis (étape 53)
   root.appendChild(duCard());   // duels (étape 44) : invitations, à jouer, résultats, revanche
   const shc = shInvitesCard();   // invitations de partage reçues / envoyées (étape 30)
   if (shc) root.appendChild(shc);
@@ -362,6 +370,7 @@ function amFriendBlock(x, s) {
   const btns = el("div", "am-btns am-btns-end");
   const acts = [[t("am.remove"), "", () => Friends.remove(x)], [t("am.block"), "danger", () => Friends.block(x)]];
   if (Duels.status() === "ok") acts.unshift(["⚔️ " + t("du.challenge"), "primary", () => Duels.openCreate(x)]);   // étape 44
+  if (Messages.on() && Messages.status() !== "missing") acts.unshift(["💬 " + t("mg.encourage"), "primary", () => Messages.openPicker(x, s)]);   // étape 53
   acts.forEach(([label, kind, fn]) => {
     const b = el("button", "am-btn" + (kind ? " " + kind : ""), label);
     b.type = "button"; b.disabled = Friends.view.busy;
@@ -442,4 +451,17 @@ function renderFriendsPrivCard() {
     });
     box.appendChild(b);
   });
+  // Étape 53 : « Recevoir les encouragements de mes amis » (gardé sur le serveur : profiles.cheers_off ; activé par défaut).
+  if (Messages.status() !== "missing") {
+    const b = el("button", "au-switch am-switch mg-recv");
+    b.type = "button";
+    b.setAttribute("role", "switch");
+    b.setAttribute("aria-checked", String(Messages.receive()));
+    const track = el("span", "au-track");
+    track.appendChild(el("span", "au-knob"));
+    b.append(el("span", "au-lbl", t("mg.receive")), track);
+    b.addEventListener("click", () => { const v = !Messages.receive(); b.setAttribute("aria-checked", String(v)); Messages.setReceive(v); });
+    box.append(b, el("p", "hint", t("mg.receiveHint")));
+    if (!mg.inbox && !mg.inLoading && !mg.inErr) Messages.loadInbox().then(() => { if (currentScreen === "settings") renderFriendsPrivCard(); });
+  }
 }

@@ -35,7 +35,7 @@ Object.assign(I18N.en, {
   "tuto.streak.title": "Streak and daily goal",
   "tuto.streak.text": "Reach your daily goal to grow your streak 🔥. A freeze protects your streak if you miss a day.",
   "tuto.friends.title": "Friends and sharing",
-  "tuto.friends.text": "Add friends with their username to compare streaks and play the weekly league (XP from Monday to Sunday). Challenge them to a 10-card duel, or share a list with them from its \"Share\" menu.",
+  "tuto.friends.text": "Add friends with their username to compare streaks and play the weekly league (XP from Monday to Sunday). Challenge them to a 10-card duel, cheer them on with a ready-made message (💬 Cheer, or from \"What your friends are up to\"), or share a list with them from its \"Share\" menu.",
   "tuto.settings.title": "Notifications and settings",
   "tuto.settings.text": "Turn on reminders here and adjust the app to your liking. You can replay this tutorial in Settings or About.",
   "tuto.about.title": "ⓘ About",

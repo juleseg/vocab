@@ -106,6 +106,8 @@ function renderAbout() {
 
   // Étape 52 : « 💡 Proposer une idée » / « Mes idées » (mode Supabase seulement).
   try { const ic = Ideas.aboutCard(); if (ic) root.appendChild(ic); } catch (e) {}
+  // Étape 53 : « ✉️ Écrire à l'équipe » (mode Supabase seulement).
+  try { const mc = Messages.aboutCard(); if (mc) root.appendChild(mc); } catch (e) {}
 
   // Partager l'appli.
   const sh = el("div", "card ab-share");
