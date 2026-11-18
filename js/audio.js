@@ -22,18 +22,23 @@ const Speech = (() => {
   }
   function stop() { token++; try { if (synth) synth.cancel(); } catch (e) {} }
   // items : [{ text, lng }] lus à la suite ; langues sans voix sautées. "voler / s'envoler" : lu avec une pause.
-  function speakSeq(items) {
-    const list = arr(items).filter(x => x && x.text && x.text !== "—" && has(x.lng));
+  // cb (étape 45, histoires) : { onItem(index dans items), onEnd() } — appelés seulement si la lecture n'a pas été coupée.
+  function speakSeq(items, cb) {
+    const list = arr(items).map((x, i) => Object.assign({ i }, x)).filter(x => x && x.text && x.text !== "—" && has(x.lng));
     stop();
     if (!list.length) return false;
     const my = token;
     setTimeout(() => {                       // petit délai : certains navigateurs ignorent speak() juste après cancel()
       if (my !== token) return;
-      list.forEach(x => {
+      list.forEach((x, k) => {
         try {
           const u = new SpeechSynthesisUtterance(String(x.text).replace(/\s*\/\s*/g, ", "));
           u.lang = LANG[x.lng];
           u.voice = voiceFor(x.lng);
+          if (cb) {
+            u.onstart = () => { if (my === token && cb.onItem) { try { cb.onItem(x.i); } catch (e) {} } };
+            if (k === list.length - 1) u.onend = () => { if (my === token && cb.onEnd) { try { cb.onEnd(); } catch (e) {} } };
+          }
           synth.speak(u);
         } catch (e) {}
       });

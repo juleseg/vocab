@@ -6,7 +6,7 @@
 // dans claude_proposals. L'appli les récupère (fonction claude_claim_proposals) et les range dans « À valider »,
 // avec les mêmes règles que l'accès direct (addProposal, addGenProposals). Rien n'est écrit dans les cartes.
 //
-// Demande (ligne claude_requests) : { kind: "complete"|"verify"|"generate", label, card_count, batch_count, payload }
+// Demande (ligne claude_requests) : { kind: "complete"|"verify"|"generate"|"story", label, card_count, batch_count, payload }
 // payload = {
 //   v: 1, app: "vocab", kind, uiLang, created: date ISO,
 //   answer: format de la réponse attendue pour chaque lot,
@@ -17,10 +17,13 @@
 //     sigs             // verify : empreinte des cartes au moment de la demande (cardSig)
 //   }],
 //   req               // generate : demande figée (genRequest), listId = liste de destination
+//   story             // story (étape 45) : demande d'histoire figée (storyRequest : liste, langue, niveau, longueur, mots)
 // }
 // Réponse d'un lot (ligne claude_proposals, colonne result) : la valeur JSON demandée par le prompt du lot
 //   complete : [{ "id": "k0", "<champ>": "valeur", … }]   verify : [{ "id", "field", "value", "reason" }]
 //   generate : { "lines": ["ligne au format de l'import", …] }
+//   story    : { "title", "title_tr", "sentences": [{ "text", "tr" }], "words": [{ "id", "form" }], "questions": [...] }
+//              → rangée dans les histoires de la liste (js/story.js), jamais dans « À valider » ni dans les cartes
 const Queue = (() => {
   let status = "unknown";      // unknown | ok | missing (tables pas installées)
   let items = [];              // demandes du compte (50 plus récentes)
@@ -40,6 +43,7 @@ const Queue = (() => {
     if (["42P01", "PGRST205", "PGRST202", "42883"].includes(code) || /does not exist|schema cache|could not find/i.test(msg)) return "missing";
     if (/trop de demandes/i.test(msg)) return "limit";
     if (/trop grosse/i.test(msg)) return "big";
+    if (code === "23514" && /kind/i.test(msg)) return "kind";   // type « story » refusé : script de l'étape 45 pas lancé
     if (sbErrKind(e) === "net") return "net";
     return "server";
   }
@@ -80,10 +84,15 @@ const Queue = (() => {
     try { resp = ok(await withTimeout(client().rpc("claude_claim_proposals"), T * 2)); }
     catch (e) { noteError(e); return null; }
     status = "ok";
-    if (!resp || !arr(resp.proposals).length) return { added: 0, cards: 0, bad: 0 };
+    if (!resp || !arr(resp.proposals).length) return { added: 0, cards: 0, bad: 0, stories: 0 };
     if (Storage.getUser() !== who || state !== st) return null;   // compte changé : « Récupérer à nouveau » plus tard
     const r = queueApply(resp);
     if (r.added) { commitQuiet(); if (!quiet) toast(queueGotText(r.added)); }
+    if (r.stories) {                                               // histoires (étape 45)
+      commitQuiet();
+      toast(t(r.stories === 1 ? "st.got1" : "st.got", { n: r.stories }));
+      if (currentScreen === "stories" || currentScreen === "lists") renderScreen();
+    }
     return r;
   }
   // Récupération + liste des demandes (un seul appel à la fois), puis prochaine vérification si une demande est en cours.
@@ -352,7 +361,7 @@ function queueApply(resp) {
   const reqs = new Map(arr(resp.requests).map(r => [r.id, r]));
   const byId = new Map(state.cards.map(c => [c.id, c]));
   const genReqs = new Map();      // une nouvelle liste recréée une seule fois par demande
-  const out = { added: 0, cards: 0, bad: 0 };
+  const out = { added: 0, cards: 0, bad: 0, stories: 0 };
   const got = {};                 // demande → propositions ajoutées dans « À valider » (compteur « reçues »)
   arr(resp.proposals).forEach(p => {
     const before = state.proposals.length;
@@ -373,6 +382,11 @@ function queueApply(resp) {
       const r = reqs.get(p.request_id), pl = r && r.payload;
       const b = pl && arr(pl.batches)[p.batch];
       if (!b) { out.bad++; return; }
+      if (r.kind === "story") {                                    // étape 45 : histoire rangée dans sa liste
+        if (typeof storyFromQueue === "function" && storyFromQueue(p.result, pl.story || b.story)) out.stories++;
+        else out.bad++;
+        return;
+      }
       if (r.kind === "generate") {
         let req = genReqs.get(r.id);
         if (!req) { req = queueGenReq(pl.req); if (!req) { out.bad++; return; } genReqs.set(r.id, req); }
@@ -410,6 +424,10 @@ function queueDate(s) {
   try { const d = new Date(s); return d.toLocaleDateString(state.settings.uiLang) + " " + d.toLocaleTimeString(state.settings.uiLang, { hour: "2-digit", minute: "2-digit" }); }
   catch (e) { return ""; }
 }
+// Nombre de la demande : cartes, cartes à générer, ou mots de l'histoire (étape 45).
+function queueMetaCount(r) {
+  return t(r.kind === "generate" ? "queue.meta.gen" : r.kind === "story" ? "st.meta" : "queue.meta.cards", { n: r.card_count });
+}
 function queueStatusText(r) {
   if (r.status === "done") return t(r.fetched_at ? "queue.st.fetched" : "queue.st.done");
   return t("queue.st." + r.status);
@@ -441,7 +459,7 @@ function renderRequests() {
     const head = el("div", "q-head");
     const left = el("div");
     left.appendChild(el("div", "q-title", t("queue.kind." + r.kind) + (r.label ? " · " + r.label : "")));
-    const meta = [r.kind === "generate" ? t("queue.meta.gen", { n: r.card_count }) : t("queue.meta.cards", { n: r.card_count }), t("queue.meta.sent", { d: queueDate(r.created_at) })];
+    const meta = [queueMetaCount(r), t("queue.meta.sent", { d: queueDate(r.created_at) })];
     if (r.finished_at) meta.push(t("queue.meta.done", { d: queueDate(r.finished_at) }));
     left.appendChild(el("div", "q-meta", meta.join(" · ")));
     head.append(left, el("span", "q-st " + r.status, queueStatusText(r)));

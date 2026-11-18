@@ -8,6 +8,29 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "45", date: "2026-11-18",
+    points: {
+      ko: [
+        "내 단어로 만든 이야기: 목록을 열고 '이야기 만들기'를 누르면 Claude가 그 목록의 단어로 짧은 이야기를 써 줘요.",
+        "언어, 수준(초급·중급·고급), 길이, 단어 5~15개를 고를 수 있어요. 기본으로 복습할 단어가 선택돼요.",
+        "표시된 단어를 누르면 번역과 발음을 듣고, 문장마다 듣거나 번역을 볼 수 있어요.",
+        "마지막의 질문 3개에 답하고 XP를 받으세요. 이야기는 목록마다 저장되고, 카드는 바뀌지 않아요."
+      ],
+      fr: [
+        "Histoires avec tes mots : ouvre une liste et touche « Créer une histoire », Claude écrit un court texte avec les mots de cette liste.",
+        "Choisis la langue, le niveau (débutant, intermédiaire, avancé), la longueur et 5 à 15 mots ; les mots à revoir sont choisis d'office.",
+        "Touche un mot surligné pour sa traduction et sa prononciation ; écoute l'histoire phrase par phrase et affiche la traduction quand tu veux.",
+        "Réponds aux 3 questions de la fin pour gagner des XP. Les histoires sont gardées dans chaque liste, et tes cartes ne changent pas."
+      ],
+      en: [
+        "Stories with your words: open a list and tap \"Create a story\", Claude writes a short text with the words of that list.",
+        "Choose the language, level (beginner, intermediate, advanced), length and 5 to 15 words; words to review are picked for you.",
+        "Tap a highlighted word for its translation and pronunciation; listen sentence by sentence and show the translation whenever you like.",
+        "Answer the 3 questions at the end to earn XP. Stories are kept in each list, and your cards never change."
+      ]
+    }
+  },
+  {
     version: "44", date: "2026-11-18",
     points: {
       ko: [

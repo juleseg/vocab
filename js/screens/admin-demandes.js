@@ -232,7 +232,7 @@ function aqFilters() {
   };
   const accts = (aq.stats || []).slice().sort((a, b) => String(a.identifiant).localeCompare(String(b.identifiant)));
   mk(t("aq.f.account"), [["", t("aq.f.all")]].concat(accts.map(a => [a.user_id, a.identifiant])), aq.f.user, v => { aq.f.user = v; });
-  mk(t("aq.f.kind"), [["", t("aq.f.all")]].concat(["complete", "verify", "generate"].map(k => [k, t("queue.kind." + k)])), aq.f.kind, v => { aq.f.kind = v; });
+  mk(t("aq.f.kind"), [["", t("aq.f.all")]].concat(["complete", "verify", "generate", "story"].map(k => [k, t("queue.kind." + k)])), aq.f.kind, v => { aq.f.kind = v; });
   mk(t("aq.f.status"), [["", t("aq.f.all")]].concat(["pending", "processing", "done", "error"].map(k => [k, t("aq.st." + k)])), aq.f.status, v => { aq.f.status = v; });
   mk(t("aq.f.period"), [["", t("aq.pAll")], ["7", t("aq.p7")], ["30", t("aq.p30")]], aq.f.days, v => { aq.f.days = v; });
   return box;
@@ -245,7 +245,7 @@ function aqRow(r) {
   const left = el("div");
   left.appendChild(el("div", "q-title", r.identifiant + " · " + t("queue.kind." + r.kind) + (r.label ? " · " + r.label : "")));
   left.appendChild(el("div", "q-meta", [
-    r.kind === "generate" ? t("queue.meta.gen", { n: r.card_count }) : t("queue.meta.cards", { n: r.card_count }),
+    queueMetaCount(r),
     t("aq.batches", { n: r.batch_count }), t("aq.attempts", { n: r.attempts })].join(" · ")));
   head.append(left, el("span", "q-st " + r.status, queueStatusText(r)));
   box.appendChild(head);
@@ -319,7 +319,12 @@ async function aqOpenDetail(r0) {
   else {
     // Cartes envoyées
     body.appendChild(el("h4", null, t("aq.sent")));
-    if (r.kind === "generate") {
+    if (r.kind === "story") {                                     // étape 45 : mots demandés
+      const sr = pl.story || (batches[0] && batches[0].story) || {};
+      body.appendChild(el("p", "muted", [sr.lang, sr.level, sr.len].filter(Boolean).join(" · ")));
+      const rows = arr(sr.words).map(w => [w.k || "", w.w || "", w.tr || ""]);
+      body.appendChild(rows.length ? aqTable(["#", t("aq.card"), t("aq.content")], rows) : el("p", "muted", "—"));
+    } else if (r.kind === "generate") {
       const req = pl.req || {};
       const rows = Object.keys(req).filter(k => !["lg"].includes(k)).map(k => {
         const v = req[k];
@@ -347,7 +352,13 @@ async function aqOpenDetail(r0) {
       const cards = new Map(aqBatchCards(batches[p.batch]).map(it => [it.id, it]));
       const res = p.result;
       let rows = [], head;
-      if (r.kind === "generate") {
+      if (r.kind === "story") {                                   // étape 45 : titre, phrases, questions
+        head = ["#", t("aq.content")];
+        const o = res && typeof res === "object" ? res : {};
+        if (o.title) rows.push(["", String(o.title)]);
+        arr(o.sentences).forEach((x, i) => rows.push([i + 1, String((x && (x.text || x.t)) || x || "") + (x && x.tr ? " — " + x.tr : "")]));
+        arr(o.questions).forEach((q, i) => rows.push(["Q" + (i + 1), String((q && q.q) || "") + " → " + String(arr(q && q.options)[num(q && q.answer, -1)] || "?")]));
+      } else if (r.kind === "generate") {
         head = ["#", t("aq.type"), t("aq.content")];
         const lines = Array.isArray(res) ? res : res && Array.isArray(res.lines) ? res.lines : [];
         lines.forEach((ln, i) => { const cs = String(ln).split(";"); rows.push([i + 1, cs[0], cs.slice(1).join(" ; ")]); });

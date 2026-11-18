@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vocab</title>
-<link rel="stylesheet" href="css/app.css?v=44">
+<link rel="stylesheet" href="css/app.css?v=45">
 <!-- === PWA (appli installable) === -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2f5bd3">
@@ -63,6 +63,8 @@
         <button class="link-btn" id="lvShare"></button>
         <button class="link-btn" id="lvLangs" data-i18n="folders.langs"></button>
         <button class="link-btn" id="lvStudy" data-i18n="study.add"></button>
+        <button class="link-btn" id="lvStoryNew" data-i18n="st.create"></button>
+        <button class="link-btn" id="lvStories" data-i18n="st.listBtn"></button>
         <button class="link-btn" id="lvUpdate" data-i18n="upd.btn"></button>
         <button class="link-btn" id="lvAsk" data-i18n="queue.ask" hidden></button>
         <button class="link-btn" id="lvFxOut" data-i18n="fx.exportBtn"></button>
@@ -122,6 +124,8 @@
     <section class="screen" id="screen-adminerr"></section>
     <!-- À propos (étape 39) -->
     <section class="screen" id="screen-about"></section>
+    <!-- Histoires avec mes mots (étape 45) -->
+    <section class="screen" id="screen-stories"></section>
 
     <section class="screen" id="screen-settings">
       <div class="card">
@@ -215,74 +219,78 @@
 <!-- Configuration Supabase (fichier séparé, absent dans Claude : l'appli passe alors au stockage de l'artifact ou du navigateur) -->
 <script src="config.js"></script>
 <!-- Scripts de l'appli, dans l'ordre (scripts classiques, sans build). -->
-<script src="js/core.js?v=44"></script>
-<script src="js/errors.js?v=44"></script>
-<script src="js/languages.js?v=44"></script>
-<script src="js/i18n/ko.js?v=44"></script>
-<script src="js/i18n/fr.js?v=44"></script>
-<script src="js/i18n/en.js?v=44"></script>
-<script src="js/i18n/tutorial-ko.js?v=44"></script>
-<script src="js/i18n/tutorial-fr.js?v=44"></script>
-<script src="js/i18n/tutorial-en.js?v=44"></script>
-<script src="js/i18n/errors-ko.js?v=44"></script>
-<script src="js/i18n/errors-fr.js?v=44"></script>
-<script src="js/i18n/errors-en.js?v=44"></script>
-<script src="js/i18n/games-ko.js?v=44"></script>
-<script src="js/i18n/games-fr.js?v=44"></script>
-<script src="js/i18n/games-en.js?v=44"></script>
-<script src="js/i18n/xp-ko.js?v=44"></script>
-<script src="js/i18n/xp-fr.js?v=44"></script>
-<script src="js/i18n/xp-en.js?v=44"></script>
-<script src="js/i18n/league-ko.js?v=44"></script>
-<script src="js/i18n/league-fr.js?v=44"></script>
-<script src="js/i18n/league-en.js?v=44"></script>
-<script src="js/storage.js?v=44"></script>
-<script src="js/cards.js?v=44"></script>
-<script src="js/auth.js?v=44"></script>
-<script src="js/leitner.js?v=44"></script>
-<script src="js/xp.js?v=44"></script>
-<script src="js/modes/cartes.js?v=44"></script>
-<script src="js/modes/ecrit.js?v=44"></script>
-<script src="js/modes/interrogateur.js?v=44"></script>
-<script src="js/modes/tableau.js?v=44"></script>
-<script src="js/modes/jeux.js?v=44"></script>
-<script src="js/modes/qcm.js?v=44"></script>
-<script src="js/modes/course.js?v=44"></script>
-<script src="js/modes/paires.js?v=44"></script>
-<script src="js/modes/ordre.js?v=44"></script>
-<script src="js/screens/accueil.js?v=44"></script>
-<script src="js/screens/reviser.js?v=44"></script>
-<script src="js/screens/listes.js?v=44"></script>
-<script src="js/screens/stats.js?v=44"></script>
-<script src="js/screens/reglages.js?v=44"></script>
-<script src="js/screens/a-valider.js?v=44"></script>
-<script src="js/screens/amis.js?v=44"></script>
-<script src="js/league.js?v=44"></script>
-<script src="js/duel.js?v=44"></script>
-<script src="js/screens/admin.js?v=44"></script>
-<script src="js/screens/admin-dashboard.js?v=44"></script>
-<script src="js/screens/admin-demandes.js?v=44"></script>
-<script src="js/screens/admin-journal.js?v=44"></script>
-<script src="js/screens/admin-fiche.js?v=44"></script>
-<script src="js/screens/admin-comptes.js?v=44"></script>
-<script src="js/screens/admin-notifications.js?v=44"></script>
-<script src="js/screens/admin-invite.js?v=44"></script>
-<script src="js/screens/admin-dictionnaire.js?v=44"></script>
-<script src="js/screens/admin-erreurs.js?v=44"></script>
-<script src="js/partage.js?v=44"></script>
-<script src="js/import.js?v=44"></script>
-<script src="js/completion.js?v=44"></script>
-<script src="js/queue.js?v=44"></script>
-<script src="js/dictionary.js?v=44"></script>
-<script src="js/study.js?v=44"></script>
-<script src="js/activity.js?v=44"></script>
-<script src="js/audio.js?v=44"></script>
-<script src="js/notifications.js?v=44"></script>
-<script src="js/notif-invite.js?v=44"></script>
-<script src="js/changelog.js?v=44"></script>
-<script src="js/qrcode.js?v=44"></script>
-<script src="js/screens/a-propos.js?v=44"></script>
-<script src="js/tutorial.js?v=44"></script>
-<script src="js/app.js?v=44"></script>
+<script src="js/core.js?v=45"></script>
+<script src="js/errors.js?v=45"></script>
+<script src="js/languages.js?v=45"></script>
+<script src="js/i18n/ko.js?v=45"></script>
+<script src="js/i18n/fr.js?v=45"></script>
+<script src="js/i18n/en.js?v=45"></script>
+<script src="js/i18n/tutorial-ko.js?v=45"></script>
+<script src="js/i18n/tutorial-fr.js?v=45"></script>
+<script src="js/i18n/tutorial-en.js?v=45"></script>
+<script src="js/i18n/errors-ko.js?v=45"></script>
+<script src="js/i18n/errors-fr.js?v=45"></script>
+<script src="js/i18n/errors-en.js?v=45"></script>
+<script src="js/i18n/games-ko.js?v=45"></script>
+<script src="js/i18n/games-fr.js?v=45"></script>
+<script src="js/i18n/games-en.js?v=45"></script>
+<script src="js/i18n/xp-ko.js?v=45"></script>
+<script src="js/i18n/xp-fr.js?v=45"></script>
+<script src="js/i18n/xp-en.js?v=45"></script>
+<script src="js/i18n/league-ko.js?v=45"></script>
+<script src="js/i18n/league-fr.js?v=45"></script>
+<script src="js/i18n/league-en.js?v=45"></script>
+<script src="js/i18n/story-ko.js?v=45"></script>
+<script src="js/i18n/story-fr.js?v=45"></script>
+<script src="js/i18n/story-en.js?v=45"></script>
+<script src="js/storage.js?v=45"></script>
+<script src="js/cards.js?v=45"></script>
+<script src="js/auth.js?v=45"></script>
+<script src="js/leitner.js?v=45"></script>
+<script src="js/xp.js?v=45"></script>
+<script src="js/modes/cartes.js?v=45"></script>
+<script src="js/modes/ecrit.js?v=45"></script>
+<script src="js/modes/interrogateur.js?v=45"></script>
+<script src="js/modes/tableau.js?v=45"></script>
+<script src="js/modes/jeux.js?v=45"></script>
+<script src="js/modes/qcm.js?v=45"></script>
+<script src="js/modes/course.js?v=45"></script>
+<script src="js/modes/paires.js?v=45"></script>
+<script src="js/modes/ordre.js?v=45"></script>
+<script src="js/screens/accueil.js?v=45"></script>
+<script src="js/screens/reviser.js?v=45"></script>
+<script src="js/screens/listes.js?v=45"></script>
+<script src="js/screens/stats.js?v=45"></script>
+<script src="js/screens/reglages.js?v=45"></script>
+<script src="js/screens/a-valider.js?v=45"></script>
+<script src="js/screens/amis.js?v=45"></script>
+<script src="js/league.js?v=45"></script>
+<script src="js/duel.js?v=45"></script>
+<script src="js/screens/admin.js?v=45"></script>
+<script src="js/screens/admin-dashboard.js?v=45"></script>
+<script src="js/screens/admin-demandes.js?v=45"></script>
+<script src="js/screens/admin-journal.js?v=45"></script>
+<script src="js/screens/admin-fiche.js?v=45"></script>
+<script src="js/screens/admin-comptes.js?v=45"></script>
+<script src="js/screens/admin-notifications.js?v=45"></script>
+<script src="js/screens/admin-invite.js?v=45"></script>
+<script src="js/screens/admin-dictionnaire.js?v=45"></script>
+<script src="js/screens/admin-erreurs.js?v=45"></script>
+<script src="js/partage.js?v=45"></script>
+<script src="js/import.js?v=45"></script>
+<script src="js/completion.js?v=45"></script>
+<script src="js/queue.js?v=45"></script>
+<script src="js/dictionary.js?v=45"></script>
+<script src="js/study.js?v=45"></script>
+<script src="js/story.js?v=45"></script>
+<script src="js/activity.js?v=45"></script>
+<script src="js/audio.js?v=45"></script>
+<script src="js/notifications.js?v=45"></script>
+<script src="js/notif-invite.js?v=45"></script>
+<script src="js/changelog.js?v=45"></script>
+<script src="js/qrcode.js?v=45"></script>
+<script src="js/screens/a-propos.js?v=45"></script>
+<script src="js/tutorial.js?v=45"></script>
+<script src="js/app.js?v=45"></script>
 </body>
 </html>

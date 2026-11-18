@@ -21,7 +21,7 @@ Object.assign(I18N.fr, {
   "tuto.langs.title": "Tes langues",
   "tuto.langs.text": "Choisis ici les langues que tu apprends et, pour chacune, une langue d'appui si tu veux. Tu peux en ajouter à tout moment.",
   "tuto.lists.title": "Listes et dossiers",
-  "tuto.lists.text": "Tes cartes sont rangées dans des listes, et les listes dans des dossiers. La liste « Démo » est là pour essayer.",
+  "tuto.lists.text": "Tes cartes sont rangées dans des listes, et les listes dans des dossiers. La liste « Démo » est là pour essayer. Ouvre une liste pour créer une histoire avec ses mots.",
   "tuto.card.title": "Créer une carte",
   "tuto.card.text": "Ajoute un mot avec ce bouton. S'il est déjà dans le dictionnaire commun, les traductions et l'exemple se remplissent tout seuls.",
   "tuto.import.title": "Importer des cartes",

@@ -40,6 +40,10 @@ const XP_RULES = {
   duel: {                     // duels entre amis (étape 44) : réponses au barème du mode ci-dessous (QCM : juste 1, fausse
     mode: "mcq",              // XP_RULES.wrong), partie terminée XP_RULES.session, et bonus de victoire (une fois par duel)
     win: 20
+  },
+  story: {                    // histoires (étape 45, js/story.js) : une fois par histoire et par question
+    correct: 5,               // bonne réponse à une question de compréhension (premier choix)
+    read: 10                  // histoire lue (bouton « J'ai lu l'histoire », ou toutes les questions répondues)
   }
 };
 // Badges de l'étape 43 (affichés dans Stats avec les badges de série).
@@ -366,6 +370,15 @@ const XP = (() => {
     commitQuiet();
     return got;
   }
+  // Histoire (étape 45) : XP donnés par js/story.js (qui garde sur l'histoire ce qui a déjà rapporté). Ne touche pas aux cartes
+  // ni aux défis du jour.
+  function onStory(v, L) {
+    checkUser();
+    const got = add(v, isLang(L) ? L : null);
+    checkBadges();
+    commitQuiet();
+    return got;
+  }
   // Jour de série validé (Streak : objectif du jour atteint).
   function onStreakDay(day) { checkUser(); return add(XP_RULES.streakDay, null, day); }
   // Au lancement et au changement de jour (appelé par Streak.tick) : défis du jour, badges et niveau en retard.
@@ -424,7 +437,7 @@ const XP = (() => {
     return Object.assign(xpProgress(x.total), { total: x.total, week: w.total, weekByLang: w.byLang, byLang: x.byLang,
       chDone: x.chDone, chDays: x.chDays.length, answers: x.answers });
   }
-  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, onDuel, onDuelWin, challenges, label, icon, summary, has, earn };
+  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, onDuel, onDuelWin, onStory, challenges, label, icon, summary, has, earn };
 })();
 
 // --- Affichage commun : barre de niveau (Accueil, Stats) ---

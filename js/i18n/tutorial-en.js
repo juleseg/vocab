@@ -21,7 +21,7 @@ Object.assign(I18N.en, {
   "tuto.langs.title": "Your languages",
   "tuto.langs.text": "Choose the languages you're learning here and, for each one, a helper language if you like. You can add more at any time.",
   "tuto.lists.title": "Lists and folders",
-  "tuto.lists.text": "Your cards are kept in lists, and lists in folders. The \"Démo\" list is there for you to try things out.",
+  "tuto.lists.text": "Your cards are kept in lists, and lists in folders. The \"Démo\" list is there for you to try things out. Open a list to create a story with its words.",
   "tuto.card.title": "Create a card",
   "tuto.card.text": "Add a word with this button. If it's already in the shared dictionary, translations and the example fill in by themselves.",
   "tuto.import.title": "Import cards",

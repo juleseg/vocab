@@ -21,7 +21,7 @@ Object.assign(I18N.ko, {
   "tuto.langs.title": "내 언어",
   "tuto.langs.text": "여기에서 배우는 언어와, 원하면 언어마다 보조 언어를 고를 수 있어요. 언제든지 언어를 추가할 수 있어요.",
   "tuto.lists.title": "목록과 폴더",
-  "tuto.lists.text": "카드는 목록에, 목록은 폴더에 정리돼요. '데모' 목록(Démo)으로 먼저 연습해 보세요.",
+  "tuto.lists.text": "카드는 목록에, 목록은 폴더에 정리돼요. '데모' 목록(Démo)으로 먼저 연습해 보세요. 목록을 열면 그 단어로 이야기를 만들 수 있어요.",
   "tuto.card.title": "카드 만들기",
   "tuto.card.text": "이 버튼으로 단어를 추가해요. 공용 사전에 이미 있는 단어라면 번역과 예문이 자동으로 채워져요.",
   "tuto.import.title": "카드 가져오기",

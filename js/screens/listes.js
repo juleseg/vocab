@@ -65,6 +65,7 @@ function renderLists() {
     + studyExtraLangs(list).map(L => " +" + L.toUpperCase()).join("") + " · " + updDate(list.lastUpdate)
     + (isSharedList(list) ? " · " + shTag(list) : "") : "";
   if (list) { const g = listGapCount(list); $("#lvUpdate").textContent = g ? t("upd.btnN", { n: g }) : t("upd.btn"); }
+  if (list) { const n = storiesOf(list.id).length; $("#lvStories").textContent = n ? t("st.listBtnN", { n }) : t("st.listBtn"); }   // étape 45
   $("#lvAsk").hidden = $("#lvAskAll").hidden = !Queue.usable();
   // Listes communes (étape 30) : lecture seule = pas d'ajout ni de mise à jour ; nom et langues : propriétaire seulement.
   const shL = list && isSharedList(list), ro = !!list && !canEditList(list);
@@ -314,6 +315,8 @@ function initLists() {
   $("#lvMove").addEventListener("click", () => openMoveList(lv.listId));
   $("#lvLangs").addEventListener("click", () => { const l = getList(lv.listId); if (l) openLangEditor("list", l); });
   $("#lvStudy").addEventListener("click", () => { if (lv.listId) openStudyLangs("list", lv.listId); });   // étape 37
+  $("#lvStoryNew").addEventListener("click", () => { if (lv.listId) openStoryCreate(lv.listId); });   // étape 45
+  $("#lvStories").addEventListener("click", () => { if (lv.listId) goStories(lv.listId); });
   $("#lvDelete").addEventListener("click", () => confirmDeleteList(lv.listId));
   $("#lvShare").addEventListener("click", () => { const l = getList(lv.listId); if (!l) return; if (isSharedList(l)) openShareManage("list", l.id); else openShare("list", l.id); });
   $("#lvNewFolder").addEventListener("click", () => openFolderName(null));

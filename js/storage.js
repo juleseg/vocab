@@ -53,6 +53,7 @@ function emptyData(target, support) {
     history: [],
     streak: normStreak(null, []),   // série (voir SÉRIES)
     xp: normXp(null, [], null, null),   // XP, niveaux, défis du jour (étape 43, js/xp.js)
+    stories: {},     // histoires par liste (étape 45, js/story.js) : { <id de liste>: [histoire…] }
     proposals: [],   // propositions « À valider » : { id, cardId, field (code de langue | example | extr:<code> | pos:<code> | dup), type, oldValue, newValue, reason, createdAt }
     rejected: [],    // clés des propositions refusées (carte|champ|empreinte de la valeur) : jamais reproposées
     lastCheckAt: 0,  // dernière vérification automatique (0 = pas encore démarrée)
@@ -232,6 +233,7 @@ function normalizeData(raw) {
 
   const cardIds = new Set(out.cards.map(c => c.id));
   const listIds0 = new Set(out.lists.map(l => l.id));
+  out.stories = normStories(d.stories, listIds0);   // étape 45 : histoires des listes existantes seulement
   // Listes communes (étape 30) : leurs cartes arrivent après (cache du partage), les propositions sont gardées.
   const keepUnknown = out.lists.some(isSharedList);
   out.proposals = out.proposals.filter(p => p.field === "new" ? listIds0.has(p.listId) : (cardIds.has(p.cardId) || keepUnknown));
@@ -338,6 +340,7 @@ function looksLikeAppData(raw) {
 //   user:<id>:folders / :lists / :history
 //   user:<id>:streak                série (étape 28, voir SÉRIES) — aussi modifiée par les fonctions admin de l'étape 28
 //   user:<id>:xp                    XP, niveau, défis du jour, badges de l'étape 43 (voir js/xp.js)
+//   user:<id>:stories:<listId>      histoires de la liste (étape 45, voir js/story.js), 20 max par liste
 //   user:<id>:proposals:<n>         propositions « À valider » (500 max par morceau)
 //   user:<id>:cards:<listId>:<n>    { cards: [200 max], sig: { idCarte: empreinte vérifiée } }
 //   user:<id>:resume:<n>            ids des cartes restant à compléter (complétion en pause, 2000 max par morceau)
@@ -571,6 +574,10 @@ const Storage = (() => {
     put("history", data.history);
     put("streak", data.streak);
     if (data.xp) put("xp", data.xp);   // étape 43 : nouveau morceau, toujours envoyé avant l'index (règle 33b)
+    // Étape 45 : histoires, un morceau par liste (listes existantes seulement : une liste supprimée emporte ses histoires).
+    // Nouveaux morceaux, toujours envoyés avant l'index (règle 33b). Liste sans histoire : pas de morceau.
+    const stIds = new Set(arr(data.lists).map(l => l.id)), stories = data.stories || {};
+    Object.keys(stories).forEach(L => { if (stIds.has(L) && arr(stories[L]).length) put("stories:" + L, stories[L]); });
     // Cartes : par liste, morceaux de 200 cartes max (et taille limitée, pour les cartes avec de longs exemples).
     // Listes communes (étape 30) : cartes dans shared_cards, ici seulement la progression personnelle (sharedprogress).
     const shIds = new Set(arr(data.lists).filter(isSharedList).map(l => l.id));
@@ -624,7 +631,7 @@ const Storage = (() => {
       folders: arr(getPiece(P + "folders")), lists: arr(getPiece(P + "lists")), history: arr(getPiece(P + "history")),
       streak: getPiece(P + "streak"),   // absent (version 3 et moins) : calculé par normalizeData
       xp: getPiece(P + "xp"),           // absent (version 42 et moins) : XP de départ calculé par normalizeData (étape 43)
-      cards: [], proposals: [], checkedSig: {}, aiResume: null, sharedProgress: {}
+      cards: [], proposals: [], checkedSig: {}, aiResume: null, sharedProgress: {}, stories: {}
     };
     const ids = [];
     let missing = 0;
@@ -637,6 +644,7 @@ const Storage = (() => {
       if (k.startsWith(P + "cards:")) { out.cards.push(...arr(v.cards)); Object.assign(out.checkedSig, v.sig || {}); }
       else if (k.startsWith(P + "proposals:")) out.proposals.push(...arr(v));
       else if (k.startsWith(P + "resume:")) ids.push(...arr(v));
+      else if (k.startsWith(P + "stories:")) out.stories[k.slice((P + "stories:").length)] = arr(v);   // étape 45
       else if (k.startsWith(P + "sharedprogress:") && v && typeof v === "object") {   // étape 30
         const U = k.slice((P + "sharedprogress:").length).split(":")[0];
         out.sharedProgress[U] = Object.assign(out.sharedProgress[U] || {}, v);
