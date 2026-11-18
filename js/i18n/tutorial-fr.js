@@ -29,7 +29,7 @@ Object.assign(I18N.fr, {
   "tuto.session.title": "Lancer une session",
   "tuto.session.text": "Choisis ce que tu veux réviser (listes, dossiers, langue, nombre de cartes), puis touche « Commencer ». Pour t'entraîner autrement, choisis un jeu : QCM, Course 60 s, Paires ou Remettre en ordre.",
   "tuto.modes.title": "Modes de révision",
-  "tuto.modes.text": "Cartes, Écrit, Interrogateur (quelqu'un te pose les questions) et Tableau pour la conjugaison. Réponds Su, À revoir ou Pas su : chaque carte revient au bon moment.",
+  "tuto.modes.text": "Cartes, Écrit, Interrogateur (quelqu'un te pose les questions), Tableau pour la conjugaison, Dictée (écoute et écris) et Prononciation (dis le mot à voix haute). Réponds Su, À revoir ou Pas su : chaque carte revient au bon moment.",
   "tuto.pending.title": "À valider",
   "tuto.pending.text": "Pour compléter tes cartes avec Claude, ouvre une liste et touche « Mettre à jour ». Ses propositions arrivent ici : rien ne change sans ton accord.",
   "tuto.streak.title": "Série et objectif du jour",

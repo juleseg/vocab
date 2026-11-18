@@ -215,7 +215,8 @@ function renderSessionSummary(root) {
   const btns = el("div", "btns");
   if (missed.length) {
     const b = el("button", "btn primary", t("sum.retry", { n: missed.length }));
-    b.addEventListener("click", () => newRun(shuffle(missed.map(id => ({ id, dir: s.dirs[id] || "toT", lang: (s.langs || {})[id] }))), s.mode));
+    // Même mode, même langue, même sens ; Dictée / Prononciation : même mot ou même phrase (lk, étape 46)
+    b.addEventListener("click", () => newRun(shuffle(missed.map(id => ({ id, dir: s.dirs[id] || "toT", lang: (s.langs || {})[id], lk: (s.lks || {})[id] }))), s.mode));
     btns.appendChild(b);
   }
   const nb = el("button", "btn" + (missed.length ? "" : " primary"), t("sum.new"));

@@ -8,6 +8,26 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "46", date: "2026-11-18",
+    points: {
+      ko: [
+        "새 복습 모드 '받아쓰기': 공부하는 언어로 단어나 예문을 읽어 주면 들은 대로 써요. 다시 듣기와 느린 속도도 있어요.",
+        "새 복습 모드 '발음': 번역을 보고 단어나 문장을 소리 내어 말하면 앱이 알아듣고 맞는지 알려 줘요 (3번 시도).",
+        "복습 화면의 '모드'에서 고르고, 단어·예문·둘 다 중에서 선택할 수 있어요. 진도, XP, 오늘의 도전에 반영돼요."
+      ],
+      fr: [
+        "Nouveau mode Dictée : l'appli lit le mot ou la phrase d'exemple dans la langue étudiée, tu l'écris. Réécoute et vitesse lente possibles.",
+        "Nouveau mode Prononciation : tu vois la traduction, tu dis le mot ou la phrase à voix haute, l'appli vérifie (3 essais).",
+        "À choisir dans « Mode » de Réviser, avec des mots, des phrases ou les deux. Ils comptent pour la progression, les XP et les défis du jour."
+      ],
+      en: [
+        "New Dictation mode: the app reads the word or example sentence in the language you study, and you type it. Listen again or slow it down.",
+        "New Pronunciation mode: you see the translation, say the word or sentence out loud, and the app checks it (3 tries).",
+        "Pick them in Review → Mode, with words, sentences or both. They count for your progress, XP and daily challenges."
+      ]
+    }
+  },
+  {
     version: "45", date: "2026-11-18",
     points: {
       ko: [

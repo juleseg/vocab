@@ -4,8 +4,10 @@
 // Synthèse vocale du navigateur : voix donnée par le champ tts de chaque langue (LANGUAGES).
 // Le bouton haut-parleur n'est créé que si une voix existe (sinon rien, sans erreur).
 // Plusieurs langues sur une face : lues l'une après l'autre. Une nouvelle carte coupe la lecture en cours.
+// Vitesse (étape 46) : normale, ou lente pour la dictée (SPEECH_RATE.slow).
 // Lecture auto (state.settings.audio) : question lue à son apparition, réponse au retournement
 // (ou après validation en mode Écrit), seulement pour les langues choisies (langue apprise / d'appui / les deux).
+const SPEECH_RATE = { normal: 1, slow: 0.6 };   // débit de la synthèse vocale (1 = normal) ; lente : dictée (étape 46)
 const Speech = (() => {
   const LANG = {};
   LANG_CODES.forEach(c => { LANG[c] = LANGUAGES[c].tts; });
@@ -23,7 +25,8 @@ const Speech = (() => {
   function stop() { token++; try { if (synth) synth.cancel(); } catch (e) {} }
   // items : [{ text, lng }] lus à la suite ; langues sans voix sautées. "voler / s'envoler" : lu avec une pause.
   // cb (étape 45, histoires) : { onItem(index dans items), onEnd() } — appelés seulement si la lecture n'a pas été coupée.
-  function speakSeq(items, cb) {
+  // opts (étape 46, dictée) : { slow: true } = lecture lente (débit SPEECH_RATE.slow).
+  function speakSeq(items, cb, opts) {
     const list = arr(items).map((x, i) => Object.assign({ i }, x)).filter(x => x && x.text && x.text !== "—" && has(x.lng));
     stop();
     if (!list.length) return false;
@@ -35,6 +38,7 @@ const Speech = (() => {
           const u = new SpeechSynthesisUtterance(String(x.text).replace(/\s*\/\s*/g, ", "));
           u.lang = LANG[x.lng];
           u.voice = voiceFor(x.lng);
+          u.rate = opts && opts.slow ? SPEECH_RATE.slow : SPEECH_RATE.normal;
           if (cb) {
             u.onstart = () => { if (my === token && cb.onItem) { try { cb.onItem(x.i); } catch (e) {} } };
             if (k === list.length - 1) u.onend = () => { if (my === token && cb.onEnd) { try { cb.onEnd(); } catch (e) {} } };
@@ -45,7 +49,7 @@ const Speech = (() => {
     }, 60);
     return true;
   }
-  function speak(text, lng) { return speakSeq([{ text, lng }]); }
+  function speak(text, lng, opts) { return speakSeq([{ text, lng }], null, opts); }
   // Les voix arrivent souvent après le chargement : onReady est appelé une fois quand elles sont prêtes.
   function init(onReady) {
     if (!synth) return;

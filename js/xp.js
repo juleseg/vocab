@@ -25,7 +25,7 @@ const XP_RULES = {
   answer: {                   // réponse juste, par mode
     cards: 2, quiz: 2,        // Cartes, Interrogateur
     write: 4, table: 4,       // Écrit, Tableau (modes difficiles)
-    dictation: 4, speak: 4,   // Dictée, Prononciation (prévus à l'étape 46)
+    dictation: 4, speak: 4,   // Dictée, Prononciation (étape 46)
     mcq: 1, race: 1, pairs: 1, order: 2   // jeux (étape 42)
   },
   wrong: 1,                   // réponse fausse ou « À revoir » : l'effort compte
@@ -58,7 +58,7 @@ const XP_BADGES = [
 const XP_BADGE_IDS = XP_BADGES.map(b => b.id);
 // Défis possibles : k = sorte, n = objectif. Modes proposés seulement s'ils ont déjà été utilisés (use) ;
 // Interrogateur jamais (il faut une 2e personne). « lang » : seulement avec 2 langues étudiées ou plus.
-const XP_CH_MODES = ["write", "table", "mcq", "race", "pairs", "order"];
+const XP_CH_MODES = ["write", "table", "mcq", "race", "pairs", "order", "dictation", "speak"];   // + Dictée, Prononciation (étape 46)
 const XP_PERFECT_MIN = 10;     // sans-faute : 10 cartes ou plus, aucune erreur
 const XP_MAX = 100000000;
 
@@ -228,7 +228,7 @@ const XP = (() => {
   }
   function icon(c) {
     return c.k === "cards" ? "📚" : c.k === "correct" ? "✅" : c.k === "perfect" ? "🎯" : c.k === "game" ? "🎮"
-      : c.k === "lang" ? "🌍" : (GAME_ICON[c.p] || (c.p === "write" ? "✍️" : "📋"));
+      : c.k === "lang" ? "🌍" : (GAME_ICON[c.p] || LISTEN_ICON[c.p] || (c.p === "write" ? "✍️" : "📋"));
   }
   // Tirage des 3 défis d'un jour, selon ce que le compte utilise.
   function pick(day) {

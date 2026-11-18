@@ -1116,3 +1116,28 @@ html[lang="ko"] .tuto-title,html[lang="ko"] .tuto-text{word-break:keep-all;overf
 .sy-pop .sy-popw{font-size:26px;font-weight:600;margin-bottom:6px}
 .sy-pop .sy-poptr{font-size:17px;margin-bottom:4px}
 .sy-err{margin-top:8px}
+
+/* === ÉCOUTE ET PAROLE : DICTÉE ET PRONONCIATION (étape 46) === */
+.seg.seg-wrap{flex-wrap:wrap}
+.seg.seg-wrap button{flex:1 1 calc(33.333% - 4px)}
+.ls-q{text-align:center;padding:16px 14px}
+.ls-play{width:100%;font-size:19px;min-height:56px;margin:8px 0 10px}
+.ls-speed{max-width:260px;margin:0 auto}
+.ls-hint{display:block;margin:10px auto 0}
+.ls-tr{margin-top:10px;overflow-wrap:anywhere}
+.ls-tr-main{font-size:20px;font-weight:600}
+.ls-tr-q .ls-tr-main{font-size:clamp(24px,7vw,32px)}
+.ls-tr-sub{color:var(--muted);margin-top:2px}
+.ls-tr-res{margin-top:4px}
+.ls-tr-res .ls-tr-main{font-size:18px}
+.ls-word{margin-top:12px;font-size:22px;font-weight:600;color:var(--accent);overflow-wrap:anywhere}
+.ls-try{text-align:center;color:var(--muted);font-size:14px;margin:6px 0 8px}
+.ls-mic{width:100%;font-size:20px;min-height:64px}
+.ls-mic.on{background:var(--bad);border-color:var(--bad);color:#fff;animation:ls-pulse 1.2s ease-in-out infinite}
+@keyframes ls-pulse{0%,100%{box-shadow:0 0 0 0 rgba(220,60,60,.45)}50%{box-shadow:0 0 0 10px rgba(220,60,60,0)}}
+@media (prefers-reduced-motion:reduce){.ls-mic.on{animation:none}}
+.ls-msg{margin-top:10px;font-size:15px;text-align:center}
+.ls-msg.bad{color:var(--bad)}
+.ls-heard{text-align:center;margin-top:6px}
+.ls-heard-txt{font-size:19px;font-weight:600;overflow-wrap:anywhere}
+.ls-tools{margin-top:12px}

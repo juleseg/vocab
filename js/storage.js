@@ -12,6 +12,7 @@ function defaultPrivacy() { const o = {}; PRIVACY_KEYS.forEach(k => { o[k] = tru
 function normPrivacy(p) { const o = defaultPrivacy(); if (p && typeof p === "object") PRIVACY_KEYS.forEach(k => { if (p[k] === false) o[k] = false; }); return o; }
 // Jeux d'entraînement (étape 42) : settings.games = { sounds (désactivé par défaut), records { clé: meilleur score } }.
 // Dans le morceau settings (aucun nouveau morceau) ; 200 records au plus.
+// Écoute et parole (étape 46) : settings.listen = { slow } (vitesse de la dictée), aussi dans le morceau settings.
 function normGames(g) {
   const o = { sounds: false, records: {} };
   if (!g || typeof g !== "object") return o;
@@ -38,7 +39,8 @@ function defaultSettings(target, support) {
     defaultTarget: tg, defaultSupport: [],                                             // anciens champs, ignorés
     audio: { auto: true, langs: "target" },
     dailyGoal: 10, privacy: defaultPrivacy(),
-    games: normGames(null)                                                             // jeux (étape 42)
+    games: normGames(null),                                                            // jeux (étape 42)
+    listen: { slow: false }                                                            // dictée : lecture lente (étape 46)
   };
 }
 
@@ -196,7 +198,8 @@ function normalizeData(raw) {
       audio: { auto: au.auto !== false, langs: ["target", "support", "both"].includes(au.langs) ? au.langs : "target" },
       dailyGoal: clampInt(s.dailyGoal, 5, 100, 10),
       privacy: normPrivacy(s.privacy),
-      games: normGames(s.games)   // jeux d'entraînement (étape 42)
+      games: normGames(s.games),  // jeux d'entraînement (étape 42)
+      listen: { slow: !!(s.listen && s.listen.slow === true) }   // dictée : lecture lente (étape 46)
     },
     folders: arr(d.folders).filter(f => f && f.id).map((f, i) => Object.assign(
       { id: String(f.id), name: String(f.name || ""), order: num(f.order, i) }, normLangPair(f), lastUpdateOf(f), normSharedMark(f))),

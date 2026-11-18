@@ -16,7 +16,8 @@ function defaultSessionCfg() {
     types: [], tenses: [], verbs: [], persons: [],   // filtres en plus (vide = tout) : types de cartes ; conjugaison (clés « langue|… »)
     onlyDue: true, dir: "toT", count: state.settings.sessionSize, mode: "cards",
     langs: [], dirs: {},     // étape 37 : langues étudiées choisies (vide = toutes) ; sens par langue
-    orderKind: "both" };     // étape 42 : jeu « Remettre en ordre » : "words" | "sents" | "both"
+    orderKind: "both",       // étape 42 : jeu « Remettre en ordre » : "words" | "sents" | "both"
+    listenKind: "both" };    // étape 46 : Dictée / Prononciation, « À écouter / à dire » : "words" | "sents" | "both"
 }
 // Clés des filtres de conjugaison (une session peut mélanger plusieurs langues).
 function tenseKey(c) { return c.lang + "|" + c.tense; }
@@ -50,6 +51,8 @@ function sessionLangs(c, cfg, now, lg, stage) {
     if (cfg.scope === "lang" && L !== cfg.lang) return;
     if (cfg.onlyDue && !Leitner.isDue(c, now, L)) return;
     if (stage !== "base" && arr(cfg.langs).length && !cfg.langs.includes(L)) return;
+    // Dictée / Prononciation (étape 46) : mot ou phrase à écouter / dire dans L (dictée : voix de L nécessaire)
+    if (!stage && isListenMode(cfg.mode) && !lisKinds(c, L, cfg.mode, cfg.listenKind, i === 0 ? lg : studyLg(L)).length) return;
     out.push(L);
   });
   return out;
@@ -77,6 +80,7 @@ function sessionPool(cfg, stage) {
     if (cfg.mode === "write" && cardType(c) === "rule") return false;   // fiche de règle : pas de mode Écrit
     if (cfg.mode === "table" && cardType(c) !== "conj") return false;   // mode Tableau : conjugaison seulement
     if (isGameMode(cfg.mode) && !isVocab(c)) return false;              // jeux (étape 42) : vocabulaire seulement
+    if (isListenMode(cfg.mode) && !isVocab(c)) return false;            // Dictée / Prononciation (étape 46) : vocabulaire seulement
     if (conjOn) {                                                        // filtres de conjugaison : seulement des cartes conj
       if (cardType(c) !== "conj") return false;
       if (cfg.tenses.length && !cfg.tenses.includes(tenseKey(c))) return false;
@@ -103,6 +107,8 @@ function renderReview() {
     else if (rv.s.mode === "write") renderWriteSession(root);
     else if (rv.s.mode === "table") renderTableSession(root);
     else if (isGameMode(rv.s.mode)) renderGameSession(root);   // jeux d'entraînement (étape 42)
+    else if (rv.s.mode === "dictation") renderDictationSession(root);   // étape 46
+    else if (rv.s.mode === "speak") renderSpeakSession(root);           // étape 46
     else renderQuizSession(root);
   }
   else renderSessionConfig(root);
@@ -231,7 +237,8 @@ function renderSessionConfig(root) {
   const sesLangs = new Set();
   pool.forEach(c => { if (isVocab(c)) sessionLangs(c, cfg, nowP, lgs.get(c.listId)).forEach(L => sesLangs.add(L)); });
   const dirOpts = [["toT", "dir.toTarget"], ["fromT", "dir.fromTarget"], ["mix", "dir.mix"]];
-  if (sesLangs.size > 1) {
+  if (isListenMode(cfg.mode)) { /* Dictée / Prononciation (étape 46) : pas de sens (on écoute ou on dit la langue étudiée) */ }
+  else if (sesLangs.size > 1) {
     if (!cfg.dirs || typeof cfg.dirs !== "object") cfg.dirs = {};
     LANG_CODES.filter(L => sesLangs.has(L)).forEach(L => {
       const lg = studyLg(L);
@@ -260,8 +267,26 @@ function renderSessionConfig(root) {
   const modes = [["cards", "mode.cards"], ["write", "mode.write"], ["quiz", "mode.quiz"]];
   if (conjCards.some(c => hasGrammar(c.lang))) modes.push(["table", "mode.table"]);
   else if (cfg.mode === "table") cfg.mode = "cards";
-  box.appendChild(segField("review.mode", modes, cfg.mode, v => { cfg.mode = v; }));
+  // Dictée et Prononciation (étape 46). Dictée grisée si aucune langue du périmètre n'a de voix ;
+  // Prononciation absente si le navigateur n'a pas la reconnaissance vocale.
+  const vo = lisVoiceInfo(cfg.langs.length ? cfg.langs : poolLangs);
+  modes.push(["dictation", "mode.dictation"]);
+  if (lisCanSpeak()) modes.push(["speak", "mode.speak"]);
+  else if (cfg.mode === "speak") cfg.mode = "cards";
+  if (cfg.mode === "dictation" && !vo.ok) cfg.mode = "cards";
+  const mf = segField("review.mode", modes, cfg.mode, v => { cfg.mode = v; });
+  const mseg = mf.querySelector(".seg");
+  if (modes.length > 4) mseg.classList.add("seg-wrap");
+  if (!vo.ok) mseg.children[modes.findIndex(m => m[0] === "dictation")].disabled = true;
+  box.appendChild(mf);
   if (cfg.mode === "table") box.appendChild(el("div", "hint", t("table.modeHint")));
+  if (!vo.ok) box.appendChild(el("div", "hint", t(vo.loading ? "ls.voiceLoading" : "ls.noVoice")));
+  if (isListenMode(cfg.mode)) {
+    box.appendChild(el("div", "hint", t(cfg.mode === "dictation" ? "ls.hint.dictation" : "ls.hint.speak")));
+    if (cfg.mode === "dictation" && vo.missing.length) box.appendChild(el("div", "hint", t("ls.noVoiceSome", { langs: vo.missing.map(langName).join(", ") })));
+    box.appendChild(segField("ls.kind", [["words", "ls.kind.words"], ["sents", "ls.kind.sents"], ["both", "ls.kind.both"]],
+      cfg.listenKind || "both", v => { cfg.listenKind = v; }));
+  }
   // Jeux d'entraînement (étape 42) : même périmètre, cartes de vocabulaire seulement. Un seul mode choisi en tout.
   const gf = chipsField(GAME_MODES.map(m => ({ value: m, label: GAME_ICON[m] + " " + t("mode." + m) })), [cfg.mode], v => { cfg.mode = v; });
   gf.insertBefore(el("label", null, t("review.games")), gf.firstChild);
@@ -296,7 +321,9 @@ function startSession() {
     const ls = sessionLangs(c, cfg, now, lgs.get(c.listId));
     const lang = ls[Math.floor(Math.random() * ls.length)] || primaryLang(c);   // une seule langue par carte
     const d = (cfg.dirs && cfg.dirs[lang]) || cfg.dir;
-    return { id: c.id, lang, dir: d === "mix" ? (Math.random() < 0.5 ? "toT" : "fromT") : d };
+    const q = { id: c.id, lang, dir: d === "mix" ? (Math.random() < 0.5 ? "toT" : "fromT") : d };
+    if (isListenMode(cfg.mode)) q.lk = lisPickKind(c, lang, cfg.mode, cfg.listenKind);   // mot ou phrase (étape 46)
+    return q;
   });
   newRun(queue, cfg.mode);
   return true;
@@ -309,11 +336,11 @@ function setSessionLangs(langs) {
 // Lance une session à partir d'une file. first = première réponse par carte (résumé, ratés) ; dirs = sens par carte (rejouer).
 // Mode Tableau : la file contient des tableaux { ids } (une file de cartes { id } est regroupée par tableau).
 function newRun(queue, mode) {
-  rv.s = { queue, mode, revealed: false, counts: { known: 0, review: 0, unknown: 0 }, log: [], first: {}, dirs: {}, langs: {}, startedAt: Date.now() };
+  rv.s = { queue, mode, revealed: false, counts: { known: 0, review: 0, unknown: 0 }, log: [], first: {}, dirs: {}, langs: {}, lks: {}, startedAt: Date.now() };
   if (mode === "table") {
     if (queue.length && !queue[0].ids) rv.s.queue = tableGroups(queue.map(q => state.cards.find(c => c.id === q.id)).filter(Boolean));
     rv.s.queue.forEach(g => g.ids.forEach(id => { rv.s.dirs[id] = "toT"; }));
-  } else queue.forEach(q => { rv.s.dirs[q.id] = q.dir; if (q.lang) rv.s.langs[q.id] = q.lang; });
+  } else queue.forEach(q => { rv.s.dirs[q.id] = q.dir; if (q.lang) rv.s.langs[q.id] = q.lang; if (q.lk) rv.s.lks[q.id] = q.lk; });
   setSessionLangs(rv.s.langs);
   rv.phase = "run";
   renderReview();
@@ -334,7 +361,7 @@ function gradeCurrent(result) {
   s.revealed = false;
   commit();
 }
-function endSession() { rv.phase = "config"; rv.s = null; StudyCtx.cards.clear(); Storage.flushNow(); renderReview(); } // synchro en ligne après chaque session
+function endSession() { if (typeof SpeechRec !== "undefined") SpeechRec.stop(); rv.phase = "config"; rv.s = null; StudyCtx.cards.clear(); Storage.flushNow(); renderReview(); } // synchro en ligne après chaque session
 
 // Carte encore utilisable dans une session en cours (supprimée, ou langue de la liste changée entre-temps).
 function sessionCard(id) {
