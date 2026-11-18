@@ -78,6 +78,7 @@ const Tutorial = (() => {
       target: () => (reviewFree() ? reviewField("review.mode") : null) },
     { id: "pending", show: () => go("pending"), target: () => navBtn("pending") },
     { id: "streak", show: () => go("home"), target: () => [$("#homeStreakCard"), $("#homeGoal")] },
+    { id: "xp", show: () => go("home"), target: () => [$("#homeXp"), $("#homeChallenges")] },   // XP et défis du jour (étape 43)
     { id: "friends", show: () => go("friends"), target: () => navBtn("friends") },
     { id: "settings", show: () => go("settings"), target: () => (shown($("#pushCard")) ? $("#pushCard") : navBtn("settings")) }
   ];

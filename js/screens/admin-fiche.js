@@ -27,7 +27,7 @@ function openAccountFiche(userId, from) {
   if (!userId) return;
   if (fc.user !== userId) Object.assign(fc, { sum: null, store: null, issues: null, part: {}, missing: false, data: null,
     dataErr: "", version: null, view: null, q: "", open: {}, cap: "", acc: null, friends: null, friendsErr: "", shares: null, sharesErr: "",
-    push: null, pushErr: "" });
+    push: null, pushErr: "", xp: null });
   fc.user = userId;
   fc.from = from || (currentScreen !== "adminfiche" ? currentScreen : fc.from) || "adminacc";
   fc.started = false;
@@ -71,6 +71,9 @@ async function fcLoad() {
     (async () => {   // partages et invitations (étape 30) ; script absent : message dans la section Partages
       try { fc.shares = await aqRpc("admin_shares", { p_user: user }); fc.sharesErr = ""; }
       catch (e) { fc.shares = null; fc.sharesErr = alIsMissing(e) ? t("sh.missing") : aqErrText(e); }
+    })(),
+    (async () => {   // XP, niveau, défis réussis (étape 43) ; script absent : calculés depuis les données du compte (fcCompute)
+      try { fc.xp = await aqRpc("admin_account_xp", { p_user: user, p_tz: tz }); } catch (e) { fc.xp = null; }
     })(),
     (async () => {   // notifications (étape 32) ; script absent : message dans la section Notifications
       try { fc.push = await aqRpc("admin_push_account", { p_user: user }); fc.pushErr = ""; }
@@ -140,6 +143,9 @@ function fcCompute(d) {
     arr(d.lists).forEach(l => { const tg = listLangs(l).target; if (!v.langs.includes(tg)) v.langs.push(tg); });
     learningOf(d.settings).forEach(x => { if (!v.langs.includes(x.lang)) v.langs.push(x.lang); });   // profil de langues (étape 35)
     v.frozen = new Set(sk.frozenDays);   // jours gelés (étape 28)
+    // XP (étape 43) : morceau xp du compte (sinon XP de départ calculé depuis history, comme la migration)
+    const x = d.xp || normXp(null, d.history, sk, d.settings);
+    v.xp = { total: x.total, week: xpWeek(x).total, level: xpLevel(x.total), chDone: x.chDone, chDays: x.chDays.length, badges: x.badges.length };
     return v;
   });
 }
@@ -266,6 +272,9 @@ function fcHeader() {
     [t("fc.best"), v ? t("fc.days", { n: v.best }) : "—"],
     [t("fc.freezes"), v ? v.freezes + " / " + STREAK_MAX_FREEZES : "—"],
     [t("fc.goal"), v ? t("sk.goalCards", { n: v.goal }) : "—"],
+    [t("xp.fc.xp"), fcXp() ? t("xp.fc.xpVal", { t: dashFmt(fcXp().total), w: dashFmt(fcXp().week) }) : "—"],   // étape 43
+    [t("xp.fc.level"), fcXp() ? String(fcXp().level) : "—"],
+    [t("xp.fc.ch"), fcXp() ? t("xp.fc.chVal", { n: dashFmt(fcXp().chDone), d: dashFmt(fcXp().chDays) }) : "—"],
     [t("fc.uiLang"), v && v.uiLang ? langName(v.uiLang) : "—"],
     [t("fc.langs"), v ? fcLangsText(v.langs) : "—"],
     [t("fc.devices"), devNode],
@@ -288,6 +297,15 @@ function fcHeader() {
     }
   }
   return sec;
+}
+// XP du compte (étape 43) : fonction admin_account_xp (script de l'étape 43), sinon calcul depuis ses données.
+function fcXp() {
+  const x = fc.xp;
+  if (x && typeof x === "object" && x.total != null) {
+    return { total: num(Number(x.total), 0), week: num(Number(x.week), 0), level: num(Number(x.level), 1),
+      chDone: num(Number(x.challenges_done), 0), chDays: num(Number(x.full_days), 0) };
+  }
+  return fc.view && fc.view.xp ? fc.view.xp : null;
 }
 // Amis (étape 29) : amis, demandes en attente (reçues / envoyées), blocages.
 function fcFriends() {
@@ -640,6 +658,9 @@ function fcCsv() {
   S(H, t("fc.state"), fc.sum ? (a.blocked === true ? t("fc.blocked") : t("fc.active")) : "—");
   S(H, t("fc.streak"), v ? v.streak : "—"); S(H, t("fc.best"), v ? v.best : "—");
   S(H, t("fc.freezes"), v ? v.freezes : "—"); S(H, t("fc.goal"), v ? v.goal : "—");
+  const fx = fcXp();   // étape 43
+  S(H, t("xp.total"), fx ? fx.total : "—"); S(H, t("xp.week"), fx ? fx.week : "—"); S(H, t("xp.fc.level"), fx ? fx.level : "—");
+  S(H, t("xp.chDone"), fx ? fx.chDone : "—"); S(H, t("xp.chDays"), fx ? fx.chDays : "—");
   S(H, t("fc.uiLang"), v && v.uiLang ? langName(v.uiLang) : "—"); S(H, t("fc.langs"), v ? fcLangsText(v.langs) : "—");
   arr(fc.sum && fc.sum.devices).forEach(d => S(H, t("fc.devices"), [t("al.dev." + (d.type || "desktop")), d.os, d.browser, d.installed ? t("al.installed") : t("al.browser"), d.app_version ? "v" + d.app_version : "", admDay(d.last_seen)].filter(Boolean).join(" · ")));
   if (fc.friends) {   // amis et demandes en attente (étape 29)

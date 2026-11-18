@@ -14,7 +14,7 @@
 // - Journal : friend_request, friend_accept, friend_remove, friend_block (data.target = identifiant de l'autre).
 const FRIENDS_MAX_PENDING = 20;
 const FRIENDS_POLL_MS = 300000;   // badge des demandes reçues : toutes les 5 min (et au retour au premier plan)
-const PRIVACY_ORDER = ["streak", "today", "week", "success", "badges", "ranking", "shared"];
+const PRIVACY_ORDER = ["streak", "today", "week", "success", "badges", "xp", "ranking", "shared"];   // xp : « XP et niveau » (étape 43)
 
 // Lundi de la semaine du jour day ("YYYY-MM-DD").
 function frMonday(day) {
@@ -43,6 +43,7 @@ const Friends = (() => {
   let incoming = 0;                // demandes reçues (badge)
   let data = null, stats = null, ranking = null, loadedAt = 0, loading = false, err = "", token = 0;
   let lastPub = "", pubBusy = null, pollTimer = null;
+  let xpCols = true;               // étape 43 : colonnes xp_total / xp_week / level (script supabase-etape43.sql) ; false = pas encore là
   const view = { input: "", rankTab: "cards", busy: false };
   function on() { return auth.mode === "supabase" && !!auth.sbUid && !!Supa.client() && !!Storage.getUser(); }
   function isMissing(e) { return alIsMissing(e); }
@@ -64,7 +65,7 @@ const Friends = (() => {
   // --- Résumé public (user_public_stats) ---
   function publicRow() {
     const today = todayStr(), s = Streak.data(), w = frWeekStats(today);
-    return {
+    return Object.assign({
       user_id: auth.sbUid,
       streak: clampInt(s.current, 0, 100000, 0), best: clampInt(Math.max(s.best, s.current), 0, 100000, 0),
       last_valid_day: s.lastValidDay || null, freezes: clampInt(s.freezes, 0, 2, 0),
@@ -73,8 +74,17 @@ const Friends = (() => {
       today_day: today, today_done: Streak.doneToday(),
       week_start: w.mon, week_cards: Math.min(w.cards, 1000000), week_correct: Math.min(w.correct, w.cards, 1000000),
       privacy: normPrivacy(state.settings.privacy)
-    };
+    }, xpRow(today));
   }
+  // XP de la semaine, XP total et niveau (étape 43) ; les amis ne les voient que si « XP et niveau » est montré (côté serveur).
+  function xpRow(today) {
+    if (!xpCols || typeof XP === "undefined") return {};
+    try {
+      const x = XP.data(), w = xpWeek(x, today);
+      return { xp_total: Math.min(x.total, 100000000), xp_week: Math.min(w.total, 1000000), level: Math.min(xpLevel(x.total), 1000) };
+    } catch (e) { return {}; }
+  }
+  function isXpColErr(e) { return /xp_total|xp_week|'level'|"level"|column .*level/i.test(String((e && (e.message || e.msg || e.details)) || "")); }
   // Écrit ma ligne (rien si elle n'a pas changé depuis la dernière écriture réussie). Jamais d'erreur visible.
   function publish(force) {
     if (!on() || status === "missing") return Promise.resolve(false);
@@ -83,7 +93,12 @@ const Friends = (() => {
     if (!force && key === lastPub) return Promise.resolve(true);
     pubBusy = (async () => {
       try {
-        const r = await withTimeout(Supa.client().from("user_public_stats").upsert(row, { onConflict: "user_id" }), 15000);
+        let r = await withTimeout(Supa.client().from("user_public_stats").upsert(row, { onConflict: "user_id" }), 15000);
+        if (r && r.error && xpCols && isXpColErr(r.error)) {   // script de l'étape 43 pas lancé : sans les colonnes XP
+          xpCols = false;
+          ["xp_total", "xp_week", "level"].forEach(k => { delete row[k]; });
+          r = await withTimeout(Supa.client().from("user_public_stats").upsert(row, { onConflict: "user_id" }), 15000);
+        }
         if (r && r.error) throw r.error;
         lastPub = key; status = "ok";
         return true;
@@ -326,6 +341,12 @@ function amFriendBlock(x, s) {
       s.badges.forEach(n => { const b = el("span", "am-badge", badgeIcon(n) + " " + t("sk.badgeName", { n })); bd.appendChild(b); });
     }
     add(t("am.badges"), bd);
+    // XP et niveau (étape 43) : null = caché par l'ami (ou script de l'étape 43 pas lancé : ligne absente)
+    if ("level" in s || "xp_week" in s) {
+      add(t("xp.fr.level"), s.level == null ? null : t("xp.level", { n: s.level }));
+      add(t("xp.fr.week"), s.xp_week == null ? null : t("xp.n", { n: dashFmt(s.xp_week) }));
+      add(t("xp.fr.total"), s.xp_total == null ? null : t("xp.n", { n: dashFmt(s.xp_total) }));
+    }
   }
   add(t("am.shared"), shFriendProgress(x.user_id));   // progression sur les listes partagées avec moi (étape 30)
   box.appendChild(dl);

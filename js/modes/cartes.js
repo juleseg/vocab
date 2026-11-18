@@ -171,6 +171,13 @@ function renderCardsSession(root) {
   root.appendChild(quit);
 }
 
+// XP de fin de session (étape 43, js/xp.js) : sans-faute = toutes les cartes « Su » du premier coup (10 cartes ou plus).
+function xpSessionEnd(s, ids, n) {
+  try {
+    const ls = [...new Set(Object.values(s.langs || {}).filter(isLang))];
+    XP.onSessionEnd(s, { mode: s.mode, cards: ids.length, perfect: ids.length > 0 && n.known === ids.length, lang: ls.length === 1 ? ls[0] : null });
+  } catch (e) {}
+}
 // Résumé de fin de session : chaque carte compte une fois, selon sa première réponse.
 // Ratés = cartes répondues « Pas su » au moins une fois.
 function renderSessionSummary(root) {
@@ -181,6 +188,7 @@ function renderSessionSummary(root) {
   const n = { known: 0, review: 0, unknown: 0 };
   ids.forEach(id => n[s.first[id]]++);
   Activity.session(s, ids, n);   // journal : une fois par session
+  xpSessionEnd(s, ids, n);       // XP de session, défis, badges (étape 43) : une fois par session
   Friends.publish();             // résumé public pour mes amis (étape 29)
   Shared.publishProgress();      // progression sur les listes communes (étape 30)
   UserStatus.publish();          // résumé pour les notifications (étape 32)
@@ -195,6 +203,8 @@ function renderSessionSummary(root) {
     grid.appendChild(cell);
   });
   box.appendChild(grid);
+  const xg = xpGainLine(s);   // « +N XP » gagnés pendant la session (étape 43)
+  if (xg) box.appendChild(xg);
 
   const missed = ids.filter(id => s.first[id] === "unknown" && state.cards.some(c => c.id === id));
   if (!missed.length) box.appendChild(el("div", "sum-ok", t("sum.noMiss")));

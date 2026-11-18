@@ -113,12 +113,21 @@ function gameFinish(g) {
     g.record = Math.max(g.recordPrev, g.ok);
   }
   if (g.cardIds.length) {
+    const langs = [...new Set(g.cardIds.map(id => (g.meta[id] || {}).lang).filter(Boolean))];
     try {
+      const byList = {};   // étape 43 : ids des listes jouées (classement « listes les plus révisées » du tableau de bord admin)
+      g.cardIds.forEach(id => { const c = state.cards.find(x => x.id === id); if (c) byList[c.listId] = (byList[c.listId] || 0) + 1; });
+      const keep = Object.keys(byList).slice(0, 30), bl = {};
+      keep.forEach(k => { bl[k] = byList[k]; });
       Activity.log("game", {
         game: g.mode, score: g.ok, total: g.ok + g.bad, errors: g.errors != null ? g.errors : g.bad, seconds: g.seconds,
         cards: g.cardIds.length, hints: g.hints || 0, record: g.newRecord ? 1 : 0,
-        lang: [...new Set(g.cardIds.map(id => (g.meta[id] || {}).lang).filter(Boolean))].join(",")
+        lang: langs.join(","), by_list: bl
       });
+    } catch (e) {}
+    try {   // XP de partie, défis, badges (étape 43) : sans-faute = aucune erreur, 10 cartes ou plus
+      XP.onSessionEnd(rv.s && rv.s.game === g ? rv.s : g, { mode: g.mode, game: true, cards: g.cardIds.length, answers: g.ok + g.bad,
+        perfect: g.bad === 0 && !(g.errors > 0), record: !!g.newRecord && g.mode === "race", lang: langs.length === 1 ? langs[0] : null });
     } catch (e) {}
     Friends.publish();             // résumé public pour mes amis (étape 29)
     Shared.publishProgress();      // progression sur les listes communes (étape 30)
@@ -160,6 +169,8 @@ function renderGameSummary(root, g) {
   if (g.newRecord) box.appendChild(el("div", "sum-ok gm-rec", "🏆 " + t("gm.sum.newRecord")));
   const missed = g.missed.filter(id => state.cards.some(c => c.id === id));
   if (!missed.length && g.cardIds.length) box.appendChild(el("div", "sum-ok", t("gm.sum.noErr")));
+  const xg = xpGainLine(rv.s);   // « +N XP » gagnés pendant la partie (étape 43)
+  if (xg) box.appendChild(xg);
   root.appendChild(box);
 
   const btns = el("div", "btns");

@@ -2,6 +2,7 @@
 
 // === ÉCRAN : ACCUEIL ===
 // Série en cours (étape 28 : objectif du jour atteint, gels compris — voir SÉRIES).
+// Étape 43 : niveau et XP (#homeXp), défis du jour (#homeChallenges), dessinés par renderHomeXp (js/xp.js).
 function computeStreak() { return Streak.data().current; }
 function renderHome() {
   const now = Date.now();
@@ -36,4 +37,5 @@ function renderHome() {
   bar.setAttribute("aria-valuenow", String(Math.min(n, g)));
   const txt = done || n >= g ? t("sk.goalReached") : t("sk.goalLeft", { n: g - n });
   box.append(hd, bar, el("div", "sk-goal-txt", txt));
+  renderHomeXp();   // niveau, XP et défis du jour (étape 43, js/xp.js)
 }

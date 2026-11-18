@@ -1007,3 +1007,30 @@ html[lang="ko"] .tuto-title,html[lang="ko"] .tuto-text{word-break:keep-all;overf
 @media (prefers-reduced-motion: reduce){.gm-ok,.gm-bad{animation:none}}
 @media (max-width:360px){.gm-tile{font-size:15px;padding:6px}.gm-qmain{font-size:24px}.gm-tl{font-size:18px;padding:6px 9px}}
 .gm-sum .sum-num{font-size:28px;white-space:nowrap}
+
+/* === XP, NIVEAUX, DÉFIS DU JOUR ET BADGES (étape 43) === */
+.xp-home{margin-top:14px}
+.xp-lvl-hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.xp-lvl-n{font-weight:800;font-size:18px}
+.xp-lvl-x{font-weight:600;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.xp-bar > span{background:var(--accent)}
+.xp-lvl-sub{font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.xp-chall{margin-top:14px}
+.xp-ch{list-style:none;margin:10px 0 6px;padding:0;display:flex;flex-direction:column;gap:10px}
+.xp-ch-row{display:flex;align-items:center;gap:10px;min-width:0}
+.xp-ch-ic{font-size:22px;line-height:1;flex:none;width:28px;text-align:center}
+.xp-ch-mid{flex:1;min-width:0}
+.xp-ch-lbl{font-size:15px;font-weight:600;overflow-wrap:anywhere;word-break:keep-all}
+.xp-ch-bar{height:8px;margin:5px 0 0}
+.xp-ch-bar > span{background:var(--accent)}
+.xp-ch-bar.done > span{background:var(--ok)}
+.xp-ch-v{flex:none;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--muted)}
+.xp-ch-row.done .xp-ch-lbl{color:var(--muted);text-decoration:line-through}
+.xp-ch-row.done .xp-ch-v{color:var(--ok)}
+.xp-h3{font-size:15px;margin:14px 0 6px}
+.xp-langs td,.xp-langs th{white-space:nowrap}
+.xp-gain{margin-top:10px;text-align:center;font-weight:800;font-size:18px;color:var(--accent)}
+.xp-pop .ic{animation:xpRise 1s ease 1}
+.xp-pop.xp-lvl .tx{font-size:22px;color:var(--accent)}
+@keyframes xpRise{0%{transform:translateY(16px) scale(.6);opacity:0}60%{transform:translateY(-4px) scale(1.15);opacity:1}100%{transform:none}}
+@media (prefers-reduced-motion: reduce){.xp-pop .ic{animation:none}}

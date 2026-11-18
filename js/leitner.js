@@ -167,10 +167,12 @@ const Streak = (() => {
     const rolled = streakRoll(s, today);
     notices.push(...rolled);
     const ev = streakValidate(s, today, reviewedOn(today), goal());
+    xpStreakDay(ev, today);   // jour de série validé : XP (étape 43)
     if (JSON.stringify(s) !== before) commit();
     celebrate(ev);
     skPushEvents(rolled.concat(ev));
     if (show) showNotices();
+    try { if (typeof XP !== "undefined") XP.tick(); } catch (e) {}   // défis du jour, badges, niveau (étape 43)
     Friends.publish();   // série, objectif du jour, semaine : résumé public pour mes amis (étape 29)
   }
   // Après chaque réponse (Leitner) : l'appelant enregistre (commit). day = jour de la réponse.
@@ -180,6 +182,7 @@ const Streak = (() => {
     const rolled = streakRoll(s, day);
     notices.push(...rolled);
     const ev = streakValidate(s, day, reviewedOn(day), goal());
+    xpStreakDay(ev, day);   // jour de série validé : XP (étape 43)
     celebrate(ev);
     skPushEvents(rolled.concat(ev));
   }
@@ -229,12 +232,16 @@ const Streak = (() => {
     setInterval(check, 60000);
     try { document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") check(); }); } catch (e) {}
   }
-  function reset() { notices = []; lastDay = null; }
+  function reset() { notices = []; lastDay = null; try { if (typeof XP !== "undefined") XP.reset(); } catch (e) {} }
   return { goal, reviewedOn, data, doneToday, tick, onReview, showNotices, watch, reset };
 })();
 // Palier atteint, gel utilisé → événements pour les notifications automatiques (étape 34, js/notifications.js).
 function skPushEvents(ev) {
   try { if (ev.length && typeof PushEvents !== "undefined") PushEvents.fromStreak(ev); } catch (e) {}
+}
+// Objectif du jour atteint (événement « goal ») → XP du jour de série (étape 43, js/xp.js).
+function xpStreakDay(ev, day) {
+  try { if (typeof XP !== "undefined" && ev.some(e => e.k === "goal")) XP.onStreakDay(day); } catch (e) {}
 }
 function badgeIcon(days) { return days >= 365 ? "👑" : days >= 100 ? "🏆" : days >= 30 ? "🥇" : "🏅"; }
 
@@ -332,6 +339,7 @@ const Leitner = (() => {
     if (result === "unknown") P.stats.wrong++;
     if (L === primaryLang(c)) { c.box = P.box; c.dueAt = P.dueAt; c.stats = Object.assign({}, P.stats); }
     logHistory(now, result === "known", L);
+    xpAnswer(c, L, result === "known", now);   // XP (étape 43)
     return { from, to: P.box, dueAt: P.dueAt, lang: L };
   }
   // Jeux d'entraînement (étape 42) : poids réduit. ok = bonne réponse : pas de montée de boîte, date de révision
@@ -346,8 +354,11 @@ const Leitner = (() => {
     P.stats.lastSeen = now;
     if (L === primaryLang(c)) { c.box = P.box; c.dueAt = P.dueAt; c.stats = Object.assign({}, P.stats); }
     logHistory(now, true, L);
+    xpAnswer(c, L, true, now);   // XP (étape 43)
     return { from: P.box, to: P.box, dueAt: P.dueAt, lang: L };
   }
+  // XP d'une réponse (étape 43, js/xp.js) : jamais bloquant pour la progression.
+  function xpAnswer(c, L, ok, now) { try { if (typeof XP !== "undefined") XP.onAnswer(c, L, ok, now); } catch (e) {} }
   // Remise à zéro d'une carte (copie sans progression) : toutes les langues.
   function clear(c, now) {
     c.box = 0; c.dueAt = now || Date.now(); c.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null };

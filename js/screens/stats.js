@@ -112,6 +112,7 @@ function renderStats() {
   root.appendChild(top);
   const byL = statsByLang(cards, now);
   if (byL) root.appendChild(byL);
+  root.appendChild(statsXp());       // XP, niveau, XP par langue, défis réussis (étape 43, js/xp.js)
   root.appendChild(statsStreak());
 
   // Par catégorie
@@ -236,7 +237,8 @@ function statsByLang(units, now) {
   return card;
 }
 
-// Série (étape 28) : chiffres, calendrier des 12 dernières semaines (jours gelés, objectif atteint), badges.
+// Série (étape 28) : chiffres, calendrier des 12 dernières semaines (jours gelés, objectif atteint), badges
+// (badges de série puis, depuis l'étape 43, badges XP : xpBadgeCells).
 function statsStreak() {
   const s = Streak.data(), wrap = el("div");
   const card = el("div", "card");
@@ -265,6 +267,7 @@ function statsStreak() {
     c.title = t("sk.badgeName", { n: b }) + " — " + (got ? t("sk.badgeGot") : t("sk.badgeTodo"));
     grid.appendChild(c);
   });
+  xpBadgeCells(grid);   // badges de l'étape 43 (sans-faute, cartes, défis, Course 60 s, niveaux)
   bc.appendChild(grid);
   wrap.appendChild(bc);
   return wrap;

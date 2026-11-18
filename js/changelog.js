@@ -8,6 +8,32 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "43", date: "2026-11-18",
+    points: {
+      ko: [
+        "이제 답할 때마다 XP를 얻어요. 쓰기와 활용표 모드는 XP가 더 많아요.",
+        "XP가 쌓이면 레벨이 올라가요. 홈 화면과 통계에서 진행 막대를 확인하세요.",
+        "매일 오늘의 도전 3개! 모두 완료하면 보너스 XP를 받아요.",
+        "새 배지: 첫 만점, 카드 100 / 1000 / 5000장, 도전 7일, 60초 레이스 첫 기록, 레벨 배지.",
+        "친구가 내 레벨과 이번 주 XP를 볼 수 있어요. 설정 > 친구에서 숨길 수 있어요."
+      ],
+      fr: [
+        "Tu gagnes maintenant des XP à chaque réponse, et plus en mode Écrit et Tableau.",
+        "Les XP font monter ton niveau : barre de progression à l'Accueil et dans Stats.",
+        "Chaque jour, 3 défis du jour à l'Accueil, avec un bonus si tu les fais tous.",
+        "Nouveaux badges : premier sans-faute, 100 / 1000 / 5000 cartes, 7 jours de défis, premier record à la Course 60 s, niveaux.",
+        "Tes amis voient ton niveau et tes XP de la semaine ; tu peux les cacher dans Réglages > Amis."
+      ],
+      en: [
+        "You now earn XP for every answer, and more in Write and Table modes.",
+        "XP raises your level: see the progress bar on Home and in Stats.",
+        "Every day, 3 daily challenges on Home, with a bonus when you complete all of them.",
+        "New badges: first perfect round, 100 / 1000 / 5000 cards, 7 days of challenges, first 60-second race record, levels.",
+        "Friends can see your level and weekly XP; you can hide them in Settings > Friends."
+      ]
+    }
+  },
+  {
     version: "42", date: "2026-11-17",
     points: {
       ko: [

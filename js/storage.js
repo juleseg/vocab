@@ -7,7 +7,7 @@
 // Version 5 : profil de langues (settings.learning) et exemples par langue (cards[].examples) — étape 35, voir LANGUES.
 // Version 6 : langues étudiées d'une liste (lists[].targets) et progression par langue (cards[].progress) — étape 37.
 const DATA_VERSION = 6;
-const PRIVACY_KEYS = ["streak", "today", "week", "success", "badges", "ranking", "shared"];   // ce que mes amis voient (étape 29 ; shared : étape 30)
+const PRIVACY_KEYS = ["streak", "today", "week", "success", "badges", "ranking", "shared", "xp"];   // ce que mes amis voient (étape 29 ; shared : étape 30 ; xp : étape 43)
 function defaultPrivacy() { const o = {}; PRIVACY_KEYS.forEach(k => { o[k] = true; }); return o; }
 function normPrivacy(p) { const o = defaultPrivacy(); if (p && typeof p === "object") PRIVACY_KEYS.forEach(k => { if (p[k] === false) o[k] = false; }); return o; }
 // Jeux d'entraînement (étape 42) : settings.games = { sounds (désactivé par défaut), records { clé: meilleur score } }.
@@ -52,6 +52,7 @@ function emptyData(target, support) {
     cards: [],       // { id, listId, type, ... } (voir newCard et TYPES DE CARTES)
     history: [],
     streak: normStreak(null, []),   // série (voir SÉRIES)
+    xp: normXp(null, [], null, null),   // XP, niveaux, défis du jour (étape 43, js/xp.js)
     proposals: [],   // propositions « À valider » : { id, cardId, field (code de langue | example | extr:<code> | pos:<code> | dup), type, oldValue, newValue, reason, createdAt }
     rejected: [],    // clés des propositions refusées (carte|champ|empreinte de la valeur) : jamais reproposées
     lastCheckAt: 0,  // dernière vérification automatique (0 = pas encore démarrée)
@@ -216,6 +217,8 @@ function normalizeData(raw) {
     sharedProgress: normSharedProgress(d.sharedProgress)   // étape 30 : progression sur les listes communes
   };
   out.streak = normStreak(d.streak, out.history);
+  // Étape 43 : XP, défis, badges (morceau xp). Absent → XP de départ calculé depuis history (migration douce, rien supprimé).
+  out.xp = normXp(d.xp, out.history, out.streak, out.settings);
   const folderIds = new Set(out.folders.map(f => f.id));
   out.lists = arr(d.lists).filter(l => l && l.id).map((l, i) => Object.assign({
     id: String(l.id), name: String(l.name || ""),
@@ -334,6 +337,7 @@ function looksLikeAppData(raw) {
 //   user:<id>:settings              { version (modèle de données), settings, updatedAt, rejected, lastCheckAt, aiResume: { kind, total } }
 //   user:<id>:folders / :lists / :history
 //   user:<id>:streak                série (étape 28, voir SÉRIES) — aussi modifiée par les fonctions admin de l'étape 28
+//   user:<id>:xp                    XP, niveau, défis du jour, badges de l'étape 43 (voir js/xp.js)
 //   user:<id>:proposals:<n>         propositions « À valider » (500 max par morceau)
 //   user:<id>:cards:<listId>:<n>    { cards: [200 max], sig: { idCarte: empreinte vérifiée } }
 //   user:<id>:resume:<n>            ids des cartes restant à compléter (complétion en pause, 2000 max par morceau)
@@ -566,6 +570,7 @@ const Storage = (() => {
     put("lists", data.lists);
     put("history", data.history);
     put("streak", data.streak);
+    if (data.xp) put("xp", data.xp);   // étape 43 : nouveau morceau, toujours envoyé avant l'index (règle 33b)
     // Cartes : par liste, morceaux de 200 cartes max (et taille limitée, pour les cartes avec de longs exemples).
     // Listes communes (étape 30) : cartes dans shared_cards, ici seulement la progression personnelle (sharedprogress).
     const shIds = new Set(arr(data.lists).filter(isSharedList).map(l => l.id));
@@ -618,6 +623,7 @@ const Storage = (() => {
       settings: s.settings, rejected: s.rejected, lastCheckAt: s.lastCheckAt,
       folders: arr(getPiece(P + "folders")), lists: arr(getPiece(P + "lists")), history: arr(getPiece(P + "history")),
       streak: getPiece(P + "streak"),   // absent (version 3 et moins) : calculé par normalizeData
+      xp: getPiece(P + "xp"),           // absent (version 42 et moins) : XP de départ calculé par normalizeData (étape 43)
       cards: [], proposals: [], checkedSig: {}, aiResume: null, sharedProgress: {}
     };
     const ids = [];
@@ -626,7 +632,8 @@ const Storage = (() => {
     arr(idx.keys).forEach(k => {
       const v = getPiece(k);
       // « streak » absent (étape 33b) : pas bloquant, la série est recalculée depuis history (comme en v3) puis renvoyée.
-      if (v === undefined) { if (k !== P + "streak") { missing++; lost.push(k.slice(P.length)); } return; }
+      // « xp » absent (étape 43) : pas bloquant non plus, l'XP de départ est recalculé depuis history puis renvoyé.
+      if (v === undefined) { if (k !== P + "streak" && k !== P + "xp") { missing++; lost.push(k.slice(P.length)); } return; }
       if (k.startsWith(P + "cards:")) { out.cards.push(...arr(v.cards)); Object.assign(out.checkedSig, v.sig || {}); }
       else if (k.startsWith(P + "proposals:")) out.proposals.push(...arr(v));
       else if (k.startsWith(P + "resume:")) ids.push(...arr(v));
