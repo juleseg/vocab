@@ -14,6 +14,7 @@
 // Étape 34 : envois programmés et règles automatiques (section ENVOIS PROGRAMMÉS ET AUTOMATIQUES, en bas) ; après un
 // envoi, la vraie raison de ce qui n'est pas parti (réponse reasons de send-push) ; historique avec le type d'envoi.
 // Étape 38 : onglet « Inviter à activer » (fichier js/screens/admin-invite.js, fonction npInviteTab).
+// Étape 48 : onglet « Versions » (fichier js/screens/admin-release.js, fonction npReleaseTab) : annoncer une version.
 const NP_PAGE = 50;
 const NP_FILTER_KEYS = ["streak_min", "streak_max", "goal", "inactive_min", "active_within", "target_lang", "ui_lang",
   "due_min", "pending_min", "device_type", "installed"];
@@ -93,7 +94,7 @@ function renderAdminPush() {
   const top = el("div", "adm-top");
   top.appendChild(el("h2", null, t("np.adminTitle")));
   const ref = el("button", "link-btn", t("admin.refresh"));
-  ref.addEventListener("click", () => { nps.hist.data = null; npLoad(); });
+  ref.addEventListener("click", () => { nps.hist.data = null; if (typeof rls !== "undefined") rls.started = false; npLoad(); });   // étape 48 : onglet Versions relu aussi
   top.appendChild(ref);
   root.appendChild(top);
   if (!nps.started) { npLoad(); return; }
@@ -103,7 +104,7 @@ function renderAdminPush() {
   if (nps.fn === "missing") root.appendChild(el("div", "card np-msg", t("np.fnMissing")));
   const tabs = el("div", "seg np-tabs");
   [["send", "np.tab.send"], ["templates", "np.tab.templates"], ["segments", "np.tab.segments"], ["scheduled", "np.tab.scheduled"],
-   ["auto", "np.tab.auto"], ["history", "np.tab.history"], ["invite", "ni.tab"]].forEach(([k, lab]) => {
+   ["auto", "np.tab.auto"], ["history", "np.tab.history"], ["invite", "ni.tab"], ["versions", "rl.tab"]].forEach(([k, lab]) => {
     const b = el("button", null, t(lab));
     b.type = "button";
     b.setAttribute("aria-pressed", String(nps.tab === k));
@@ -117,6 +118,7 @@ function renderAdminPush() {
   else if (nps.tab === "history") npHistoryTab(root);
   else if (nps.tab === "scheduled") npScheduledTab(root);
   else if (nps.tab === "invite") npInviteTab(root);   // étape 38 : js/screens/admin-invite.js
+  else if (nps.tab === "versions") npReleaseTab(root);   // étape 48 : js/screens/admin-release.js
   else npAutoTab(root);
 }
 

@@ -439,9 +439,13 @@ const Storage = (() => {
   let localFullWarned = false;
   let beforeSaveFn = null;     // étape 30 : modifications des listes communes repérées avant chaque sauvegarde
   let lastErr = "";            // étape 33b : dernière erreur de synchro (message court, affiché en touchant l'indicateur)
+  let paused = false;          // étape 48 : mise à jour nécessaire (js/release.js) → aucun envoi, données gardées sur l'appareil
   const listeners = [];
 
-  function setMode(m) { mode = m; listeners.forEach(fn => { try { fn(m); } catch (e) {} }); }
+  function setMode(m) {
+    if (paused && remote && (m === "cloud" || m === "syncing" || m === "error")) m = "paused";   // étape 48
+    mode = m; listeners.forEach(fn => { try { fn(m); } catch (e) {} });
+  }
   function onMode(fn) { listeners.push(fn); fn(mode); }
   function getMode() { return mode; }
   function isCloud() { return !!backend || !!sb; }
@@ -456,6 +460,23 @@ const Storage = (() => {
     try { if (typeof ErrLog !== "undefined") ErrLog.sync(lastErr, e); } catch (x) {}   // étape 41 : journal des erreurs (message exact)
   }
   function getLastError() { return lastErr; }
+  // Étape 48 : synchro en pause (Release.apply) tant que l'appli doit être mise à jour. Les sauvegardes continuent sur
+  // l'appareil ; rien ne part en ligne (indicateur « En pause »). Reprise : envoi de ce qui attend.
+  function pause(on) {
+    on = !!on;
+    if (on === paused) return;
+    paused = on;
+    if (paused) { clearTimeout(retryTimer); retryTimer = null; if (remote) setMode("paused"); }
+    else if (remote) { setMode("cloud"); retryNow(); }
+  }
+  function isPaused() { return paused; }
+  // Étape 48 : format des données en ligne (version du morceau settings) plus récent que celui de l'appli → blocage
+  // (js/release.js). Renvoie true si trop récent.
+  function tooNew(v) {
+    const n = num(Number(v), 0);
+    if (n > DATA_VERSION) { try { if (typeof Release !== "undefined") Release.dataTooNew(n); } catch (e) {} return true; }
+    return false;
+  }
 
   // --- Synchro : updatedAt des données en ligne à la dernière synchro réussie (null = inconnu) ---
   function getSynced() {
@@ -488,7 +509,7 @@ const Storage = (() => {
   }
   function retryNow() {
     clearTimeout(retryTimer); retryTimer = null;
-    if (!userId || !remote) return;
+    if (!userId || !remote || paused) return;
     if (!remoteOk) { if (onRetryInitFn) { try { onRetryInitFn(); } catch (e) {} } }
     else if (lastData) flush();
   }
@@ -687,6 +708,7 @@ const Storage = (() => {
     if (!userId) remote = null;
     else if (sb) remote = sbUid ? supabaseBackend(sb, sbUid, "user:" + userId + ":") : null;
     else remote = backend || null;
+    try { if (typeof Release !== "undefined") Release.userChanged(); } catch (e) {}   // étape 48
   }
   function getUser() { return userId; }
   // Pendant l'ouverture du compte : les sauvegardes restent en mémoire (pas d'écriture avant la migration).
@@ -780,6 +802,10 @@ const Storage = (() => {
         }
         if (userId !== id) return null;
         const { data, missing, lost } = assemble(idx, k => got.has(k) ? JSON.parse(got.get(k)) : undefined);
+        // Étape 48 : données en ligne écrites par une version plus récente de l'appli (format > DATA_VERSION) : on ne les
+        // reprend pas et on n'écrit rien (blocage « Mise à jour nécessaire », js/release.js). Données de l'appareil gardées.
+        if (tooNew(data.version)) { remoteOk = false; setMode("paused"); return null; }
+        try { if (typeof Release !== "undefined") Release.dataOk(); } catch (e) {}
         if (missing) throw new Error("incomplete (" + lost.slice(0, 3).join(", ") + ")");
         remoteSaved = new Map(Array.from(got).filter(([k]) => k === P + "index" || keys.includes(k)));
         remoteOk = true;
@@ -801,6 +827,7 @@ const Storage = (() => {
   // Envoi cloud des morceaux modifiés, puis de l'index, puis suppression des morceaux disparus. Renvoie true si tout est à jour.
   // Avant d'écrire : relecture de l'index en ligne ; s'il a changé depuis la dernière synchro → conflit (on n'écrit rien).
   async function doFlush() {
+    if (paused && remote) { if (mode !== "paused") setMode("paused"); return false; }   // étape 48 : mise à jour nécessaire
     if (!remote || !remoteOk || !lastData || !userId || conflictOpen) return !remote;
     const id = userId, P = pre();
     const { pieces, index } = split(lastData);
@@ -818,6 +845,12 @@ const Storage = (() => {
         if (userId !== id) return false;
         const r = rIdx ? num(JSON.parse(rIdx).updatedAt, 0) : 0;
         if (r > S && r !== lastData.updatedAt) {            // modifié ailleurs depuis la dernière synchro
+          // Étape 48 : écrit par une version plus récente (format des données) → blocage, jamais « garder cet appareil ».
+          try {
+            const rs = await remote.get(P + "settings");
+            if (userId !== id) return false;
+            if (rs && tooNew(JSON.parse(rs).version)) { remoteOk = false; setMode("paused"); return false; }
+          } catch (e) {}
           conflictOpen = true;
           setErr("envoi", "conflict");
           setMode("error");
@@ -905,7 +938,8 @@ const Storage = (() => {
     connect, isCloud, isSupabase, useSupabase, onMode, getMode,
     loadAccounts, saveAccounts, readLegacy, readLegacyLocal, getSession, setSession,
     setUser, getUser, hold, release, readLocal, writeLocal, dropOldLocal, initRemote, save, saveNow, flushNow, flushWait,
-    getSynced, markSynced, forceFullPush, onConflict, onRetryInit, onSyncError, setConflictOpen, packRows, unpackRows, onBeforeSave, getLastError
+    getSynced, markSynced, forceFullPush, onConflict, onRetryInit, onSyncError, setConflictOpen, packRows, unpackRows, onBeforeSave, getLastError,
+    pause, isPaused   // étape 48
   };
 })();
 
@@ -1005,7 +1039,10 @@ const Supa = (() => {
       client = window.supabase.createClient(c.url, c.key, {
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: authStorage, storageKey: AUTH_KEY },
         // Étape 41 : fetch surveillé (erreurs des appels Supabase et de send-push → journal des erreurs).
-        global: typeof ErrLog !== "undefined" ? { fetch: ErrLog.wrapFetch() } : {}
+        // Étape 48 : portillon des écritures (Release.gateFetch) sous le fetch surveillé : rien n'est écrit tant que
+        // l'appli doit être mise à jour.
+        global: typeof ErrLog !== "undefined" ? { fetch: ErrLog.wrapFetch(typeof Release !== "undefined" ? Release.gateFetch : undefined) }
+              : typeof Release !== "undefined" ? { fetch: Release.gateFetch } : {}
       });
       return true;
     } catch (e) { client = null; return false; }

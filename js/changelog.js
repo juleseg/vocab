@@ -8,6 +8,26 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "48", date: "2026-11-18",
+    points: {
+      ko: [
+        "새 버전이 나오면 앱이 알려 줘요 (알림과 '업데이트' 배너).",
+        "'업데이트'를 한 번 누르면 앱이 새 버전을 받아 다시 시작해요.",
+        "꼭 필요한 업데이트라면 계속하기 전에 앱이 먼저 물어봐요. 그동안 데이터는 휴대폰에 그대로 있어요."
+      ],
+      fr: [
+        "Quand une nouvelle version sort, l'appli te le dit (notification et bandeau « Mettre à jour »).",
+        "Un toucher sur « Mettre à jour » : l'appli télécharge la nouvelle version et redémarre.",
+        "Si une mise à jour est nécessaire, l'appli te la demande avant de continuer. Tes données restent sur ton téléphone en attendant."
+      ],
+      en: [
+        "When a new version comes out, the app tells you (notification and \"Update\" banner).",
+        "One tap on \"Update\": the app downloads the new version and restarts.",
+        "If an update is needed, the app asks for it before you continue. Your data stays on your phone in the meantime."
+      ]
+    }
+  },
+  {
     version: "47", date: "2026-11-18",
     points: {
       ko: [

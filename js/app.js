@@ -52,7 +52,8 @@ function renderSyncStatus(mode) {
   const el = $("#syncStatus");
   el.dataset.mode = mode;
   $("#syncLabel").textContent = t("storage." + mode);
-  const infoKey = mode === "error" ? "storage.info.error" : mode === "offline" ? "storage.info.offline" : (mode === "local" ? "storage.info.local" : "storage.info.cloud");
+  const infoKey = mode === "error" ? "storage.info.error" : mode === "offline" ? "storage.info.offline" : mode === "paused" ? "storage.info.paused"   // étape 48
+    : (mode === "local" ? "storage.info.local" : "storage.info.cloud");
   $("#storageInfo").textContent = t(infoKey);
 }
 // Étape 33b : toucher l'indicateur en erreur (ou hors ligne) affiche le message exact de la dernière erreur.
@@ -180,6 +181,7 @@ function render() {
   applyI18n();
   renderSyncStatus(Storage.getMode());
   renderScreen();
+  Release.paint();   // étape 48 : bandeau / écran « Mise à jour nécessaire » dans la langue choisie
 }
 
 // === INIT ===
@@ -211,6 +213,7 @@ async function init() {
   if (Supa.configured()) {
     if (await Supa.init()) {
       auth.mode = "supabase";
+      Release.start();   // étape 48 : dernière version annoncée, avant même la connexion (blocage si obligatoire)
       Storage.useSupabase(Supa.client());
       let session = null;
       try { session = await Supa.session(); } catch (e) {}
