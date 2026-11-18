@@ -20,6 +20,19 @@ function changelogDate(d) {
     return new Date(y, m - 1, j).toLocaleDateString(state.settings.uiLang, { year: "numeric", month: "long", day: "numeric" });
   } catch (e) { return String(d || ""); }
 }
+// Nombre de versions visibles par les utilisateurs (étape 50, réglage admin « Nouveautés visibles ») :
+// null = toutes ; 0 = aucune ; N = les N dernières (versions APP_VERSION − N + 1 à APP_VERSION, selon les entrées qui existent).
+function newsLimit() {
+  try { const n = Release.setting("changelog_count"); return typeof n === "number" && n >= 0 && n <= 100 ? n : null; } catch (e) { return null; }
+}
+function newsIsAdmin() { try { return !!(auth && auth.isAdmin); } catch (e) { return false; } }
+// Entrées montrées dans À propos : l'admin voit toujours tout.
+function newsVisible() {
+  const n = newsLimit();
+  if (n === null || newsIsAdmin()) return CHANGELOG;
+  const cur = parseInt(APP_VERSION, 10), min = cur - n + 1;
+  return CHANGELOG.filter(e => { const v = parseInt(e.version, 10); return v >= min && v <= cur; });
+}
 function changelogEntry(e, cls) {
   const box = el("div", "ab-ver" + (cls ? " " + cls : ""));
   const head = el("div", "ab-ver-head");
@@ -113,11 +126,16 @@ function renderAbout() {
   }
   root.appendChild(sh);
 
-  // Nouveautés : toutes les versions, la plus récente en haut.
-  const nw = el("div", "card");
-  nw.appendChild(el("h2", null, t("about.news")));
-  CHANGELOG.forEach((e, i) => nw.appendChild(changelogEntry(e, i === 0 ? "first" : "")));
-  root.appendChild(nw);
+  // Nouveautés : la plus récente en haut. Utilisateur : les N dernières versions selon le réglage de l'admin (aucun bloc
+  // si 0). Admin : toute la liste, avec la note sur ce que voient les utilisateurs.
+  const lim = newsLimit(), list = newsVisible();
+  if (list.length && !(lim === 0 && !newsIsAdmin())) {
+    const nw = el("div", "card");
+    nw.appendChild(el("h2", null, t("about.news")));
+    if (lim !== null && newsIsAdmin()) nw.appendChild(el("p", "muted ab-newsnote", t(lim === 0 ? "nv.note.zero" : lim === 1 ? "nv.note.one" : "nv.note.n", { n: lim })));
+    list.forEach((e, i) => nw.appendChild(changelogEntry(e, i === 0 ? "first" : "")));
+    root.appendChild(nw);
+  }
 }
 
 // === QUOI DE NEUF (étape 39) ===
@@ -138,7 +156,7 @@ const WhatsNew = (() => {
     const s = seen();
     if (s === APP_VERSION || (s && Number(s) >= Number(APP_VERSION))) return;
     const entry = CHANGELOG.find(e => e.version === APP_VERSION);
-    if (!entry || (s === null && !arr(state.history).length)) { mark(); return; }
+    if (!entry || newsLimit() === 0 || (s === null && !arr(state.history).length)) { mark(); return; }   // N = 0 (étape 50) : jamais
     busy = true;
     const my = ++token;
     try {

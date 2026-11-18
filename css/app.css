@@ -1281,3 +1281,22 @@ body.rl-locked{overflow:hidden}
 .ci-apic{display:flex;flex-direction:column;align-items:center;gap:4px}
 .ci-athumb{width:110px;height:110px}
 .ci-ameta{display:flex;flex-direction:column;gap:2px;min-width:0;overflow-wrap:anywhere}
+
+/* === SAUVEGARDES (étape 50) === */
+.bk-sum .bk-go{width:100%;margin-top:10px;min-height:44px}
+.bk-note,.bk-msg{margin:8px 0 0;font-size:14px}
+.bk-private{color:var(--warn)}
+.bk-list{display:grid;gap:8px}
+.bk-row{padding:10px 12px;margin:0}
+.bk-row.bk-error{border:1px solid var(--bad)}
+.bk-file{font-size:12px;color:var(--muted);overflow-wrap:anywhere;margin-top:2px}
+.bk-err{font-size:14px;color:var(--bad);overflow-wrap:anywhere;margin-top:6px}
+.bk-acts{margin-top:10px}
+.bk-acts .btn{min-height:44px;margin:0;padding:8px 6px;line-height:1.2;overflow-wrap:anywhere}
+.bk-extract select{width:100%}
+.dash-bk .dash-al-txt{overflow-wrap:anywhere}
+/* Nouveautés visibles (complément de l'étape 50) */
+.rl-news-row{display:grid;grid-template-columns:1fr 96px;gap:8px;margin:8px 0}
+.rl-news-row .input{width:100%;min-height:44px}
+.rl-news-prev{margin:4px 0 10px;font-size:14px}
+.ab-newsnote{margin:0 0 6px;font-size:14px}

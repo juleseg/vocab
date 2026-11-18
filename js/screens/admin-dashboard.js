@@ -12,7 +12,7 @@
 const DASH_CHARTS = [["reviews", "dash.ch.reviews"], ["active", "dash.ch.active"], ["new_accounts", "dash.ch.new"], ["cards_added", "dash.ch.added"], ["claude", "dash.ch.claude"]];
 const DASH_RANKS = [["active", "dash.rk.active"], ["streaks", "dash.rk.streaks"], ["success", "dash.rk.success"], ["lists", "dash.rk.lists"]];
 const dash = {
-  kpis: null, series: {}, period: "day", rank: {}, rankDays: 7, alerts: null, inactive: 7,
+  kpis: null, series: {}, period: "day", rank: {}, rankDays: 7, alerts: null, inactive: 7, bk: null, bkMissing: false,   // bk : admin_backup_status (étape 50)
   busy: {}, err: {}, missing: false, started: false, sel: {}
 };
 function dashTz() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; } catch (e) { return "UTC"; } }
@@ -36,6 +36,9 @@ async function dashLoadPart(part) {
       dash.rank[d] = (await aqRpc("admin_dash_rankings", { p_tz: tz, p_days: d })) || {};
     } else if (part === "alerts") {
       dash.alerts = (await aqRpc("admin_dash_alerts", { p_tz: tz, p_inactive: dash.inactive })) || {};
+      // Étape 50 : dernière sauvegarde réussie. Jamais bloquant : script absent = pas d'état, sans erreur.
+      try { dash.bk = await aqRpc("admin_backup_status"); dash.bkMissing = false; }
+      catch (e) { dash.bk = null; dash.bkMissing = alIsMissing(e); }
     }
     dash.missing = false;
   } catch (e) {
@@ -98,7 +101,7 @@ function renderAdmin() {
   root.appendChild(top);
   // Autres écrans de l'administration
   const nav = el("div", "dash-nav");
-  [["dash.accounts", "adminacc"], ["aq.open", "adminreq"], ["al.open", "adminlog"], ["an.open", "adminann"], ["tp.open", "admintpl"], ["np.open", "adminpush"], ["dict.open", "admindict"], ["ce.open", "adminerr"]].forEach(([k, scr]) => {
+  [["dash.accounts", "adminacc"], ["aq.open", "adminreq"], ["al.open", "adminlog"], ["an.open", "adminann"], ["tp.open", "admintpl"], ["np.open", "adminpush"], ["dict.open", "admindict"], ["ce.open", "adminerr"], ["bk.open", "adminbk"]].forEach(([k, scr]) => {
     const b = el("button", "btn", t(k));
     b.type = "button";
     b.addEventListener("click", () => { location.hash = "#" + HASH_OF[scr]; });
@@ -369,6 +372,26 @@ function dashAlertSection() {
     ["big_chunks", t("dash.al.big"), r => t("dash.al.bigLine", { key: r.key, kb: dashFmt(r.kb) })]
   ];
   let any = false;
+  // Étape 50 : alerte « sauvegarde » (aucune sauvegarde réussie, ou la dernière a plus de 8 jours ; script pas lancé).
+  const bkb = dash.bk, bkLate = !!(bkb && bkb.stale), bkNone = !!dash.bkMissing;
+  if (bkLate || bkNone) {
+    any = true;
+    const box = el("div", "card dash-alert dash-bk");
+    box.appendChild(el("div", "dash-al-title", "💾 " + t("bk.title")));
+    const it = el("div", "dash-al-item");
+    const txt = el("div", "dash-al-txt");
+    txt.appendChild(document.createTextNode(bkNone ? t("bk.dash.missing") : bkb.age_days == null ? t("bk.dash.never") : t("bk.dash.stale", { n: dashNum(bkb.age_days) })));
+    if (bkLate && bkb.last_error) txt.appendChild(el("div", "muted", t("bk.dash.error", { m: String(bkb.last_error).slice(0, 160) })));
+    it.appendChild(txt);
+    const acts = el("div", "dash-al-acts");
+    const b = el("button", "dash-link", t("bk.dash.see"));
+    b.type = "button"; b.id = "dashBkSee";
+    b.addEventListener("click", () => { location.hash = "#" + HASH_OF.adminbk; });
+    acts.appendChild(b);
+    it.appendChild(acts);
+    box.appendChild(it);
+    sec.appendChild(box);
+  }
   groups.forEach(([k, title, line]) => {
     const rows = arr(a[k]);
     if (!rows.length) return;

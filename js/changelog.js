@@ -8,6 +8,20 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "50", date: "2026-11-18",
+    points: {
+      ko: [
+        "이제 데이터가 매주 자동으로 백업돼요. 문제가 생겨도 되살릴 수 있어요."
+      ],
+      fr: [
+        "Tes données sont maintenant sauvegardées automatiquement chaque semaine : en cas de problème, elles peuvent être récupérées."
+      ],
+      en: [
+        "Your data is now backed up automatically every week, so it can be recovered if something goes wrong."
+      ]
+    }
+  },
+  {
     version: "49", date: "2026-11-18",
     points: {
       ko: [

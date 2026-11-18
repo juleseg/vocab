@@ -23,10 +23,15 @@
 //   4) registration.update() du service worker ; 5) caches « vocab-* » vidés (sauf « vocab-img », étape 49) ; 6) rechargement. Les scripts en ?v=N changent
 //   d'adresse : tous neufs. sw.js n'est pas modifié. Après le rechargement, sessionStorage vocabfr.release:updating dit vers
 //   quelle version on allait : version toujours plus ancienne → message rl.notYet (GitHub Pages pas encore à jour).
+// Réglages publics de l'appli (complément de l'étape 50) : app_settings_get(), lue avec le contrôle de version, gardée sur
+//   l'appareil (vocabfr.appsettings) ; hors connexion : dernière valeur connue, sinon « Toutes ». Seul réglage :
+//   changelog_count (null = toutes les versions, ou 0 à 100 = nombre de versions visibles dans les nouveautés).
+//   Release.setting("changelog_count") ; Release.setSettings(obj) après un enregistrement par l'admin.
+//   Script de l'étape 50 absent (404) : comportement actuel (toutes), sans erreur.
 // Sans Supabase (artifact, fichier local) : rien (aucune annonce possible).
 const RELEASE_EVERY_MS = 30 * 60000;
 const RELEASE_MIN_GAP_MS = 60000;              // retour au premier plan : pas plus d'un contrôle par minute
-const RELEASE_READ_RPC = ["app_release_latest", "my_profile", "username_exists"];
+const RELEASE_READ_RPC = ["app_release_latest", "app_settings_get", "my_profile", "username_exists"];
 const Release = (() => {
   const LS = CONFIG.LS_USER_PREFIX + "release";
   const LS_DATA = CONFIG.LS_USER_PREFIX + "release:data:";
@@ -34,6 +39,8 @@ const Release = (() => {
   const NATIVE = (typeof window.fetch === "function") ? window.fetch.bind(window) : null;
   let info = null, dataV = 0, status = "unknown", started = false, timer = null, lastAt = 0, inflight = null;
   let updating = false, msg = "", barHidden = 0, refused = 0, notYet = 0;
+  const LS_SET = CONFIG.LS_USER_PREFIX + "appsettings";
+  let settings = null;                           // { changelog_count: null | 0..100 } ; null = rien de connu : tout est « Toutes »
 
   const ver = v => { const n = parseInt(v, 10); return isFinite(n) && n > 0 ? n : 0; };
   const appV = () => ver(APP_VERSION);
@@ -76,6 +83,39 @@ const Release = (() => {
     return NATIVE ? NATIVE(input, init) : window.fetch(input, init);
   }
 
+  // --- Réglages publics (étape 50) ---
+  function normSettings(r) {
+    if (!r || typeof r !== "object") return null;
+    const n = r.changelog_count;
+    return { changelog_count: typeof n === "number" && isFinite(n) && Math.floor(n) === n && n >= 0 && n <= 100 ? n : null };
+  }
+  function setting(k) { return settings && settings[k] != null ? settings[k] : null; }
+  function setSettings(r) {
+    const before = JSON.stringify(settings);
+    settings = normSettings(r);
+    lsSet(LS_SET, settings);
+    if (JSON.stringify(settings) !== before) {
+      try { if (typeof currentScreen !== "undefined" && currentScreen === "about" && typeof renderAbout === "function") renderAbout(); } catch (e) {}
+    }
+  }
+  settings = normSettings(lsGet(LS_SET));        // dernière valeur connue (hors connexion)
+  async function fetchSettings() {
+    const c = cfg();
+    if (!c || !NATIVE) return;
+    const ctl = typeof AbortController === "function" ? new AbortController() : null;
+    const tm = setTimeout(() => { try { if (ctl) ctl.abort(); } catch (e) {} }, 12000);
+    try {
+      const r = await NATIVE(c.url + "/rest/v1/rpc/app_settings_get", {
+        method: "POST", headers: { apikey: c.key, "Content-Type": "application/json", Accept: "application/json" },
+        body: "{}", cache: "no-store", signal: ctl ? ctl.signal : undefined
+      });
+      if (r.status === 404) { setSettings(null); return; }          // script de l'étape 50 pas lancé : comportement actuel
+      if (!r.ok) return;                                             // erreur : on garde la dernière valeur connue
+      setSettings(await r.json());
+    } catch (e) { /* hors connexion : dernière valeur connue */ }
+    finally { clearTimeout(tm); }
+  }
+
   // --- Lecture de la dernière annonce ---
   async function fetchLatest() {
     const c = cfg();
@@ -106,6 +146,7 @@ const Release = (() => {
         info = r;
         lsSet(LS, r ? Object.assign({ at: Date.now() }, r) : null);
         apply();
+        try { await fetchSettings(); } catch (e) {}                  // étape 50 : jamais bloquant
         return true;
       } catch (e) { return false; }
       finally { inflight = null; }
@@ -269,7 +310,7 @@ const Release = (() => {
 
   return {
     start, check, update, paint, blocked, reason, available, gateFetch, isWrite, dataTooNew, dataOk, userChanged,
-    info: () => info, status: () => status, refused: () => refused,
+    info: () => info, status: () => status, refused: () => refused, setting, setSettings,
     _setReload: fn => { reload = fn; }
   };
 })();

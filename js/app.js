@@ -16,10 +16,10 @@ function applyTheme() {
 }
 
 // === NAVIGATION ===
-const SCREENS = ["home", "review", "lists", "stats", "pending", "friends", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "about", "stories", "rhythm"];
-const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", friends: "amis", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles", adminpush: "admin-notifications", admindict: "admin-dictionnaire", adminerr: "admin-erreurs", about: "a-propos", stories: "histoires", rhythm: "rythme" }; // "settings" est réservé dans l'URL
-const ADMIN_SCREENS = ["admin", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr"];
-const ADMIN_SB_SCREENS = ["adminreq", "adminlog", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr"];   // mode Supabase seulement
+const SCREENS = ["home", "review", "lists", "stats", "pending", "friends", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "about", "stories", "rhythm"];
+const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", friends: "amis", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles", adminpush: "admin-notifications", admindict: "admin-dictionnaire", adminerr: "admin-erreurs", adminbk: "admin-sauvegardes", about: "a-propos", stories: "histoires", rhythm: "rythme" }; // "settings" est réservé dans l'URL
+const ADMIN_SCREENS = ["admin", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk"];
+const ADMIN_SB_SCREENS = ["adminreq", "adminlog", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk"];   // mode Supabase seulement
 let currentScreen = "home";
 
 function screenFromHash() {
@@ -168,6 +168,7 @@ function renderScreen() {
   else if (currentScreen === "adminpush") renderAdminPush();   // notifications push (étape 32)
   else if (currentScreen === "admindict") renderAdminDict();   // dictionnaire commun (étape 36)
   else if (currentScreen === "adminerr") renderAdminErrors();   // journal des erreurs (étape 41)
+  else if (currentScreen === "adminbk") renderAdminBackups();   // sauvegardes (étape 50)
   else if (currentScreen === "about") renderAbout();   // À propos (étape 39)
   else if (currentScreen === "stories") renderStories();   // histoires (étape 45)
   else if (currentScreen === "rhythm") renderRhythm();   // rythme de révision (étape 47)

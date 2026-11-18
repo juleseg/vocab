@@ -12,7 +12,12 @@
 //   de l'étape 32 (send-push, action send : texte par langue, catégorie announcements, écran home, filtre {} = tous les
 //   comptes ; send-push inchangée), journal admin_push action release.
 // - « Rendre obligatoire » la dernière annonce (admin_release_mandatory), sans nouvelle notification.
+// - « Nouveautés visibles » (complément de l'étape 50) : nombre de versions montrées aux utilisateurs dans À propos et
+//   « Quoi de neuf » (Toutes, ou 0 à 100 ; 0 = aucune nouveauté). Lu par app_settings_get, enregistré par
+//   admin_settings_set('changelog_count', valeur) (journal admin_settings côté serveur). L'annonce d'une version garde
+//   les points du changelog (rlEntry lit CHANGELOG, pas la liste filtrée). Script de l'étape 50 absent : message.
 // Script SQL absent : « Lancez le script SQL de l'étape 48 ».
+const rlNews = { loaded: false, missing: false, err: "", value: null, mode: "all", n: 10, busy: false };
 const rls = { started: false, loading: false, err: "", missing: false, data: null, calc: null, busy: false, mand: null, mandTouched: false };
 
 function rlRerender() { if (currentScreen === "adminpush" && nps.tab === "versions") renderAdminPush(); }
@@ -55,8 +60,93 @@ async function rlLoad() {
     try { rls.calc = await aqRpc("admin_push_target", { p_filter: {}, p_category: "announcements" }); } catch (e) { rls.calc = null; }
   }
   if (!rls.mandTouched) rls.mand = null;
+  await rlNewsLoad();
   rls.loading = false;
   rlRerender();
+}
+
+// --- Nouveautés visibles (étape 50) ---
+function rlNewsApply(r) {
+  const n = r && typeof r.changelog_count === "number" ? r.changelog_count : null;
+  rlNews.value = n;
+  rlNews.mode = n === null ? "all" : "n";
+  if (n !== null) rlNews.n = n;
+}
+async function rlNewsLoad() {
+  try {
+    const r = await aqRpc("app_settings_get");
+    rlNews.missing = false; rlNews.err = "";
+    rlNewsApply(r);
+    rlNews.loaded = true;
+    try { Release.setSettings(r); } catch (e) {}
+  } catch (e) { rlNews.missing = alIsMissing(e); rlNews.err = rlNews.missing ? "" : rlErrText(e); }
+}
+function rlNewsErr(e) {
+  const h = String((e && e.hint) || "");
+  if ((h === "set_value" || h === "set_key") && I18N.fr["nv.err." + h]) return t("nv.err." + h);
+  return alIsMissing(e) ? t("nv.missing") : rlErrText(e);
+}
+// Phrase d'aperçu : ce que verront les utilisateurs avec la valeur choisie.
+function rlNewsPreview(n) {
+  if (n === null) return t("nv.prev.all");
+  if (n === 0) return t("nv.prev.zero");
+  const cur = parseInt(APP_VERSION, 10);
+  const vs = CHANGELOG.map(e => parseInt(e.version, 10)).filter(v => v >= cur - n + 1 && v <= cur);
+  if (!vs.length) return t("nv.prev.zero");
+  const a = Math.min.apply(null, vs), b = Math.max.apply(null, vs);
+  return a === b ? t("nv.prev.one", { b }) : t("nv.prev.n", { a, b });
+}
+function rlNewsCard(root) {
+  const c = el("div", "card rl-news");
+  c.appendChild(el("h3", "np-h3", t("nv.h")));
+  c.appendChild(el("p", "hint", t("nv.help")));
+  if (rlNews.missing) { c.appendChild(el("div", "np-msg", t("nv.missing"))); root.appendChild(c); return; }
+  if (rlNews.err) c.appendChild(el("div", "q-err", rlNews.err));
+  const row = el("div", "rl-news-row");
+  const sel = el("select", "input"), cnt = el("input", "input rl-news-n");
+  sel.id = "rlNewsMode"; sel.setAttribute("aria-label", t("nv.mode"));
+  [["all", t("nv.all")], ["n", t("nv.last")]].forEach(([v, l]) => { const o = el("option", null, l); o.value = v; sel.appendChild(o); });
+  sel.value = rlNews.mode;
+  cnt.type = "number"; cnt.id = "rlNewsCount"; cnt.min = "0"; cnt.max = "100"; cnt.step = "1"; cnt.inputMode = "numeric";
+  cnt.value = String(rlNews.n); cnt.setAttribute("aria-label", t("nv.count"));
+  cnt.disabled = sel.value !== "n";
+  const prev = el("p", "rl-news-prev");
+  const cur = () => {
+    if (sel.value === "all") return { ok: true, v: null };
+    const raw = String(cnt.value).trim();
+    const v = Number(raw);
+    return raw !== "" && Number.isInteger(v) && v >= 0 && v <= 100 ? { ok: true, v } : { ok: false, v: null };
+  };
+  const upd = () => {
+    cnt.disabled = sel.value !== "n";
+    const r = cur();
+    prev.textContent = r.ok ? rlNewsPreview(r.v) : t("nv.invalid");
+    prev.classList.toggle("q-err", !r.ok);
+    save.disabled = !r.ok || rlNews.busy;
+  };
+  sel.addEventListener("change", () => { rlNews.mode = sel.value; upd(); });
+  cnt.addEventListener("input", () => { const v = Number(cnt.value); if (Number.isInteger(v)) rlNews.n = v; upd(); });
+  row.append(sel, cnt);
+  c.appendChild(row);
+  c.appendChild(prev);
+  const save = el("button", "btn primary", t("nv.save"));
+  save.type = "button"; save.id = "rlNewsSave";
+  save.addEventListener("click", async () => {
+    const r = cur();
+    if (!r.ok || rlNews.busy) return;
+    rlNews.busy = true; upd();
+    try {
+      const res = await aqRpc("admin_settings_set", { p_key: "changelog_count", p_value: r.v });
+      rlNewsApply(res);
+      try { Release.setSettings(res); } catch (e) {}
+      toast(t("nv.saved"));
+    } catch (e) { toast(rlNewsErr(e)); }
+    rlNews.busy = false;
+    rlRerender();
+  });
+  c.appendChild(save);
+  upd();
+  root.appendChild(c);
 }
 
 function npReleaseTab(root) {
@@ -110,6 +200,9 @@ function npReleaseTab(root) {
     if (laTotal > la.length) c1.appendChild(el("p", "hint", t("rl.lateMore", { n: laTotal - la.length })));
   }
   root.appendChild(c1);
+
+  // --- Nouveautés visibles (étape 50) ---
+  rlNewsCard(root);
 
   // --- Annoncer la version N ---
   const c2 = el("div", "card");

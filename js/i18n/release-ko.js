@@ -71,5 +71,25 @@ Object.assign(I18N.ko, {
   "rl.err.rel_data_older": "이 기기의 데이터 형식이 이미 알린 버전보다 오래됐어요.",
   "rl.err.rel_notes": "보낼 새 소식이 없어요.",
   "rl.err.rel_bad": "잘못된 버전이에요.",
-  "rl.err.rel_unknown": "이 버전은 알린 적이 없어요."
+  "rl.err.rel_unknown": "이 버전은 알린 적이 없어요.",
+  // Nouveautés visibles (complément de l'étape 50)
+  "nv.h": "보이는 새 소식",
+  "nv.help": "사용자가 정보와 “새로운 소식” 창에서 볼 버전 수예요. 관리자는 항상 전체 목록을 봐요. 버전 공지의 알림에는 그 버전의 새 소식이 그대로 들어가요.",
+  "nv.mode": "표시",
+  "nv.all": "모든 버전",
+  "nv.last": "최근 버전만",
+  "nv.count": "버전 수 (0~100)",
+  "nv.prev.all": "사용자가 모든 버전을 봐요.",
+  "nv.prev.n": "사용자가 {a}~{b} 버전을 봐요.",
+  "nv.prev.one": "사용자가 {b} 버전만 봐요.",
+  "nv.prev.zero": "사용자에게 새 소식이 보이지 않아요 (버전 번호는 계속 보여요).",
+  "nv.invalid": "0에서 100 사이의 정수를 입력하세요.",
+  "nv.save": "저장",
+  "nv.saved": "설정을 저장했어요",
+  "nv.missing": "50단계 SQL 스크립트(supabase-etape50.sql)를 실행하세요.",
+  "nv.err.set_value": "값이 거부됐어요: 0에서 100 사이의 정수를 입력하세요.",
+  "nv.err.set_key": "알 수 없는 설정이에요.",
+  "nv.note.n": "사용자는 최근 {n}개 버전을 봐요.",
+  "nv.note.one": "사용자는 최신 버전만 봐요.",
+  "nv.note.zero": "사용자에게 보이는 버전이 없어요."
 });

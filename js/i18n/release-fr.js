@@ -72,5 +72,25 @@ Object.assign(I18N.fr, {
   "rl.err.rel_data_older": "Le format des données de cet appareil est plus ancien que celui d'une version déjà annoncée.",
   "rl.err.rel_notes": "Aucun point de nouveautés à envoyer.",
   "rl.err.rel_bad": "Version invalide.",
-  "rl.err.rel_unknown": "Cette version n'a jamais été annoncée."
+  "rl.err.rel_unknown": "Cette version n'a jamais été annoncée.",
+  // Nouveautés visibles (complément de l'étape 50)
+  "nv.h": "Nouveautés visibles",
+  "nv.help": "Combien de versions les utilisateurs voient dans À propos et dans la fenêtre « Quoi de neuf ». Toi, tu vois toujours toute la liste. L'annonce d'une version garde ses points dans la notification.",
+  "nv.mode": "Afficher",
+  "nv.all": "Toutes les versions",
+  "nv.last": "Les dernières versions seulement",
+  "nv.count": "Nombre de versions (0 à 100)",
+  "nv.prev.all": "Les utilisateurs voient toutes les versions.",
+  "nv.prev.n": "Les utilisateurs voient les versions {a} à {b}.",
+  "nv.prev.one": "Les utilisateurs voient seulement la version {b}.",
+  "nv.prev.zero": "Les utilisateurs ne voient aucune nouveauté (le numéro de version reste affiché).",
+  "nv.invalid": "Entre un nombre entier de 0 à 100.",
+  "nv.save": "Enregistrer",
+  "nv.saved": "Réglage enregistré",
+  "nv.missing": "Lancez le script SQL de l'étape 50 (supabase-etape50.sql).",
+  "nv.err.set_value": "Valeur refusée : entre un nombre entier de 0 à 100.",
+  "nv.err.set_key": "Réglage inconnu.",
+  "nv.note.n": "Les utilisateurs voient les {n} dernières versions.",
+  "nv.note.one": "Les utilisateurs voient seulement la dernière version.",
+  "nv.note.zero": "Les utilisateurs ne voient aucune version."
 });

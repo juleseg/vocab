@@ -71,5 +71,25 @@ Object.assign(I18N.en, {
   "rl.err.rel_data_older": "This device's data format is older than that of a version already announced.",
   "rl.err.rel_notes": "No news item to send.",
   "rl.err.rel_bad": "Invalid version.",
-  "rl.err.rel_unknown": "This version was never announced."
+  "rl.err.rel_unknown": "This version was never announced.",
+  // Nouveautés visibles (complément de l'étape 50)
+  "nv.h": "Visible what's new",
+  "nv.help": "How many versions users see in About and in the “What's new” window. You always see the whole list. Announcing a version keeps its points in the notification.",
+  "nv.mode": "Show",
+  "nv.all": "All versions",
+  "nv.last": "Latest versions only",
+  "nv.count": "Number of versions (0 to 100)",
+  "nv.prev.all": "Users see all versions.",
+  "nv.prev.n": "Users see versions {a} to {b}.",
+  "nv.prev.one": "Users see only version {b}.",
+  "nv.prev.zero": "Users see no news (the version number stays visible).",
+  "nv.invalid": "Enter a whole number from 0 to 100.",
+  "nv.save": "Save",
+  "nv.saved": "Setting saved",
+  "nv.missing": "Run the step 50 SQL script (supabase-etape50.sql).",
+  "nv.err.set_value": "Value refused: enter a whole number from 0 to 100.",
+  "nv.err.set_key": "Unknown setting.",
+  "nv.note.n": "Users see the last {n} versions.",
+  "nv.note.one": "Users see only the latest version.",
+  "nv.note.zero": "Users see no versions."
 });
