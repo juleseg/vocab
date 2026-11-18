@@ -18,6 +18,13 @@ function rateOf(cards) {
   cards.forEach(c => { seen += c.stats.seen; ok += c.stats.correct; });
   return { seen, ok, pct: seen ? Math.round(ok * 100 / seen) : null };
 }
+// Rétention estimée (étape 47) : moyenne de la rétrievabilité FSRS, maintenant, des vues déjà révisées ; null si aucune.
+function retAvg(units, now) {
+  let n = 0, sum = 0;
+  units.forEach(u => { const r = fsrsRetrievability(u, now); if (r != null) { n++; sum += r; } });
+  return n ? { pct: Math.round(sum * 100 / n), n } : null;
+}
+function retText(units, now) { const r = retAvg(units, now); return r ? t("stats.pct", { n: r.pct }) : "—"; }
 function pctText(r) { return r.pct == null ? "—" : t("stats.pct", { n: r.pct }); }
 function catBar(n, total) {
   const bar = el("div", "st-bar");
@@ -127,6 +134,11 @@ function renderStats() {
     grid.appendChild(cell);
   });
   cat.append(grid, catBar(n, cards.length));
+  const ra = retAvg(cards, now);   // rétention estimée (FSRS, étape 47)
+  const rl = el("div", "fs-retline");
+  rl.append(el("b", null, t("fsrs.estRet") + " : " + (ra ? t("stats.pct", { n: ra.pct }) : "—")),
+    el("div", "hint", ra ? t("fsrs.estRetHint", { n: ra.n, r: Math.round(fsrsTarget() * 100) }) : t("fsrs.estRetNone")));
+  cat.appendChild(rl);
   root.appendChild(cat);
 
   // Par boîte (0 à 5)
@@ -229,7 +241,8 @@ function statsByLang(units, now) {
   ls.forEach(L => {
     const us = units.filter(u => u.unitLang === L);
     const row = stGroupRow(langName(L), us);
-    row.querySelector(".st-list-sub").textContent = t("study.statLine", { n: us.length, d: dueCount(us, now), r: pctText(rateOf(us)) });
+    row.querySelector(".st-list-sub").textContent = t("study.statLine", { n: us.length, d: dueCount(us, now), r: pctText(rateOf(us)) })
+      + " · " + t("fsrs.estRetShort", { r: retText(us, now) });   // rétention estimée par langue (étape 47)
     const w = langReviewed(L, 7);
     row.appendChild(el("div", "st-list-sub", t("study.statDays", { r: w.reviewed, p: w.reviewed ? Math.round(w.correct * 100 / w.reviewed) : 0, s: langRunDays(L) })));
     card.appendChild(row);

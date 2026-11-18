@@ -16,8 +16,8 @@ function applyTheme() {
 }
 
 // === NAVIGATION ===
-const SCREENS = ["home", "review", "lists", "stats", "pending", "friends", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "about", "stories"];
-const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", friends: "amis", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles", adminpush: "admin-notifications", admindict: "admin-dictionnaire", adminerr: "admin-erreurs", about: "a-propos", stories: "histoires" }; // "settings" est réservé dans l'URL
+const SCREENS = ["home", "review", "lists", "stats", "pending", "friends", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "about", "stories", "rhythm"];
+const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", friends: "amis", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles", adminpush: "admin-notifications", admindict: "admin-dictionnaire", adminerr: "admin-erreurs", about: "a-propos", stories: "histoires", rhythm: "rythme" }; // "settings" est réservé dans l'URL
 const ADMIN_SCREENS = ["admin", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr"];
 const ADMIN_SB_SCREENS = ["adminreq", "adminlog", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr"];   // mode Supabase seulement
 let currentScreen = "home";
@@ -33,7 +33,7 @@ function showScreen(name) {
   if (ADMIN_SB_SCREENS.includes(currentScreen) && auth.mode !== "supabase") currentScreen = "admin";
   if (currentScreen === "requests" && !Queue.usable()) currentScreen = "settings"; // Demandes à Claude : mode Supabase seulement
   document.querySelectorAll(".screen").forEach(el => el.classList.toggle("active", el.id === "screen-" + currentScreen));
-  document.querySelectorAll("nav.bottom button").forEach(b => b.classList.toggle("active", b.dataset.nav === currentScreen || (currentScreen === "stories" && b.dataset.nav === "lists")));
+  document.querySelectorAll("nav.bottom button").forEach(b => b.classList.toggle("active", b.dataset.nav === currentScreen || (currentScreen === "stories" && b.dataset.nav === "lists") || (currentScreen === "rhythm" && b.dataset.nav === "settings")));
   renderScreen();
   window.scrollTo(0, 0);
 }
@@ -169,6 +169,7 @@ function renderScreen() {
   else if (currentScreen === "adminerr") renderAdminErrors();   // journal des erreurs (étape 41)
   else if (currentScreen === "about") renderAbout();   // À propos (étape 39)
   else if (currentScreen === "stories") renderStories();   // histoires (étape 45)
+  else if (currentScreen === "rhythm") renderRhythm();   // rythme de révision (étape 47)
   renderPendingBadge();
   Friends.renderBadge();   // demandes d'amis reçues (étape 29)
   Streak.showNotices();   // messages de série en attente (pas pendant une session de révision)

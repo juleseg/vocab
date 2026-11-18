@@ -69,22 +69,39 @@ function shContent(c) {
   if (o.examples && typeof o.examples === "object" && !Array.isArray(o.examples) && !Object.keys(o.examples).length) delete o.examples;
   return o;
 }
-// Progression personnelle d'une carte commune : [boîte, dueAt, vues, sues, ratées, dernière vue, { langue: [mêmes 6] }]
+// Progression personnelle d'une carte commune : [boîte, dueAt, vues, sues, ratées, dernière vue, { langue: [mêmes 6 + FSRS] }]
 // (7e case : progression par langue étudiée, étape 37 — ignorée par les versions 36 et moins).
-function shProgArr(b, d, s) { s = s || {}; return [b, d, num(s.seen, 0), num(s.correct, 0), num(s.wrong, 0), s.lastSeen == null ? null : s.lastSeen]; }
+// Étape 47 : chaque langue de la 7e case = [boîte, dueAt, vues, sues, ratées, dernière vue, s, d, last, reps, lapses, state, lb]
+// (les versions 37 à 46 ne lisent que les 6 premières valeurs ; sans valeurs FSRS → estimées depuis la boîte, comme la migration).
+const SH_FSRS = ["s", "d", "last", "reps", "lapses", "state", "lb"];
+function shProgArr(b, d, s, P) {
+  s = s || {};
+  const out = [b, d, num(s.seen, 0), num(s.correct, 0), num(s.wrong, 0), s.lastSeen == null ? null : s.lastSeen];
+  if (P && fsrsHas(P)) SH_FSRS.forEach(k => out.push(P[k] == null ? null : P[k]));
+  return out;
+}
 function shProg(c) {
   const out = shProgArr(c.box, c.dueAt, c.stats);
   const pg = c.progress && typeof c.progress === "object" ? c.progress : null;
-  if (pg && Object.keys(pg).length) { const o = {}; Object.keys(pg).forEach(L => { o[L] = shProgArr(pg[L].box, pg[L].dueAt, pg[L].stats); }); out.push(o); }
+  if (pg && Object.keys(pg).length) { const o = {}; Object.keys(pg).forEach(L => { o[L] = shProgArr(pg[L].box, pg[L].dueAt, pg[L].stats, pg[L]); }); out.push(o); }
   return out;
+}
+// Une langue de la 7e case → progression { box, dueAt, stats, champs FSRS } (champs FSRS absents → migration 6 → 7).
+function shProgFrom(v) {
+  const P = { box: clampInt(v[0], 0, 5, 0), dueAt: num(v[1], 0),
+    stats: { seen: num(v[2], 0), correct: num(v[3], 0), wrong: num(v[4], 0), lastSeen: num(v[5], null) } };
+  const o = {};
+  SH_FSRS.forEach((k, i) => { if (v[6 + i] != null) o[k] = v[6 + i]; });
+  const F = fsrsNorm(o);
+  if (F) Object.assign(P, F); else fsrsMigrateProg(P);
+  return P;
 }
 function shWithProg(c, p) {
   if (Array.isArray(p)) {
     c.box = clampInt(p[0], 0, 5, 0); c.dueAt = num(p[1], Date.now());
     c.stats = { seen: num(p[2], 0), correct: num(p[3], 0), wrong: num(p[4], 0), lastSeen: num(p[5], null) };
     const o = p[6] && typeof p[6] === "object" && !Array.isArray(p[6]) ? p[6] : null, pg = {};
-    if (o) Object.keys(o).forEach(L => { const v = o[L]; if (isLang(L) && Array.isArray(v)) pg[L] = { box: clampInt(v[0], 0, 5, 0), dueAt: num(v[1], 0),
-      stats: { seen: num(v[2], 0), correct: num(v[3], 0), wrong: num(v[4], 0), lastSeen: num(v[5], null) } }; });
+    if (o) Object.keys(o).forEach(L => { const v = o[L]; if (isLang(L) && Array.isArray(v)) pg[L] = shProgFrom(v); });
     if (Object.keys(pg).length) { c.progress = pg; syncPrimaryProgress(c, primaryLang(c)); } else delete c.progress;
   } else { c.box = 0; c.dueAt = Date.now(); c.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null }; delete c.progress; }
   return c;
@@ -516,7 +533,9 @@ const Shared = (() => {
     state.lists.filter(isSharedList).forEach(l => {
       if (!(state.__shLoaded instanceof Set) || !state.__shLoaded.has(l.shared.id)) return;
       const cs = cardsOf(l.id);
-      o[l.shared.id] = { n: cs.length, su: cs.filter(c => c.box >= 3).length, rev: cs.filter(c => c.box >= 1 && c.box <= 2).length, ps: cs.filter(c => c.box === 0).length };
+      const n = { known: 0, review: 0, unknown: 0 };   // catégories (FSRS depuis l'étape 47, langue principale de la carte)
+      cs.forEach(c => { n[Leitner.category(c, primaryLang(c))]++; });
+      o[l.shared.id] = { n: cs.length, su: n.known, rev: n.review, ps: n.unknown };
     });
     return o;
   }

@@ -246,23 +246,31 @@ function xpStreakDay(ev, day) {
 function badgeIcon(days) { return days >= 365 ? "👑" : days >= 100 ? "🏆" : days >= 30 ? "🥇" : "🏅"; }
 
 // === LEITNER ===
-// Boîte 0 = nouveau ou pas su (revient dans la session). Boîtes 1 à 5 : 1, 3, 7, 14, 30 jours.
+// Étape 47 : la répétition est calculée par FSRS (js/fsrs.js) ; l'objet garde son nom et son interface (Leitner.grade,
+// gradeGame, category, prog, unit…) pour le reste de l'appli. Avant l'étape 47 : boîte 0 = nouveau ou pas su (revient
+// dans la session), boîtes 1 à 5 : 1, 3, 7, 14, 30 jours (CONFIG.LEITNER_INTERVALS_DAYS, gardé pour la migration 6 → 7).
 // Intervalles en jours calendaires : la carte redevient due à minuit (heure locale) du jour J+N.
-// Étape 37 : progression par langue étudiée — card.progress = { <langue>: { box, dueAt, stats } }.
+// Étape 37 : progression par langue étudiée — card.progress = { <langue>: { box, dueAt, stats, + champs FSRS } }.
 //  - Langue utilisée sans précision : celle de la session (StudyCtx), sinon la langue principale de la carte.
-//  - Langue jamais révisée : boîte 0, due tout de suite (part de zéro, sans toucher aux autres langues).
+//  - Langue jamais révisée : state new, boîte 0, due tout de suite (part de zéro, sans toucher aux autres langues).
 //  - Carte sans progression par langue (nouvelle carte) : ses champs box / dueAt / stats = langue principale.
 //  - Après une réponse dans la langue principale, box / dueAt / stats de la carte en sont la copie (voir syncPrimaryProgress).
-//  - Leitner.unit(carte, langue) : vue en lecture seule (box, dueAt, stats de cette langue) pour les statistiques.
+//  - Leitner.unit(carte, langue) : vue en lecture seule (box, dueAt, stats et champs FSRS de cette langue) pour les statistiques.
+// Étape 47 (FSRS) :
+//  - Su = « bien » (3), À revoir = « difficile » (2), Pas su = « encore » (1) ; « encore » : la carte revient dans la session
+//    (dueAt = maintenant) ; sinon dueAt = minuit du jour J + intervalle FSRS (taux de rétention visé des Réglages, ± 5 %, 1 à 365 j).
+//  - Deux réponses le même jour (date locale) : stabilité « court terme » de FSRS-6.
+//  - box = équivalent calculé depuis la stabilité (fsrsBox) ; catégories : fsrsCategory (Pas su / À revoir s < 7 / Su s ≥ 7).
+//  - Jeux : bonne réponse = stats seulement (date, stabilité et boîte inchangées) ; mauvaise réponse = « difficile ».
 const Leitner = (() => {
-  const MAX_BOX = 5;
-  const ZERO = Object.freeze({ box: 0, dueAt: 0, stats: Object.freeze({ seen: 0, correct: 0, wrong: 0, lastSeen: null }) });
+  const ZERO = Object.freeze(Object.assign({ box: 0, dueAt: 0, stats: Object.freeze({ seen: 0, correct: 0, wrong: 0, lastSeen: null }) }, fsrsNewFields()));
+  const GRADE = { unknown: 1, review: 2, known: 3 };   // note FSRS de chaque bouton
   function dayStart(ts) { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); }
   function addDays(ts, n) { const d = new Date(dayStart(ts)); d.setDate(d.getDate() + n); return d.getTime(); }
   function isUnit(c) { return !!c && Object.prototype.hasOwnProperty.call(c, "unitLang"); }
   function hasProg(c) { return !!(c.progress && typeof c.progress === "object" && Object.keys(c.progress).length); }
   function langOf(c, lang) { return lang || studyCtxLang(c) || primaryLang(c); }
-  // Progression d'une carte dans une langue (objet { box, dueAt, stats }, à ne pas modifier).
+  // Progression d'une carte dans une langue (objet { box, dueAt, stats, s, d, last, reps, lapses, state }, à ne pas modifier).
   function prog(c, lang) {
     if (isUnit(c) && (!lang || lang === c.unitLang)) return c;
     const L = langOf(c, lang);
@@ -271,15 +279,25 @@ const Leitner = (() => {
     if (!hasProg(c) && L === primaryLang(c)) return c;
     return ZERO;
   }
-  // Progression modifiable (créée si besoin ; la langue principale garde ses valeurs actuelles).
+  // Progression modifiable (créée si besoin ; la langue principale garde ses valeurs actuelles, champs FSRS estimés
+  // depuis la boîte si besoin — même règle que la migration 6 → 7).
   function ensure(c, L) {
-    if (!hasProg(c)) c.progress = { [primaryLang(c)]: { box: c.box, dueAt: c.dueAt, stats: Object.assign({}, c.stats) } };
-    if (!c.progress[L]) c.progress[L] = { box: 0, dueAt: 0, stats: { seen: 0, correct: 0, wrong: 0, lastSeen: null } };
-    return c.progress[L];
+    if (!hasProg(c)) {
+      const L0 = primaryLang(c), P0 = { box: c.box, dueAt: c.dueAt, stats: Object.assign({}, c.stats) };
+      c.progress = { [L0]: P0 };
+      if (!num(P0.box, 0) && !num((P0.stats || {}).seen, 0)) Object.assign(P0, fsrsNewFields());   // carte neuve : pas d'ancienne boîte (lb)
+      else if (fsrsMigrateProg(P0)) syncTop(c, L0, P0);
+    }
+    if (!c.progress[L]) c.progress[L] = Object.assign({ box: 0, dueAt: 0, stats: { seen: 0, correct: 0, wrong: 0, lastSeen: null } }, fsrsNewFields());
+    const P = c.progress[L];
+    fsrsMigrateProg(P);
+    return P;
   }
+  // Copie de la langue principale dans les champs box / dueAt / stats de la carte (anciens écrans, fiche admin).
+  function syncTop(c, L, P) { if (L === primaryLang(c)) { c.box = P.box; c.dueAt = P.dueAt; c.stats = Object.assign({}, P.stats); } }
   function isDue(c, now, lang) { return prog(c, lang).dueAt <= (now || Date.now()); }
-  // "unknown" = Pas su (boîte 0), "review" = À revoir (1-2), "known" = Su (3-5)
-  function category(c, lang) { const b = prog(c, lang).box; return b === 0 ? "unknown" : (b <= 2 ? "review" : "known"); }
+  // "unknown" = Pas su (jamais vue ou dernière réponse « encore »), "review" = À revoir (stabilité < 7 j), "known" = Su (≥ 7 j)
+  function category(c, lang) { return fsrsCategory(prog(c, lang)); }
   // Langues étudiées où la carte est à réviser maintenant. Langue en plus : seulement si la carte y est utilisable
   // (mot rempli) ; langue principale : comme avant l'étape 37.
   function dueLangs(c, now) {
@@ -291,6 +309,8 @@ const Leitner = (() => {
     const P = prog(c, L), u = Object.create(c);
     Object.defineProperty(u, "unitLang", { value: L, enumerable: false });
     u.box = P.box; u.dueAt = P.dueAt; u.stats = P.stats;
+    const F = fsrsHas(P) ? P : fsrsFromLeitner(P);                 // champs FSRS de cette langue (étape 47)
+    ["s", "d", "last", "reps", "lapses", "state"].forEach(k => { u[k] = F[k]; });
     return u;
   }
   // Vues (carte, langue) d'une liste de cartes : toutes les langues étudiées (only = une seule langue).
@@ -318,32 +338,29 @@ const Leitner = (() => {
     Streak.onReview(date);   // objectif du jour, gels, badges (étape 28) : toutes langues confondues
   }
   // result : "known" (Su) | "review" (À revoir) | "unknown" (Pas su). lang : langue révisée (facultatif).
-  // Modifie la carte et l'historique, sans sauvegarder (l'appelant fait commit()).
+  // Modifie la carte et l'historique, sans sauvegarder (l'appelant fait commit()). FSRS (étape 47) : voir plus haut.
   function grade(c, result, now, lang) {
     now = now || Date.now();
     const L = langOf(c, lang);
     const P = ensure(c, L);
     const from = P.box;
-    if (result === "known") {
-      P.box = Math.min(MAX_BOX, P.box + 1);              // boîte 5 : reste en 5, revient dans 30 j
-      P.dueAt = addDays(now, CONFIG.LEITNER_INTERVALS_DAYS[P.box]);
-    } else if (result === "review") {
-      P.dueAt = addDays(now, 1);                        // même boîte, revient demain
-    } else {
-      P.box = 0;
-      P.dueAt = now;                                    // revient dans la session
-    }
+    const g = GRADE[result] || 1;
+    const elapsed = P.last == null ? null : Math.max(0, fsrsDays(P.last, now));
+    const n = FSRS.review(P, g, elapsed);
+    P.s = fsrsRound(n.s); P.d = fsrsRound(n.d); P.state = n.state; P.reps = n.reps; P.lapses = n.lapses; P.last = now;
+    P.dueAt = g === 1 ? now : addDays(now, FSRS.interval(P.s, fsrsTarget(), Math.random()));   // « encore » : revient dans la session
+    P.box = fsrsBox(P);
     P.stats.seen++;
     P.stats.lastSeen = now;
     if (result === "known") P.stats.correct++;
     if (result === "unknown") P.stats.wrong++;
-    if (L === primaryLang(c)) { c.box = P.box; c.dueAt = P.dueAt; c.stats = Object.assign({}, P.stats); }
+    syncTop(c, L, P);
     logHistory(now, result === "known", L);
     xpAnswer(c, L, result === "known", now);   // XP (étape 43)
     return { from, to: P.box, dueAt: P.dueAt, lang: L };
   }
-  // Jeux d'entraînement (étape 42) : poids réduit. ok = bonne réponse : pas de montée de boîte, date de révision
-  // inchangée, stats « vu / juste » mises à jour. Mauvaise réponse = comme « À revoir ». Compte pour l'objectif du jour.
+  // Jeux d'entraînement (étape 42) : poids réduit. ok = bonne réponse : stats « vu / juste » seulement (date de révision,
+  // stabilité, difficulté et boîte inchangées). Mauvaise réponse = « difficile » (comme « À revoir »). Compte pour l'objectif du jour.
   function gradeGame(c, ok, now, lang) {
     if (!ok) return grade(c, "review", now, lang);
     now = now || Date.now();
@@ -352,7 +369,7 @@ const Leitner = (() => {
     P.stats.seen++;
     P.stats.correct++;
     P.stats.lastSeen = now;
-    if (L === primaryLang(c)) { c.box = P.box; c.dueAt = P.dueAt; c.stats = Object.assign({}, P.stats); }
+    syncTop(c, L, P);
     logHistory(now, true, L);
     xpAnswer(c, L, true, now);   // XP (étape 43)
     return { from: P.box, to: P.box, dueAt: P.dueAt, lang: L };
@@ -365,7 +382,35 @@ const Leitner = (() => {
     delete c.progress;
     return c;
   }
-  return { dayStart, addDays, isDue, category, grade, gradeGame, prog, dueLangs, unit, units, clear, isUnit };
+  // Réinitialiser la progression (étape 47, menu d'une liste ou d'un dossier) : langs = langues à remettre à zéro
+  // (absent ou null = toutes). Chaque langue concernée repart de zéro (boîte 0, due maintenant, stats et champs FSRS
+  // s, d, last, reps, lapses, state à zéro) ; l'ancienne boîte Leitner (lb) est gardée ; les autres langues ne bougent pas.
+  // Renvoie true si quelque chose a été remis à zéro.
+  function touched(P) { return !!P && (num((P.stats || {}).seen, 0) > 0 || (fsrsHas(P) && P.state !== "new") || num(P.box, 0) > 0); }
+  function reset(c, langs, now) {
+    now = now || Date.now();
+    const only = Array.isArray(langs) && langs.length ? new Set(langs) : null;
+    if (!hasProg(c)) { if (!touched(c) || (only && !only.has(primaryLang(c)))) return false; ensure(c, primaryLang(c)); }
+    let done = false;
+    Object.keys(c.progress).forEach(L => {
+      if (only && !only.has(L)) return;
+      const P = c.progress[L];
+      if (!touched(P)) return;
+      const lb = P.lb;
+      c.progress[L] = Object.assign({ box: 0, dueAt: now, stats: { seen: 0, correct: 0, wrong: 0, lastSeen: null } }, fsrsNewFields());
+      if (lb != null) c.progress[L].lb = lb;
+      done = true;
+    });
+    const L0 = primaryLang(c);
+    if (done && c.progress[L0]) syncTop(c, L0, c.progress[L0]);
+    return done;
+  }
+  // La carte a-t-elle déjà une progression dans cette langue (null = dans au moins une langue) ? (compte avant réinitialisation)
+  function hasProgress(c, L) {
+    if (!hasProg(c)) return touched(c) && (!L || L === primaryLang(c));
+    return L ? touched(c.progress[L]) : Object.keys(c.progress).some(k => touched(c.progress[k]));
+  }
+  return { dayStart, addDays, isDue, category, grade, gradeGame, prog, dueLangs, unit, units, clear, reset, hasProgress, isUnit };
 })();
 
 // Jours d'affilée avec au moins une révision dans une langue (statistiques par langue, étape 37) ; aujourd'hui

@@ -6,13 +6,15 @@
 // Version 4 : séries façon Duolingo (settings.dailyGoal, settings.privacy, streak — voir SÉRIES).
 // Version 5 : profil de langues (settings.learning) et exemples par langue (cards[].examples) — étape 35, voir LANGUES.
 // Version 6 : langues étudiées d'une liste (lists[].targets) et progression par langue (cards[].progress) — étape 37.
-const DATA_VERSION = 6;
+// Version 7 : répétition FSRS — champs s, d, last, reps, lapses, state (+ lb) dans cards[].progress[langue] — étape 47.
+const DATA_VERSION = 7;
 const PRIVACY_KEYS = ["streak", "today", "week", "success", "badges", "ranking", "shared", "xp"];   // ce que mes amis voient (étape 29 ; shared : étape 30 ; xp : étape 43)
 function defaultPrivacy() { const o = {}; PRIVACY_KEYS.forEach(k => { o[k] = true; }); return o; }
 function normPrivacy(p) { const o = defaultPrivacy(); if (p && typeof p === "object") PRIVACY_KEYS.forEach(k => { if (p[k] === false) o[k] = false; }); return o; }
 // Jeux d'entraînement (étape 42) : settings.games = { sounds (désactivé par défaut), records { clé: meilleur score } }.
 // Dans le morceau settings (aucun nouveau morceau) ; 200 records au plus.
 // Écoute et parole (étape 46) : settings.listen = { slow } (vitesse de la dictée), aussi dans le morceau settings.
+// FSRS (étape 47) : settings.retention = taux de rétention visé en % (75 à 97, 90 par défaut ; FSRS_RET), dans le morceau settings.
 function normGames(g) {
   const o = { sounds: false, records: {} };
   if (!g || typeof g !== "object") return o;
@@ -40,7 +42,8 @@ function defaultSettings(target, support) {
     audio: { auto: true, langs: "target" },
     dailyGoal: 10, privacy: defaultPrivacy(),
     games: normGames(null),                                                            // jeux (étape 42)
-    listen: { slow: false }                                                            // dictée : lecture lente (étape 46)
+    listen: { slow: false },                                                           // dictée : lecture lente (étape 46)
+    retention: FSRS_RET.def                                                            // FSRS : taux de rétention visé (étape 47)
   };
 }
 
@@ -148,6 +151,8 @@ function normalizeCard(c) {
 
 // Progression par langue étudiée (étape 37) : { <langue>: { box, dueAt, stats } }.
 // box / dueAt / stats de la carte = copie de la progression de sa langue principale (anciennes versions, fiche admin…).
+// Étape 47 : + champs FSRS (s, d, last, reps, lapses, state, lb) gardés s'ils existent (fsrsNorm, js/fsrs.js) ; absents
+// (données v6) → ajoutés par la migration 6 → 7 (normalizeData).
 function normProgress(p) {
   const out = {};
   if (!p || typeof p !== "object" || Array.isArray(p)) return out;
@@ -157,6 +162,8 @@ function normProgress(p) {
     const st = v.stats || {};
     out[L] = { box: clampInt(v.box, 0, 5, 0), dueAt: num(v.dueAt, 0),
       stats: { seen: num(st.seen, 0), correct: num(st.correct, 0), wrong: num(st.wrong, 0), lastSeen: num(st.lastSeen, null) } };
+    const F = fsrsNorm(v);
+    if (F) Object.assign(out[L], F);
   });
   return out;
 }
@@ -179,6 +186,10 @@ function dataVersion(raw) { return (raw && typeof raw === "object") ? num(raw.ve
 // Migration v5 → v6 (étape 37) : lists[].targets = [langue apprise] ; box / dueAt / stats → cards[].progress[langue]
 //   (voir syncPrimaryProgress) ; history[].langs ajouté au fil des révisions. Aucun nouveau morceau (règle 33b) :
 //   tout reste dans les morceaux lists et cards. Export JSON de sécurité avant (syncWithRemote, DATA_VERSION).
+// Migration v6 → v7 (étape 47) : chaque progress[langue] sans champs FSRS reçoit s, d, last, reps, lapses, state estimés
+//   depuis sa boîte et ses stats, et lb = ancienne boîte (fsrsMigrateProg, js/fsrs.js) ; box = équivalent FSRS ; dueAt et
+//   stats jamais modifiés ; rien supprimé ; aucun nouveau morceau (tout reste dans les morceaux cards). Une progression qui a
+//   déjà ses champs FSRS n'est jamais refaite (relancer ne migre pas deux fois). Export JSON de sécurité avant (DATA_VERSION 7).
 function normalizeData(raw) {
   const d = (raw && typeof raw === "object") ? raw : {};
   const s = d.settings || {};
@@ -199,7 +210,8 @@ function normalizeData(raw) {
       dailyGoal: clampInt(s.dailyGoal, 5, 100, 10),
       privacy: normPrivacy(s.privacy),
       games: normGames(s.games),  // jeux d'entraînement (étape 42)
-      listen: { slow: !!(s.listen && s.listen.slow === true) }   // dictée : lecture lente (étape 46)
+      listen: { slow: !!(s.listen && s.listen.slow === true) },   // dictée : lecture lente (étape 46)
+      retention: clampInt(s.retention, FSRS_RET.min, FSRS_RET.max, FSRS_RET.def)   // FSRS : taux de rétention visé (étape 47)
     },
     folders: arr(d.folders).filter(f => f && f.id).map((f, i) => Object.assign(
       { id: String(f.id), name: String(f.name || ""), order: num(f.order, i) }, normLangPair(f), lastUpdateOf(f), normSharedMark(f))),
@@ -274,6 +286,14 @@ function normalizeData(raw) {
   // (langue de la liste, ou lang des autres types). Rien n'est supprimé (box / dueAt / stats gardés en copie).
   out.lists.forEach(l => { if (!l.targets) l.targets = [tgOfList.get(l.id)]; });
   out.cards.forEach(c => syncPrimaryProgress(c, isVocab(c) ? tgOfList.get(c.listId) : c.lang));
+  // Migration v6 → v7 (étape 47) : champs FSRS ajoutés là où ils manquent, puis copie de la langue principale à jour.
+  const now = Date.now();
+  out.cards.forEach(c => {
+    if (!c.progress) return;
+    let changed = false;
+    Object.keys(c.progress).forEach(L => { if (fsrsMigrateProg(c.progress[L], now)) changed = true; });
+    if (changed) syncPrimaryProgress(c, isVocab(c) ? tgOfList.get(c.listId) : c.lang);
+  });
   return out;
 }
 // Progression de la langue principale ⇄ champs box / dueAt / stats de la carte (étape 37).
@@ -286,7 +306,7 @@ function syncPrimaryProgress(c, L) {
     c.progress = { [L]: { box: c.box, dueAt: c.dueAt, stats: Object.assign({}, c.stats) } };
     return;
   }
-  if (!pg[L]) pg[L] = { box: 0, dueAt: 0, stats: { seen: 0, correct: 0, wrong: 0, lastSeen: null } };
+  if (!pg[L]) pg[L] = Object.assign({ box: 0, dueAt: 0, stats: { seen: 0, correct: 0, wrong: 0, lastSeen: null } }, fsrsNewFields());
   c.progress = pg;
   c.box = pg[L].box; c.dueAt = pg[L].dueAt; c.stats = Object.assign({}, pg[L].stats);
 }

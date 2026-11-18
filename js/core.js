@@ -29,7 +29,7 @@ const CONFIG = {
   PROPOSALS_PER_PIECE: 500,     // propositions max par morceau user:<id>:proposals:<n>
   IDS_PER_PIECE: 2000,          // ids max par morceau user:<id>:resume:<n> (complétion en pause)
   IMPORT_BATCH: 200,            // cartes enregistrées par lot pendant un import
-  LEITNER_INTERVALS_DAYS: [0, 1, 3, 7, 14, 30], // index = boîte
+  LEITNER_INTERVALS_DAYS: [0, 1, 3, 7, 14, 30], // index = boîte (avant l'étape 47 ; sert à la migration 6 → 7 vers FSRS)
   AI_BATCH: 20,          // cartes max par appel à Claude (et par partie du texte « Préparer pour Claude »)
   AUTO_CHECK_DAYS: 7,    // vérification automatique au plus une fois par semaine
   UNDO_MS: 6000,         // durée du bouton « Annuler » après une action groupée
@@ -41,7 +41,7 @@ const CONFIG = {
   PV_CHUNK: 200          // « À valider » : propositions acceptées / refusées par paquet
 };
 // Numéro de la dernière étape réalisée : affiché en bas des Réglages, envoyé au journal d'activité et dans la fiche appareil.
-const APP_VERSION = "46";
+const APP_VERSION = "47";
 
 // === I18N ===
 // Textes de l'interface : un fichier par langue (js/i18n/ko.js, fr.js, en.js), chargés après languages.js.

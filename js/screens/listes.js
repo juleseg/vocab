@@ -317,6 +317,7 @@ function initLists() {
   $("#lvStudy").addEventListener("click", () => { if (lv.listId) openStudyLangs("list", lv.listId); });   // étape 37
   $("#lvStoryNew").addEventListener("click", () => { if (lv.listId) openStoryCreate(lv.listId); });   // étape 45
   $("#lvStories").addEventListener("click", () => { if (lv.listId) goStories(lv.listId); });
+  $("#lvReset").addEventListener("click", () => { if (lv.listId) openResetProgress("list", lv.listId); });   // étape 47
   $("#lvDelete").addEventListener("click", () => confirmDeleteList(lv.listId));
   $("#lvShare").addEventListener("click", () => { const l = getList(lv.listId); if (!l) return; if (isSharedList(l)) openShareManage("list", l.id); else openShare("list", l.id); });
   $("#lvNewFolder").addEventListener("click", () => openFolderName(null));
@@ -511,10 +512,71 @@ function openFolderMenu(id) {
     notOwner ? null : { label: t("folders.rename"), onClick: () => { openFolderName(id); } },
     notOwner ? null : { label: t("folders.langs"), onClick: () => { openLangEditor("folder", f); } },
     { label: t("study.add"), onClick: () => { openStudyLangs("folder", id); } },   // étape 37
+    { label: t("fsrs.reset"), onClick: () => { openResetProgress("folder", id); } },   // étape 47
     { label: t(notOwner ? "sh.leaveFolder" : "folders.delete"), kind: "danger", onClick: () => { confirmDeleteFolder(id); } },
     { label: t("cancel") }
   ].filter(Boolean));
 }
+// === RÉINITIALISER LA PROGRESSION (étape 47) ===
+// Menu d'une liste (#lvReset) ou d'un dossier : choix de la langue étudiée (ou toutes), confirmation avec le nombre de cartes
+// concernées (déjà révisées dans cette langue), puis Leitner.reset (boîte, date, stats et champs FSRS à zéro, lb gardé).
+// Les autres langues ne bougent pas. Listes communes : seulement ma progression (le contenu des cartes ne change pas),
+// même en lecture seule. L'historique, la série, l'XP et les défis ne changent pas.
+function resetScopeCards(kind, id) {
+  const ids = new Set(studyScopeLists(kind, id).map(l => l.id));
+  return state.cards.filter(c => ids.has(c.listId));
+}
+// Langues proposées : langues étudiées des listes du périmètre + langue des cartes d'autres types, dans l'ordre de LANGUAGES.
+function resetLangs(kind, id) {
+  const set = new Set();
+  studyScopeLists(kind, id).forEach(l => studyLangs(l).forEach(L => set.add(L)));
+  resetScopeCards(kind, id).forEach(c => { if (!isVocab(c)) set.add(primaryLang(c)); });
+  return LANG_CODES.filter(L => set.has(L));
+}
+function resetCount(cards, L) { return cards.filter(c => Leitner.hasProgress(c, L || null)).length; }
+function openResetProgress(kind, id) {
+  const obj = studyScopeObj(kind, id);
+  if (!obj) return;
+  const lists = studyScopeLists(kind, id);
+  if (kind === "folder" && !lists.length) { toast(t("folders.noLists")); return; }
+  const cards = resetScopeCards(kind, id), langs = resetLangs(kind, id);
+  if (!cards.some(c => Leitner.hasProgress(c, null))) { toast(t("fsrs.resetNone")); return; }
+  if (langs.length < 2) { confirmResetProgress(kind, id, langs[0] || null); return; }
+  const wrap = el("div");
+  wrap.appendChild(el("p", "muted", t("fsrs.resetPick")));
+  const opts = el("div", "fs-reset-langs");
+  [""].concat(langs).forEach(L => {
+    const n = resetCount(cards, L);
+    const b = el("button", "btn", (L ? langName(L) : t("fsrs.resetAll")) + " · " + t("fsrs.resetN", { n }));
+    b.type = "button";
+    b.disabled = !n;
+    b.addEventListener("click", () => { close(); confirmResetProgress(kind, id, L || null); });
+    opts.appendChild(b);
+  });
+  wrap.appendChild(opts);
+  const close = openModal(t("fsrs.resetTitle", { name: obj.name }), wrap, [{ label: t("cancel") }]);
+}
+function confirmResetProgress(kind, id, L) {
+  const obj = studyScopeObj(kind, id);
+  if (!obj) return;
+  const cards = resetScopeCards(kind, id), n = resetCount(cards, L);
+  if (!n) { toast(t("fsrs.resetNone")); return; }
+  const p = el("div");
+  p.appendChild(el("p", null, t(L ? "fsrs.resetAskLang" : "fsrs.resetAskAll", { n, name: obj.name, lang: L ? langName(L) : "" })));
+  p.appendChild(el("p", "hint", t("fsrs.resetKeep")));
+  if (studyScopeLists(kind, id).some(isSharedList)) p.appendChild(el("p", "q-note", t("fsrs.resetShared")));
+  openModal(t("fsrs.resetTitle", { name: obj.name }), p, [
+    { label: t("cancel") },
+    { label: t("fsrs.resetBtn"), kind: "danger", onClick: () => {
+      const now = Date.now();
+      let done = 0;
+      cards.forEach(c => { if (Leitner.reset(c, L ? [L] : null, now)) done++; });
+      commit();
+      toast(t("fsrs.resetDone", { n: done }));
+    } }
+  ]);
+}
+
 // Supprimer un dossier : au choix, supprimer ses listes (et leurs cartes) ou les sortir du dossier.
 function confirmDeleteFolder(id) {
   const f = getFolder(id);

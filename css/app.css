@@ -1141,3 +1141,43 @@ html[lang="ko"] .tuto-title,html[lang="ko"] .tuto-text{word-break:keep-all;overf
 .ls-heard{text-align:center;margin-top:6px}
 .ls-heard-txt{font-size:19px;font-weight:600;overflow-wrap:anywhere}
 .ls-tools{margin-top:12px}
+
+/* === RÉPÉTITION FSRS (étape 47) === */
+/* Réglages : carte « Rythme de révision » (toute la carte est un bouton) */
+.card.fs-entry-card{padding:0}
+.fs-entry{display:flex;align-items:center;gap:10px;width:100%;min-height:64px;padding:14px 16px;border:0;background:none;color:var(--text);font:inherit;text-align:left;cursor:pointer;border-radius:16px}
+.fs-entry-txt{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.fs-entry-title{font-size:17px;font-weight:700}
+.fs-entry-val{font-size:14px;color:var(--muted)}
+.fs-entry .chev{color:var(--muted);font-size:24px;line-height:1}
+/* Écran « Rythme de révision » (#rythme) */
+.fs-title{font-size:20px;margin:4px 0 6px}
+.fs-intro{margin:0 0 14px;line-height:1.45;word-break:keep-all;overflow-wrap:anywhere}
+.fs-opts{display:flex;flex-direction:column;gap:10px}
+.fs-opt{display:flex;flex-direction:column;align-items:stretch;gap:4px;width:100%;padding:14px 16px;border:2px solid var(--border);border-radius:16px;background:var(--surface);color:var(--text);font:inherit;text-align:left;cursor:pointer;transition:border-color .15s,background-color .15s;word-break:keep-all;overflow-wrap:anywhere}
+.fs-opt.on{border-color:var(--accent);background:var(--surface2);background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+.fs-custom{cursor:default}
+.fs-opt-hd{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+.fs-rate{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;min-width:3.6em}
+.fs-opt.on .fs-rate{color:var(--accent)}
+.fs-name{font-size:17px;font-weight:700}
+.fs-badge{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--accent);color:var(--accent-text)}
+.fs-desc{font-size:14px;color:var(--muted);line-height:1.4}
+.fs-ex{font-size:14px;line-height:1.4}
+.fs-load{font-size:14px;display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline}
+.fs-load-n{font-weight:600}
+.fs-ratio{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.fs-warn{font-size:13px;color:var(--warn);font-weight:600;line-height:1.4}
+.fs-warn[hidden]{display:none}
+.fs-note{font-size:13px;color:var(--muted);margin:12px 2px 0;line-height:1.45}
+/* Curseur 75 à 97 % : grande zone tactile, glissement fluide (pas de défilement de la page pendant le geste) */
+.fs-range{-webkit-appearance:none;appearance:none;width:100%;height:44px;margin:6px 0 0;background:transparent;touch-action:none;cursor:pointer;accent-color:var(--accent)}
+.fs-range:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+.fs-range::-webkit-slider-runnable-track{height:8px;border-radius:999px;background:var(--surface2);border:1px solid var(--border)}
+.fs-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:30px;height:30px;margin-top:-12px;border-radius:50%;background:var(--accent);border:3px solid var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.fs-range::-moz-range-track{height:8px;border-radius:999px;background:var(--surface2);border:1px solid var(--border)}
+.fs-range::-moz-range-progress{height:8px;border-radius:999px;background:var(--accent)}
+.fs-range::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--accent);border:3px solid var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.fs-scale{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:-4px}
+.fs-retline{margin-top:12px}
+.fs-reset-langs{display:flex;flex-direction:column;gap:8px}

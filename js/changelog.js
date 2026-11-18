@@ -8,6 +8,32 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "47", date: "2026-11-18",
+    points: {
+      ko: [
+        "앱이 각 단어를 언제 다시 복습할지 더 잘 골라요: 잘 아는 단어는 덜, 어려운 단어는 더 자주 나와요.",
+        "버튼은 그대로예요 (알아요 / 다시 보기 / 몰라요). 지금까지의 진도는 그대로 이어져요.",
+        "새 화면 '복습 리듬'(설정): 집중 95% · 균형 90% · 가볍게 85% · 최소 80% 또는 직접 설정. 단어가 언제 다시 나오는지, 하루 몇 장을 복습하게 되는지 바로 보여 줘요.",
+        "통계에서 예상 기억률을 볼 수 있어요.",
+        "목록이나 폴더 메뉴의 '진도 초기화'로 한 언어 또는 모든 언어의 진도를 처음부터 다시 시작할 수 있어요."
+      ],
+      fr: [
+        "L'appli choisit mieux quand revoir chaque mot : les mots bien sus reviennent moins souvent, les mots difficiles plus souvent.",
+        "Les boutons ne changent pas (Su / À revoir / Pas su) et ta progression actuelle est gardée.",
+        "Nouvel écran « Rythme de révision » (Réglages) : Intensif 95 % · Équilibré 90 % · Léger 85 % · Minimum 80 %, ou ton propre taux. Tu vois tout de suite quand un mot revient et combien de cartes par jour ça fait.",
+        "Stats : vois ta rétention estimée.",
+        "Nouveau « Réinitialiser la progression » dans le menu d'une liste ou d'un dossier, pour une langue ou toutes."
+      ],
+      en: [
+        "The app better chooses when to review each word: words you know well come back less often, hard words more often.",
+        "Buttons do not change (Knew it / To review / Didn't know) and your current progress is kept.",
+        "New \"Review pace\" screen (Settings): Intensive 95% · Balanced 90% · Light 85% · Minimum 80%, or your own rate. You see right away when a word comes back and how many cards per day it means.",
+        "Stats: see your estimated retention.",
+        "New \"Reset progress\" in a list or folder menu, for one language or all of them."
+      ]
+    }
+  },
+  {
     version: "46", date: "2026-11-18",
     points: {
       ko: [
