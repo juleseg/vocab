@@ -8,7 +8,7 @@
 // - Relançable : Réglages → « Revoir le tutoriel » (#btnTutoSet) et À propos (bouton affiché quand Tutorial existe).
 // - Rien n'est modifié dans les données : le tutoriel ne fait que changer d'écran (et ouvrir une liste) ; l'appli
 //   derrière ne réagit pas aux touchers pendant la visite. « Essayer » ouvre une vraie fenêtre (ajout de carte,
-//   import) : le tutoriel se cache, puis reprend au même point quand la fenêtre est fermée.
+//   langue étudiée) : le tutoriel se cache, puis reprend au même point quand la fenêtre est fermée.
 // - Une autre fenêtre qui s'ouvre pendant la visite (conflit, annonce…) passe devant : le tutoriel attend.
 // - Un point dont l'élément n'existe pas (écran absent, séance de révision en cours…) est sauté sans erreur.
 // - Sur l'appareil : vocabfr.tuto:<identifiant> = { status: "pending" | "running" | "done" | "skipped", step, at }.
@@ -69,9 +69,9 @@ const Tutorial = (() => {
     { id: "card", ok: () => !!demoList(), show: () => { const d = demoList(); if (d) openList(d.id); },
       target: () => (lv.listId ? $("#lvAdd") : null),
       tryIt: () => { const d = demoList(); if (d) openCardEditor(null, d.id); } },
-    { id: "import", ok: () => !!demoList(), show: () => { const d = demoList(); if (d) openList(d.id); },
-      target: () => $("#lvBulk"),
-      tryIt: () => { const b = $("#lvBulk"); if (b) b.click(); } },
+    { id: "study", ok: () => !!demoList(), show: () => { const d = demoList(); if (d) openList(d.id); },   // « Ajouter une langue étudiée » (menu de la liste, étape 37 ; remplace « import » à l'étape 51)
+      target: () => $("#lvStudy"),
+      tryIt: () => { const b = $("#lvStudy"); if (b) b.click(); } },
     { id: "session", ok: reviewFree, show: () => go("review"),
       target: () => (reviewFree() ? $("#screen-review > .btn.primary") : null) },
     { id: "modes", ok: reviewFree, show: () => go("review"),
@@ -80,7 +80,8 @@ const Tutorial = (() => {
     { id: "streak", show: () => go("home"), target: () => [$("#homeStreakCard"), $("#homeGoal")] },
     { id: "xp", show: () => go("home"), target: () => [$("#homeXp"), $("#homeChallenges")] },   // XP et défis du jour (étape 43)
     { id: "friends", show: () => go("friends"), target: () => navBtn("friends") },
-    { id: "settings", show: () => go("settings"), target: () => (shown($("#pushCard")) ? $("#pushCard") : navBtn("settings")) }
+    { id: "settings", show: () => go("settings"), target: () => (shown($("#pushCard")) ? $("#pushCard") : navBtn("settings")) },
+    { id: "about", show: () => { go("settings"); window.scrollTo(0, 0); }, target: () => $("#btnAbout") }   // ⓘ À propos, dans l'en-tête, remonté en haut de page (étape 51)
   ];
   function targets(s) {
     let x = null;

@@ -24,8 +24,8 @@ Object.assign(I18N.en, {
   "tuto.lists.text": "Your cards are kept in lists, and lists in folders. The \"Démo\" list is there for you to try things out. Open a list to create a story with its words.",
   "tuto.card.title": "Create a card",
   "tuto.card.text": "Add a word with this button. If it's already in the shared dictionary, translations and the example fill in by themselves. You can also add a picture (photo or Wikimedia).",
-  "tuto.import.title": "Import cards",
-  "tuto.import.text": "Paste a list of words or pick a file to create lots of cards at once.",
+  "tuto.study.title": "Add a study language to a list",
+  "tuto.study.text": "In the list's menu, \"Add a study language\" lets you study the same list in another language: same cards, separate progress. Tap \"Try it\" to open the window.",
   "tuto.session.title": "Start a session",
   "tuto.session.text": "Choose what to review (lists, folders, language, number of cards), then tap \"Start\". For a change, pick a game: Multiple choice, 60-second race, Pairs or Put in order.",
   "tuto.modes.title": "Review modes",
@@ -37,5 +37,7 @@ Object.assign(I18N.en, {
   "tuto.friends.title": "Friends and sharing",
   "tuto.friends.text": "Add friends with their username to compare streaks and play the weekly league (XP from Monday to Sunday). Challenge them to a 10-card duel, or share a list with them from its \"Share\" menu.",
   "tuto.settings.title": "Notifications and settings",
-  "tuto.settings.text": "Turn on reminders here and adjust the app to your liking. You can replay this tutorial in Settings or About."
+  "tuto.settings.text": "Turn on reminders here and adjust the app to your liking. You can replay this tutorial in Settings or About.",
+  "tuto.about.title": "ⓘ About",
+  "tuto.about.text": "Tap ⓘ at the top of the screen: you'll find the app version, what's new, how to share the app and this tutorial."
 });

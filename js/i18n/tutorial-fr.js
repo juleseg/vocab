@@ -24,8 +24,8 @@ Object.assign(I18N.fr, {
   "tuto.lists.text": "Tes cartes sont rangées dans des listes, et les listes dans des dossiers. La liste « Démo » est là pour essayer. Ouvre une liste pour créer une histoire avec ses mots.",
   "tuto.card.title": "Créer une carte",
   "tuto.card.text": "Ajoute un mot avec ce bouton. S'il est déjà dans le dictionnaire commun, les traductions et l'exemple se remplissent tout seuls. Tu peux aussi y ajouter une image (photo ou Wikimedia).",
-  "tuto.import.title": "Importer des cartes",
-  "tuto.import.text": "Colle une liste de mots ou choisis un fichier pour créer beaucoup de cartes d'un coup.",
+  "tuto.study.title": "Ajouter une langue étudiée à une liste",
+  "tuto.study.text": "Dans le menu de la liste, « Ajouter une langue étudiée » te permet d'étudier la même liste dans une autre langue : mêmes cartes, progression séparée. Touche « Essayer » pour ouvrir la fenêtre.",
   "tuto.session.title": "Lancer une session",
   "tuto.session.text": "Choisis ce que tu veux réviser (listes, dossiers, langue, nombre de cartes), puis touche « Commencer ». Pour t'entraîner autrement, choisis un jeu : QCM, Course 60 s, Paires ou Remettre en ordre.",
   "tuto.modes.title": "Modes de révision",
@@ -37,5 +37,7 @@ Object.assign(I18N.fr, {
   "tuto.friends.title": "Amis et partage",
   "tuto.friends.text": "Ajoute des amis avec leur identifiant pour comparer vos séries et jouer la ligue de la semaine (XP du lundi au dimanche). Défie-les en duel sur 10 cartes, ou partage-leur une liste depuis son menu « Partager ».",
   "tuto.settings.title": "Notifications et réglages",
-  "tuto.settings.text": "Active les rappels ici et règle l'appli à ton goût. Tu peux revoir ce tutoriel dans Réglages ou À propos."
+  "tuto.settings.text": "Active les rappels ici et règle l'appli à ton goût. Tu peux revoir ce tutoriel dans Réglages ou À propos.",
+  "tuto.about.title": "ⓘ À propos",
+  "tuto.about.text": "Touche ⓘ en haut de l'écran : tu y trouves la version de l'appli, les nouveautés, le partage de l'appli et ce tutoriel."
 });

@@ -8,6 +8,20 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "51", date: "2026-11-18",
+    points: {
+      ko: [
+        "앱 둘러보기 안내를 새로 고쳤어요: 목록에 공부할 언어를 추가하는 방법을 알려 주고, 앱 정보(ⓘ)도 소개해요."
+      ],
+      fr: [
+        "Le tutoriel a été revu : il montre maintenant comment ajouter une langue étudiée à une liste, et présente ⓘ À propos."
+      ],
+      en: [
+        "The tutorial has been revised: it now shows how to add a study language to a list, and introduces ⓘ About."
+      ]
+    }
+  },
+  {
     version: "50", date: "2026-11-18",
     points: {
       ko: [
