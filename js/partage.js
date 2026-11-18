@@ -870,6 +870,8 @@ function shConfirmLeave(kind, obj, top, row) {
       const k = keep.get();
       (async () => {
         try {
+          // Copie gardée (étape 49) : images des autres membres recopiées dans mon dossier tant que j'y ai encore accès
+          if (k && typeof Images !== "undefined") { const ids = new Set(lists.map(l => l.id)); await Images.adopt(state.cards.filter(c => ids.has(c.listId) && c.image)); }
           await Shared.rpc("share_leave", { p_list: top });
           const fd = state.folders.find(f => isSharedFolder(f) && f.shared.id === top);
           if (fd) delete fd.shared;
@@ -897,6 +899,8 @@ function shConfirmDelete(kind, obj) {
       const k = keep.get();
       (async () => {
         try {
+          // Copie gardée (étape 49) : images des autres membres recopiées dans mon dossier avant la suppression
+          if (k && typeof Images !== "undefined") { const ids = new Set(lists.map(l => l.id)); await Images.adopt(state.cards.filter(c => ids.has(c.listId) && c.image)); }
           const r = await Shared.rpc("share_delete", { p_list: U });
           if (isFolder) delete obj.shared;
           lists.forEach(l => {
@@ -994,7 +998,9 @@ function shAcceptInto(x, folderId) {
         const before = new Set(state.cards.map(c => c.id));
         shAddCopy(payload || {}, x, folderId);
         commit();
-        Dict.afterAdd(state.cards.filter(c => !before.has(c.id)).map(c => c.id));   // dictionnaire commun (étape 36)
+        const added = state.cards.filter(c => !before.has(c.id));
+        if (typeof Images !== "undefined" && added.some(c => c.image)) { await Images.adopt(added); commit(); }   // étape 49 : images recopiées chez moi
+        Dict.afterAdd(added.map(c => c.id));   // dictionnaire commun (étape 36)
       }
       await Shared.rpc("share_invite_answer", { p_id: x.id, p_accept: true, p_folder: null });
     } else {

@@ -20,7 +20,7 @@
 // « Mettre à jour » (Release.update) : 1) relecture de app_release_latest (prouve la connexion ; hors connexion → message
 //   rl.offline, rien n'est effacé) ; 2) index.html et ./ relus avec cache "reload" (contourne le cache HTTP de GitHub Pages ;
 //   sw.js « réseau d'abord » met la copie fraîche dans son cache) ; 3) envoi de ce qui attend (sauf si bloqué) ;
-//   4) registration.update() du service worker ; 5) caches « vocab-* » vidés ; 6) rechargement. Les scripts en ?v=N changent
+//   4) registration.update() du service worker ; 5) caches « vocab-* » vidés (sauf « vocab-img », étape 49) ; 6) rechargement. Les scripts en ?v=N changent
 //   d'adresse : tous neufs. sw.js n'est pas modifié. Après le rechargement, sessionStorage vocabfr.release:updating dit vers
 //   quelle version on allait : version toujours plus ancienne → message rl.notYet (GitHub Pages pas encore à jour).
 // Sans Supabase (artifact, fichier local) : rien (aucune annonce possible).
@@ -230,7 +230,7 @@ const Release = (() => {
       try {
         if (window.caches && caches.keys) {
           const keys = await caches.keys();
-          await Promise.all(keys.filter(k => /^vocab-/.test(k)).map(k => caches.delete(k)));
+          await Promise.all(keys.filter(k => /^vocab-/.test(k) && k !== "vocab-img").map(k => caches.delete(k)));   // étape 49 : images gardées
         }
       } catch (e) {}
       try { sessionStorage.setItem(SS_UPD, JSON.stringify({ to: target, from: appV(), data: dataV, at: Date.now() })); } catch (e) {}

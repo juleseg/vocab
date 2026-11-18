@@ -144,10 +144,26 @@ function normalizeCard(c) {
     if (typeof c.senseId === "string" && /^[0-9a-f-]{36}$/i.test(c.senseId)) out.senseId = c.senseId;
     const own = [...new Set(arr(c.own).filter(k => typeof k === "string" && /^[wpet]:[a-z]/.test(k)))].slice(0, 200);
     if (out.senseId && own.length) out.own = own;
+    const im = normCardImage(c.image);                                               // étape 49 : image de la carte (facultative)
+    if (im) out.image = im;
     return out;
   }
   return Object.assign(out, normTypedFields(type, c));
 }
+
+// Image d'une carte vocab (étape 49) : { path, src: "photo" | "wikimedia", author, license, page, size } ou null.
+// path = <id du compte>/<nom>.webp|jpg (bucket card-images, Supabase Storage) ; champ facultatif (DATA_VERSION inchangé).
+// Les versions 48 et moins ne le connaissent pas : un appareil resté en 48 qui renvoie ses cartes l'efface.
+const IMG_PATH_RE = /^(?:[0-9a-f-]{36}|common\/[0-9a-f-]{36})\/[A-Za-z0-9_-]{1,80}\.(?:webp|jpg)$/;
+function normCardImage(o) {
+  if (!o || typeof o !== "object" || Array.isArray(o) || typeof o.path !== "string" || !IMG_PATH_RE.test(o.path)) return null;
+  const txt = (v, n) => String(v == null ? "" : v).replace(/\s+/g, " ").trim().slice(0, n);
+  const page = txt(o.page, 500);
+  return { path: o.path, src: o.src === "wikimedia" ? "wikimedia" : "photo", author: txt(o.author, 300), license: txt(o.license, 60),
+    page: /^https:\/\//.test(page) ? page : "", size: clampInt(o.size, 0, 10000000, 0) };
+}
+// Réglage « Images » d'une liste (étape 49) : imgSide = "q" (côté question) | "a" (côté réponse) | "never" ; absent = automatique.
+function normImgSide(o) { return o && ["q", "a", "never"].includes(o.imgSide) ? { imgSide: o.imgSide } : {}; }
 
 // Progression par langue étudiée (étape 37) : { <langue>: { box, dueAt, stats } }.
 // box / dueAt / stats de la carte = copie de la progression de sa langue principale (anciennes versions, fiche admin…).
@@ -240,7 +256,7 @@ function normalizeData(raw) {
     id: String(l.id), name: String(l.name || ""),
     folderId: l.folderId && folderIds.has(String(l.folderId)) ? String(l.folderId) : null,
     order: num(l.order, i), createdAt: num(l.createdAt, Date.now())
-  }, normLangPair(l), normTargets(l.targets), lastUpdateOf(l), normSharedMark(l)));
+  }, normLangPair(l), normTargets(l.targets), lastUpdateOf(l), normSharedMark(l), normImgSide(l)));
   // Ordres renumérotés 0, 1, 2… (dossiers, puis listes de chaque dossier)
   const renum = items => items.map((x, i) => [x, i]).sort((a, b) => a[0].order - b[0].order || a[1] - b[1]).forEach(([x], i) => { x.order = i; });
   renum(out.folders);
@@ -437,7 +453,7 @@ const Storage = (() => {
   let localSaved = new Map();  // clé → JSON déjà présent dans localStorage
   let remoteSaved = new Map(); // clé → JSON déjà présent dans le cloud
   let localFullWarned = false;
-  let beforeSaveFn = null;     // étape 30 : modifications des listes communes repérées avant chaque sauvegarde
+  const beforeSaveFns = [];    // étape 30 : modifications des listes communes repérées avant chaque sauvegarde (étape 49 : + images)
   let lastErr = "";            // étape 33b : dernière erreur de synchro (message court, affiché en touchant l'indicateur)
   let paused = false;          // étape 48 : mise à jour nécessaire (js/release.js) → aucun envoi, données gardées sur l'appareil
   const listeners = [];
@@ -893,8 +909,8 @@ const Storage = (() => {
 
   // Sauvegarde du compte connecté : immédiate en local (morceaux modifiés), différée (regroupée) vers le cloud.
   // Renvoie false si l'appareil n'a pas pu enregistrer.
-  function onBeforeSave(fn) { beforeSaveFn = fn; }
-  function beforeSave(data) { if (beforeSaveFn) { try { beforeSaveFn(data); } catch (e) {} } }
+  function onBeforeSave(fn) { if (typeof fn === "function" && !beforeSaveFns.includes(fn)) beforeSaveFns.push(fn); }
+  function beforeSave(data) { beforeSaveFns.forEach(fn => { try { fn(data); } catch (e) {} }); }
   function save(data) {
     if (!userId) return false;
     beforeSave(data);

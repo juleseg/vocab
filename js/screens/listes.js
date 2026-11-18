@@ -71,6 +71,8 @@ function renderLists() {
   const shL = list && isSharedList(list), ro = !!list && !canEditList(list);
   $("#lvShare").textContent = t(shL ? "sh.manageBtn" : "sh.share");
   $("#lvRename").hidden = $("#lvLangs").hidden = !!shL && !shIsOwner(list);
+  const imgBtn = $("#lvImages");   // réglage « Images » de la liste (étape 49)
+  if (imgBtn) { imgBtn.hidden = !(list && typeof Images !== "undefined" && Images.on()); if (list) imgBtn.textContent = t("img.side.btn", { v: imgSideLabel(list) }); }
   $("#lvUpdate").hidden = $("#lvFxOut").hidden = $("#lvFxIn").hidden = ro;
   if (ro) $("#lvAsk").hidden = true;
   $("#lvActions").hidden = ro;
@@ -266,6 +268,8 @@ function cardItem(c, showList) {
   shFlagTag(c, extra);
   c.tags.forEach(tg => extra.appendChild(el("span", "tag", "#" + tg)));
   if (extra.childNodes.length) m.appendChild(extra);
+  const im = typeof Images !== "undefined" ? Images.info(c) : null;   // vignette de l'image (étape 49) : toucher = agrandir
+  if (im) b.appendChild(Images.node(im, { cls: "ci-thumb", lazy: true }));
   b.append(m, el("span", "chev", "›"));
   b.addEventListener("click", () => openCardEditor(c.id));
   return b;
@@ -314,6 +318,7 @@ function initLists() {
   $("#lvRename").addEventListener("click", () => openListName(lv.listId));
   $("#lvMove").addEventListener("click", () => openMoveList(lv.listId));
   $("#lvLangs").addEventListener("click", () => { const l = getList(lv.listId); if (l) openLangEditor("list", l); });
+  $("#lvImages").addEventListener("click", () => { if (lv.listId) openImgSide(lv.listId); });   // étape 49
   $("#lvStudy").addEventListener("click", () => { if (lv.listId) openStudyLangs("list", lv.listId); });   // étape 37
   $("#lvStoryNew").addEventListener("click", () => { if (lv.listId) openStoryCreate(lv.listId); });   // étape 45
   $("#lvStories").addEventListener("click", () => { if (lv.listId) goStories(lv.listId); });
@@ -738,6 +743,8 @@ function openCardEditor(cardId, listId) {
     const linkIds = type === "vocab" ? (r.added && r.added.length ? r.added : r.link || []) : [];
     const afterDict = linkIds.length ? Dict.afterAdd(linkIds, r.dict) : Promise.resolve();
     if (r.added && r.added.length && type === "vocab") afterDict.then(() => offerCompletion(r.added)); // champs vides : proposer de les compléter
+    // Image Wikimedia choisie avec « Proposer au dictionnaire commun » (étape 49) : après la liaison de la carte à son sens
+    if (r.img) afterDict.then(() => ((r.added && r.added.length) ? r.added : (c ? [c.id] : [])).forEach(id => Images.propose(id)));
     if (r.msg) toast(r.msg);
   };
   openModal(t(c ? "card.editTitle" : "card.newTitle"), wrap, c
@@ -760,7 +767,15 @@ function vocabForm(c, sel) {
   const stBox = el("div");                 // autres langues étudiées de la liste (étape 37) : mot, nature, exemple
   const dictBox = el("div", "dict-box");   // dictionnaire commun (étape 36)
   const node = el("div");
-  node.append(dictBox, termsBox, exBox, stBox);
+  // Image de la carte (étape 49) : mode Supabase seulement ; mot cherché sur Wikimedia = anglais, sinon interface, sinon appris.
+  const imgF = typeof Images !== "undefined" && Images.on() ? imgEditorField(c, { word: () => {
+    const v = code => inputs[code] ? inputs[code].value.trim() : String(vals[code] || "").trim();
+    const w = [lg && lg.support.includes("en") ? "en" : "", state.settings.uiLang, lg ? lg.target : ""].concat(lg ? lg.support : []).map(x => x && v(x)).find(Boolean) || "";
+    return w.split("/")[0].trim();
+  } }) : null;
+  node.append(dictBox, termsBox);
+  if (imgF) node.appendChild(imgF.node);
+  node.append(exBox, stBox);
   // --- Dictionnaire commun (étape 36) : carte pas encore reliée → recherche du mot tapé (en quittant le champ) ---
   // Un seul sens probable : cases vides remplies tout de suite (marquées « auto ») ; plusieurs : choix ; aucun : nouveau sens.
   const dict = { pick: null, cands: null, q: "", auto: new Set(), busy: 0 };
@@ -922,13 +937,15 @@ function vocabForm(c, sel) {
         && !(a.startsWith("pos.") && (pos[a.slice(4)] || "") !== ((c.pos || {})[a.slice(4)] || "")));
       c.listId = sel.value; c.terms = terms; c.pos = pos;
       c.examples = examples; c.example = exT; c.tags = tagList;
+      if (imgF) { const im = imgF.get(); if (im) c.image = im; else delete c.image; }   // étape 49
       Dict.changed(c, snap);
       // Carte pas encore reliée : sens choisi dans le formulaire (ou recherche) appliqué après l'enregistrement
-      return { added: [], link: c.senseId ? [] : [c.id], dict: dictOpts(c.id) };
+      return { added: [], link: c.senseId ? [] : [c.id], dict: dictOpts(c.id), img: !!(imgF && imgF.proposeAsked()) };
     }
     const nc = newCard(sel.value, terms, examples, tagList, pos, lg.target);
+    if (imgF) { const im = imgF.get(); if (im) nc.image = im; }   // étape 49
     state.cards.push(nc);
-    return { added: [nc.id], dict: dictOpts(nc.id) };
+    return { added: [nc.id], dict: dictOpts(nc.id), img: !!(imgF && imgF.proposeAsked()) };
   };
   // Choix fait dans le formulaire (sens ou « nouveau sens ») et cases remplies depuis le commun (marquées « auto »).
   const dictOpts = id => {

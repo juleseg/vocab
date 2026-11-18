@@ -72,6 +72,9 @@ async function fcLoad() {
       try { fc.shares = await aqRpc("admin_shares", { p_user: user }); fc.sharesErr = ""; }
       catch (e) { fc.shares = null; fc.sharesErr = alIsMissing(e) ? t("sh.missing") : aqErrText(e); }
     })(),
+    (async () => {   // taille des images du compte (étape 49) ; script absent : « — »
+      try { fc.img = await aqRpc("admin_image_usage", { p_user: user }); } catch (e) { fc.img = null; }
+    })(),
     (async () => {   // XP, niveau, défis réussis (étape 43) ; script absent : calculés depuis les données du compte (fcCompute)
       try { fc.xp = await aqRpc("admin_account_xp", { p_user: user, p_tz: tz }); } catch (e) { fc.xp = null; }
     })(),
@@ -628,6 +631,8 @@ function fcHealth() {
       sec.appendChild(wrap);
     } else sec.appendChild(el("p", "muted", t("admin.noData")));
   }
+  // Images du compte (étape 49) : taille et nombre de fichiers (fonction admin_image_usage)
+  sec.appendChild(fcDl([[t("img.fcSize"), fc.img ? t("img.fcVal", { mb: imgMb(fc.img.used), n: dashNum(fc.img.count) }) : "—"]]));
   sec.appendChild(el("h4", "fc-h4", t("fc.issues")));
   const is = fc.issues;
   if (!is) sec.appendChild(el("div", "card q-err", fc.part.issues || t("fc.missing")));
@@ -706,6 +711,7 @@ function fcCsv() {
     S(Hh, t("fc.total"), Math.round(dashNum(fc.store.total_bytes) / 1024) + " " + t("fc.kb"));
     S(Hh, t("fc.lastSync"), fc.store.last_update ? alTime(fc.store.last_update) : "—");
     S(Hh, t("fc.version"), fc.store.version != null ? fc.store.version : fc.version);
+    if (fc.img) S(Hh, t("img.fcSize"), t("img.fcVal", { mb: imgMb(fc.img.used), n: dashNum(fc.img.count) }));   // étape 49
     arr(fc.store.rows).forEach(r => S(Hh, t("fc.chunk") + " " + r.key, Math.round(dashNum(r.bytes) / 1024) + " " + t("fc.kb") + (dashNum(r.bytes) > FC_WARN_KB * 1024 ? " ⚠" : "")));
     arr(fc.issues).forEach(r => S(Hh, alKindLabel(r.kind) + " " + admDay(r.created_at), alSummary(r)));
   }

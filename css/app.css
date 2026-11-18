@@ -1226,3 +1226,58 @@ body.rl-locked{overflow:hidden}
 .rl-pv-lang{font-size:11px;color:var(--muted);font-weight:700}
 .rl-pv-title{font-weight:700}
 .rl-pv-body{white-space:pre-line;word-break:keep-all;overflow-wrap:anywhere}
+
+/* === IMAGES SUR LES CARTES (étape 49) === */
+.ci-img{display:inline-flex;align-items:center;justify-content:center;border-radius:12px;overflow:hidden;background:var(--surface2);cursor:zoom-in;flex:none;line-height:0}
+.ci-img[hidden]{display:none}
+.ci-img img{display:block;width:100%;height:100%;object-fit:contain}
+.ci-img:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.ci-img.ci-wait img{visibility:hidden}
+.ci-card{width:auto;max-width:100%;height:min(24vh,170px);aspect-ratio:1/1;margin:0 auto 4px}
+.ci-mid{display:flex;width:min(40vw,150px);height:min(40vw,150px);margin:8px auto 6px}
+.ci-after{text-align:center}
+.ci-after .ci-mid{margin-top:4px}
+.ci-thumb{width:48px;height:48px;border-radius:10px}
+.ci-thumb img{object-fit:cover}
+/* image agrandie */
+.ci-zoom{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:16px calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+.ci-zbox{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:100%;max-height:100%}
+.ci-zbox img{max-width:min(92vw,640px);max-height:66vh;border-radius:14px;background:#fff;object-fit:contain}
+.ci-zbox.ci-zfail img{display:none}
+.ci-zcap{color:#f2f2f4;text-align:center;font-size:14px;line-height:1.45;max-width:min(92vw,560px);overflow-wrap:anywhere}
+.ci-zlink{color:#9db6ff;display:inline-block;margin-top:2px}
+.ci-zsmall{font-size:12px;opacity:.8}
+.ci-zclose{min-width:120px}
+/* éditeur de carte */
+.ci-ed-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ci-ed-thumb{width:96px;height:96px}
+.ci-ed-thumb.ci-ed-small{width:56px;height:56px}
+.ci-ed-side{display:flex;flex-direction:column;gap:6px;flex:1;min-width:150px}
+.ci-ed-btn{width:auto}
+.ci-ed-credit{margin:0;overflow-wrap:anywhere}
+.ci-ed-prop{display:flex;align-items:center;gap:8px;margin-top:10px;font-weight:600}
+.ci-ed-prop input{width:20px;height:20px}
+.ci-ch .ci-pick{display:flex;align-items:center;justify-content:center;width:100%;margin-top:10px;cursor:pointer}
+.ci-crop button{flex:1}
+/* recherche Wikimedia */
+.ci-wm-form{display:flex;gap:8px}
+.ci-wm-form .input{flex:1;min-width:0}
+.ci-wm-form .btn{width:auto}
+.ci-wm-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:6px}
+.ci-wm-cell{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ci-wm-pic{padding:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface2);aspect-ratio:1/1;cursor:pointer;line-height:0}
+.ci-wm-pic img{width:100%;height:100%;object-fit:cover}
+.ci-wm-pic:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.ci-wm-cap{font-size:11px;color:var(--muted);line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.ci-wm-link{font-size:11px}
+/* réglage « Images » d'une liste */
+.ci-sides{display:flex;flex-direction:column;gap:8px}
+/* Réglages : place utilisée */
+.ci-quota{margin:-4px 0 10px}
+.ci-qwarn{color:var(--warn)}
+/* administration : images proposées */
+.ci-arow{display:flex;flex-direction:column;gap:8px}
+.ci-apics{display:flex;gap:12px;flex-wrap:wrap}
+.ci-apic{display:flex;flex-direction:column;align-items:center;gap:4px}
+.ci-athumb{width:110px;height:110px}
+.ci-ameta{display:flex;flex-direction:column;gap:2px;min-width:0;overflow-wrap:anywhere}

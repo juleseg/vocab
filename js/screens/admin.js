@@ -165,7 +165,8 @@ function adminResetPin(a) {
 }
 function adminDelete(a) {
   const run = async () => {
-    try { await Supa.deleteAccount(a.user_id); toast(t("admin.delDone")); Activity.log("admin_delete", { target: a.identifiant }); loadAdmin(); }
+    try { if (typeof Images !== "undefined") await Images.purgeUser(a.user_id);   // étape 49 : images du compte supprimées
+      await Supa.deleteAccount(a.user_id); toast(t("admin.delDone")); Activity.log("admin_delete", { target: a.identifiant }); loadAdmin(); }
     catch (e) { toast(t("admin.err")); }
   };
   openModal(t("admin.delete"), el("p", null, t("admin.del1", { id: a.identifiant })), [
@@ -397,6 +398,7 @@ async function runAdminCopy(d, dest, selF, selL) {
       const nc = JSON.parse(JSON.stringify(c));
       nc.id = uid(); nc.listId = lMap[c.listId];
       nc.box = 0; nc.dueAt = now; nc.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null }; delete nc.progress;
+      delete nc.image;   // étape 49 : image dans le dossier de l'autre compte, illisible pour celui-ci → copie sans image
       out.cards.push(nc); n++;
       idMap[c.id] = nc.id;
     });

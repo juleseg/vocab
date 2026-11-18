@@ -58,6 +58,7 @@ function mcqQuestion(root, g, it, next, opts) {
   const c = sessionCard(it.id);
   const L = it.lang, lg = gameLg(c, L);
   const q = el("div", "card gm-q");
+  const qImg = Images.place(c, it.dir, "q", "ci-mid");   // image côté question (étape 49), sous la langue
   if (it.dir === "fromT") {                                  // question = mot de la langue étudiée
     q.appendChild(el("div", "sw-lang", langName(L)));
     const m = el("div", "gm-qmain"); m.lang = L;
@@ -76,6 +77,7 @@ function mcqQuestion(root, g, it, next, opts) {
     q.appendChild(m);
     if (sup.length > 1) { const s = el("div", "gm-qsub", sup.slice(1).map(x => x.text).join(" · ")); s.lang = sup[1].code; q.appendChild(s); }
   }
+  if (qImg) q.insertBefore(qImg, q.children[1] || null);
   q.appendChild(el("div", "gm-ask", t("gm.mcq.pick", { lang: langName(it.code) })));
   root.appendChild(q);
 
@@ -88,12 +90,15 @@ function mcqQuestion(root, g, it, next, opts) {
     return b;
   });
   root.appendChild(grid);
+  const aImgBox = el("div", "ci-after");   // image côté réponse : montrée après la réponse (étape 49)
+  root.appendChild(aImgBox);
   const after = el("div", "gm-after");
   root.appendChild(after);
   const live = el("div", "sr-only"); live.setAttribute("aria-live", "polite");
   root.appendChild(live);
 
   const show = () => {
+    if (!aImgBox.firstChild) { const n = Images.place(c, it.dir, "a", "ci-mid"); if (n) aImgBox.appendChild(n); }
     btns.forEach((b, i) => {
       b.classList.toggle("right", i === it.correct);
       b.classList.toggle("wrong", i === it.pick && i !== it.correct);

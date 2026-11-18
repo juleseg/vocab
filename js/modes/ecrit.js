@@ -99,6 +99,8 @@ function renderWriteSession(root) {
   // Question (nature affichée seulement après la réponse)
   const q = el("div", "card wr-q");
   q.appendChild(el("div", "sw-lang", f.q.lang));
+  const qImg = Images.place(c, item.dir, "q", "ci-mid");   // image côté question (étape 49)
+  if (qImg) q.appendChild(qImg);
   q.appendChild(faceMain("sw-main", f.q, c, !!w.res));
   const qs = faceSub("sw-sub", f.q, c, !!w.res);
   if (qs) q.appendChild(qs);
@@ -132,6 +134,8 @@ function renderWriteSession(root) {
     const kind = { exact: "ok", accents: "acc", spaces: "acc", punct: "acc", wrong: "bad" }[r.verdict];
     const box = el("div", "card wr-res " + kind);
     box.appendChild(el("div", "wr-head", t({ exact: "write.ok", accents: "write.accents", spaces: "write.spaces", punct: "write.punct", wrong: "write.wrong" }[r.verdict])));
+    const aImg = Images.place(c, item.dir, "a", "ci-mid");   // image côté réponse, après la réponse (étape 49)
+    if (aImg) box.appendChild(aImg);
     if (r.verdict === "exact") {
       box.appendChild(el("div", "wr-diff", r.best));
     } else if (!r.typed) {

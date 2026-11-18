@@ -416,6 +416,7 @@ async function startUser(id, preset, target, sbUid) {
   autoWeeklyCheck(id);
   Queue.start(); // file d'attente Claude (mode Supabase) : réponses arrivées pendant l'absence
   Dict.start();  // dictionnaire commun (étape 36) : envois en attente, liaison des cartes, sens modifiés
+  Images.start();   // images (étape 49) : images des sens, place utilisée, ménage (30 s après le lancement)
   if (auth.mode !== "supabase") WhatsNew.check().finally(() => Tutorial.check());   // étapes 39 et 40 (en mode Supabase : après annonces et invitation, enterSupabase)
 }
 // Données du compte : locales tout de suite (cache), puis comparaison avec les données en ligne (syncWithRemote).

@@ -29,6 +29,7 @@ function adWords(vals) {
 }
 
 async function adLoad() {
+  if (ad.tab === "img") { ad.started = true; ad.err = ""; return aimLoad(); }   // onglet Images (étape 49, js/screens/admin-images.js)
   ad.started = true; ad.loading = true; ad.err = "";
   adRerender();
   try {
@@ -63,14 +64,14 @@ function renderAdminDict() {
   if (ad.sum) root.appendChild(el("p", "muted", t("dict.sum", { s: dashFmt(ad.sum.senses), v: dashFmt(ad.sum.values), p: dashFmt(ad.sum.pending) })));
   // Onglets
   const tabs = el("div", "seg ad-tabs");
-  [["prop", "dict.tab.prop"], ["search", "dict.tab.search"]].forEach(([k, lab]) => {
+  [["prop", "dict.tab.prop"], ["search", "dict.tab.search"], ["img", "img.tab"]].forEach(([k, lab]) => {
     const b = el("button", null, t(lab)); b.type = "button"; b.setAttribute("aria-pressed", String(ad.tab === k));
     b.addEventListener("click", () => { if (ad.tab === k) return; ad.tab = k; ad.sel.clear(); adLoad(); });
     tabs.appendChild(b);
   });
   root.appendChild(tabs);
   if (ad.err) root.appendChild(el("p", "q-err", ad.err));
-  if (ad.tab === "prop") adPropSection(root); else adSearchSection(root);
+  if (ad.tab === "prop") adPropSection(root); else if (ad.tab === "img") aimSection(root); else adSearchSection(root);
 }
 
 // --- Propositions ---

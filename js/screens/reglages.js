@@ -17,6 +17,7 @@ function renderSettings() {
   renderAiCard();
   renderFriendsPrivCard();   // Réglages → Amis (étape 29)
   renderPushCard();          // Réglages → Notifications (étape 32)
+  Images.renderQuota();      // Réglages → Données : « Images : X Mo sur 50 Mo » (étape 49)
 }
 // Carte « Rythme de révision » (étape 47, complément) : affiche le réglage actuel (ex. « Équilibré · 90 % ») et ouvre
 // l'écran « Rythme de révision » (#rythme). Remplace l'ancienne carte « Révision » (saisie du taux).

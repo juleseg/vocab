@@ -23,7 +23,7 @@ Object.assign(I18N.fr, {
   "tuto.lists.title": "Listes et dossiers",
   "tuto.lists.text": "Tes cartes sont rangées dans des listes, et les listes dans des dossiers. La liste « Démo » est là pour essayer. Ouvre une liste pour créer une histoire avec ses mots.",
   "tuto.card.title": "Créer une carte",
-  "tuto.card.text": "Ajoute un mot avec ce bouton. S'il est déjà dans le dictionnaire commun, les traductions et l'exemple se remplissent tout seuls.",
+  "tuto.card.text": "Ajoute un mot avec ce bouton. S'il est déjà dans le dictionnaire commun, les traductions et l'exemple se remplissent tout seuls. Tu peux aussi y ajouter une image (photo ou Wikimedia).",
   "tuto.import.title": "Importer des cartes",
   "tuto.import.text": "Colle une liste de mots ou choisis un fichier pour créer beaucoup de cartes d'un coup.",
   "tuto.session.title": "Lancer une session",

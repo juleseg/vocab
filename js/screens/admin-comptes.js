@@ -481,6 +481,7 @@ function tpApply(out, src, dest, r) {
       const nc = JSON.parse(JSON.stringify(c));
       nc.id = uid(); nc.listId = lid;
       nc.box = 0; nc.dueAt = now; nc.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null }; delete nc.progress;   // sans progression
+      delete nc.image;   // étape 49 : image dans le dossier de l'admin, illisible pour le compte qui reçoit → sans image
       out.cards.push(nc); made.push(nc);
       idMap[c.id] = nc.id; res.cardMap[c.id] = nc.id; res.cards++;
     });

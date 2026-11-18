@@ -8,6 +8,32 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "49", date: "2026-11-18",
+    points: {
+      ko: [
+        "카드에 이미지를 넣을 수 있어요: 휴대폰 사진이나 위키미디어의 자유 이용 이미지 (저작자와 라이선스 표시).",
+        "이미지는 카드, 쓰기, 질문자, 객관식, 60초 레이스 모드에서 보여요. 이미지를 누르면 크게 보여요.",
+        "목록마다 이미지를 보여 줄 쪽을 고를 수 있어요: 자동, 질문 쪽, 답 쪽, 안 보기.",
+        "위키미디어 이미지를 공용 사전에 제안할 수 있어요. 승인되면 이미지가 없는 이 단어의 카드에 보여요.",
+        "본 이미지는 휴대폰에 저장돼서 인터넷 없이도 보여요. 설정에서 사용한 공간을 볼 수 있어요 (최대 50MB)."
+      ],
+      fr: [
+        "Ajoute une image à une carte : une photo de ton téléphone ou une image libre de Wikimedia (auteur et licence affichés).",
+        "Les images apparaissent dans les modes Cartes, Écrit, Interrogateur, QCM et Course 60 s. Touche une image pour l'agrandir.",
+        "Pour chaque liste, choisis où montrer les images : automatique, côté question, côté réponse ou jamais.",
+        "Propose une image Wikimedia au dictionnaire commun : une fois validée, elle apparaît sur les cartes de ce mot qui n'en ont pas.",
+        "Les images déjà vues restent sur ton téléphone, même sans Internet. Les Réglages montrent la place utilisée (50 Mo au plus)."
+      ],
+      en: [
+        "Add a picture to a card: a photo from your phone or a free picture from Wikimedia (author and license shown).",
+        "Pictures show in Cards, Writing, Quizzer, Multiple choice and 60-second race modes. Tap a picture to enlarge it.",
+        "For each list, choose where pictures show: automatic, question side, answer side or never.",
+        "Suggest a Wikimedia picture for the shared dictionary: once approved, it shows on cards of this word that have none.",
+        "Pictures you've seen stay on your phone, even offline. Settings show the space used (50 MB at most)."
+      ]
+    }
+  },
+  {
     version: "48", date: "2026-11-18",
     points: {
       ko: [

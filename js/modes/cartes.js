@@ -92,7 +92,10 @@ function renderCardsSession(root) {
   card.setAttribute("role", "button");
   card.tabIndex = 0;
   const inner = el("div", "sw-inner" + (s.revealed ? " flipped" : ""));
-  inner.append(faceNode("sw-front", f.q, c, null), faceNode("sw-back", f.a, c, exampleNode(c, "sw-ex", f.lg)));   // exemple + traductions (étape 35)
+  const fFront = faceNode("sw-front", f.q, c, null), fBack = faceNode("sw-back", f.a, c, exampleNode(c, "sw-ex", f.lg));   // exemple + traductions (étape 35)
+  imgFace(fFront, Images.place(c, item.dir, "q", "ci-card"));   // image de la carte (étape 49) : côté question ou réponse
+  imgFace(fBack, Images.place(c, item.dir, "a", "ci-card"));
+  inner.append(fFront, fBack);
   card.appendChild(inner);
   const stamps = {};
   ["known", "unknown", "review"].forEach(r => { stamps[r] = el("div", "sw-stamp sw-stamp-" + r, t("cat." + r)); card.appendChild(stamps[r]); });

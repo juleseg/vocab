@@ -24,6 +24,8 @@ function renderQuizSession(root) {
   // Question (en grand)
   const q = el("div", "card qz-q");
   q.appendChild(el("div", "sw-lang", f.q.lang));
+  const qImg = Images.place(c, item.dir, "q", "ci-mid");   // image côté question (étape 49)
+  if (qImg) q.appendChild(qImg);
   q.appendChild(faceMain("qz-main", f.q, c, true));
   const qs = faceSub("qz-sub", f.q, c, true);
   if (qs) q.appendChild(qs);
@@ -49,6 +51,8 @@ function renderQuizSession(root) {
   if (quizHideAnswer) {
     a.appendChild(el("div", "qz-hidden", t("quiz.hidden")));
   } else {
+    const aImg = Images.place(c, item.dir, "a", "ci-mid");   // image côté réponse (étape 49), cachée avec la réponse
+    if (aImg) a.appendChild(aImg);
     a.appendChild(faceMain("qz-amain", f.a, c, true));
     const as = faceSub("qz-asub", f.a, c, true);
     if (as) a.appendChild(as);
