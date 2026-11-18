@@ -1034,3 +1034,32 @@ html[lang="ko"] .tuto-title,html[lang="ko"] .tuto-text{word-break:keep-all;overf
 .xp-pop.xp-lvl .tx{font-size:22px;color:var(--accent)}
 @keyframes xpRise{0%{transform:translateY(16px) scale(.6);opacity:0}60%{transform:translateY(-4px) scale(1.15);opacity:1}100%{transform:none}}
 @media (prefers-reduced-motion: reduce){.xp-pop .ic{animation:none}}
+
+/* === LIGUE DE LA SEMAINE ET DUELS (ÉTAPE 44) === */
+.lg-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:6px;margin:4px 0 10px;text-align:center}
+.lg-step{display:flex;flex-direction:column;align-items:center;min-width:0}
+.lg-medal{font-size:26px;line-height:1.1}
+.lg-name{font-weight:700;font-size:14px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg-xp{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.lg-block{width:100%;margin-top:4px;border-radius:10px 10px 4px 4px;background:var(--surface2);border:1px solid var(--border)}
+.lg-step1 .lg-block{height:56px;background:color-mix(in srgb,var(--warn) 28%,var(--surface2))}
+.lg-step2 .lg-block{height:40px}
+.lg-step3 .lg-block{height:28px}
+.lg-step.me .lg-name{color:var(--accent)}
+.lg-me{font-weight:700;margin:6px 0 8px;overflow-wrap:anywhere}
+.lg-prev{margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
+.lg-prev .lg-podium .lg-block{opacity:.7}
+.du-card .du-new{margin:2px 0 6px}
+.du-create{display:flex;flex-direction:column;gap:10px;min-width:0}
+.du-f{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted)}
+.du-f .input{font-size:16px;color:var(--text)}
+.du-ok{color:var(--ok);font-weight:600;margin:0}
+.du-create .q-err,.du-create .hint{margin:0}
+.du-timer{height:8px;margin:2px 0 10px}
+.du-timer > span{background:var(--accent);transition:width .2s linear}
+.du-sum{text-align:center}
+.du-verdict{font-size:26px}
+.du-verdict.me{color:var(--ok)}
+.du-verdict.other{color:var(--bad)}
+.du-score{font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+@media (prefers-reduced-motion: reduce){.du-timer > span{transition:none}}

@@ -12,6 +12,9 @@
 //   friends_ranking (confidentialité appliquée côté serveur). Jamais d'accès des amis à user_data.
 // - Semaine = lundi → dimanche (jours locaux de l'appareil), d'après history.
 // - Journal : friend_request, friend_accept, friend_remove, friend_block (data.target = identifiant de l'autre).
+// - Étape 44 : carte « Duels » (js/duel.js) et carte « Ligue de la semaine » (js/league.js), chargées avec l'écran
+//   (load) ; badge du menu = demandes d'amis + invitations de partage + invitations de duel ; partie de duel en cours
+//   affichée à la place de l'écran.
 const FRIENDS_MAX_PENDING = 20;
 const FRIENDS_POLL_MS = 300000;   // badge des demandes reçues : toutes les 5 min (et au retour au premier plan)
 const PRIVACY_ORDER = ["streak", "today", "week", "success", "badges", "xp", "ranking", "shared"];   // xp : « XP et niveau » (étape 43)
@@ -112,12 +115,13 @@ const Friends = (() => {
     if (!on()) { incoming = 0; renderBadge(); return; }
     try { incoming = num(Number(await rpc("friend_incoming_count")), 0); status = "ok"; }
     catch (e) { if (isMissing(e)) { status = "missing"; incoming = 0; } }
+    await Duels.refreshBadge();   // invitations de duel reçues (étape 44)
     renderBadge();
   }
   function renderBadge() {
     const b = $("#friendsBadge");
     if (!b) return;
-    const n = on() ? incoming + Shared.inviteCount() : 0;   // demandes d'amis + invitations de partage (étape 30)
+    const n = on() ? incoming + Shared.inviteCount() + Duels.inviteCount() : 0;   // demandes d'amis + invitations de partage (étape 30) + duels (étape 44)
     b.hidden = !n;
     b.textContent = n > 99 ? "99+" : String(n);
   }
@@ -132,7 +136,8 @@ const Friends = (() => {
     try {
       const today = todayStr();
       const [d, s, r] = await Promise.all([rpc("my_friends"), rpc("friends_stats", { p_today: today }), rpc("friends_ranking", { p_today: today }),
-        Shared.loadFriendsView()]);   // invitations de partage et progression sur les listes partagées (étape 30)
+        Shared.loadFriendsView(),   // invitations de partage et progression sur les listes partagées (étape 30)
+        League.load(today), Duels.load()]);   // ligue et duels (étape 44) : jamais d'erreur, « script pas lancé » géré à part
       if (my !== token) return;
       data = d || { incoming: [], outgoing: [], friends: [], blocked: [] };
       stats = arr(s); ranking = r || null; status = "ok"; loadedAt = Date.now();
@@ -202,6 +207,7 @@ const Friends = (() => {
   function reset() {
     stop(); token++;
     status = "unknown"; incoming = 0; data = null; stats = null; ranking = null; loadedAt = 0; loading = false; err = "";
+    League.reset(); Duels.reset();   // étape 44
     lastPub = ""; view.input = ""; view.rankTab = "cards"; view.busy = false;
     renderBadge();
   }
@@ -230,6 +236,7 @@ function renderFriends() {
   root.appendChild(top);
   if (!Friends.on()) { root.appendChild(el("div", "card muted", t("am.offline"))); return; }
   if (Friends.status() === "missing") { root.appendChild(el("div", "card q-err", t("am.missing"))); return; }
+  if (Duels.play()) { root.textContent = ""; duRenderPlay(root); return; }   // partie de duel en cours (étape 44)
   if (Friends.needLoad() && !Friends.data()) { Friends.load(); return; }   // load() affiche « Chargement… »
   const d = Friends.data();
   if (!d) {
@@ -255,6 +262,7 @@ function renderFriends() {
     ])));
     root.appendChild(c);
   }
+  root.appendChild(duCard());   // duels (étape 44) : invitations, à jouer, résultats, revanche
   const shc = shInvitesCard();   // invitations de partage reçues / envoyées (étape 30)
   if (shc) root.appendChild(shc);
   const out = arr(d.outgoing);
@@ -264,6 +272,7 @@ function renderFriends() {
     out.forEach(x => c.appendChild(amPersonRow(x, queueDate(x.created_at), [[t("am.cancel"), "", () => Friends.cancel(x)]])));
     root.appendChild(c);
   }
+  root.appendChild(lgCard());   // ligue de la semaine (XP, étape 44)
   root.appendChild(amRankingCard());
   const fr = arr(d.friends);
   const fc = el("div", "card");
@@ -351,7 +360,9 @@ function amFriendBlock(x, s) {
   add(t("am.shared"), shFriendProgress(x.user_id));   // progression sur les listes partagées avec moi (étape 30)
   box.appendChild(dl);
   const btns = el("div", "am-btns am-btns-end");
-  [[t("am.remove"), "", () => Friends.remove(x)], [t("am.block"), "danger", () => Friends.block(x)]].forEach(([label, kind, fn]) => {
+  const acts = [[t("am.remove"), "", () => Friends.remove(x)], [t("am.block"), "danger", () => Friends.block(x)]];
+  if (Duels.status() === "ok") acts.unshift(["⚔️ " + t("du.challenge"), "primary", () => Duels.openCreate(x)]);   // étape 44
+  acts.forEach(([label, kind, fn]) => {
     const b = el("button", "am-btn" + (kind ? " " + kind : ""), label);
     b.type = "button"; b.disabled = Friends.view.busy;
     b.addEventListener("click", fn);

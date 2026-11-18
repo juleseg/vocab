@@ -8,6 +8,32 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "44", date: "2026-11-18",
+    points: {
+      ko: [
+        "주간 리그: 친구 화면에서 이번 주(월요일~일요일) XP 순위, 시상대, 내 순위를 확인하세요.",
+        "월요일과 화요일에는 지난주 결과도 볼 수 있어요.",
+        "친구에게 대결 신청! 내 목록의 카드 10장으로 같은 문제를 풀고, 정답 수와 시간으로 승부해요.",
+        "대결에서 XP를 얻고 이기면 보너스도 받아요. 버튼 하나로 재대결할 수 있어요.",
+        "대결은 카드 학습 진도를 바꾸지 않고, 친구는 내 목록을 볼 수 없어요."
+      ],
+      fr: [
+        "Ligue de la semaine : dans Amis, ton classement XP entre amis du lundi au dimanche, avec podium et ta place.",
+        "Le lundi et le mardi, les résultats de la semaine passée restent visibles.",
+        "Défie un ami en duel : 10 cartes d'une de tes listes, les mêmes questions pour vous deux, le meilleur score gagne (puis le plus rapide).",
+        "Les duels rapportent des XP, avec un bonus de victoire, et la revanche se lance en un toucher.",
+        "Les duels ne changent pas la progression de tes cartes, et ton ami ne voit jamais tes listes."
+      ],
+      en: [
+        "Weekly league: in Friends, your XP ranking among friends from Monday to Sunday, with a podium and your place.",
+        "On Monday and Tuesday, last week's results stay visible.",
+        "Challenge a friend to a duel: 10 cards from one of your lists, the same questions for both of you, best score wins (then fastest).",
+        "Duels earn XP, with a victory bonus, and a rematch is just one tap away.",
+        "Duels don't change the progress of your cards, and your friend never sees your lists."
+      ]
+    }
+  },
+  {
     version: "43", date: "2026-11-18",
     points: {
       ko: [

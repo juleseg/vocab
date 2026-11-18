@@ -800,8 +800,10 @@ function fcPush() {
 // send-push (action tick, version 34). Script absent : message clair ; fonction trop ancienne ou planificateur
 // incomplet : avertissement, le reste de l'écran marche.
 // Journal : schedule_create / schedule_edit / schedule_pause / schedule_resume / schedule_delete, rule_on / rule_off / rule_edit.
-const NP_RULES = ["streak_danger", "goal_reminder", "inactive", "streak_milestone", "freeze_used", "friend_request", "share_invite"];
-const NP_EVENT_RULES = ["streak_milestone", "freeze_used", "friend_request", "share_invite"];
+const NP_RULES = ["streak_danger", "goal_reminder", "inactive", "streak_milestone", "freeze_used", "friend_request", "share_invite",
+  "duel_invite", "duel_result", "league_end"];   // étape 44 : duels et fin de ligue (script supabase-etape44.sql)
+const NP_EVENT_RULES = ["streak_milestone", "freeze_used", "friend_request", "share_invite", "duel_invite", "duel_result"];
+const NP_FRIEND_RULES = ["friend_request", "share_invite", "duel_invite", "duel_result", "league_end"];   // catégorie Amis
 const NP_MILESTONES = [7, 30, 100, 365];
 
 // Version de send-push (GET : { version }). 404 : fonction absente.
@@ -1169,7 +1171,7 @@ function npRuleCard(r) {
   c.appendChild(head);
   c.appendChild(el("p", "hint", t("np.rule." + r.key + ".d")));
   const tags = el("div", "adm-tags");
-  const cat = ["friend_request", "share_invite"].includes(r.key) ? "friends" : (r.template_category || "");
+  const cat = NP_FRIEND_RULES.includes(r.key) ? "friends" : (r.template_category || "");
   if (cat) tags.appendChild(el("span", "tag", t("np.cat." + cat)));
   if (cat === "friends") tags.appendChild(el("span", "tag ok", t("np.ru.noLimit")));
   c.appendChild(tags);

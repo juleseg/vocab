@@ -36,7 +36,11 @@ const XP_RULES = {
   allChallenges: 30,          // bonus : les 3 défis du jour
   streakDay: 10,              // jour de série validé (objectif du jour atteint)
   levelStep: 50,              // seuil du niveau n = 50 × n × (n − 1)
-  keepDays: 70                // jours gardés pour l'XP de la semaine
+  keepDays: 70,               // jours gardés pour l'XP de la semaine
+  duel: {                     // duels entre amis (étape 44) : réponses au barème du mode ci-dessous (QCM : juste 1, fausse
+    mode: "mcq",              // XP_RULES.wrong), partie terminée XP_RULES.session, et bonus de victoire (une fois par duel)
+    win: 20
+  }
 };
 // Badges de l'étape 43 (affichés dans Stats avec les badges de série).
 const XP_BADGES = [
@@ -80,7 +84,7 @@ function xpLangMap(o) {
 }
 function xpEmpty() {
   return { v: 1, total: 0, byLang: {}, days: {}, answers: 0, perfects: 0, levelSeen: 1, badges: [], use: {},
-    ch: null, chDone: 0, chDays: [], init: null };
+    ch: null, chDone: 0, chDays: [], init: null, duels: [] };
 }
 function xpTrimDays(days, today) {
   const from = skAdd(today || todayStr(), -(XP_RULES.keepDays - 1));
@@ -122,6 +126,7 @@ function normXp(raw, history, streak, settings) {
   x.chDone = xpInt(raw.chDone, 1000000);
   x.chDays = Array.from(new Set(arr(raw.chDays).filter(xpDayOk))).sort().slice(-60);
   x.init = raw.init && typeof raw.init === "object" ? { at: num(raw.init.at, 0), from: xpInt(raw.init.from) } : null;
+  x.duels = arr(raw.duels).filter(k => typeof k === "string" && /^[pw]:[0-9a-f-]{36}$/i.test(k)).slice(-200);   // étape 44
   return x;
 }
 // Migration : XP de départ depuis history (et les jours de série validés), sans défis. Badges déjà atteints sans animation.
@@ -331,6 +336,36 @@ const XP = (() => {
     commitQuiet();
     return got;
   }
+  // --- Duels (étape 44) : XP donnés une seule fois par duel (clés « p:<id> » partie jouée, « w:<id> » victoire, morceau xp) ---
+  function duelOnce(key) {
+    const x = data();
+    if (!Array.isArray(x.duels)) x.duels = [];
+    if (x.duels.includes(key)) return false;
+    x.duels = x.duels.concat(key).slice(-200);
+    return true;
+  }
+  // Partie de duel envoyée : oks = [juste ?] par question, L = langue du duel. Ne touche pas la progression des cartes.
+  function onDuel(id, oks, L) {
+    checkUser();
+    if (!id || !duelOnce("p:" + id)) return 0;
+    const x = data(), lang = isLang(L) ? L : null;
+    let got = 0;
+    arr(oks).forEach(ok => { got += add(ok ? num(XP_RULES.answer[XP_RULES.duel.mode], 1) : XP_RULES.wrong, lang); });
+    x.answers = Math.min(XP_MAX, x.answers + arr(oks).length);
+    if (arr(oks).length >= XP_RULES.sessionMin) got += add(XP_RULES.session, lang);
+    checkBadges();
+    commitQuiet();
+    return got;
+  }
+  // Duel gagné (vu dans la liste des duels) : bonus une seule fois.
+  function onDuelWin(id) {
+    checkUser();
+    if (!id || !duelOnce("w:" + id)) return 0;
+    const got = add(XP_RULES.duel.win, null);
+    checkBadges();
+    commitQuiet();
+    return got;
+  }
   // Jour de série validé (Streak : objectif du jour atteint).
   function onStreakDay(day) { checkUser(); return add(XP_RULES.streakDay, null, day); }
   // Au lancement et au changement de jour (appelé par Streak.tick) : défis du jour, badges et niveau en retard.
@@ -389,7 +424,7 @@ const XP = (() => {
     return Object.assign(xpProgress(x.total), { total: x.total, week: w.total, weekByLang: w.byLang, byLang: x.byLang,
       chDone: x.chDone, chDays: x.chDays.length, answers: x.answers });
   }
-  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, challenges, label, icon, summary, has, earn };
+  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, onDuel, onDuelWin, challenges, label, icon, summary, has, earn };
 })();
 
 // --- Affichage commun : barre de niveau (Accueil, Stats) ---

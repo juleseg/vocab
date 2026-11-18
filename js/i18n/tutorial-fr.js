@@ -35,7 +35,7 @@ Object.assign(I18N.fr, {
   "tuto.streak.title": "Série et objectif du jour",
   "tuto.streak.text": "Atteins ton objectif du jour pour faire grandir ta série 🔥. Un gel protège ta série si tu oublies un jour.",
   "tuto.friends.title": "Amis et partage",
-  "tuto.friends.text": "Ajoute des amis avec leur identifiant pour comparer vos séries. Tu peux aussi leur partager une liste depuis son menu « Partager ».",
+  "tuto.friends.text": "Ajoute des amis avec leur identifiant pour comparer vos séries et jouer la ligue de la semaine (XP du lundi au dimanche). Défie-les en duel sur 10 cartes, ou partage-leur une liste depuis son menu « Partager ».",
   "tuto.settings.title": "Notifications et réglages",
   "tuto.settings.text": "Active les rappels ici et règle l'appli à ton goût. Tu peux revoir ce tutoriel dans Réglages ou À propos."
 });
