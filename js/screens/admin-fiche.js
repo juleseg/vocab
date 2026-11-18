@@ -27,7 +27,7 @@ function openAccountFiche(userId, from) {
   if (!userId) return;
   if (fc.user !== userId) Object.assign(fc, { sum: null, store: null, issues: null, part: {}, missing: false, data: null,
     dataErr: "", version: null, view: null, q: "", open: {}, cap: "", acc: null, friends: null, friendsErr: "", shares: null, sharesErr: "",
-    push: null, pushErr: "", xp: null });
+    push: null, pushErr: "", xp: null, ideas: null, ideasErr: "" });
   fc.user = userId;
   fc.from = from || (currentScreen !== "adminfiche" ? currentScreen : fc.from) || "adminacc";
   fc.started = false;
@@ -72,6 +72,7 @@ async function fcLoad() {
       try { fc.shares = await aqRpc("admin_shares", { p_user: user }); fc.sharesErr = ""; }
       catch (e) { fc.shares = null; fc.sharesErr = alIsMissing(e) ? t("sh.missing") : aqErrText(e); }
     })(),
+    fcIdeasLoad(user),   // idées du compte (étape 52, js/screens/admin-idees.js) ; script absent : message dans la section Idées
     (async () => {   // taille des images du compte (étape 49) ; script absent : « — »
       try { fc.img = await aqRpc("admin_image_usage", { p_user: user }); } catch (e) { fc.img = null; }
     })(),
@@ -203,6 +204,7 @@ function renderAdminFiche() {
   root.appendChild(fcFriends());
   root.appendChild(fcShares());   // étape 30
   root.appendChild(fcPush());     // notifications (étape 32)
+  root.appendChild(fcIdeas());    // idées proposées (étape 52)
   root.appendChild(fcReviews());
   root.appendChild(fcContent());
   root.appendChild(fcDifficulties());

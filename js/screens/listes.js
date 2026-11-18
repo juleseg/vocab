@@ -516,7 +516,7 @@ function openFolderMenu(id) {
     roF ? null : { label: t("ai.importReply"), onClick: () => { openFxImport(); } },
     notOwner ? null : { label: t("folders.rename"), onClick: () => { openFolderName(id); } },
     notOwner ? null : { label: t("folders.langs"), onClick: () => { openLangEditor("folder", f); } },
-    { label: t("study.add"), onClick: () => { openStudyLangs("folder", id); } },   // étape 37
+    { label: t("study.addFolder"), onClick: () => { openStudyLangs("folder", id); } },   // étape 37 (libellé : étape 52, complément)
     { label: t("fsrs.reset"), onClick: () => { openResetProgress("folder", id); } },   // étape 47
     { label: t(notOwner ? "sh.leaveFolder" : "folders.delete"), kind: "danger", onClick: () => { confirmDeleteFolder(id); } },
     { label: t("cancel") }

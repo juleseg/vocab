@@ -9,7 +9,7 @@ Object.assign(I18N.fr, {
   "ls.kind.words": "Mots",
   "ls.kind.sents": "Phrases d'exemple",
   "ls.kind.both": "Les deux",
-  "ls.hint.dictation": "L'appli lit le mot ou la phrase dans la langue étudiée : écris ce que tu entends.",
+  "ls.hint.dictation": "L'appli lit le mot ou la phrase dans la langue apprise : écris ce que tu entends.",
   "ls.hint.speak": "Tu vois la traduction : dis le mot ou la phrase à voix haute (micro). 3 essais par carte.",
   "ls.noVoice": "Dictée indisponible : aucune voix de synthèse sur cet appareil pour les langues de cette session.",
   "ls.voiceLoading": "Dictée indisponible pour l'instant : voix en cours de chargement (ou aucune voix sur cet appareil).",

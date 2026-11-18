@@ -9,7 +9,7 @@ Object.assign(I18N.ko, {
   "ls.kind.words": "단어",
   "ls.kind.sents": "예문",
   "ls.kind.both": "둘 다",
-  "ls.hint.dictation": "공부하는 언어로 단어나 문장을 읽어 줘요. 들은 대로 써 보세요.",
+  "ls.hint.dictation": "학습 언어로 단어나 문장을 읽어 줘요. 들은 대로 써 보세요.",
   "ls.hint.speak": "번역을 보고 단어나 문장을 소리 내어 말해 보세요 (마이크). 카드마다 3번 시도할 수 있어요.",
   "ls.noVoice": "받아쓰기를 할 수 없어요: 이 기기에 이번 학습 언어의 음성이 없어요.",
   "ls.voiceLoading": "지금은 받아쓰기를 할 수 없어요: 음성을 불러오는 중이에요 (또는 이 기기에 음성이 없어요).",

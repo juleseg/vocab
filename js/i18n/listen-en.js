@@ -9,7 +9,7 @@ Object.assign(I18N.en, {
   "ls.kind.words": "Words",
   "ls.kind.sents": "Example sentences",
   "ls.kind.both": "Both",
-  "ls.hint.dictation": "The app reads the word or sentence in the language you study: type what you hear.",
+  "ls.hint.dictation": "The app reads the word or sentence in the language you're learning: type what you hear.",
   "ls.hint.speak": "You see the translation: say the word or sentence out loud (microphone). 3 tries per card.",
   "ls.noVoice": "Dictation unavailable: no speech voice on this device for the languages of this session.",
   "ls.voiceLoading": "Dictation unavailable for now: voices are loading (or there is no voice on this device).",

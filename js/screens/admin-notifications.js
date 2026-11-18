@@ -803,8 +803,8 @@ function fcPush() {
 // incomplet : avertissement, le reste de l'écran marche.
 // Journal : schedule_create / schedule_edit / schedule_pause / schedule_resume / schedule_delete, rule_on / rule_off / rule_edit.
 const NP_RULES = ["streak_danger", "goal_reminder", "inactive", "streak_milestone", "freeze_used", "friend_request", "share_invite",
-  "duel_invite", "duel_result", "league_end"];   // étape 44 : duels et fin de ligue (script supabase-etape44.sql)
-const NP_EVENT_RULES = ["streak_milestone", "freeze_used", "friend_request", "share_invite", "duel_invite", "duel_result"];
+  "duel_invite", "duel_result", "league_end", "idea_reply"];   // étape 44 : duels et fin de ligue ; étape 52 : réponse à une idée
+const NP_EVENT_RULES = ["streak_milestone", "freeze_used", "friend_request", "share_invite", "duel_invite", "duel_result", "idea_reply"];
 const NP_FRIEND_RULES = ["friend_request", "share_invite", "duel_invite", "duel_result", "league_end"];   // catégorie Amis
 const NP_MILESTONES = [7, 30, 100, 365];
 

@@ -36,7 +36,7 @@ Object.assign(I18N.fr, {
   "fsrs.estRetNone": "Pas encore de mot révisé.",
   "fsrs.reset": "Réinitialiser la progression",
   "fsrs.resetTitle": "Réinitialiser « {name} »",
-  "fsrs.resetPick": "Quelle langue étudiée remettre à zéro ?",
+  "fsrs.resetPick": "Quelle langue apprise remettre à zéro ?",
   "fsrs.resetAll": "Toutes les langues",
   "fsrs.resetN": "{n} cartes",
   "fsrs.resetAskLang": "Remettre à zéro la progression en {lang} de {n} carte(s) de « {name} » ? Elles seront comme jamais révisées.",

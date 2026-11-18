@@ -16,10 +16,10 @@ function applyTheme() {
 }
 
 // === NAVIGATION ===
-const SCREENS = ["home", "review", "lists", "stats", "pending", "friends", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "about", "stories", "rhythm"];
-const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", friends: "amis", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles", adminpush: "admin-notifications", admindict: "admin-dictionnaire", adminerr: "admin-erreurs", adminbk: "admin-sauvegardes", about: "a-propos", stories: "histoires", rhythm: "rythme" }; // "settings" est réservé dans l'URL
-const ADMIN_SCREENS = ["admin", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk"];
-const ADMIN_SB_SCREENS = ["adminreq", "adminlog", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk"];   // mode Supabase seulement
+const SCREENS = ["home", "review", "lists", "stats", "pending", "friends", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "about", "stories", "rhythm", "ideas", "adminidea"];
+const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", friends: "amis", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles", adminpush: "admin-notifications", admindict: "admin-dictionnaire", adminerr: "admin-erreurs", adminbk: "admin-sauvegardes", about: "a-propos", stories: "histoires", rhythm: "rythme", ideas: "idees", adminidea: "admin-idees" }; // "settings" est réservé dans l'URL
+const ADMIN_SCREENS = ["admin", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "adminidea"];
+const ADMIN_SB_SCREENS = ["adminreq", "adminlog", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "adminidea"];   // mode Supabase seulement
 let currentScreen = "home";
 
 function screenFromHash() {
@@ -33,7 +33,7 @@ function showScreen(name) {
   if (ADMIN_SB_SCREENS.includes(currentScreen) && auth.mode !== "supabase") currentScreen = "admin";
   if (currentScreen === "requests" && !Queue.usable()) currentScreen = "settings"; // Demandes à Claude : mode Supabase seulement
   document.querySelectorAll(".screen").forEach(el => el.classList.toggle("active", el.id === "screen-" + currentScreen));
-  document.querySelectorAll("nav.bottom button").forEach(b => b.classList.toggle("active", b.dataset.nav === currentScreen || (currentScreen === "stories" && b.dataset.nav === "lists") || (currentScreen === "rhythm" && b.dataset.nav === "settings")));
+  document.querySelectorAll("nav.bottom button").forEach(b => b.classList.toggle("active", b.dataset.nav === currentScreen || (currentScreen === "stories" && b.dataset.nav === "lists") || (currentScreen === "rhythm" && b.dataset.nav === "settings") || (currentScreen === "ideas" && b.dataset.nav === "settings")));
   renderScreen();
   window.scrollTo(0, 0);
 }
@@ -172,6 +172,8 @@ function renderScreen() {
   else if (currentScreen === "about") renderAbout();   // À propos (étape 39)
   else if (currentScreen === "stories") renderStories();   // histoires (étape 45)
   else if (currentScreen === "rhythm") renderRhythm();   // rythme de révision (étape 47)
+  else if (currentScreen === "ideas") renderIdeas();   // mes idées (étape 52)
+  else if (currentScreen === "adminidea") renderAdminIdeas();   // idées des utilisateurs (admin, étape 52)
   renderPendingBadge();
   Friends.renderBadge();   // demandes d'amis reçues (étape 29)
   Streak.showNotices();   // messages de série en attente (pas pendant une session de révision)

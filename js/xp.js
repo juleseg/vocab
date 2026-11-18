@@ -53,7 +53,8 @@ const XP_BADGES = [
   { id: "ch7", icon: "🗓️", chDays: 7 },
   { id: "race1", icon: "⏱️" },
   { id: "lvl5", icon: "⭐", level: 5 }, { id: "lvl10", icon: "🌟", level: 10 }, { id: "lvl20", icon: "💫", level: 20 },
-  { id: "lvl30", icon: "🏵️", level: 30 }, { id: "lvl50", icon: "👑", level: 50 }
+  { id: "lvl30", icon: "🏵️", level: 30 }, { id: "lvl50", icon: "👑", level: 50 },
+  { id: "idea1", icon: "💡" }    // « Idée retenue » (étape 52) : donné seulement par une récompense de l'admin (XP.onIdea)
 ];
 const XP_BADGE_IDS = XP_BADGES.map(b => b.id);
 // Défis possibles : k = sorte, n = objectif. Modes proposés seulement s'ils ont déjà été utilisés (use) ;
@@ -88,7 +89,7 @@ function xpLangMap(o) {
 }
 function xpEmpty() {
   return { v: 1, total: 0, byLang: {}, days: {}, answers: 0, perfects: 0, levelSeen: 1, badges: [], use: {},
-    ch: null, chDone: 0, chDays: [], init: null, duels: [] };
+    ch: null, chDone: 0, chDays: [], init: null, duels: [], ideas: [] };
 }
 function xpTrimDays(days, today) {
   const from = skAdd(today || todayStr(), -(XP_RULES.keepDays - 1));
@@ -131,6 +132,7 @@ function normXp(raw, history, streak, settings) {
   x.chDays = Array.from(new Set(arr(raw.chDays).filter(xpDayOk))).sort().slice(-60);
   x.init = raw.init && typeof raw.init === "object" ? { at: num(raw.init.at, 0), from: xpInt(raw.init.from) } : null;
   x.duels = arr(raw.duels).filter(k => typeof k === "string" && /^[pw]:[0-9a-f-]{36}$/i.test(k)).slice(-200);   // étape 44
+  x.ideas = Array.from(new Set(arr(raw.ideas).filter(k => typeof k === "string" && /^[0-9a-f-]{36}$/i.test(k)))).slice(-200);   // étape 52
   return x;
 }
 // Migration : XP de départ depuis history (et les jours de série validés), sans défis. Badges déjà atteints sans animation.
@@ -379,6 +381,20 @@ const XP = (() => {
     commitQuiet();
     return got;
   }
+  // Récompense d'une idée (étape 52, js/ideas.js) : une seule fois par idée sur ce compte (xp.ideas, morceau xp synchronisé).
+  // v = XP à ajouter (gels sans place déjà convertis), badge = badge « Idée retenue ». Pas de sauvegarde ici : l'appelant
+  // enregistre en une fois (XP et gels). Renvoie null si l'idée a déjà été récompensée, sinon { xp, badge (nouveau) }.
+  function onIdea(id, v, badge) {
+    checkUser();
+    const x = data();
+    if (!Array.isArray(x.ideas)) x.ideas = [];
+    if (!id || x.ideas.includes(id)) return null;
+    x.ideas = x.ideas.concat(id).slice(-200);
+    const got = add(v, null);
+    const b = badge ? earn("idea1") : false;
+    checkBadges();
+    return { xp: got, badge: b };
+  }
   // Jour de série validé (Streak : objectif du jour atteint).
   function onStreakDay(day) { checkUser(); return add(XP_RULES.streakDay, null, day); }
   // Au lancement et au changement de jour (appelé par Streak.tick) : défis du jour, badges et niveau en retard.
@@ -437,7 +453,7 @@ const XP = (() => {
     return Object.assign(xpProgress(x.total), { total: x.total, week: w.total, weekByLang: w.byLang, byLang: x.byLang,
       chDone: x.chDone, chDays: x.chDays.length, answers: x.answers });
   }
-  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, onDuel, onDuelWin, onStory, challenges, label, icon, summary, has, earn };
+  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, onDuel, onDuelWin, onStory, onIdea, challenges, label, icon, summary, has, earn };
 })();
 
 // --- Affichage commun : barre de niveau (Accueil, Stats) ---

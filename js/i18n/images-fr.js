@@ -47,7 +47,7 @@ Object.assign(I18N.fr, {
   "img.side.q": "côté question",
   "img.side.a": "côté réponse",
   "img.side.never": "jamais",
-  "img.side.autoHint": "Automatique : l'image est du côté de la question quand la question est dans ta langue (ou ta langue d'appui), sinon du côté de la réponse.",
+  "img.side.autoHint": "Automatique : l'image est du côté de la question quand la question est dans ta langue de l'appli (ou ta langue d'aide), sinon du côté de la réponse.",
   "img.saved": "Réglage enregistré",
   "img.err.offline": "Connecte-toi à Internet pour ajouter une image.",
   "img.err.quota": "Plus assez de place pour les images ({u} sur {l}). Supprime des images ou des cartes, puis réessaie.",

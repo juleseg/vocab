@@ -36,7 +36,7 @@ Object.assign(I18N.en, {
   "fsrs.estRetNone": "No word reviewed yet.",
   "fsrs.reset": "Reset progress",
   "fsrs.resetTitle": "Reset \"{name}\"",
-  "fsrs.resetPick": "Which studied language should be reset?",
+  "fsrs.resetPick": "Which learning language should be reset?",
   "fsrs.resetAll": "All languages",
   "fsrs.resetN": "{n} cards",
   "fsrs.resetAskLang": "Reset the {lang} progress of {n} card(s) in \"{name}\"? They will be as if never reviewed.",

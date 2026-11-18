@@ -139,7 +139,7 @@ async function studyAdd(kind, id, L) {
   let filled = 0;
   const cards = studyVocabCards(todo, L).filter(c => canEditList(c.listId));
   if (cards.length && Dict.on()) {
-    const pg = openProgress(t("study.add"), t("study.filling"), []);
+    const pg = openProgress(t(kind === "folder" ? "study.addFolder" : "study.add"), t("study.filling"), []);
     const st = state;
     try {
       filled += await Dict.fillFromCommon(cards);

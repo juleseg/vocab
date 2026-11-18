@@ -8,16 +8,39 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "52", date: "2026-11-18",
+    points: {
+      ko: [
+        "설정과 앱 정보에서 앱 개선 아이디어를 제안할 수 있어요: 새 기능, 문제, 콘텐츠 등.",
+        "‘내 아이디어’에서 진행 상황과 팀의 답변을 확인하세요.",
+        "채택된 아이디어에는 XP, 스트릭 프리즈, ‘아이디어 채택’ 배지를 받을 수 있어요.",
+        "언어 이름이 더 알기 쉬워졌어요: 앱 언어, 학습 언어, 도움 언어(선택). 카드 미리 보기와 '?' 설명도 있어요."
+      ],
+      fr: [
+        "Propose tes idées pour améliorer l'appli (nouvelle fonction, problème, contenu…) depuis les Réglages ou À propos.",
+        "Suis-les dans « Mes idées » : leur état et la réponse de l'équipe.",
+        "Une idée retenue peut te rapporter des XP, des gels de série et le badge « Idée retenue ».",
+        "Noms des langues plus clairs : langue de l'appli, langue apprise, langue d'aide (facultatif), avec un aperçu de carte et une aide « ? »."
+      ],
+      en: [
+        "Suggest ideas to improve the app (new feature, problem, content…) from Settings or About.",
+        "Follow them in “My ideas”: their status and the team's reply.",
+        "A kept idea can earn you XP, streak freezes and the “Idea kept” badge.",
+        "Clearer language names: app language, language you're learning, helper language (optional), with a card preview and a “?” help."
+      ]
+    }
+  },
+  {
     version: "51", date: "2026-11-18",
     points: {
       ko: [
-        "앱 둘러보기 안내를 새로 고쳤어요: 목록에 공부할 언어를 추가하는 방법을 알려 주고, 앱 정보(ⓘ)도 소개해요."
+        "앱 둘러보기 안내를 새로 고쳤어요: 목록에 학습 언어를 추가하는 방법을 알려 주고, 앱 정보(ⓘ)도 소개해요."
       ],
       fr: [
-        "Le tutoriel a été revu : il montre maintenant comment ajouter une langue étudiée à une liste, et présente ⓘ À propos."
+        "Le tutoriel a été revu : il montre maintenant comment ajouter une langue apprise à une liste, et présente ⓘ À propos."
       ],
       en: [
-        "The tutorial has been revised: it now shows how to add a study language to a list, and introduces ⓘ About."
+        "The tutorial has been revised: it now shows how to add a learning language to a list, and introduces ⓘ About."
       ]
     }
   },
@@ -111,17 +134,17 @@ const CHANGELOG = [
     version: "46", date: "2026-11-18",
     points: {
       ko: [
-        "새 복습 모드 '받아쓰기': 공부하는 언어로 단어나 예문을 읽어 주면 들은 대로 써요. 다시 듣기와 느린 속도도 있어요.",
+        "새 복습 모드 '받아쓰기': 학습 언어로 단어나 예문을 읽어 주면 들은 대로 써요. 다시 듣기와 느린 속도도 있어요.",
         "새 복습 모드 '발음': 번역을 보고 단어나 문장을 소리 내어 말하면 앱이 알아듣고 맞는지 알려 줘요 (3번 시도).",
         "복습 화면의 '모드'에서 고르고, 단어·예문·둘 다 중에서 선택할 수 있어요. 진도, XP, 오늘의 도전에 반영돼요."
       ],
       fr: [
-        "Nouveau mode Dictée : l'appli lit le mot ou la phrase d'exemple dans la langue étudiée, tu l'écris. Réécoute et vitesse lente possibles.",
+        "Nouveau mode Dictée : l'appli lit le mot ou la phrase d'exemple dans la langue apprise, tu l'écris. Réécoute et vitesse lente possibles.",
         "Nouveau mode Prononciation : tu vois la traduction, tu dis le mot ou la phrase à voix haute, l'appli vérifie (3 essais).",
         "À choisir dans « Mode » de Réviser, avec des mots, des phrases ou les deux. Ils comptent pour la progression, les XP et les défis du jour."
       ],
       en: [
-        "New Dictation mode: the app reads the word or example sentence in the language you study, and you type it. Listen again or slow it down.",
+        "New Dictation mode: the app reads the word or example sentence in the language you're learning, and you type it. Listen again or slow it down.",
         "New Pronunciation mode: you see the translation, say the word or sentence out loud, and the app checks it (3 tries).",
         "Pick them in Review → Mode, with words, sentences or both. They count for your progress, XP and daily challenges."
       ]
@@ -314,15 +337,15 @@ const CHANGELOG = [
       ko: [
         "같은 목록을 다른 언어로도 공부할 수 있어요 (예: 한국어 다음에 이탈리아어).",
         "언어마다 진도가 따로 저장돼요.",
-        "복습할 때 공부할 언어를 고를 수 있어요."
+        "복습할 때 학습 언어를 고를 수 있어요."
       ],
       fr: [
-        "Une même liste peut s'étudier dans une autre langue (ex. coréen, puis italien).",
+        "Une même liste peut avoir une autre langue apprise (ex. coréen, puis italien).",
         "La progression est gardée séparément pour chaque langue.",
         "Au moment de réviser, on choisit la ou les langues."
       ],
       en: [
-        "The same list can be studied in another language (e.g. Korean, then Italian).",
+        "The same list can also be learned in another language (e.g. Korean, then Italian).",
         "Progress is kept separately for each language.",
         "When reviewing, you choose the language(s)."
       ]
@@ -353,18 +376,18 @@ const CHANGELOG = [
     points: {
       ko: [
         "여러 언어를 동시에 배울 수 있어요 (한국어, 프랑스어, 영어, 이탈리아어, 스페인어, 독일어, 포르투갈어, 일본어, 중국어).",
-        "배우는 언어마다 도움 언어를 하나 고를 수 있어요 (선택).",
-        "예문은 배우는 언어로, 번역과 함께 보여요."
+        "학습 언어마다 도움 언어를 하나 고를 수 있어요 (선택).",
+        "예문은 학습 언어로, 번역과 함께 보여요."
       ],
       fr: [
         "Apprenez plusieurs langues à la fois (9 langues : coréen, français, anglais, italien, espagnol, allemand, portugais, japonais, chinois).",
-        "Pour chaque langue apprise, une langue d'appui au choix (facultative).",
+        "Pour chaque langue apprise, une langue d'aide au choix (facultatif).",
         "Les phrases d'exemple sont dans la langue apprise, avec leur traduction."
       ],
       en: [
         "Learn several languages at once (9 languages: Korean, French, English, Italian, Spanish, German, Portuguese, Japanese, Chinese).",
-        "For each language you learn, an optional helper language.",
-        "Example sentences are in the language you learn, with their translation."
+        "For each language you're learning, an optional helper language.",
+        "Example sentences are in the language you're learning, with their translation."
       ]
     }
   },

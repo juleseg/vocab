@@ -46,7 +46,7 @@ Object.assign(I18N.en, {
   "img.side.q": "question side",
   "img.side.a": "answer side",
   "img.side.never": "never",
-  "img.side.autoHint": "Automatic: the picture is on the question side when the question is in your language (or your support language), otherwise on the answer side.",
+  "img.side.autoHint": "Automatic: the picture is on the question side when the question is in your app language (or your helper language), otherwise on the answer side.",
   "img.saved": "Setting saved",
   "img.err.offline": "Connect to the Internet to add a picture.",
   "img.err.quota": "Not enough space left for pictures ({u} of {l}). Delete pictures or cards, then try again.",

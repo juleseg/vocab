@@ -36,7 +36,7 @@ Object.assign(I18N.ko, {
   "fsrs.estRetNone": "아직 복습한 단어가 없어요.",
   "fsrs.reset": "진도 초기화",
   "fsrs.resetTitle": "「{name}」 초기화",
-  "fsrs.resetPick": "어떤 공부 언어의 진도를 초기화할까요?",
+  "fsrs.resetPick": "어떤 학습 언어의 진도를 초기화할까요?",
   "fsrs.resetAll": "모든 언어",
   "fsrs.resetN": "카드 {n}장",
   "fsrs.resetAskLang": "「{name}」의 카드 {n}장의 {lang} 진도를 초기화할까요? 한 번도 복습하지 않은 상태가 돼요.",

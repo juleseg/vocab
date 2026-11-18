@@ -104,6 +104,9 @@ function renderAbout() {
   }
   root.appendChild(top);
 
+  // Étape 52 : « 💡 Proposer une idée » / « Mes idées » (mode Supabase seulement).
+  try { const ic = Ideas.aboutCard(); if (ic) root.appendChild(ic); } catch (e) {}
+
   // Partager l'appli.
   const sh = el("div", "card ab-share");
   sh.appendChild(el("h2", null, t("about.shareTitle")));

@@ -28,6 +28,7 @@ async function dashLoadPart(part) {
       dash.kpis = k || {};
       alCleaned = true; aq.cleaned = true;            // ménage déjà fait par admin_dash_kpis
       if (Number(dash.kpis.cleaned_log) > 0) Activity.log("admin_activity_cleanup", { n: Number(dash.kpis.cleaned_log) });
+      await aixLoadNewCount();                        // étape 52 : idées nouvelles (script absent : rien d'affiché)
     } else if (part === "series") {
       const p = dash.period;
       dash.series[p] = arr(await aqRpc("admin_dash_series", { p_tz: tz, p_period: p }));
@@ -101,10 +102,11 @@ function renderAdmin() {
   root.appendChild(top);
   // Autres écrans de l'administration
   const nav = el("div", "dash-nav");
-  [["dash.accounts", "adminacc"], ["aq.open", "adminreq"], ["al.open", "adminlog"], ["an.open", "adminann"], ["tp.open", "admintpl"], ["np.open", "adminpush"], ["dict.open", "admindict"], ["ce.open", "adminerr"], ["bk.open", "adminbk"]].forEach(([k, scr]) => {
-    const b = el("button", "btn", t(k));
+  [["dash.accounts", "adminacc"], ["aq.open", "adminreq"], ["al.open", "adminlog"], ["an.open", "adminann"], ["tp.open", "admintpl"], ["np.open", "adminpush"], ["dict.open", "admindict"], ["ce.open", "adminerr"], ["bk.open", "adminbk"], ["aix.open", "adminidea"]].forEach(([k, scr]) => {
+    const n = scr === "adminidea" ? num(aix.newCount, 0) : 0;   // étape 52 : nombre d'idées nouvelles
+    const b = el("button", "btn" + (n ? " aix-navnew" : ""), n ? t("aix.openN", { n }) : t(k));
     b.type = "button";
-    b.addEventListener("click", () => { location.hash = "#" + HASH_OF[scr]; });
+    b.addEventListener("click", () => { if (scr === "adminidea") aixOpenWith(n ? { status: "new" } : null); else location.hash = "#" + HASH_OF[scr]; });
     nav.appendChild(b);
   });
   root.appendChild(nav);
@@ -139,7 +141,7 @@ function dashKpiRows(k) {
     ["dash.r.active1", k.active_today], ["dash.r.active7", k.active_7], ["dash.r.active30", k.active_30],
     ["dash.r.cards", k.cards], ["dash.r.rev1", k.reviews_today], ["dash.r.rev7", k.reviews_7],
     ["dash.r.cPending", k.claude_pending], ["dash.r.cErr", k.claude_error], ["dash.r.props", k.proposals]
-  ].map(([lab, v]) => [t(lab), dashNum(v)]);
+  ].concat(aix.newCount !== null ? [["aix.k.new", aix.newCount]] : []).map(([lab, v]) => [t(lab), dashNum(v)]);
 }
 function dashKpiSection() {
   const sec = el("section", "dash-sec");
@@ -167,6 +169,14 @@ function dashKpiSection() {
   tile(t("dash.k.cards"), k.cards, "");
   tile(t("dash.k.claude"), k.claude_pending, t("dash.k.claudeErr", { n: dashFmt(k.claude_error) }), dashNum(k.claude_error) > 0);
   tile(t("dash.k.proposals"), k.proposals, "");
+  if (aix.newCount !== null) {                    // étape 52 : idées nouvelles (toucher = liste des idées nouvelles)
+    tile(t("aix.k.new"), aix.newCount, t("aix.k.newSub"), aix.newCount > 0);
+    const c = grid.lastChild;
+    c.classList.add("aix-tile"); c.setAttribute("role", "button"); c.tabIndex = 0;
+    const go = () => aixOpenWith({ status: "new" });
+    c.addEventListener("click", go);
+    c.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+  }
   sec.appendChild(grid);
   return sec;
 }

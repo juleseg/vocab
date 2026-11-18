@@ -2,7 +2,6 @@
 
 // === ÉCRAN : RÉGLAGES ===
 function renderSettings() {
-  document.querySelectorAll("#setLang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.value === state.settings.uiLang)));
   document.querySelectorAll("#setTheme button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.value === state.settings.theme)));
   const inp = $("#setSessionSize");
   if (document.activeElement !== inp) inp.value = state.settings.sessionSize;
@@ -18,6 +17,7 @@ function renderSettings() {
   renderFriendsPrivCard();   // Réglages → Amis (étape 29)
   renderPushCard();          // Réglages → Notifications (étape 32)
   Images.renderQuota();      // Réglages → Données : « Images : X Mo sur 50 Mo » (étape 49)
+  Ideas.renderCard();        // Réglages → « 💡 Proposer une idée » / « Mes idées » (étape 52, mode Supabase)
 }
 // Carte « Rythme de révision » (étape 47, complément) : affiche le réglage actuel (ex. « Équilibré · 90 % ») et ouvre
 // l'écran « Rythme de révision » (#rythme). Remplace l'ancienne carte « Révision » (saisie du taux).
@@ -63,9 +63,6 @@ function renderAudioCard() {
   }
 }
 function initSettings() {
-  document.querySelectorAll("#setLang button").forEach(b => b.addEventListener("click", () => {
-    state.settings.uiLang = b.dataset.value; commit();
-  }));
   document.querySelectorAll("#setTheme button").forEach(b => b.addEventListener("click", () => {
     state.settings.theme = b.dataset.value; commit();
   }));
@@ -259,8 +256,8 @@ window.addEventListener("pointercancel", () => { rhy.drag = false; });
 window.addEventListener("touchend", () => { rhy.drag = false; }, { passive: true });
 
 // === RÉGLAGES → LANGUES (PROFIL DE LANGUES, ÉTAPE 35) ===
-// Langue de l'interface : en haut des Réglages (ko / fr / en). Ici : langues apprises, chacune avec sa langue d'appui
-// facultative. La 1re langue est celle des listes et dossiers sans langue réglée.
+// Ici (étape 52, complément) : langue de l'appli (ko / fr / en), puis langues apprises, chacune avec sa langue d'aide
+// facultative et l'aperçu d'une carte. La 1re langue apprise est celle des listes et dossiers sans langue réglée.
 // Retirer une langue ne supprime aucune liste : ses listes gardent leur langue (réglée sur elles si elles en héritaient).
 function setLearning(L) {
   state.settings.learning = normLearning(L);
@@ -277,17 +274,25 @@ function renderLangCard() {
   const box = $("#langCard");
   if (!box) return;
   box.textContent = "";
-  box.appendChild(el("h2", null, t("prof.title")));
-  box.appendChild(el("p", "muted prof-help", t("prof.help", { ui: langName(state.settings.uiLang) })));
+  // Étape 52 (complément) : mêmes noms, phrases, aperçu et « ? » qu'à la création de compte, dans le même ordre :
+  // langue de l'appli (déplacée ici depuis la 1re carte), langues apprises, langue d'aide de chacune.
+  box.appendChild(lxHead("h2", t("prof.title")));
+  box.appendChild(lxField(t("lx.app"), lxAppSeg(code => { state.settings.uiLang = code; commit(); }), t("lx.appHint")));
   const L = learningOf();
+  const tl = el("div", "field lx-field lx-tlabel");
+  tl.append(el("div", "lx-lab", t("lx.target")), el("div", "hint", t("lx.targetHint")));
+  box.appendChild(tl);
   L.forEach((x, i) => {
     const row = el("div", "prof-row");
     const head = el("div", "prof-head");
-    head.appendChild(el("b", null, langName(x.lang)));
+    const nm = el("b", null, langName(x.lang));
+    nm.id = "profLang" + i;
+    head.appendChild(nm);
     if (i === 0 && L.length > 1) head.appendChild(el("span", "tag", t("prof.default")));
     const rm = el("button", "link-btn", t("prof.remove"));
     rm.type = "button";
     rm.disabled = L.length < 2;
+    rm.setAttribute("aria-describedby", nm.id);
     rm.addEventListener("click", () => confirmRemoveLearning(x.lang));
     head.appendChild(rm);
     row.appendChild(head);
@@ -295,9 +300,9 @@ function renderLangCard() {
       setLearning(learningOf().map(y => y.lang === x.lang ? { lang: y.lang, support: v || null } : y));
       commit();
     }, [x.lang]);
-    row.appendChild(formField(t("prof.support"), sp));
+    row.appendChild(lxField(t("lx.help"), sp, i === 0 ? t("lx.helpHint") : null));
     const lg = langsFor(x.lang);
-    row.appendChild(el("div", "muted prof-shown", t("prof.shown") + " : " + visibleLangs(lg).map(c => langName(c)).join(" · ")));
+    row.appendChild(lxPreview(x.lang, x.support));
     if (!lg.support.length) row.appendChild(el("div", "hint", t("prof.noSupportWarn")));
     box.appendChild(row);
   });
@@ -314,9 +319,9 @@ function openProfileAdd() {
   const wrap = el("div");
   const draw = () => {
     wrap.textContent = "";
-    wrap.appendChild(formField(t("langs.target"), langSelect(o.lang, null, v => { o.lang = v; if (o.support === v) o.support = null; draw(); }, null, free)));
-    wrap.appendChild(formField(t("prof.support"), langSelect(o.support || "", t("prof.none"), v => { o.support = v || null; draw(); }, [o.lang]), false, t("prof.supportHint")));
-    wrap.appendChild(el("div", "muted", t("prof.shown") + " : " + visibleLangs({ target: o.lang, support: supportLangs(o.lang, null, o.support) }).map(c => langName(c)).join(" · ")));
+    wrap.appendChild(lxField(t("lx.target"), langSelect(o.lang, null, v => { o.lang = v; if (o.support === v) o.support = null; draw(); }, null, free), t("lx.targetHint")));
+    wrap.appendChild(lxField(t("lx.help"), langSelect(o.support || "", t("prof.none"), v => { o.support = v || null; draw(); }, [o.lang]), t("lx.helpHint")));
+    wrap.appendChild(lxPreview(o.lang, o.support));
   };
   draw();
   openModal(t("prof.add"), wrap, [

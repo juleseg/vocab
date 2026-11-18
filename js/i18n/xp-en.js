@@ -12,7 +12,7 @@ Object.assign(I18N.en, {
   "xp.week": "XP this week",
   "xp.chDone": "Challenges done",
   "xp.chDays": "Days with all 3",
-  "xp.byLang": "By language studied",
+  "xp.byLang": "By learning language",
   "xp.rules": "Right answer: {a} XP ({w} in Write and Table), wrong answer: 1 XP. Finished session: {s} XP. Challenge: {c} XP, all 3: +{b} XP. Daily goal reached: {d} XP. No XP when the same card is answered twice within a minute.",
   "xp.plus": "+{n} XP",
   "xp.n": "{n} XP",

@@ -71,20 +71,13 @@ function pinInput(value, onInput) {
   i.addEventListener("input", () => { i.value = i.value.replace(/\D/g, "").slice(0, 6); onInput(i.value); });
   return i;
 }
-// Sélecteur de langue de l'interface, visible sur l'écran de connexion.
+// Langue de l'appli, choisie sur l'écran de connexion (en haut) ou dans le bloc « Tes langues » de la création de compte.
+function authPickUi(code) {
+  state.settings.uiLang = code; savePrefs(); applyI18n(); renderSyncStatus(Storage.getMode());
+  renderAuth(); // tous les textes, messages et erreurs compris, sont relus dans la nouvelle langue
+}
 function authLangSeg() {
-  const seg = el("div", "seg");
-  [["ko", "한국어"], ["fr", "Français"], ["en", "English"]].forEach(([code, label]) => {
-    const b = el("button", null, label);
-    b.type = "button";
-    b.setAttribute("aria-pressed", String(state.settings.uiLang === code));
-    b.addEventListener("click", () => {
-      state.settings.uiLang = code; savePrefs(); applyI18n(); renderSyncStatus(Storage.getMode());
-      renderAuth(); // tous les textes, messages et erreurs compris, sont relus dans la nouvelle langue
-    });
-    seg.appendChild(b);
-  });
-  const f = formField(t("auth.lang"), seg);
+  const f = lxField(t("auth.lang"), lxAppSeg(authPickUi));
   f.classList.add("auth-lang");
   return f;
 }
@@ -113,6 +106,10 @@ function renderAuth() {
   const first = !sbMode && !auth.reg.accounts.length;
   const creating = first || auth.view === "create";
   const f = auth.form;
+  // Création de compte (étape 52, complément) : les trois langues dans l'ordre, dans la carte (pas en haut) ; pas pour le
+  // premier compte qui reçoit les anciennes données (migration : pas de profil de langues choisi ici).
+  const langBlock = creating && !(first && auth.legacy && !auth.reg.migrated);
+  if (langBlock) { const top = root.querySelector(".auth-lang"); if (top) top.remove(); }
 
   const box = el("div", "card");
   box.appendChild(el("h2", null, t(first ? "auth.firstTitle" : creating ? "auth.createTitle" : "auth.loginTitle")));
@@ -127,13 +124,23 @@ function renderAuth() {
   box.appendChild(formField(t("auth.pin"), pinInp, false, creating ? t("auth.pinHint") : null));
   let pin2Inp = null;
   if (creating) { pin2Inp = pinInput(f.pin2, v => { f.pin2 = v; }); box.appendChild(formField(t("auth.pin2"), pin2Inp)); }
-  // Profil de langues du nouveau compte (étape 35) : langue de l'interface (sélecteur en haut), première langue apprise
-  // et sa langue d'appui facultative (pas pour le premier compte qui reçoit les anciennes données : migration).
-  if (creating && !(first && auth.legacy && !auth.reg.migrated)) {
+  // Profil de langues du nouveau compte (étape 35 ; noms, ordre, aperçu et « ? » : étape 52, complément) :
+  // 1. langue de l'appli, 2. première langue apprise, 3. sa langue d'aide facultative, puis l'aperçu d'une carte.
+  if (langBlock) {
+    const lb = el("div", "lx-block");
+    lb.appendChild(lxHead("h3", t("lx.title")));
+    lb.appendChild(lxField(t("lx.app"), lxAppSeg(authPickUi), t("lx.appHint")));
     const tg = langSelect(f.target, null, v => { f.target = v; if (f.support === v) f.support = null; renderAuth(); });
-    box.appendChild(formField(t("auth.target"), tg, false, t("auth.targetHint")));
-    const sp = langSelect(f.support || "", t("prof.none"), v => { f.support = v || null; }, [f.target]);
-    box.appendChild(formField(t("prof.support"), sp, false, t("prof.supportHint")));
+    lb.appendChild(lxField(t("lx.target"), tg, t("lx.targetHint")));
+    let pv = null;
+    const sp = langSelect(f.support || "", t("prof.none"), v => {
+      f.support = v || null;
+      const n = lxPreview(f.target, f.support); pv.replaceWith(n); pv = n;   // aperçu en direct, sans redessiner l'écran
+    }, [f.target]);
+    lb.appendChild(lxField(t("lx.help"), sp, t("lx.helpHint")));
+    pv = lxPreview(f.target, f.support);
+    lb.appendChild(pv);
+    box.appendChild(lb);
   }
   // Rester connecté
   const rem = el("label", "check");
@@ -275,7 +282,9 @@ async function enterSupabase(session, target) {
   // les notifications (fenêtre de première ouverture ou invitation de l'admin). Migration / sauvegarde : déjà faites.
   // Étape 39 : puis « Quoi de neuf » (une fois par nouvelle version).
   // Étape 40 : puis le tutoriel (nouveau compte, ou « Reprendre le tutoriel ? » s'il a été interrompu).
-  Ann.check().finally(() => NotifInvite.check()).finally(() => WhatsNew.check()).finally(() => Tutorial.check());
+  // Étape 52 : puis les récompenses d'idées pas encore reçues (réservées sur le serveur, puis appliquées une fois) et un
+  // message si l'équipe a répondu à une idée.
+  Ann.check().finally(() => NotifInvite.check()).finally(() => WhatsNew.check()).finally(() => Ideas.check()).finally(() => Tutorial.check());
 }
 // Compte bloqué (étape 27) : déconnexion tout de suite (session oubliée sur l'appareil), puis écran avec la raison.
 // Rien n'est envoyé ni effacé : les données du compte restent en ligne et dans le cache de l'appareil.

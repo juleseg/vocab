@@ -1300,3 +1300,71 @@ body.rl-locked{overflow:hidden}
 .rl-news-row .input{width:100%;min-height:44px}
 .rl-news-prev{margin:4px 0 10px;font-size:14px}
 .ab-newsnote{margin:0 0 6px;font-size:14px}
+
+/* === PROPOSITIONS D'AMÉLIORATION ET RÉCOMPENSES (étape 52) : .ix-* (utilisateur), .aix-* (admin) === */
+.ix-card .btns,.ix-about .btns{margin-top:8px}
+.ix-mine{position:relative}
+.ix-dot{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;margin-left:8px;padding:0 6px;border-radius:10px;background:var(--bad);color:#fff;font-size:12px;font-weight:700;vertical-align:1px}
+.ix-form .field{margin-bottom:12px}
+.ix-form .input{width:100%}
+.ix-body{min-height:110px;resize:vertical}
+.ix-count{display:block;text-align:right;font-size:12px;color:var(--muted);margin-top:2px}
+.ix-left{margin:0 0 4px}
+.ix-err{margin:8px 0 0}
+.ix-add{width:100%;margin:6px 0 10px}
+.ix-item{margin-bottom:10px}
+.ix-item.ix-new{border-left:4px solid var(--accent)}
+.ix-tags{display:flex;flex-wrap:wrap;gap:4px;min-width:0}
+.ix-t{font-weight:600;margin-top:6px;overflow-wrap:anywhere}
+.ix-b{margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text)}
+.ix-full{white-space:pre-wrap;overflow-wrap:anywhere;margin:4px 0 10px}
+.ix-reply{margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--surface2)}
+.ix-reply b{display:block;font-size:13px;color:var(--muted);margin-bottom:2px}
+.ix-reply p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.ix-rw{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;margin-top:8px;font-size:14px}
+.ix-rw-st{font-size:13px}
+.al-tag.ix-st-new{color:var(--accent)}
+.al-tag.ix-st-kept,.al-tag.ix-st-done,.al-tag.ok{color:var(--ok)}
+.al-tag.ix-st-refused{color:var(--muted)}
+.ix-reward-main{font-size:18px;font-weight:600;margin:0 0 6px}
+.aix-row{text-align:left;width:100%}
+.aix-row.aix-new{border-left:4px solid var(--accent)}
+.aix-short{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.aix-form{margin-top:6px}
+.aix-form .field{display:block;margin-bottom:10px}
+.aix-form .field span{display:block;font-size:14px;color:var(--muted);margin-bottom:4px}
+.aix-form .input{width:100%}
+.aix-form textarea{min-height:90px;resize:vertical}
+.aix-rw-box{margin-top:14px;padding-top:10px;border-top:1px solid var(--border)}
+.aix-reward-btn{width:100%}
+.aix-rwf .field{margin-bottom:12px}
+.aix-xp{width:100%;margin-top:6px;min-height:44px}
+.aix-check{display:flex;align-items:center;gap:10px;min-height:44px;margin:4px 0 10px;cursor:pointer}
+.aix-check input{width:22px;height:22px}
+.aix-rwf textarea{width:100%;resize:vertical}
+.aix-preview{margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--surface2)}
+.aix-pv-msg{margin:4px 0 0;font-weight:600}
+.aix-tile{cursor:pointer}
+.aix-navnew{border-color:var(--accent);color:var(--accent);font-weight:600}
+
+/* === NOMS DES TROIS LANGUES : APERÇU ET « ? » (étape 52, complément) === */
+.lx-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}
+.lx-head h2,.lx-head h3{margin:0}
+.lx-head h3{font-size:17px}
+.lx-block{border-top:1px solid var(--border);margin-top:4px;padding-top:14px}
+.lx-q{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--accent);font-weight:700;font-size:18px;cursor:pointer;line-height:1}
+.lx-q:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.lx-lab{font-size:14px;color:var(--muted);margin-bottom:2px}
+.lx-tlabel{margin-bottom:6px}
+.lx-prev{margin:4px 0 12px}
+.lx-cap{font-size:13px;color:var(--muted);margin-bottom:4px}
+.lx-card{border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow);padding:14px 16px;text-align:center}
+.lx-big{font-size:30px;font-weight:700;line-height:1.25;margin-bottom:4px;word-break:keep-all}
+.lx-row{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:2px 8px;margin-top:2px}
+.lx-w{font-size:18px}
+.lx-role{font-size:12px;color:var(--muted)}
+.lx-list{margin:0 0 12px;padding-left:20px}
+.lx-list li{margin:4px 0}
+.lx-help p{margin:0 0 10px}
+.lx-help .lx-more{margin-top:10px;font-size:14px}
+html[lang="ko"] .lx-help,html[lang="ko"] .lx-field .hint{word-break:keep-all;overflow-wrap:anywhere}

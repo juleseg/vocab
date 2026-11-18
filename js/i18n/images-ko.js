@@ -46,7 +46,7 @@ Object.assign(I18N.ko, {
   "img.side.q": "질문 쪽",
   "img.side.a": "답 쪽",
   "img.side.never": "안 보기",
-  "img.side.autoHint": "자동: 질문이 내 언어(또는 보조 언어)일 때는 질문 쪽에, 아니면 답 쪽에 이미지가 보여요.",
+  "img.side.autoHint": "자동: 질문이 앱 언어(또는 도움 언어)일 때는 질문 쪽에, 아니면 답 쪽에 이미지가 보여요.",
   "img.saved": "설정을 저장했어요",
   "img.err.offline": "이미지를 추가하려면 인터넷에 연결하세요.",
   "img.err.quota": "이미지 공간이 부족해요 ({l} 중 {u} 사용). 이미지나 카드를 지운 뒤 다시 해 보세요.",

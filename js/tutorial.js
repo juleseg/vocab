@@ -8,7 +8,7 @@
 // - Relançable : Réglages → « Revoir le tutoriel » (#btnTutoSet) et À propos (bouton affiché quand Tutorial existe).
 // - Rien n'est modifié dans les données : le tutoriel ne fait que changer d'écran (et ouvrir une liste) ; l'appli
 //   derrière ne réagit pas aux touchers pendant la visite. « Essayer » ouvre une vraie fenêtre (ajout de carte,
-//   langue étudiée) : le tutoriel se cache, puis reprend au même point quand la fenêtre est fermée.
+//   langue apprise d'une liste) : le tutoriel se cache, puis reprend au même point quand la fenêtre est fermée.
 // - Une autre fenêtre qui s'ouvre pendant la visite (conflit, annonce…) passe devant : le tutoriel attend.
 // - Un point dont l'élément n'existe pas (écran absent, séance de révision en cours…) est sauté sans erreur.
 // - Sur l'appareil : vocabfr.tuto:<identifiant> = { status: "pending" | "running" | "done" | "skipped", step, at }.
@@ -69,7 +69,7 @@ const Tutorial = (() => {
     { id: "card", ok: () => !!demoList(), show: () => { const d = demoList(); if (d) openList(d.id); },
       target: () => (lv.listId ? $("#lvAdd") : null),
       tryIt: () => { const d = demoList(); if (d) openCardEditor(null, d.id); } },
-    { id: "study", ok: () => !!demoList(), show: () => { const d = demoList(); if (d) openList(d.id); },   // « Ajouter une langue étudiée » (menu de la liste, étape 37 ; remplace « import » à l'étape 51)
+    { id: "study", ok: () => !!demoList(), show: () => { const d = demoList(); if (d) openList(d.id); },   // « Ajouter une langue apprise à la liste » (menu de la liste, étape 37 ; remplace « import » à l'étape 51 ; nom : étape 52)
       target: () => $("#lvStudy"),
       tryIt: () => { const b = $("#lvStudy"); if (b) b.click(); } },
     { id: "session", ok: reviewFree, show: () => go("review"),
