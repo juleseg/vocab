@@ -15,7 +15,8 @@ function defaultSessionCfg() {
   return { scope: "all", folderIds: [], listIds: [], tags: [], cat: "unknown", lang: accountLangs().target,
     types: [], tenses: [], verbs: [], persons: [],   // filtres en plus (vide = tout) : types de cartes ; conjugaison (clés « langue|… »)
     onlyDue: true, dir: "toT", count: state.settings.sessionSize, mode: "cards",
-    langs: [], dirs: {} };   // étape 37 : langues étudiées choisies (vide = toutes) ; sens par langue
+    langs: [], dirs: {},     // étape 37 : langues étudiées choisies (vide = toutes) ; sens par langue
+    orderKind: "both" };     // étape 42 : jeu « Remettre en ordre » : "words" | "sents" | "both"
 }
 // Clés des filtres de conjugaison (une session peut mélanger plusieurs langues).
 function tenseKey(c) { return c.lang + "|" + c.tense; }
@@ -75,6 +76,7 @@ function sessionPool(cfg, stage) {
     if (stage === "types") return true;
     if (cfg.mode === "write" && cardType(c) === "rule") return false;   // fiche de règle : pas de mode Écrit
     if (cfg.mode === "table" && cardType(c) !== "conj") return false;   // mode Tableau : conjugaison seulement
+    if (isGameMode(cfg.mode) && !isVocab(c)) return false;              // jeux (étape 42) : vocabulaire seulement
     if (conjOn) {                                                        // filtres de conjugaison : seulement des cartes conj
       if (cardType(c) !== "conj") return false;
       if (cfg.tenses.length && !cfg.tenses.includes(tenseKey(c))) return false;
@@ -100,6 +102,7 @@ function renderReview() {
     if (rv.s.mode === "cards") renderCardsSession(root);
     else if (rv.s.mode === "write") renderWriteSession(root);
     else if (rv.s.mode === "table") renderTableSession(root);
+    else if (isGameMode(rv.s.mode)) renderGameSession(root);   // jeux d'entraînement (étape 42)
     else renderQuizSession(root);
   }
   else renderSessionConfig(root);
@@ -259,6 +262,13 @@ function renderSessionConfig(root) {
   else if (cfg.mode === "table") cfg.mode = "cards";
   box.appendChild(segField("review.mode", modes, cfg.mode, v => { cfg.mode = v; }));
   if (cfg.mode === "table") box.appendChild(el("div", "hint", t("table.modeHint")));
+  // Jeux d'entraînement (étape 42) : même périmètre, cartes de vocabulaire seulement. Un seul mode choisi en tout.
+  const gf = chipsField(GAME_MODES.map(m => ({ value: m, label: GAME_ICON[m] + " " + t("mode." + m) })), [cfg.mode], v => { cfg.mode = v; });
+  gf.insertBefore(el("label", null, t("review.games")), gf.firstChild);
+  gf.appendChild(el("div", "hint", t("review.gamesHint")));
+  box.appendChild(gf);
+  if (cfg.mode === "order") box.appendChild(segField("gm.order.kind", [["words", "gm.order.words"], ["sents", "gm.order.sents"], ["both", "gm.order.both"]],
+    cfg.orderKind || "both", v => { cfg.orderKind = v; }));
   root.appendChild(box);
 
   root.appendChild(el("div", "avail", cfg.mode === "table"
@@ -278,6 +288,7 @@ function renderSessionConfig(root) {
 function startSession() {
   const cfg = rv.cfg;
   if (cfg.mode === "table") return startTableSession(cfg);
+  if (isGameMode(cfg.mode)) return startGame(cfg);   // jeux d'entraînement (étape 42)
   const pool = shuffle(sessionPool(cfg)).slice(0, cfg.count);
   if (!pool.length) return false;
   const lgs = langsByList(), now = Date.now();
@@ -309,7 +320,7 @@ function newRun(queue, mode) {
   window.scrollTo(0, 0);
 }
 
-// Note une carte de la session (utilisé par tous les modes). Pas su → la carte revient en fin de file.
+// Note une carte de la session (modes Cartes, Écrit, Interrogateur ; les jeux notent avec gameGrade, js/modes/jeux.js). Pas su → la carte revient en fin de file.
 function gradeCurrent(result) {
   const s = rv.s;
   const item = s.queue.shift();

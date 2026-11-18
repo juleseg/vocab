@@ -27,7 +27,7 @@ Object.assign(I18N.fr, {
   "tuto.import.title": "Importer des cartes",
   "tuto.import.text": "Colle une liste de mots ou choisis un fichier pour créer beaucoup de cartes d'un coup.",
   "tuto.session.title": "Lancer une session",
-  "tuto.session.text": "Choisis ce que tu veux réviser (listes, dossiers, langue, nombre de cartes), puis touche « Commencer ».",
+  "tuto.session.text": "Choisis ce que tu veux réviser (listes, dossiers, langue, nombre de cartes), puis touche « Commencer ». Pour t'entraîner autrement, choisis un jeu : QCM, Course 60 s, Paires ou Remettre en ordre.",
   "tuto.modes.title": "Modes de révision",
   "tuto.modes.text": "Cartes, Écrit, Interrogateur (quelqu'un te pose les questions) et Tableau pour la conjugaison. Réponds Su, À revoir ou Pas su : chaque carte revient au bon moment.",
   "tuto.pending.title": "À valider",

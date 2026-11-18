@@ -951,3 +951,59 @@ html[lang="ko"] .tuto-title,html[lang="ko"] .tuto-text{word-break:keep-all;overf
 .ce-ul li{margin:2px 0;overflow-wrap:anywhere}
 .ce-ul .link-btn{font-size:13px;padding:0 4px}
 .ce-acts{margin-top:14px}
+
+/* === JEUX D'ENTRAÎNEMENT (étape 42) : QCM, Course 60 s, Paires, Remettre en ordre === */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.gm-meta{align-items:center;font-size:15px}
+.gm-left{font-weight:600;color:var(--text)}
+.gm-left.gm-hurry{color:var(--bad)}
+.gm-score{font-weight:600;white-space:nowrap}
+.gm-okn{color:var(--ok)}.gm-badn{color:var(--bad)}
+.gm-recline{font-size:13px;color:var(--muted);text-align:right;margin:-4px 0 8px}
+.gm-q{position:relative;text-align:center;padding:18px 16px}
+.gm-q .sw-lang{font-size:13px;color:var(--muted)}
+.gm-qmain{font-size:28px;font-weight:700;line-height:1.25;margin:6px 0;overflow-wrap:anywhere;word-break:keep-all}
+.gm-qsub,.gm-qtr{color:var(--muted);font-size:16px;overflow-wrap:anywhere;word-break:keep-all}
+.gm-qtr{color:var(--text);font-size:18px;font-weight:600;margin:4px 0}
+.gm-ask{font-size:14px;color:var(--muted);margin-top:8px}
+.gm-q .gm-spk{position:absolute;top:10px;right:10px}
+.gm-choices{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+.gm-choice{min-height:56px;padding:10px 14px;border-radius:14px;border:2px solid var(--border);background:var(--surface);font-size:19px;font-weight:600;cursor:pointer;text-align:center;line-height:1.25;overflow-wrap:anywhere;word-break:keep-all;touch-action:manipulation}
+.gm-choice.right{border-color:var(--ok);color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
+.gm-choice.wrong{border-color:var(--bad);color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.gm-after{min-height:8px;margin-bottom:6px}
+.gm-after .btn{margin-top:4px}
+.gm-hint{font-size:14px;color:var(--muted);text-align:center;margin-bottom:6px}
+.au-switch.gm-au{min-height:48px;padding:2px 8px 2px 14px;margin-bottom:6px}
+.au-switch.gm-au .au-track{transform:scale(.8);transform-origin:right center}
+.gm-pairs-prog{font-weight:600;white-space:nowrap}
+.gm-pairs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;margin-bottom:8px}
+.gm-tile{min-width:0;min-height:46px;padding:6px 8px;border-radius:12px;border:2px solid var(--border);background:var(--surface);font-size:16px;font-weight:600;line-height:1.2;cursor:pointer;overflow-wrap:anywhere;word-break:keep-all;hyphens:auto;touch-action:manipulation}
+.gm-tile.sel{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+.gm-tile.done{opacity:.35;border-style:dashed;cursor:default}
+.gm-ans{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;min-height:64px;padding:10px;margin-bottom:12px;border:2px dashed var(--border);border-radius:14px;background:var(--surface2)}
+.gm-ans.right{border-color:var(--ok);border-style:solid}
+.gm-ans.wrong{border-color:var(--bad);border-style:solid}
+.gm-pool{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:56px;margin-bottom:12px}
+.gm-tl{min-width:44px;min-height:46px;padding:6px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow);font-size:20px;font-weight:600;cursor:pointer;word-break:keep-all;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.gm-ans.sent .gm-tl,.gm-pool .gm-tl{font-size:18px}
+.gm-tl.placed{background:var(--surface);border-color:var(--accent)}
+.gm-tl:disabled{cursor:default;opacity:1;color:inherit}
+.gm-ans.right .gm-tl{border-color:var(--ok);color:var(--ok)}
+.gm-ans.wrong .gm-tl{border-color:var(--bad);color:var(--bad)}
+.gm-slot{display:inline-block;width:40px;height:46px;border-radius:10px;border:2px dashed var(--border)}
+.gm-slot.wide{width:56px}
+.gm-gap{display:inline-block;width:14px}
+.gm-res{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;font-weight:600;margin-bottom:8px;text-align:center}
+.gm-res.ok{color:var(--ok)}.gm-res.bad{color:var(--bad)}
+.gm-res-a{color:var(--text);font-size:19px;word-break:keep-all}
+.gm-sum h2{overflow-wrap:anywhere}
+.gm-rec{color:var(--warn)}
+.gm-sndic{font-size:20px;line-height:1}
+.gm-ok{animation:gmOk .45s ease 1}
+.gm-bad{animation:gmBad .4s ease 1}
+@keyframes gmOk{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes gmBad{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+@media (prefers-reduced-motion: reduce){.gm-ok,.gm-bad{animation:none}}
+@media (max-width:360px){.gm-tile{font-size:15px;padding:6px}.gm-qmain{font-size:24px}.gm-tl{font-size:18px;padding:6px 9px}}
+.gm-sum .sum-num{font-size:28px;white-space:nowrap}

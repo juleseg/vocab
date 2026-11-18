@@ -35,6 +35,7 @@ function renderAudioCard() {
     seg.appendChild(b);
   });
   box.appendChild(formField(t("audio.langs"), seg));
+  if (typeof gameSoundsToggle === "function") box.appendChild(gameSoundsToggle());   // sons des jeux (étape 42)
   const st = Speech.status();
   if (st === "none") box.appendChild(el("div", "au-warn", t("audio.noSpeech")));
   else if (st === "ready") {

@@ -27,7 +27,7 @@ Object.assign(I18N.en, {
   "tuto.import.title": "Import cards",
   "tuto.import.text": "Paste a list of words or pick a file to create lots of cards at once.",
   "tuto.session.title": "Start a session",
-  "tuto.session.text": "Choose what to review (lists, folders, language, number of cards), then tap \"Start\".",
+  "tuto.session.text": "Choose what to review (lists, folders, language, number of cards), then tap \"Start\". For a change, pick a game: Multiple choice, 60-second race, Pairs or Put in order.",
   "tuto.modes.title": "Review modes",
   "tuto.modes.text": "Cards, Writing, Quizzer (someone else asks the questions) and Table for conjugation. Answer Knew it, To review or Didn't know: each card comes back at the right time.",
   "tuto.pending.title": "Pending",

@@ -8,6 +8,29 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "42", date: "2026-11-17",
+    points: {
+      ko: [
+        "새 연습 게임 4가지: 객관식, 60초 레이스, 짝 맞추기, 순서 맞추기.",
+        "복습 화면의 '연습 게임'에서 고르면 돼요. 범위는 평소처럼 목록, 폴더, 언어로 정해요.",
+        "게임도 오늘의 목표와 연속 기록에 들어가요. 틀린 카드는 카드 모드로 다시 볼 수 있어요.",
+        "60초 레이스에서 내 최고 기록에 도전해 보세요. 게임 소리는 설정에서 켤 수 있어요."
+      ],
+      fr: [
+        "4 nouveaux jeux d'entraînement : QCM, Course 60 s, Paires et Remettre en ordre.",
+        "Choisis-les dans Réviser, rubrique « Jeux d'entraînement », sur tes listes, dossiers et langues habituels.",
+        "Les jeux comptent pour l'objectif du jour et la série ; les erreurs peuvent être revues en mode Cartes.",
+        "Bats ton record à la Course 60 s. Les sons des jeux s'activent dans les Réglages."
+      ],
+      en: [
+        "4 new practice games: Multiple choice, 60-second race, Pairs and Put in order.",
+        "Pick them in Review, under \"Practice games\", with your usual lists, folders and languages.",
+        "Games count toward your daily goal and streak; you can review your mistakes in Cards mode.",
+        "Beat your best score in the 60-second race. Turn on game sounds in Settings."
+      ]
+    }
+  },
+  {
     version: "41", date: "2026-11-17",
     points: {
       ko: [

@@ -10,7 +10,7 @@ const AL_PAGE = 50;
 const AL_KINDS = ["login", "session", "cards_added", "import", "validate", "claude_request", "pin_change", "logout", "sync_error", "conflict",
   "friend_request", "friend_accept", "friend_remove", "friend_block",
   "share_sent", "share_accepted", "share_declined", "share_member_removed", "share_left", "share_deleted",
-  "push_invite_shown", "push_invite_enabled", "push_invite_later", "push_invite_denied", "admin_*"];   // push_invite_* : étape 38
+  "push_invite_shown", "push_invite_enabled", "push_invite_later", "push_invite_denied", "game", "admin_*"];   // push_invite_* : étape 38 ; game : étape 42
 const al = { f: { user: "", kind: "", days: "7" }, page: 0, data: null, loading: false, err: "", missing: false };
 let alCleaned = false;
 function alIsMissing(e) {
@@ -66,6 +66,10 @@ function alSummary(r) {
     case "session": return t("al.s.session", { mode: I18N.fr["mode." + d.mode] ? t("mode." + d.mode) : String(d.mode || ""), n: n(d.cards),
       k: n(d.known), r: n(d.review), u: n(d.unknown), min: Math.max(0, Math.round(n(d.seconds) / 6) / 10) })
       + (d.lists ? " · " + t("al.s.lists", { n: n(d.lists) }) : "") + (d.lang ? " · " + String(d.lang).toUpperCase() : "");
+    case "game":   // fin d'une partie (étape 42)
+      return t("al.s.game", { game: I18N.fr["mode." + d.game] ? t("mode." + d.game) : String(d.game || ""), s: n(d.score), n: n(d.cards),
+        e: n(d.errors), min: Math.max(0, Math.round(n(d.seconds) / 6) / 10) })
+        + (n(d.record) ? " · 🏆" : "") + (d.lang ? " · " + String(d.lang).toUpperCase() : "");
     case "cards_added": return t("al.s.added", { n: n(d.n) }) + (d.list ? " · " + d.list : "");
     case "import": return t("al.s.import", { n: n(d.n), m: n(d.replaced) }) + (d.list ? " · " + d.list : "") + (d.stopped ? " · " + t("al.s.stopped") : "");
     case "validate": return t("al.s.validate." + (d.action === "reject" ? "reject" : "accept"), { n: n(d.n) }) + (d.skipped ? " · " + t("al.s.skipped", { n: n(d.skipped) }) : "");

@@ -334,13 +334,27 @@ const Leitner = (() => {
     logHistory(now, result === "known", L);
     return { from, to: P.box, dueAt: P.dueAt, lang: L };
   }
+  // Jeux d'entraînement (étape 42) : poids réduit. ok = bonne réponse : pas de montée de boîte, date de révision
+  // inchangée, stats « vu / juste » mises à jour. Mauvaise réponse = comme « À revoir ». Compte pour l'objectif du jour.
+  function gradeGame(c, ok, now, lang) {
+    if (!ok) return grade(c, "review", now, lang);
+    now = now || Date.now();
+    const L = langOf(c, lang);
+    const P = ensure(c, L);
+    P.stats.seen++;
+    P.stats.correct++;
+    P.stats.lastSeen = now;
+    if (L === primaryLang(c)) { c.box = P.box; c.dueAt = P.dueAt; c.stats = Object.assign({}, P.stats); }
+    logHistory(now, true, L);
+    return { from: P.box, to: P.box, dueAt: P.dueAt, lang: L };
+  }
   // Remise à zéro d'une carte (copie sans progression) : toutes les langues.
   function clear(c, now) {
     c.box = 0; c.dueAt = now || Date.now(); c.stats = { seen: 0, correct: 0, wrong: 0, lastSeen: null };
     delete c.progress;
     return c;
   }
-  return { dayStart, addDays, isDue, category, grade, prog, dueLangs, unit, units, clear, isUnit };
+  return { dayStart, addDays, isDue, category, grade, gradeGame, prog, dueLangs, unit, units, clear, isUnit };
 })();
 
 // Jours d'affilée avec au moins une révision dans une langue (statistiques par langue, étape 37) ; aujourd'hui

@@ -10,6 +10,16 @@ const DATA_VERSION = 6;
 const PRIVACY_KEYS = ["streak", "today", "week", "success", "badges", "ranking", "shared"];   // ce que mes amis voient (étape 29 ; shared : étape 30)
 function defaultPrivacy() { const o = {}; PRIVACY_KEYS.forEach(k => { o[k] = true; }); return o; }
 function normPrivacy(p) { const o = defaultPrivacy(); if (p && typeof p === "object") PRIVACY_KEYS.forEach(k => { if (p[k] === false) o[k] = false; }); return o; }
+// Jeux d'entraînement (étape 42) : settings.games = { sounds (désactivé par défaut), records { clé: meilleur score } }.
+// Dans le morceau settings (aucun nouveau morceau) ; 200 records au plus.
+function normGames(g) {
+  const o = { sounds: false, records: {} };
+  if (!g || typeof g !== "object") return o;
+  o.sounds = g.sounds === true;
+  const r = g.records && typeof g.records === "object" && !Array.isArray(g.records) ? g.records : {};
+  Object.keys(r).slice(-200).forEach(k => { const v = clampInt(r[k], 0, 100000, 0); if (k.length <= 120 && v > 0) o.records[k] = v; });
+  return o;
+}
 
 // Langue de l'interface à la première ouverture : celle du téléphone si ko ou fr, sinon anglais.
 function defaultLang() {
@@ -27,7 +37,8 @@ function defaultSettings(target, support) {
     learning: normLearning([{ lang: tg, support: isLang(support) ? support : null }]),   // profil de langues (étape 35)
     defaultTarget: tg, defaultSupport: [],                                             // anciens champs, ignorés
     audio: { auto: true, langs: "target" },
-    dailyGoal: 10, privacy: defaultPrivacy()
+    dailyGoal: 10, privacy: defaultPrivacy(),
+    games: normGames(null)                                                             // jeux (étape 42)
   };
 }
 
@@ -182,7 +193,8 @@ function normalizeData(raw) {
       defaultSupport: sup,
       audio: { auto: au.auto !== false, langs: ["target", "support", "both"].includes(au.langs) ? au.langs : "target" },
       dailyGoal: clampInt(s.dailyGoal, 5, 100, 10),
-      privacy: normPrivacy(s.privacy)
+      privacy: normPrivacy(s.privacy),
+      games: normGames(s.games)   // jeux d'entraînement (étape 42)
     },
     folders: arr(d.folders).filter(f => f && f.id).map((f, i) => Object.assign(
       { id: String(f.id), name: String(f.name || ""), order: num(f.order, i) }, normLangPair(f), lastUpdateOf(f), normSharedMark(f))),
