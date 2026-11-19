@@ -45,7 +45,8 @@ function defaultSettings(target, support) {
     listen: { slow: false },                                                           // dictée : lecture lente (étape 46)
     retention: FSRS_RET.def,                                                           // FSRS : taux de rétention visé (étape 47)
     sentence: { on: true },                                                            // « Ma phrase » : proposition après un « Trouvé » (étape 58)
-    gender: { colors: true, symbols: false }                                           // genre des noms : couleurs (défaut oui), mode daltonien ♂♀⚥ (étape 60)
+    gender: { colors: true, symbols: false },                                          // genre des noms : couleurs (défaut oui), mode daltonien ♂♀⚥ (étape 60)
+    morning: normMorning(null)                                                         // rappel du matin, heure du soir, notification (étape 61)
   };
 }
 
@@ -236,6 +237,17 @@ function normListAudLearn(o) {
   if (v === "off") return { audioLearn: "off" };
   return (v && typeof v === "object" && !Array.isArray(v)) ? { audioLearn: normAudLearn(v) } : {};
 }
+// === BONS MOMENTS POUR RÉVISER (étape 61) ===
+// settings.morning = { on, evening, notif, hour } : rappel du matin activé (défaut oui), heure où commence le soir
+// (16 à 23 h, défaut 19 h), notification du matin (défaut oui) et son heure (5 à 11 h, défaut 8 h). Logique : js/moments.js.
+// Champ facultatif (DATA_VERSION inchangé) : un appareil en version 60 l'efface en renvoyant ses réglages (retour aux défauts).
+const MOM_EVENING = { min: 16, max: 23, def: 19 };
+const MOM_HOUR = { min: 5, max: 11, def: 8 };
+function normMorning(o) {
+  const x = (o && typeof o === "object" && !Array.isArray(o)) ? o : {};
+  return { on: x.on !== false, evening: clampInt(x.evening, MOM_EVENING.min, MOM_EVENING.max, MOM_EVENING.def),
+    notif: x.notif !== false, hour: clampInt(x.hour, MOM_HOUR.min, MOM_HOUR.max, MOM_HOUR.def) };
+}
 
 // Progression par langue étudiée (étape 37) : { <langue>: { box, dueAt, stats } }.
 // box / dueAt / stats de la carte = copie de la progression de sa langue principale (anciennes versions, fiche admin…).
@@ -318,7 +330,8 @@ function normalizeData(raw) {
       listen: { slow: !!(s.listen && s.listen.slow === true) },   // dictée : lecture lente (étape 46)
       retention: clampInt(s.retention, FSRS_RET.min, FSRS_RET.max, FSRS_RET.def),   // FSRS : taux de rétention visé (étape 47)
       sentence: { on: !(s.sentence && s.sentence.on === false) },   // « Ma phrase » (étape 58) : activée par défaut
-      gender: { colors: !(s.gender && s.gender.colors === false), symbols: !!(s.gender && s.gender.symbols === true) }   // genre des noms (étape 60) : couleurs oui, symboles non par défaut
+      gender: { colors: !(s.gender && s.gender.colors === false), symbols: !!(s.gender && s.gender.symbols === true) },   // genre des noms (étape 60) : couleurs oui, symboles non par défaut
+      morning: normMorning(s.morning)   // bons moments pour réviser (étape 61) : rappel du matin, heure du soir, notification
     },
     folders: arr(d.folders).filter(f => f && f.id).map((f, i) => Object.assign(
       { id: String(f.id), name: String(f.name || ""), order: num(f.order, i) }, normLangPair(f), lastUpdateOf(f), normSharedMark(f))),

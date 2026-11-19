@@ -8,6 +8,26 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "61", date: "2026-11-19",
+    points: {
+      ko: [
+        "아침 복습: 저녁(기본 19시 이후)에 본 카드를 다음 날 아침 홈에서 짧은 세션으로 다시 보여 줘요. 원하면 아침 알림(기본 8시)도 받을 수 있어요. 설정에서 시간을 바꾸거나 끌 수 있어요.",
+        "홈의 새 버튼 '2분': 복습할 카드 5장으로 바로 짧은 세션을 시작해요.",
+        "두 세션 모두 일반 복습과 똑같이 진행 상황에 반영돼요."
+      ],
+      fr: [
+        "Rappel du matin : les cartes vues le soir (après 19 h par défaut) te sont reproposées le lendemain matin dans une petite session, sur l'Accueil. Une notification du matin (8 h par défaut) peut te le rappeler. Heures réglables et rappel désactivable dans les Réglages.",
+        "Nouveau bouton « 2 minutes » sur l'Accueil : une mini-session de 5 cartes à réviser, tout de suite.",
+        "Ces deux sessions comptent comme des révisions normales pour ta progression."
+      ],
+      en: [
+        "Morning recall: cards you saw in the evening (after 7 pm by default) come back the next morning in a short session, on the Home screen. A morning notification (8:00 by default) can remind you. Times can be changed, and the recall turned off, in Settings.",
+        "New \"2 minutes\" button on the Home screen: a mini-session of 5 cards to review, right away.",
+        "Both sessions count as normal reviews for your progress."
+      ]
+    }
+  },
+  {
     version: "60", date: "2026-11-19",
     points: {
       ko: [

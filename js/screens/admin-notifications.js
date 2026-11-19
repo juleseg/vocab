@@ -802,9 +802,10 @@ function fcPush() {
 // send-push (action tick, version 34). Script absent : message clair ; fonction trop ancienne ou planificateur
 // incomplet : avertissement, le reste de l'écran marche.
 // Journal : schedule_create / schedule_edit / schedule_pause / schedule_resume / schedule_delete, rule_on / rule_off / rule_edit.
-const NP_RULES = ["streak_danger", "goal_reminder", "inactive", "streak_milestone", "freeze_used", "friend_request", "share_invite",
-  "duel_invite", "duel_result", "league_end", "idea_reply", "sentence_reply", "cheer", "team_message", "team_invite", "team_goal", "team_week"];   // étape 44 : duels et fin de ligue ; étape 52 : réponse à une idée ; étape 53 : messages ; étape 54 : équipes
+const NP_RULES = ["streak_danger", "goal_reminder", "morning_recall", "inactive", "streak_milestone", "freeze_used", "friend_request", "share_invite",
+  "duel_invite", "duel_result", "league_end", "idea_reply", "sentence_reply", "cheer", "team_message", "team_invite", "team_goal", "team_week"];   // étape 44 : duels et fin de ligue ; étape 52 : réponse à une idée ; étape 53 : messages ; étape 54 : équipes ; étape 61 : rappel du matin
 const NP_EVENT_RULES = ["streak_milestone", "freeze_used", "friend_request", "share_invite", "duel_invite", "duel_result", "idea_reply", "sentence_reply", "cheer", "team_message", "team_invite", "team_goal"];
+const NP_USER_TIME_RULES = ["morning_recall"];   // étape 61 : heure choisie par chaque compte (Réglages), pas d'heure ici
 const NP_FRIEND_RULES = ["friend_request", "share_invite", "duel_invite", "duel_result", "league_end", "cheer", "team_invite", "team_goal", "team_week"];   // catégorie Amis (cheer : étape 53 ; équipes : étape 54)
 const NP_MILESTONES = [7, 30, 100, 365];
 
@@ -1181,9 +1182,14 @@ function npRuleCard(r) {
   const cell = (lab, input) => { const x = el("label", "aq-f"); x.append(el("span", null, lab), input); grid.appendChild(x); };
   const tps = arr(nps.templates);
   cell(t("np.tpl"), npSelect([["", "—"]].concat(tps.map(tp => [tp.id, npTplName(tp)])), f.template_id, v => { f.template_id = v; }));
-  const ti = el("input", "input"); ti.type = "time"; ti.step = 60; ti.value = f.send_time;
-  ti.addEventListener("change", () => { f.send_time = ti.value.slice(0, 5); });
-  cell(ev ? t("np.ru.timeEv") : t("np.ru.time"), ti);
+  if (NP_USER_TIME_RULES.includes(r.key)) {   // étape 61 : rappel du matin, à l'heure de chaque compte
+    f.send_time = "";
+    cell(t("np.ru.time"), el("span", "hint", t("np.ru.userTime")));
+  } else {
+    const ti = el("input", "input"); ti.type = "time"; ti.step = 60; ti.value = f.send_time;
+    ti.addEventListener("change", () => { f.send_time = ti.value.slice(0, 5); });
+    cell(ev ? t("np.ru.timeEv") : t("np.ru.time"), ti);
+  }
   if (r.key === "streak_danger") cell(t("np.f.streakMin"), npNum(f.settings.streak_min, v => { f.settings.streak_min = v == null ? 3 : Math.max(1, v); }));
   if (r.key === "inactive") cell(t("np.ru.days"), npNum(f.settings.days, v => { f.settings.days = v == null ? 7 : Math.max(1, v); }));
   c.appendChild(grid);
@@ -1212,7 +1218,7 @@ function npRuleCard(r) {
 }
 async function npSaveRule(r, f, action) {
   if (f.active && !f.template_id) { toast(t("np.ru.err.tpl")); nps.auto.loaded = false; npAutoLoad(); return; }
-  if (!f.send_time && !NP_EVENT_RULES.includes(r.key)) { toast(t("np.ru.err.time")); return; }
+  if (!f.send_time && !NP_EVENT_RULES.includes(r.key) && !NP_USER_TIME_RULES.includes(r.key)) { toast(t("np.ru.err.time")); return; }
   const p = { active: f.active, template_id: f.template_id || null, send_time: f.send_time || null, settings: f.settings };
   try {
     await aqRpc("admin_push_rule_save", { p_key: r.key, p });

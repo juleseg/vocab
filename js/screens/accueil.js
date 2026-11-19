@@ -3,10 +3,12 @@
 // === ÉCRAN : ACCUEIL ===
 // Série en cours (étape 28 : objectif du jour atteint, gels compris — voir SÉRIES).
 // Étape 43 : niveau et XP (#homeXp), défis du jour (#homeChallenges), dessinés par renderHomeXp (js/xp.js).
+// Étape 61 : boutons « ☀️ Rappel du matin » et « ⚡ 2 minutes » (#homeQuick), dessinés par renderMomentsHome (js/moments.js).
 function computeStreak() { return Streak.data().current; }
 function renderHome() {
   const now = Date.now();
   $("#homeDue").textContent = dueCount(state.cards, now);
+  renderMomentsHome();   // rappel du matin et micro-session « 2 minutes » (étape 61, js/moments.js)
   // À réviser par langue étudiée (étape 37), s'il y en a plusieurs
   const byL = dueByLang(state.cards, now), dl = $("#homeDueLangs");
   if (dl) {

@@ -33,7 +33,7 @@ Object.assign(I18N.fr, {
   "tuto.pending.title": "À valider",
   "tuto.pending.text": "Pour compléter tes cartes avec Claude, ouvre une liste et touche « Mettre à jour ». Ses propositions arrivent ici : rien ne change sans ton accord.",
   "tuto.streak.title": "Série et objectif du jour",
-  "tuto.streak.text": "Atteins ton objectif du jour pour faire grandir ta série 🔥. Un gel protège ta série si tu oublies un jour.",
+  "tuto.streak.text": "Atteins ton objectif du jour pour faire grandir ta série 🔥. Un gel protège ta série si tu oublies un jour. Pas le temps ? « ⚡ 2 minutes » lance 5 cartes tout de suite ; le matin, « ☀️ Rappel du matin » te repropose les mots vus la veille au soir.",
   "tuto.friends.title": "Amis et partage",
   "tuto.friends.text": "Ajoute des amis avec leur identifiant pour comparer vos séries et jouer la ligue de la semaine (XP du lundi au dimanche). Défie-les en duel sur 10 cartes, encourage-les avec un message tout prêt (💬 Encourager, ou depuis « Ce que font tes amis »), ou partage-leur une liste depuis son menu « Partager ». Crée aussi une équipe (👥 Mon équipe) : objectif commun chaque semaine et classement entre équipes.",
   "tuto.settings.title": "Notifications et réglages",

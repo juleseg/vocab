@@ -216,6 +216,7 @@ function renderSessionSummary(root) {
   xpSessionEnd(s, ids, n);       // XP de session, défis, badges (étape 43) : une fois par session
   Friends.publish();             // résumé public pour mes amis (étape 29)
   Shared.publishProgress();      // progression sur les listes communes (étape 30)
+  Moments.onSessionEnd(s);       // rappel du matin terminé : il disparaît de l'Accueil (étape 61, js/moments.js)
   UserStatus.publish();          // résumé pour les notifications (étape 32)
 
   const box = el("div", "card");

@@ -33,7 +33,7 @@ Object.assign(I18N.en, {
   "tuto.pending.title": "Pending",
   "tuto.pending.text": "To fill in your cards with Claude, open a list and tap \"Update\". Its suggestions land here: nothing changes without your OK.",
   "tuto.streak.title": "Streak and daily goal",
-  "tuto.streak.text": "Reach your daily goal to grow your streak 🔥. A freeze protects your streak if you miss a day.",
+  "tuto.streak.text": "Reach your daily goal to grow your streak 🔥. A freeze protects your streak if you miss a day. No time? \"⚡ 2 minutes\" starts 5 cards right away; in the morning, \"☀️ Morning recall\" brings back the words you saw the evening before.",
   "tuto.friends.title": "Friends and sharing",
   "tuto.friends.text": "Add friends with their username to compare streaks and play the weekly league (XP from Monday to Sunday). Challenge them to a 10-card duel, cheer them on with a ready-made message (💬 Cheer, or from \"What your friends are up to\"), or share a list with them from its \"Share\" menu. You can also create a team (👥 My team): a shared goal every week and a ranking between teams.",
   "tuto.settings.title": "Notifications and settings",

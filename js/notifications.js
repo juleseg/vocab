@@ -35,8 +35,11 @@ function pushRender(text, vars) {
 }
 function pushIsMissing(e) { return alIsMissing(e); }
 
+// Étape 61 : + rappel du matin (morning_day, morning_n, morning_at : Moments.status(), js/moments.js) ; colonnes absentes
+// (script supabase-etape61.sql pas encore lancé) → nouvel envoi sans elles, sans erreur visible (comme xpCols, étape 43).
 const UserStatus = (() => {
-  let last = "", busy = null, status = "unknown";
+  let last = "", busy = null, status = "unknown", momCols = true;
+  function isMomColErr(e) { return /morning_/i.test(String((e && (e.message || e.details || e.hint)) || "")); }
   function on() { return auth.mode === "supabase" && !!auth.sbUid && !!Supa.client() && !!Storage.getUser(); }
   function row() {
     const langs = new Set();
@@ -52,17 +55,27 @@ const UserStatus = (() => {
       ui_lang: state.settings.uiLang, tz: dashTz().slice(0, 64), app_version: APP_VERSION
     };
   }
+  function rowFull() {
+    const r = row();
+    if (momCols) { try { if (typeof Moments !== "undefined") Object.assign(r, Moments.status()); } catch (e) {} }   // étape 61
+    return r;
+  }
   // Écrit ma ligne si elle a changé. Jamais d'erreur visible.
   function publish(force) {
     if (!on() || status === "missing") return Promise.resolve(false);
     if (busy) return busy.then(() => publish(force));
     let r;
-    try { r = row(); } catch (e) { return Promise.resolve(false); }
+    try { r = rowFull(); } catch (e) { return Promise.resolve(false); }
     const key = JSON.stringify(r);
     if (!force && key === last) return Promise.resolve(true);
     busy = (async () => {
       try {
-        const res = await withTimeout(Supa.client().from("user_status").upsert(r, { onConflict: "user_id" }), 15000);
+        let res = await withTimeout(Supa.client().from("user_status").upsert(r, { onConflict: "user_id" }), 15000);
+        if (res && res.error && momCols && isMomColErr(res.error)) {   // étape 61 : colonnes pas encore créées
+          momCols = false;
+          r = row();
+          res = await withTimeout(Supa.client().from("user_status").upsert(r, { onConflict: "user_id" }), 15000);
+        }
         if (res && res.error) throw res.error;
         last = key; status = "ok";
         return true;
@@ -70,7 +83,7 @@ const UserStatus = (() => {
     })();
     return busy.finally(() => { busy = null; });
   }
-  return { publish, reset: () => { last = ""; status = "unknown"; } };
+  return { publish, reset: () => { last = ""; status = "unknown"; momCols = true; } };
 })();
 
 const Push = (() => {
@@ -230,6 +243,7 @@ const Push = (() => {
   async function markClicked(id) {
     if (!id || !UUID_RE.test(id) || !on()) return;
     try { await rpc("push_mark_clicked", { p_id: id }); } catch (e) {}
+    try { if (typeof Moments !== "undefined") Moments.fromPush(id); } catch (e) {}   // étape 61 : rappel du matin / « 2 minutes »
   }
   function readClickParam() {
     try {
