@@ -73,6 +73,7 @@ function renderLists() {
   $("#lvRename").hidden = $("#lvLangs").hidden = !!shL && !shIsOwner(list);
   const imgBtn = $("#lvImages");   // réglage « Images » de la liste (étape 49)
   if (imgBtn) { imgBtn.hidden = !(list && typeof Images !== "undefined" && Images.on()); if (list) imgBtn.textContent = t("img.side.btn", { v: imgSideLabel(list) }); }
+  if (list && typeof audListLabel === "function") $("#lvAudio").textContent = t("aud.list.btn", { v: audListLabel(list) });   // étape 55
   $("#lvUpdate").hidden = $("#lvFxOut").hidden = $("#lvFxIn").hidden = ro;
   if (ro) $("#lvAsk").hidden = true;
   $("#lvActions").hidden = ro;
@@ -319,6 +320,7 @@ function initLists() {
   $("#lvMove").addEventListener("click", () => openMoveList(lv.listId));
   $("#lvLangs").addEventListener("click", () => { const l = getList(lv.listId); if (l) openLangEditor("list", l); });
   $("#lvImages").addEventListener("click", () => { if (lv.listId) openImgSide(lv.listId); });   // étape 49
+  $("#lvAudio").addEventListener("click", () => { if (lv.listId) openAudList(lv.listId); });   // apprentissage auditif (étape 55)
   $("#lvStudy").addEventListener("click", () => { if (lv.listId) openStudyLangs("list", lv.listId); });   // étape 37
   $("#lvStoryNew").addEventListener("click", () => { if (lv.listId) openStoryCreate(lv.listId); });   // étape 45
   $("#lvStories").addEventListener("click", () => { if (lv.listId) goStories(lv.listId); });

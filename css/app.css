@@ -1477,3 +1477,26 @@ html[lang="ko"] .lx-help,html[lang="ko"] .lx-field .hint{word-break:keep-all;ove
 .atm-sub{font-size:13px;overflow-wrap:anywhere}
 .atm-table td .link-btn{padding:0;min-height:0}
 .atm-reason{width:100%;resize:vertical}
+
+/* === APPRENTISSAGE AUDITIF (étape 55) === */
+/* Écran « Apprentissage auditif » (#auditif) et fenêtre d'une liste : réutilisent .fs-entry, .fs-opt, .fs-name, .fs-desc */
+.aud-sec{margin-top:16px}
+.aud-sec:first-child{margin-top:0}
+.aud-h{font-size:16px;margin:0 0 8px}
+.aud-opts{gap:8px}
+.aud-opt{padding:12px 14px}
+.aud-dim{opacity:.55}
+.aud-rep button{font-weight:600}
+.aud-own{margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+.aud-modal{max-height:62vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* Pause d'écoute (Cartes, Interrogateur) : toute la carte se touche pour passer */
+.aud-pause{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;min-height:220px;justify-content:center;padding:24px 16px;border:2px solid var(--accent);color:var(--text);font:inherit;text-align:center;cursor:pointer;background:var(--surface);background:color-mix(in srgb,var(--accent) 7%,var(--surface))}
+.aud-lbl{font-size:14px;font-weight:700;color:var(--accent);animation:audPulse 1.4s ease-in-out infinite}
+.aud-word{font-size:32px;font-weight:800;line-height:1.2;overflow-wrap:anywhere;word-break:keep-all}
+.aud-tr{font-size:20px;color:var(--muted);overflow-wrap:anywhere;word-break:keep-all}
+.aud-hint{font-size:13px;color:var(--muted);margin-top:6px}
+.aud-next{width:100%;margin-top:12px}
+@keyframes audPulse{0%,100%{opacity:1}50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.aud-lbl{animation:none}}
+/* Mode Cartes : au dos, rappel des mots de la question (les deux langues visibles, étape 55) */
+.sw-other{margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:16px;font-weight:400;color:var(--muted);overflow-wrap:anywhere;word-break:keep-all;max-width:92%}

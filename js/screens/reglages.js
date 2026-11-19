@@ -13,6 +13,7 @@ function renderSettings() {
   renderLangCard();         // Réglages → Langues (profil de langues, étape 35)
   renderReviewCard();       // Réglages → Rythme de révision : choix actuel, ouvre l'écran #rythme (FSRS, étape 47)
   renderAudioCard();
+  if (typeof renderAudLearnCard === "function") renderAudLearnCard();   // Réglages → Apprentissage auditif (étape 55, js/auditif.js)
   renderAiCard();
   renderFriendsPrivCard();   // Réglages → Amis (étape 29)
   renderPushCard();          // Réglages → Notifications (étape 32)

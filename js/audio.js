@@ -5,6 +5,7 @@
 // Le bouton haut-parleur n'est créé que si une voix existe (sinon rien, sans erreur).
 // Plusieurs langues sur une face : lues l'une après l'autre. Une nouvelle carte coupe la lecture en cours.
 // Vitesse (étape 46) : normale, ou lente pour la dictée (SPEECH_RATE.slow).
+// Étape 55 : speakSeq(items, cb, { gap }) lit les éléments un par un avec une pause (apprentissage auditif, js/auditif.js).
 // Lecture auto (state.settings.audio) : question lue à son apparition, réponse au retournement
 // (ou après validation en mode Écrit), seulement pour les langues choisies (langue apprise / d'appui / les deux).
 const SPEECH_RATE = { normal: 1, slow: 0.6 };   // débit de la synthèse vocale (1 = normal) ; lente : dictée (étape 46)
@@ -31,6 +32,7 @@ const Speech = (() => {
     stop();
     if (!list.length) return false;
     const my = token;
+    if (opts && opts.gap != null) { chain(list, cb, opts, my); return true; }   // apprentissage auditif (étape 55)
     setTimeout(() => {                       // petit délai : certains navigateurs ignorent speak() juste après cancel()
       if (my !== token) return;
       list.forEach((x, k) => {
@@ -48,6 +50,34 @@ const Speech = (() => {
       });
     }, 60);
     return true;
+  }
+  // Lecture enchaînée avec une pause (étape 55, apprentissage auditif) : un élément à la fois, pause de opts.gap ms entre
+  // deux ; coupée par stop() (nouvelle carte, autre lecture…) : alors ni onItem ni onEnd. Sécurité : si le navigateur ne
+  // signale pas la fin d'un élément (onend perdu), on passe au suivant après un délai largement suffisant.
+  function chain(list, cb, opts, my) {
+    let k = 0;
+    const next = () => {
+      if (my !== token) return;
+      if (k >= list.length) { if (cb && cb.onEnd) { try { cb.onEnd(); } catch (e) {} } return; }
+      const x = list[k++];
+      let done = false, guard = null;
+      const fin = () => {
+        if (done) return;
+        done = true; clearTimeout(guard);
+        if (my === token) setTimeout(next, k < list.length ? opts.gap : 0);
+      };
+      try {
+        const u = new SpeechSynthesisUtterance(String(x.text).replace(/\s*\/\s*/g, ", "));
+        u.lang = LANG[x.lng];
+        u.voice = voiceFor(x.lng);
+        u.rate = opts.slow ? SPEECH_RATE.slow : SPEECH_RATE.normal;
+        u.onstart = () => { if (my === token && cb && cb.onItem) { try { cb.onItem(x.i); } catch (e) {} } };
+        u.onend = fin; u.onerror = fin;
+        synth.speak(u);
+        guard = setTimeout(fin, 4000 + 250 * String(x.text).length);
+      } catch (e) { fin(); }
+    };
+    setTimeout(next, 60);                    // petit délai : certains navigateurs ignorent speak() juste après cancel()
   }
   function speak(text, lng, opts) { return speakSeq([{ text, lng }], null, opts); }
   // Les voix arrivent souvent après le chargement : onReady est appelé une fois quand elles sont prêtes.

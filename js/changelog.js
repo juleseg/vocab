@@ -8,6 +8,32 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "55", date: "2026-11-19",
+    points: {
+      ko: [
+        "새 기능 ‘듣기 학습’: 답한 뒤 앱이 카드를 소리 내어 반복해요 (예: “tree… 나무”). 설정 → 🔊 듣기 학습.",
+        "언제 반복할지(틀린 카드, 맞힌 카드, 항상), 번역도 읽을지, 몇 번(1~3번) 반복할지 고를 수 있어요.",
+        "목록마다 따로 설정할 수 있어요: 목록 메뉴 → ‘🔊 듣기 학습’. 카드, 쓰기, 객관식 모드에서 작동해요.",
+        "짝 맞추기: 카드를 누를 때마다 바로 소리가 나요. 빨리 다른 카드를 누르면 앞 소리는 멈추고 새 카드를 읽어요.",
+        "카드 모드: 카드를 뒤집으면 두 언어가 함께 보여서 눈으로도 기억하기 쉬워요."
+      ],
+      fr: [
+        "Nouveau : « Apprentissage auditif » — après ta réponse, l'appli répète la carte à voix haute (ex. « tree… arbre »). Réglages → 🔊 Apprentissage auditif.",
+        "Choisis quand (carte fausse, carte bonne ou tout le temps), avec ou sans la traduction, et combien de fois (1 à 3).",
+        "Chaque liste peut avoir son propre réglage : menu de la liste → « 🔊 Apprentissage auditif ». Modes Cartes, Écrit et QCM.",
+        "Paires : chaque carte touchée est lue tout de suite ; si tu en touches vite une autre, la première se coupe et la nouvelle est lue.",
+        "Mode Cartes : quand tu retournes la carte, les deux langues sont affichées ensemble, pour la mémoire visuelle."
+      ],
+      en: [
+        "New: “Learning by ear” — after your answer, the app repeats the card out loud (e.g. “arbre… tree”). Settings → 🔊 Learning by ear.",
+        "Choose when (wrong card, right card or every time), with or without the translation, and how many times (1 to 3).",
+        "Each list can have its own setting: list menu → “🔊 Learning by ear”. Works in Cards, Writing and Multiple choice.",
+        "Pairs: every card you tap is read right away; tap another one quickly and the first stops while the new one is read.",
+        "Cards mode: when you flip a card, both languages are shown together, to help your visual memory."
+      ]
+    }
+  },
+  {
     version: "54", date: "2026-11-19",
     points: {
       ko: [

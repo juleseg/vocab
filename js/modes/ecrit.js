@@ -152,7 +152,8 @@ function renderWriteSession(root) {
     if (bp) { const pd = el("div", "wr-pos"); pd.appendChild(bp); box.appendChild(pd); }
     const asp = spkItemsRow(f.a.items);
     if (asp) box.appendChild(asp);
-    autoSpeak(s, "a", f.a.items, f.lg); // lecture auto de la réponse après validation
+    // Lecture auto de la réponse après validation, remplacée par la répétition auditive si elle se déclenche (étape 55).
+    if (!audAfterCheck(s, c, f.lg, r.verdict !== "wrong")) autoSpeak(s, "a", f.a.items, f.lg);
     if (!isVocab(c)) {
       // Autres types : phrase complète (texte à trous), forme avec pronom (conjugaison), explication, règle…
       if (c.type !== "fix") { const full = faceMain("wr-full", f.a, c, false); full.classList.add("wr-full"); box.appendChild(full); }

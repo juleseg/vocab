@@ -63,6 +63,19 @@ function faceNode(cls, f, c, example) {
   d.appendChild(b);
   return d;
 }
+// Étape 55 (mémoire visuelle) : au dos d'une carte vocab, sous la réponse, rappel des mots de la question
+// (réponse en grand, question en petit dessous : « tree » puis « arbre · 나무 », ou l’inverse selon le sens), avant l'exemple. Rien pour les autres types.
+function cardsOtherSide(back, c, q) {
+  if (!back || !isVocab(c) || !q || !q.items.length) return;
+  const d = el("div", "sw-other");
+  q.items.forEach((x, i) => {
+    if (i) d.appendChild(el("span", "sub-sep", " · "));
+    const sp = el("span", "sub-item", x.text); sp.lang = x.lng;
+    d.appendChild(sp);
+  });
+  const body = back.querySelector(".sw-body") || back;
+  body.insertBefore(d, body.querySelector(".sw-ex"));
+}
 function swipeResult(dx, dy) {
   if (-dy > SWIPE.DIST && -dy > Math.abs(dx)) return "review";
   if (dx > SWIPE.DIST) return "known";
@@ -74,6 +87,7 @@ function clamp01(v) { return Math.max(0, Math.min(1, v)); }
 function renderCardsSession(root) {
   const s = rv.s;
   cardsBusy = false;
+  if (audPause(root)) return;   // apprentissage auditif (étape 55) : pause d'écoute après la note
   while (s.queue.length && !sessionCard(s.queue[0].id)) s.queue.shift(); // carte supprimée entre-temps
   if (!s.queue.length) { renderSessionSummary(root); return; }
 
@@ -81,6 +95,8 @@ function renderCardsSession(root) {
   const c = sessionCard(item.id);
   const f = cardFaces(c, item.dir);
   audioCard(s, c);
+  // Étape 55 : « tout le temps » → la réponse n'est pas lue au retournement, la répétition s'en charge (pas de double lecture).
+  const ansAuto = () => { if (!Auditif.always(s.mode, c, f.lg)) autoSpeak(s, "a", f.a.items, f.lg); };
 
   root.appendChild(audioToggle());
   const meta = el("div", "meta-row");
@@ -93,6 +109,7 @@ function renderCardsSession(root) {
   card.tabIndex = 0;
   const inner = el("div", "sw-inner" + (s.revealed ? " flipped" : ""));
   const fFront = faceNode("sw-front", f.q, c, null), fBack = faceNode("sw-back", f.a, c, exampleNode(c, "sw-ex", f.lg));   // exemple + traductions (étape 35)
+  cardsOtherSide(fBack, c, f.q);   // étape 55 : au dos, aussi le mot de la question (les deux langues visibles)
   imgFace(fFront, Images.place(c, item.dir, "q", "ci-card"));   // image de la carte (étape 49) : côté question ou réponse
   imgFace(fBack, Images.place(c, item.dir, "a", "ci-card"));
   inner.append(fFront, fBack);
@@ -107,9 +124,9 @@ function renderCardsSession(root) {
     if (cardsBusy) return;
     s.revealed = !s.revealed;
     inner.classList.toggle("flipped", s.revealed);
-    if (s.revealed) autoSpeak(s, "a", f.a.items, f.lg); // lecture auto de la réponse au retournement
+    if (s.revealed) ansAuto(); // lecture auto de la réponse au retournement
   };
-  autoSpeak(s, s.revealed ? "a" : "q", s.revealed ? f.a.items : f.q.items, f.lg);
+  if (s.revealed) ansAuto(); else autoSpeak(s, "q", f.q.items, f.lg);
   const resetStamps = () => Object.values(stamps).forEach(x => { x.style.opacity = "0"; });
   // Animation de sortie, puis notation (gradeCurrent sauvegarde et affiche la carte suivante).
   const fly = result => {
@@ -123,7 +140,7 @@ function renderCardsSession(root) {
     card.style.transition = "transform " + SWIPE.OUT_MS + "ms ease-in, opacity " + SWIPE.OUT_MS + "ms ease-in";
     card.style.transform = "translate(" + to[0] + "px," + to[1] + "px) rotate(" + to[2] + "deg)";
     card.style.opacity = "0";
-    setTimeout(() => gradeCurrent(result), SWIPE.OUT_MS);
+    setTimeout(() => audGrade(c, f.lg, result), SWIPE.OUT_MS);   // note (+ répétition auditive, étape 55)
   };
 
   // Glisser (doigt ou souris)

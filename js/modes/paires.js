@@ -8,6 +8,9 @@
 // juste si elle n'a jamais fait partie d'une mauvaise paire, sinon comme « À revoir ».
 // Nombre de paires : nombre de cartes demandé, entre 6 et 8. Mots et traductions tous différents dans la grille.
 // 360 px : deux colonnes de cases (largeur 1fr), texte qui passe à la ligne, jamais de défilement horizontal.
+// Étape 55 : chaque case touchée (gauche ou droite, même déjà choisie, même pour la désélectionner) est lue tout de suite
+// dans sa langue ; une nouvelle case coupe la lecture en cours (priorité à la dernière touchée). Langue sans voix : rien.
+// Plus de relecture automatique du mot après une bonne paire (elle couperait la case qu'on vient de toucher).
 function pairsNewGame(pool, cfg) {
   const want = Math.max(GAME.PAIRS_MIN, Math.min(GAME.PAIRS_MAX, num(cfg.count, GAME.PAIRS_MAX)));
   const seenL = new Set(), seenR = new Set(), picked = [];
@@ -79,7 +82,7 @@ function renderPairsSession(root, g) {
   };
   function tap(side, x) {
     if (!gameIsLive(g) || g.matched.includes(x.id)) return;
-    if (side === "L") gameSpeak(x.text, x.lng);              // mot de la langue étudiée : lu au toucher
+    gameSpeak(x.text, x.lng);                                 // étape 55 : chaque case lue au toucher, la dernière coupe la précédente
     if (!g.sel || g.sel.side === side) { setSel(g.sel && g.sel.side === side && g.sel.id === x.id ? null : { side, id: x.id }); return; }
     const other = g.sel;
     setSel(null);
@@ -90,7 +93,6 @@ function renderPairsSession(root, g) {
       [a, b].forEach(n => { n.classList.add("done"); n.disabled = true; gameFlash(n, true); });
       GameSound.play("ok");
       live.textContent = t("gm.right");
-      if (side !== "L") { const w = g.left.find(y => y.id === x.id); if (w) gameAutoSpeak(w.text, w.lng); }
       score();
       if (g.found >= g.left.length) setTimeout(() => { if (gameIsLive(g)) { gameFinish(g); gameRerender(g); } }, 500);
     } else {                                                  // mauvaise paire : les deux cartes seront « À revoir »

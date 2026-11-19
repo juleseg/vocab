@@ -39,7 +39,7 @@ function defaultSettings(target, support) {
     uiLang: defaultLang(), theme: "auto", sessionSize: 20,
     learning: normLearning([{ lang: tg, support: isLang(support) ? support : null }]),   // profil de langues (étape 35)
     defaultTarget: tg, defaultSupport: [],                                             // anciens champs, ignorés
-    audio: { auto: true, langs: "target" },
+    audio: { auto: true, langs: "target", learn: normAudLearn(null) },                 // learn : apprentissage auditif (étape 55)
     dailyGoal: 10, privacy: defaultPrivacy(),
     games: normGames(null),                                                            // jeux (étape 42)
     listen: { slow: false },                                                           // dictée : lecture lente (étape 46)
@@ -164,6 +164,23 @@ function normCardImage(o) {
 }
 // Réglage « Images » d'une liste (étape 49) : imgSide = "q" (côté question) | "a" (côté réponse) | "never" ; absent = automatique.
 function normImgSide(o) { return o && ["q", "a", "never"].includes(o.imgSide) ? { imgSide: o.imgSide } : {}; }
+// === APPRENTISSAGE AUDITIF (étape 55) ===
+// Réglage du compte : settings.audio.learn = { when: off|wrong|right|always, langs: target|both, repeat: 1..3 }.
+// Réglage d'une liste : audioLearn absent = comme le compte ; "off" = jamais ; objet = réglage propre (même forme).
+// Champs facultatifs (DATA_VERSION inchangé) : un appareil en version 54 les efface en renvoyant ses données.
+const AUD_WHEN = ["off", "wrong", "right", "always"];
+const AUD_LANGS = ["target", "both"];
+const AUD_REPEAT = { min: 1, max: 3, def: 2 };
+function normAudLearn(o) {
+  const x = (o && typeof o === "object" && !Array.isArray(o)) ? o : {};
+  return { when: AUD_WHEN.includes(x.when) ? x.when : "off", langs: AUD_LANGS.includes(x.langs) ? x.langs : "both",
+    repeat: clampInt(x.repeat, AUD_REPEAT.min, AUD_REPEAT.max, AUD_REPEAT.def) };
+}
+function normListAudLearn(o) {
+  const v = o && o.audioLearn;
+  if (v === "off") return { audioLearn: "off" };
+  return (v && typeof v === "object" && !Array.isArray(v)) ? { audioLearn: normAudLearn(v) } : {};
+}
 
 // Progression par langue étudiée (étape 37) : { <langue>: { box, dueAt, stats } }.
 // box / dueAt / stats de la carte = copie de la progression de sa langue principale (anciennes versions, fiche admin…).
@@ -222,7 +239,8 @@ function normalizeData(raw) {
       learning: normLearning(s.learning),
       defaultTarget: tg,
       defaultSupport: sup,
-      audio: { auto: au.auto !== false, langs: ["target", "support", "both"].includes(au.langs) ? au.langs : "target" },
+      audio: { auto: au.auto !== false, langs: ["target", "support", "both"].includes(au.langs) ? au.langs : "target",
+        learn: normAudLearn(au.learn) },   // apprentissage auditif (étape 55)
       dailyGoal: clampInt(s.dailyGoal, 5, 100, 10),
       privacy: normPrivacy(s.privacy),
       games: normGames(s.games),  // jeux d'entraînement (étape 42)
@@ -256,7 +274,7 @@ function normalizeData(raw) {
     id: String(l.id), name: String(l.name || ""),
     folderId: l.folderId && folderIds.has(String(l.folderId)) ? String(l.folderId) : null,
     order: num(l.order, i), createdAt: num(l.createdAt, Date.now())
-  }, normLangPair(l), normTargets(l.targets), lastUpdateOf(l), normSharedMark(l), normImgSide(l)));
+  }, normLangPair(l), normTargets(l.targets), lastUpdateOf(l), normSharedMark(l), normImgSide(l), normListAudLearn(l)));   // audioLearn : étape 55
   // Ordres renumérotés 0, 1, 2… (dossiers, puis listes de chaque dossier)
   const renum = items => items.map((x, i) => [x, i]).sort((a, b) => a[0].order - b[0].order || a[1] - b[1]).forEach(([x], i) => { x.order = i; });
   renum(out.folders);

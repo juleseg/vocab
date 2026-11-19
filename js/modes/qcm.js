@@ -46,7 +46,7 @@ function renderMcqSession(root, g) {
   while (g.idx < g.items.length && !sessionCard(g.items[g.idx].id)) g.idx++;   // carte supprimée entre-temps
   if (g.idx >= g.items.length) { gameFinish(g); renderGameSummary(root, g); return; }
   gameHeader(root, g, t("gm.q", { i: g.idx + 1, n: g.items.length }));
-  mcqQuestion(root, g, g.items[g.idx], () => { g.idx++; if (g.idx >= g.items.length) gameFinish(g); gameRerender(g); });
+  mcqQuestion(root, g, g.items[g.idx], () => { g.idx++; if (g.idx >= g.items.length) gameFinish(g); gameRerender(g); }, { aud: true });   // aud : apprentissage auditif (étape 55)
   gameQuitLink(root, g);
 }
 
@@ -54,7 +54,7 @@ function renderMcqSession(root, g) {
 // après une erreur, réponses refusées après la fin du temps).
 function mcqQuestion(root, g, it, next, opts) {
   const timed = !!(opts && opts.timed);
-  const go = () => { if (it.left || !gameIsLive(g)) return; it.left = true; next(); };   // une seule fois par question
+  const go = () => { if (it.left || !gameIsLive(g)) return; it.left = true; if (it.aud) Speech.stop(); next(); };   // une seule fois par question ; coupe la répétition (étape 55)
   const c = sessionCard(it.id);
   const L = it.lang, lg = gameLg(c, L);
   const q = el("div", "card gm-q");
@@ -112,7 +112,7 @@ function mcqQuestion(root, g, it, next, opts) {
     after.appendChild(nb);
     try { nb.focus({ preventScroll: true }); } catch (e) {}
   };
-  if (it.pick != null) { show(); if (it.pick !== it.correct && !timed) nextBtn(); }
+  if (it.pick != null) { show(); if ((it.pick !== it.correct || it.aud) && !timed) nextBtn(); }
 
   function answer(i) {
     if (it.pick != null) {                                   // après la réponse : toucher un mot de la langue étudiée le lit
@@ -130,6 +130,15 @@ function mcqQuestion(root, g, it, next, opts) {
     live.textContent = t(ok ? "gm.right" : "gm.wrong");
     const sc = document.querySelector("#screen-review .gm-score");
     if (sc) { sc.querySelector(".gm-okn").textContent = "✓ " + g.ok; sc.querySelector(".gm-badn").textContent = "✗ " + g.bad; }
+    // Étape 55 : apprentissage auditif (QCM seul, pas la Course ni les duels) : la répétition remplace la lecture de la
+    // réponse ; bonne réponse → pause d'écoute (suite à la fin de la lecture, ou « Suivant »).
+    const rep = opts && opts.aud && !timed ? Auditif.plan("mcq", c, lg, ok) : null;
+    if (rep) {
+      it.aud = true;
+      Auditif.play(rep, () => { if (ok) setTimeout(go, AUD_NEXT_MS); });
+      nextBtn();
+      return;
+    }
     // Mot de la langue étudiée : lu au toucher (réponses dans cette langue), ou automatiquement (Lecture auto).
     const target = term(c, L);
     if (it.code === L && !audioSettings().auto) gameSpeak(it.choices[i].text, L);
