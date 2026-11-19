@@ -34,6 +34,46 @@ const Queue = (() => {
   const COLS23 = COLS + ",hidden_by_user,content_cleared_at";
   const OPEN = ["pending", "processing"];
 
+  // --- Fréquence de passage de Claude (étape 59) ---
+  // Texte d'information seulement : la valeur est réglée par l'admin (claude_cadence_get / admin_claude_cadence_set,
+  // supabase-etape59.sql) et ne modifie PAS la tâche programmée. Lue par tout compte connecté, gardée sur l'appareil
+  // (hors connexion : dernière valeur connue ; sans valeur : message sans chiffre). { value, unit: "h" | "min" }.
+  const LS_CAD = CONFIG.LS_USER_PREFIX + "claudecadence";
+  const CAD_GAP_MS = 60000;
+  let cad = null, cadAt = 0, cadBusy = null;
+  function cadNorm(r) {
+    if (!r || typeof r !== "object") return null;
+    const u = r.unit === "h" ? "h" : r.unit === "min" ? "min" : null, v = Number(r.value);
+    return u && Number.isInteger(v) && v >= 1 && v <= (u === "h" ? 72 : 180) ? { value: v, unit: u } : null;
+  }
+  try { cad = cadNorm(JSON.parse(localStorage.getItem(LS_CAD) || "null")); } catch (e) { cad = null; }
+  function setCadence(r) {
+    const n = cadNorm(r);
+    if (!n) return;                                              // réponse illisible : on garde la dernière valeur connue
+    if (cad && cad.value === n.value && cad.unit === n.unit) return;
+    cad = n;
+    try { localStorage.setItem(LS_CAD, JSON.stringify(n)); } catch (e) {}
+    try {
+      if (typeof currentScreen !== "undefined") {
+        if (currentScreen === "requests") renderRequests();
+        else if (currentScreen === "settings") renderAiCard();
+      }
+    } catch (e) {}
+  }
+  function cadFetch(force) {
+    if (!usable()) return Promise.resolve();
+    if (cadBusy) return cadBusy;
+    if (!force && Date.now() - cadAt < CAD_GAP_MS) return Promise.resolve();
+    cadBusy = (async () => {
+      try {
+        const r = await withTimeout(client().rpc("claude_cadence_get"), T);
+        if (r && !r.error) { cadAt = Date.now(); setCadence(r.data); }   // erreur, fonction absente, hors connexion : valeur gardée
+      } catch (e) { /* hors connexion : dernière valeur connue */ }
+      finally { cadBusy = null; }
+    })();
+    return cadBusy;
+  }
+
   function usable() { return auth.mode === "supabase" && !!auth.sbUid && !!Supa.client() && !!Storage.getUser(); }
   function client() { return Supa.client(); }
   function ok(r) { if (r && r.error) throw r.error; return r ? r.data : null; }
@@ -108,11 +148,13 @@ const Queue = (() => {
     if (busy) return busy;
     busy = (async () => {
       let res = null;
+      const cadP = cadFetch();                          // étape 59 : fréquence de passage (jamais bloquant)
       try {
         res = await claim(!!opts.report);
         await refresh();
         if (typeof sentenceSyncErrors === "function") sentenceSyncErrors(items);   // « Ma phrase » : demandes en erreur (étape 58)
         QStats.flush();                                 // compteurs en attente (hors connexion) : renvoyés
+        await cadP;
       } finally {
         busy = null;
         schedule();
@@ -182,7 +224,8 @@ const Queue = (() => {
   return {
     usable, sync, submit, remove, hide, refetch, start, reset, refresh, errText,
     items: () => items, loaded: () => loaded, status: () => status, lastError: () => lastError, openCount,
-    busy: () => !!busy
+    busy: () => !!busy,
+    cadence: () => cad, cadenceFetch: cadFetch, setCadence
   };
 })();
 
@@ -427,9 +470,23 @@ function queueApply(resp) {
   }
 }
 
+// --- Message « Claude passe environ toutes les X h » (étape 59) ---
+// c = { value, unit } (défaut : la valeur connue de l'appareil). 1 heure → « toutes les heures » ; 1 minute → « toutes les minutes » ;
+// aucune valeur connue → texte sans chiffre.
+function queueCadenceText(c) {
+  c = c === undefined ? Queue.cadence() : c;
+  if (!c) return t("queue.cad.none");
+  const u = c.unit === "min" ? "m" : "h";
+  return c.value === 1 ? t("queue.cad." + u + "1") : t("queue.cad." + u, { n: c.value });
+}
+// Petit texte près d'un bouton « Demander à Claude » (Réglages, fenêtres de demande).
+function queueCadenceNote() {
+  return el("p", "q-note q-cad", queueCadenceText());
+}
 // --- Écran « Demandes en cours » (demandes de l'utilisateur) ---
 function goRequests() {
   try { history.replaceState(null, "", "#" + HASH_OF.requests); } catch (e) {}
+  Queue.cadenceFetch();                                   // valeur à jour à l'ouverture (au plus une fois par minute)
   showScreen("requests");
 }
 function queueDate(s) {
@@ -452,6 +509,7 @@ function renderRequests() {
   back.addEventListener("click", () => { try { history.replaceState(null, "", "#" + HASH_OF.settings); } catch (e) {} showScreen("settings"); });
   root.appendChild(el("div", "lv-top")).appendChild(back);
   root.appendChild(el("h2", null, t("queue.title")));
+  root.appendChild(el("div", "card q-cad", queueCadenceText()));      // étape 59 : message visible par tous
   root.appendChild(el("p", "q-note", t("queue.help")));
   const top = el("div", "btns two");
   const ask = el("button", "btn primary", t("queue.ask"));
@@ -513,6 +571,7 @@ function queueAiCardBlock() {
   const wrap = el("div");
   wrap.style.marginTop = "12px";
   wrap.appendChild(el("p", "q-note", t("queue.info")));
+  wrap.appendChild(queueCadenceNote());                   // étape 59
   const btns = el("div", "btns two");
   const a = el("button", "btn primary", t("queue.ask"));
   a.addEventListener("click", () => openAskClaude({ kind: "all" }));
@@ -527,6 +586,7 @@ function queueAiCardBlock() {
 function openAskClaude(scope) {
   const o = { kind: "complete", scope: scope && scope.kind !== "all" ? scope.kind + ":" + scope.id : "all" };
   const wrap = el("div");
+  wrap.appendChild(queueCadenceNote());                   // étape 59
   wrap.appendChild(el("p", "q-note", t("queue.help")));
   const seg = el("div", "seg");
   const kinds = ["complete", "verify", "generate"];

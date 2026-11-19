@@ -66,6 +66,83 @@ async function aqLoadHist() {
 }
 function aqReload() { aqLoadStats(); aqLoadHist(); }
 
+// --- Fréquence de passage de Claude (étape 59) ---
+// Texte d'information pour les utilisateurs seulement (« Claude passe environ toutes les X h ») : ne modifie PAS la tâche
+// programmée. Lecture : claude_cadence_get() ; écriture : admin_claude_cadence_set(valeur, unité) (admin seulement).
+// Valeur gardée dans app_settings (clé claude_cadence) ; défaut : 1 heure. 1 à 72 heures ou 1 à 180 minutes.
+const AQC_MAX = { h: 72, min: 180 };
+const aqCad = { value: 1, unit: "h", started: false, loaded: false, missing: false, err: "", busy: false };
+function aqCadIsMissing(e) {
+  const code = String((e && e.code) || ""), msg = String((e && (e.message || e.msg)) || "");
+  return ["PGRST202", "42883"].includes(code) || /could not find|does not exist|schema cache/i.test(msg);
+}
+function aqCadApply(r) {
+  if (!r || typeof r !== "object") return;
+  const v = Number(r.value), u = r.unit === "min" ? "min" : "h";
+  if (Number.isInteger(v) && v >= 1) { aqCad.value = v; aqCad.unit = u; }
+}
+async function aqCadLoad() {
+  aqCad.started = true;
+  try {
+    const r = await aqRpc("claude_cadence_get");
+    aqCad.missing = false; aqCad.err = ""; aqCad.loaded = true;
+    aqCadApply(r);
+    try { Queue.setCadence(r); } catch (e) {}
+  } catch (e) { aqCad.missing = aqCadIsMissing(e); aqCad.err = aqCad.missing ? "" : aqErrText(e); }
+  if (currentScreen === "adminreq") renderAdminReq();
+}
+function aqCadCard(root) {
+  if (!aqCad.started) aqCadLoad();
+  const c = el("div", "card aqc");
+  c.appendChild(el("h3", "aq-h", t("aqc.h")));
+  c.appendChild(el("p", "hint", t("aqc.help")));
+  if (aqCad.missing) { c.appendChild(el("div", "np-msg", t("aqc.missing"))); root.appendChild(c); return; }
+  if (aqCad.err) c.appendChild(el("div", "q-err", aqCad.err));
+  const row = el("div", "rl-news-row");
+  const num = el("input", "input rl-news-n"), unit = el("select", "input");
+  num.type = "number"; num.id = "aqcValue"; num.min = "1"; num.step = "1"; num.inputMode = "numeric";
+  num.value = String(aqCad.value); num.setAttribute("aria-label", t("aqc.value"));
+  unit.id = "aqcUnit"; unit.setAttribute("aria-label", t("aqc.unit"));
+  [["h", t("aqc.u.h")], ["min", t("aqc.u.min")]].forEach(([v, l]) => { const o = el("option", null, l); o.value = v; unit.appendChild(o); });
+  unit.value = aqCad.unit;
+  row.append(num, unit);
+  c.appendChild(row);
+  const prev = el("p", "rl-news-prev");
+  prev.id = "aqcPrev";
+  const save = el("button", "btn primary", t("aqc.save"));
+  save.type = "button"; save.id = "aqcSave";
+  const cur = () => {
+    const raw = String(num.value).trim(), v = Number(raw);
+    return raw !== "" && Number.isInteger(v) && v >= 1 && v <= AQC_MAX[unit.value] ? { ok: true, value: v, unit: unit.value } : { ok: false };
+  };
+  const upd = () => {
+    const r = cur();
+    prev.textContent = r.ok ? t("aqc.preview") + " " + queueCadenceText({ value: r.value, unit: r.unit }) : t("aqc.invalid");
+    prev.classList.toggle("q-err", !r.ok);
+    save.disabled = !r.ok || aqCad.busy;
+  };
+  num.addEventListener("input", () => { const v = Number(num.value); if (Number.isInteger(v)) aqCad.value = v; upd(); });
+  unit.addEventListener("change", () => { aqCad.unit = unit.value; upd(); });
+  save.addEventListener("click", async () => {
+    const r = cur();
+    if (!r.ok || aqCad.busy) return;
+    aqCad.busy = true; upd();
+    try {
+      const res = await aqRpc("admin_claude_cadence_set", { p_value: r.value, p_unit: r.unit });
+      aqCad.err = ""; aqCadApply(res);
+      try { Queue.setCadence(res); } catch (e) {}
+      toast(t("aqc.saved"));
+    } catch (e) {
+      toast(aqCadIsMissing(e) ? t("aqc.missing") : String((e && e.hint) || "") === "set_value" ? t("aqc.err.value") : aqErrText(e));
+    }
+    aqCad.busy = false;
+    if (currentScreen === "adminreq") renderAdminReq();
+  });
+  c.append(prev, save);
+  upd();
+  root.appendChild(c);
+}
+
 function renderAdminReq() {
   const root = $("#screen-adminreq");
   if (!root) return;
@@ -80,6 +157,7 @@ function renderAdminReq() {
   top.appendChild(ref);
   root.appendChild(top);
   root.appendChild(el("p", "q-note", t("aq.help")));
+  aqCadCard(root);                                   // étape 59 : fréquence de passage de Claude
   if (!aq.stats && !aq.statsLoading && !aq.statsErr) { aqReload(); return; }
 
   // Compteurs par compte

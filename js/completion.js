@@ -547,6 +547,7 @@ function openPrepare(kind, cards) {
     { label: t("close") }
   ];
   if (Queue.usable()) {                  // file d'attente Claude : même travail, sans copier-coller
+    wrap.insertBefore(queueCadenceNote(), wrap.firstChild);          // étape 59
     wrap.insertBefore(el("p", "q-note", t("queue.prepNote")), wrap.firstChild);
     const want = kind === "complete" ? (c => prepWantFor(c) || missingFields(c)) : null;
     acts.unshift({ label: t("queue.ask"), kind: "primary", onClick: () => { queueSubmitCards(kind, cards, want, null); } });
@@ -1279,6 +1280,7 @@ function openGenerate(listId, lang) {
     }
   }
   wrap.appendChild(el("p", "hint", t("gen.help")));
+  if (!AI.isOn() && Queue.usable()) wrap.appendChild(queueCadenceNote());   // étape 59
 
   const check = () => {
     if (o.listId === "__new__" && !o.newName.trim()) { toast(t("lists.nameRequired")); return null; }

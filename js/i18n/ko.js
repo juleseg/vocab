@@ -281,8 +281,8 @@ Object.assign(I18N.ko, {
   "aq.deleted": "요청을 삭제했습니다",
   "aq.err.denied": "관리자만 사용할 수 있습니다.", "aq.err.missing": "Supabase에서 étape 23 SQL 스크립트(supabase-etape23.sql)를 실행하세요.",
   "queue.ask": "Claude에게 요청", "queue.title": "진행 중인 요청", "queue.send": "요청 보내기",
-  "queue.help": "Claude가 예약된 작업에서 요청을 처리합니다(바로 처리되지 않음). 제안은 \"검토\"에 도착합니다. 카드는 직접 바뀌지 않습니다.",
-  "queue.info": "복사·붙여넣기 대신 Claude에게 요청을 남길 수 있습니다. 예약된 작업에서 처리됩니다.",
+  "queue.help": "Claude의 제안은 \"검토\"에 도착합니다. 카드는 직접 바뀌지 않습니다.",
+  "queue.info": "복사·붙여넣기 대신 Claude에게 요청을 남길 수 있습니다.",
   "queue.prepNote": "또는 \"Claude에게 요청\"을 누르세요: 복사·붙여넣기 없이 Claude가 나중에 처리하고, 제안이 \"검토\"에 도착합니다.",
   "queue.what": "요청 내용", "queue.scope": "범위", "queue.scope.all": "모든 목록", "queue.nLists": "목록 {n}개",
   "queue.kind.complete": "빈칸 채우기", "queue.kind.verify": "검사", "queue.kind.generate": "카드 만들기",
@@ -1327,4 +1327,21 @@ Object.assign(I18N.ko, {
   "ans.known": "알아요",
   "ans.review": "애매해요",
   "ans.unknown": "몰라요"
+});
+
+// === 59단계: CLAUDE 확인 주기 ===
+Object.assign(I18N.ko, {
+  "queue.cad.h1": "Claude는 약 1시간마다 확인합니다. 요청은 다음 확인 때 처리돼요. 바로 처리되지 않아도 정상이에요.",
+  "queue.cad.h": "Claude는 약 {n}시간마다 확인합니다. 요청은 다음 확인 때 처리돼요. 바로 처리되지 않아도 정상이에요.",
+  "queue.cad.m1": "Claude는 약 1분마다 확인합니다. 요청은 다음 확인 때 처리돼요. 바로 처리되지 않아도 정상이에요.",
+  "queue.cad.m": "Claude는 약 {n}분마다 확인합니다. 요청은 다음 확인 때 처리돼요. 바로 처리되지 않아도 정상이에요.",
+  "queue.cad.none": "Claude는 일정한 간격으로 확인합니다. 요청은 다음 확인 때 처리돼요. 바로 처리되지 않아도 정상이에요.",
+  "aqc.h": "Claude 확인 주기",
+  "aqc.help": "이 설정은 사용자에게 안내만 합니다. Claude 탭에 \"Claude는 약 X시간마다 확인합니다\"라는 메시지가 표시돼요. Claude의 예약된 작업은 바꾸지 않아요. 작업은 따로 설정하고, 이 숫자도 맞게 고쳐 주세요.",
+  "aqc.value": "숫자", "aqc.unit": "단위", "aqc.u.h": "시간", "aqc.u.min": "분",
+  "aqc.preview": "미리보기:",
+  "aqc.invalid": "1~72(시간) 또는 1~180(분)의 정수를 입력하세요.",
+  "aqc.save": "저장", "aqc.saved": "주기를 저장했어요",
+  "aqc.missing": "59단계 SQL 스크립트(supabase-etape59.sql)를 실행하세요.",
+  "aqc.err.value": "값이 거부되었어요: 1~72시간 또는 1~180분."
 });

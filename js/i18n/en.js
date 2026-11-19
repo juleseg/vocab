@@ -281,8 +281,8 @@ Object.assign(I18N.en, {
   "aq.deleted": "Request deleted",
   "aq.err.denied": "Admin only.", "aq.err.missing": "Run the step 23 SQL script (supabase-etape23.sql) in Supabase.",
   "queue.ask": "Ask Claude", "queue.title": "Ongoing requests", "queue.send": "Send the request",
-  "queue.help": "Claude handles requests during its scheduled task (not right away). Suggestions arrive in \"Pending\"; cards are never changed directly.",
-  "queue.info": "Instead of copy-pasting, leave a request for Claude: its scheduled task will handle it.",
+  "queue.help": "Claude's suggestions arrive in \"Pending\"; cards are never changed directly.",
+  "queue.info": "Instead of copy-pasting, leave a request for Claude.",
   "queue.prepNote": "Or tap \"Ask Claude\": no copy-paste, Claude handles it later and the suggestions arrive in \"Pending\".",
   "queue.what": "Request", "queue.scope": "Scope", "queue.scope.all": "All lists", "queue.nLists": "{n} lists",
   "queue.kind.complete": "Fill the gaps", "queue.kind.verify": "Check", "queue.kind.generate": "Generate cards",
@@ -1327,4 +1327,21 @@ Object.assign(I18N.en, {
   "ans.known": "Got it",
   "ans.review": "Unsure",
   "ans.unknown": "Missed"
+});
+
+// === STEP 59: HOW OFTEN CLAUDE CHECKS IN ===
+Object.assign(I18N.en, {
+  "queue.cad.h1": "Claude checks in about every hour. Your request will be handled on its next visit: it's normal if it isn't immediate.",
+  "queue.cad.h": "Claude checks in about every {n} hours. Your request will be handled on its next visit: it's normal if it isn't immediate.",
+  "queue.cad.m1": "Claude checks in about every minute. Your request will be handled on its next visit: it's normal if it isn't immediate.",
+  "queue.cad.m": "Claude checks in about every {n} minutes. Your request will be handled on its next visit: it's normal if it isn't immediate.",
+  "queue.cad.none": "Claude checks in at regular intervals. Your request will be handled on its next visit: it's normal if it isn't immediate.",
+  "aqc.h": "How often Claude checks in",
+  "aqc.help": "This setting only informs users: the message \"Claude checks in about every X h\" appears in the Claude tab. It does NOT change Claude's scheduled task: set that separately, then update this number so it stays accurate.",
+  "aqc.value": "Number", "aqc.unit": "Unit", "aqc.u.h": "hours", "aqc.u.min": "minutes",
+  "aqc.preview": "Preview:",
+  "aqc.invalid": "Enter a whole number from 1 to 72 (hours) or 1 to 180 (minutes).",
+  "aqc.save": "Save", "aqc.saved": "Frequency saved",
+  "aqc.missing": "Run the step 59 SQL script (supabase-etape59.sql).",
+  "aqc.err.value": "Value refused: 1 to 72 hours or 1 to 180 minutes."
 });

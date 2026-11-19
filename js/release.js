@@ -31,7 +31,7 @@
 // Sans Supabase (artifact, fichier local) : rien (aucune annonce possible).
 const RELEASE_EVERY_MS = 30 * 60000;
 const RELEASE_MIN_GAP_MS = 60000;              // retour au premier plan : pas plus d'un contrôle par minute
-const RELEASE_READ_RPC = ["app_release_latest", "app_settings_get", "my_profile", "username_exists"];
+const RELEASE_READ_RPC = ["app_release_latest", "app_settings_get", "claude_cadence_get", "my_profile", "username_exists"];   // étape 59 : claude_cadence_get
 const Release = (() => {
   const LS = CONFIG.LS_USER_PREFIX + "release";
   const LS_DATA = CONFIG.LS_USER_PREFIX + "release:data:";

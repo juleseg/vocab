@@ -281,8 +281,8 @@ Object.assign(I18N.fr, {
   "aq.deleted": "Demande supprimée",
   "aq.err.denied": "Réservé à l'admin.", "aq.err.missing": "Lancez le script SQL de l'étape 23 (supabase-etape23.sql) dans Supabase.",
   "queue.ask": "Demander à Claude", "queue.title": "Demandes en cours", "queue.send": "Envoyer la demande",
-  "queue.help": "Claude traite les demandes lors de sa tâche programmée (pas tout de suite). Les propositions arrivent dans « À valider » ; rien n'est modifié directement dans les cartes.",
-  "queue.info": "Au lieu de copier-coller, laissez une demande à Claude : elle sera traitée par sa tâche programmée.",
+  "queue.help": "Les propositions de Claude arrivent dans « À valider » ; rien n'est modifié directement dans les cartes.",
+  "queue.info": "Au lieu de copier-coller, laissez une demande à Claude.",
   "queue.prepNote": "Ou touchez « Demander à Claude » : pas de copier-coller, Claude s'en charge plus tard et les propositions arrivent dans « À valider ».",
   "queue.what": "Demande", "queue.scope": "Périmètre", "queue.scope.all": "Toutes les listes", "queue.nLists": "{n} listes",
   "queue.kind.complete": "Compléter les trous", "queue.kind.verify": "Vérifier", "queue.kind.generate": "Générer des cartes",
@@ -1327,4 +1327,22 @@ Object.assign(I18N.fr, {
   "ans.known": "Trouvé",
   "ans.review": "Hésité",
   "ans.unknown": "Raté"
+});
+
+// === ÉTAPE 59 : FRÉQUENCE DE PASSAGE DE CLAUDE ===
+// Message visible par tous (onglet Claude, fenêtres « Demander à Claude ») + réglage admin (écran « Demandes à Claude »).
+Object.assign(I18N.fr, {
+  "queue.cad.h1": "Claude passe environ toutes les heures. Ta demande sera traitée à son prochain passage : c'est normal si ce n'est pas immédiat.",
+  "queue.cad.h": "Claude passe environ toutes les {n} heures. Ta demande sera traitée à son prochain passage : c'est normal si ce n'est pas immédiat.",
+  "queue.cad.m1": "Claude passe environ toutes les minutes. Ta demande sera traitée à son prochain passage : c'est normal si ce n'est pas immédiat.",
+  "queue.cad.m": "Claude passe environ toutes les {n} minutes. Ta demande sera traitée à son prochain passage : c'est normal si ce n'est pas immédiat.",
+  "queue.cad.none": "Claude passe à intervalles réguliers. Ta demande sera traitée à son prochain passage : c'est normal si ce n'est pas immédiat.",
+  "aqc.h": "Fréquence de passage de Claude",
+  "aqc.help": "Ce réglage informe seulement les utilisateurs : le message « Claude passe environ toutes les X h » s'affiche dans l'onglet Claude. Il ne modifie PAS la tâche programmée de Claude : règle-la à part, puis mets ce chiffre à jour pour qu'il reste juste.",
+  "aqc.value": "Nombre", "aqc.unit": "Unité", "aqc.u.h": "heures", "aqc.u.min": "minutes",
+  "aqc.preview": "Aperçu :",
+  "aqc.invalid": "Entrez un nombre entier de 1 à 72 (heures) ou de 1 à 180 (minutes).",
+  "aqc.save": "Enregistrer", "aqc.saved": "Fréquence enregistrée",
+  "aqc.missing": "Lancez le script SQL de l'étape 59 (supabase-etape59.sql).",
+  "aqc.err.value": "Valeur refusée : 1 à 72 heures ou 1 à 180 minutes."
 });

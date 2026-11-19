@@ -8,6 +8,20 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "59", date: "2026-11-19",
+    points: {
+      ko: [
+        "Claude 탭에서 Claude가 몇 시간마다 확인하는지 알려 줘요. 요청은 다음 확인 때 처리되니, 바로 처리되지 않아도 정상이에요."
+      ],
+      fr: [
+        "Dans l'onglet Claude, un message t'indique à quel rythme Claude passe. Ta demande est traitée à son prochain passage : c'est normal si ce n'est pas immédiat."
+      ],
+      en: [
+        "The Claude tab now tells you how often Claude checks in. Your request is handled on its next visit: it's normal if it isn't immediate."
+      ]
+    }
+  },
+  {
     version: "58", date: "2026-11-19",
     points: {
       ko: [
