@@ -47,6 +47,9 @@ const XP_RULES = {
   },
   sentence: {                 // « Ma phrase » (étape 58, js/sentences.js) : une fois par phrase envoyée à Claude
     send: 5
+  },
+  gender: {                   // mode « le / la ? » (étape 60, js/genre.js) : entraînement seulement, XP et rien d'autre
+    correct: 1                // bonne réponse (0 si faux ; une même carte rapporte au plus une fois par XP_RULES.repeatMs)
   }
 };
 // Badges de l'étape 43 (affichés dans Stats avec les badges de série).
@@ -386,6 +389,20 @@ const XP = (() => {
     commitQuiet();
     return got;
   }
+  // Mode « le / la ? » (étape 60) : +XP_RULES.gender.correct par bonne réponse, rien d'autre (pas de compteur de réponses, de défi,
+  // de série ni de fin de session). Anti-triche propre au mode (clé « g|carte|langue »). Renvoie les XP gagnés.
+  function onGender(c, L, ok) {
+    if (!ok || !c) return 0;
+    checkUser();
+    const now = Date.now(), key = "g|" + c.id + "|" + (L || "");
+    const last = recent.get(key);
+    if (last && now - last < XP_RULES.repeatMs) return 0;
+    recent.set(key, now);
+    const got = add(XP_RULES.gender.correct, isLang(L) ? L : null);
+    checkBadges();
+    commitQuiet();
+    return got;
+  }
   // « Ma phrase » (étape 58) : +5 XP à l'envoi ; js/sentences.js garde sur la phrase (champ xp) qu'elle a déjà rapporté.
   function onSentence(L) { return onStory(XP_RULES.sentence.send, L); }
   // Récompense d'une idée (étape 52, js/ideas.js) : une seule fois par idée sur ce compte (xp.ideas, morceau xp synchronisé).
@@ -474,7 +491,7 @@ const XP = (() => {
     return Object.assign(xpProgress(x.total), { total: x.total, week: w.total, weekByLang: w.byLang, byLang: x.byLang,
       chDone: x.chDone, chDays: x.chDays.length, answers: x.answers });
   }
-  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, onDuel, onDuelWin, onStory, onSentence, onIdea, onTeam, challenges, label, icon, summary, has, earn };
+  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, onDuel, onDuelWin, onStory, onSentence, onGender, onIdea, onTeam, challenges, label, icon, summary, has, earn };
 })();
 
 // --- Affichage commun : barre de niveau (Accueil, Stats) ---

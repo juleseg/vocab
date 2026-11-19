@@ -15,6 +15,7 @@ function renderSettings() {
   renderAudioCard();
   if (typeof renderAudLearnCard === "function") renderAudLearnCard();   // Réglages → Apprentissage auditif (étape 55, js/auditif.js)
   renderSentCard();         // Réglages → « Ma phrase » (étape 58, js/sentences.js, mode Supabase)
+  renderGenderCard();       // Réglages → Genre des noms (étape 60, js/genre.js)
   renderAiCard();
   renderFriendsPrivCard();   // Réglages → Amis (étape 29)
   renderPushCard();          // Réglages → Notifications (étape 32)

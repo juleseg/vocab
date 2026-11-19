@@ -112,7 +112,7 @@ function lisDetails(box, c, it) {
   if (it.kind === "word") {
     if (it.alts.length > 1) box.appendChild(el("div", "wr-lbl", t("write.all", { a: it.alts.map(a => a.text).join(" / ") })));
     const bp = posTag(c, it.L);
-    if (bp) { const pd = el("div", "wr-pos"); pd.appendChild(bp); box.appendChild(pd); }
+    if (bp) { const pd = el("div", "wr-pos"); genderMark(pd, c, it.L); pd.appendChild(bp); box.appendChild(pd); }
   }
   box.appendChild(el("div", "wr-lbl", t("ls.trLbl")));
   box.appendChild(lisTrNode(it, "ls-tr ls-tr-res"));

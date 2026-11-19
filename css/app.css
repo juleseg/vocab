@@ -4,12 +4,14 @@
   --bg:#f6f5f2; --surface:#ffffff; --surface2:#efede8; --text:#1d1d1f; --muted:#6b6b70;
   --border:#dedbd4; --accent:#2f5bd3; --accent-text:#ffffff; --ok:#1f8a4c; --warn:#c07a00; --bad:#c43c3c;
   --shadow:0 1px 3px rgba(0,0,0,.08);
+  --gd-m:#1f5fd0; --gd-f:#c62f4b; --gd-mf:#7a3fc9;   /* genre des noms (étape 60) */
 }
 html[data-theme="dark"]{
   color-scheme:dark;
   --bg:#141416; --surface:#1e1e22; --surface2:#2a2a2f; --text:#f2f2f4; --muted:#a0a0a8;
   --border:#34343a; --accent:#7b9cff; --accent-text:#0d1430; --ok:#4cc27e; --warn:#e3a43a; --bad:#ef6b6b;
   --shadow:none;
+  --gd-m:#7fb0ff; --gd-f:#ff8aa0; --gd-mf:#c3a0ff;
 }
 @media (prefers-color-scheme: dark){
   html[data-theme="auto"]{
@@ -17,6 +19,7 @@ html[data-theme="dark"]{
     --bg:#141416; --surface:#1e1e22; --surface2:#2a2a2f; --text:#f2f2f4; --muted:#a0a0a8;
     --border:#34343a; --accent:#7b9cff; --accent-text:#0d1430; --ok:#4cc27e; --warn:#e3a43a; --bad:#ef6b6b;
     --shadow:none;
+    --gd-m:#7fb0ff; --gd-f:#ff8aa0; --gd-mf:#c3a0ff;
   }
 }
 
@@ -1543,3 +1546,15 @@ html[lang="ko"] .lx-help,html[lang="ko"] .lx-field .hint{word-break:keep-all;ove
 .sn-right{color:var(--accent);font-weight:600}
 .sn-btns{display:grid;gap:8px;margin-top:8px}
 .sn-used{font-size:14px;color:var(--muted)}
+
+/* === GENRE DES NOMS (étape 60) === */
+.gd-m{color:var(--gd-m)} .gd-f{color:var(--gd-f)} .gd-mf{color:var(--gd-mf)}
+.gd-sym{display:inline-block;margin-left:.25em;font-size:.7em;font-weight:600;vertical-align:.12em;opacity:.9;font-style:normal}
+.gd-miss{cursor:default}
+.gd-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:8px 0;font-weight:600}
+.gd-choices{grid-template-columns:1fr 1fr}
+.gd-word{font-size:1.7em}
+.gd-fb{text-align:center}
+.gd-phrase{font-size:1.4em;font-weight:600}
+.gd-missed{display:flex;flex-direction:column;gap:4px;margin:10px 0;font-weight:600}
+.gd-chip-hint{margin:2px 0 8px}

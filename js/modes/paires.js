@@ -57,6 +57,7 @@ function renderPairsSession(root, g) {
     const b = el("button", "gm-tile");
     b.type = "button"; b.lang = x.lng;
     b.textContent = x.text;
+    { const gc = state.cards.find(k => k.id === x.id); if (gc) genderMark(b, gc, x.lng); }   // genre des noms (étape 60)
     b.dataset.side = side; b.dataset.id = x.id;
     if (g.matched.includes(x.id)) { b.classList.add("done"); b.disabled = true; }
     if (g.sel && g.sel.side === side && g.sel.id === x.id) b.classList.add("sel");

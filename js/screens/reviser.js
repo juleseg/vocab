@@ -51,10 +51,11 @@ function sessionLangs(c, cfg, now, lg, stage) {
     if (cfg.scope === "cat" && Leitner.category(c, L) !== cfg.cat) return;
     if (cfg.scope === "lang" && L !== cfg.lang) return;
     if ((cfg.scope === "hard" || cfg.scope === "pairs") && !Hard.inScope(c, L, cfg.scope)) return;   // « Mots difficiles » / « Mots qui se ressemblent » (étape 57)
-    if (cfg.onlyDue && cfg.scope !== "pairs" && !Leitner.isDue(c, now, L)) return;   // paires : les deux mots sont toujours là
+    if (cfg.onlyDue && cfg.scope !== "pairs" && cfg.mode !== "gender" && !Leitner.isDue(c, now, L)) return;   // paires : les deux mots sont toujours là ; « le / la ? » (étape 60) : tout le périmètre
     if (stage !== "base" && arr(cfg.langs).length && !cfg.langs.includes(L)) return;
     // Dictée / Prononciation (étape 46) : mot ou phrase à écouter / dire dans L (dictée : voix de L nécessaire)
     if (!stage && isListenMode(cfg.mode) && !lisKinds(c, L, cfg.mode, cfg.listenKind, i === 0 ? lg : studyLg(L)).length) return;
+    if (!stage && cfg.mode === "gender" && !genderDrillOf(c, L)) return;   // « le / la ? » (étape 60) : noms avec un genre renseigné seulement
     out.push(L);
   });
   return out;
@@ -81,7 +82,7 @@ function sessionPool(cfg, stage) {
     if (stage === "types") return true;
     if (cfg.mode === "write" && cardType(c) === "rule") return false;   // fiche de règle : pas de mode Écrit
     if (cfg.mode === "table" && cardType(c) !== "conj") return false;   // mode Tableau : conjugaison seulement
-    if (isGameMode(cfg.mode) && !isVocab(c)) return false;              // jeux (étape 42) : vocabulaire seulement
+    if ((isGameMode(cfg.mode) || cfg.mode === "gender") && !isVocab(c)) return false;   // jeux (étape 42) et « le / la ? » (étape 60) : vocabulaire seulement
     if (isListenMode(cfg.mode) && !isVocab(c)) return false;            // Dictée / Prononciation (étape 46) : vocabulaire seulement
     if (conjOn) {                                                        // filtres de conjugaison : seulement des cartes conj
       if (cardType(c) !== "conj") return false;
@@ -109,6 +110,7 @@ function renderReview() {
     else if (rv.s.mode === "write") renderWriteSession(root);
     else if (rv.s.mode === "table") renderTableSession(root);
     else if (isGameMode(rv.s.mode)) renderGameSession(root);   // jeux d'entraînement (étape 42)
+    else if (rv.s.mode === "gender") renderGenderSession(root);   // « le / la ? » (étape 60, js/genre.js)
     else if (rv.s.mode === "dictation") renderDictationSession(root);   // étape 46
     else if (rv.s.mode === "speak") renderSpeakSession(root);           // étape 46
     else renderQuizSession(root);
@@ -241,7 +243,7 @@ function renderSessionConfig(root) {
   const sesLangs = new Set();
   pool.forEach(c => { if (isVocab(c)) sessionLangs(c, cfg, nowP, lgs.get(c.listId)).forEach(L => sesLangs.add(L)); });
   const dirOpts = [["toT", "dir.toTarget"], ["fromT", "dir.fromTarget"], ["mix", "dir.mix"]];
-  if (isListenMode(cfg.mode)) { /* Dictée / Prononciation (étape 46) : pas de sens (on écoute ou on dit la langue étudiée) */ }
+  if (isListenMode(cfg.mode) || cfg.mode === "gender") { /* Dictée / Prononciation (étape 46) et « le / la ? » (étape 60) : pas de sens */ }
   else if (sesLangs.size > 1) {
     if (!cfg.dirs || typeof cfg.dirs !== "object") cfg.dirs = {};
     LANG_CODES.filter(L => sesLangs.has(L)).forEach(L => {
@@ -292,10 +294,15 @@ function renderSessionConfig(root) {
       cfg.listenKind || "both", v => { cfg.listenKind = v; }));
   }
   // Jeux d'entraînement (étape 42) : même périmètre, cartes de vocabulaire seulement. Un seul mode choisi en tout.
-  const gf = chipsField(GAME_MODES.map(m => ({ value: m, label: GAME_ICON[m] + " " + t("mode." + m) })), [cfg.mode], v => { cfg.mode = v; });
+  const gf = chipsField(GAME_MODES.map(m => ({ value: m, label: GAME_ICON[m] + " " + t("mode." + m) }))
+    .concat(genderOkAny() ? [{ value: "gender", label: "♂♀ " + t("mode.gender") }] : []), [cfg.mode], v => { cfg.mode = v; });   // « le / la ? » (étape 60)
   gf.insertBefore(el("label", null, t("review.games")), gf.firstChild);
   gf.appendChild(el("div", "hint", t("review.gamesHint")));
   box.appendChild(gf);
+  if (cfg.mode === "gender") {   // « le / la ? » (étape 60) : entraînement, article demandé
+    box.appendChild(el("div", "hint gd-chip-hint", t("gd.chipHint")));
+    box.appendChild(segField("gd.art", [["def", "gd.art.def"], ["indef", "gd.art.indef"], ["mix", "gd.art.mix"]], cfg.genderArt || "mix", v => { cfg.genderArt = v; }));
+  }
   if (cfg.mode === "order") box.appendChild(segField("gm.order.kind", [["words", "gm.order.words"], ["sents", "gm.order.sents"], ["both", "gm.order.both"]],
     cfg.orderKind || "both", v => { cfg.orderKind = v; }));
   root.appendChild(box);
@@ -318,6 +325,7 @@ function startSession() {
   const cfg = rv.cfg;
   if (cfg.mode === "table") return startTableSession(cfg);
   if (isGameMode(cfg.mode)) return startGame(cfg);   // jeux d'entraînement (étape 42)
+  if (cfg.mode === "gender") return startGenderDrill(cfg);   // « le / la ? » (étape 60, js/genre.js)
   const all = sessionPool(cfg);
   if (!all.length) return false;
   const lgs = langsByList(), now = Date.now();

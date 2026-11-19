@@ -29,7 +29,7 @@ Object.assign(I18N.en, {
   "tuto.session.title": "Start a session",
   "tuto.session.text": "Choose what to review (lists, folders, language, tricky words, number of cards), then tap \"Start\". For a change, pick a game: Multiple choice, 60-second race, Pairs or Put in order.",
   "tuto.modes.title": "Review modes",
-  "tuto.modes.text": "Cards, Writing, Quizzer (someone else asks the questions), Table for conjugation, Dictation (listen and type) and Pronunciation (say the word out loud). Answer Got it, Unsure or Missed: each card comes back at the right time. After a Got it, the app sometimes asks you to write a sentence with the word: Claude checks it (Stats → My sentences).",
+  "tuto.modes.text": "Cards, Writing, Quizzer (someone else asks the questions), Table for conjugation, Dictation (listen and type) and Pronunciation (say the word out loud). Answer Got it, Unsure or Missed: each card comes back at the right time. After a Got it, the app sometimes asks you to write a sentence with the word: Claude checks it (Stats → My sentences). The \"le / la ?\" mode (among the games) trains articles without touching your progress.",
   "tuto.pending.title": "Pending",
   "tuto.pending.text": "To fill in your cards with Claude, open a list and tap \"Update\". Its suggestions land here: nothing changes without your OK.",
   "tuto.streak.title": "Streak and daily goal",

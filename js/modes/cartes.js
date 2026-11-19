@@ -31,6 +31,7 @@ function faceMain(cls, f, c, withPos) {
   if (f.mainNode) return f.mainNode(cls);           // affichage riche (phrase à trous, différences surlignées)
   const m = el("div", cls); m.lang = f.lng;
   m.appendChild(document.createTextNode(f.main));
+  if (withPos) genderMark(m, c, f.lng);   // genre des noms (étape 60) : couleur / symbole
   const p = withPos ? posTag(c, f.lng) : null;
   if (p) m.appendChild(p);
   return m;
@@ -44,6 +45,7 @@ function faceSub(cls, f, c, withPos) {
   rest.forEach((x, i) => {
     if (i) d.appendChild(el("span", "sub-sep", " · "));
     const sp = el("span", "sub-item", x.text); sp.lang = x.lng;
+    if (withPos) genderMark(sp, c, x.lng);
     const p = withPos ? posTag(c, x.lng) : null;
     if (p) sp.appendChild(p);
     d.appendChild(sp);

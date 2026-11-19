@@ -8,6 +8,26 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "60", date: "2026-11-19",
+    points: {
+      ko: [
+        "프랑스어·이탈리아어·스페인어·포르투갈어 명사는 성에 따라 색이 달라요: 파랑 = 남성, 빨강 = 여성, 보라 = 둘 다. 설정에서 끌 수 있고, 색약 모드(♂ ♀ ⚥)도 있어요.",
+        "새 연습 모드 'le / la ?': 관사 없이 단어를 보고 알맞은 관사를 골라요. 진행 상황은 바뀌지 않고 XP만 받아요.",
+        "성이 입력되지 않은 명사에는 '성 없음' 표시가 붙고, Claude에게 채워 달라고 할 수 있어요."
+      ],
+      fr: [
+        "En français, italien, espagnol et portugais, les noms prennent une couleur selon leur genre : bleu = masculin, rouge = féminin, violet = les deux. Tu peux la couper dans les Réglages, et un mode daltonien ajoute ♂ ♀ ⚥.",
+        "Nouveau mode d'entraînement « le / la ? » : le mot s'affiche sans article, tu choisis le bon. Ta progression ne change pas, tu gagnes seulement de l'XP.",
+        "Les noms sans genre renseigné ont un badge « Genre manquant » : tu peux demander à Claude de le compléter."
+      ],
+      en: [
+        "In French, Italian, Spanish and Portuguese, nouns now have a colour by gender: blue = masculine, red = feminine, purple = both. You can turn it off in Settings, and a colour-blind mode adds ♂ ♀ ⚥.",
+        "New practice mode \"le / la ?\": the word shows without its article and you pick the right one. Your progress doesn't change, you only earn XP.",
+        "Nouns with no gender filled in get a \"Gender missing\" badge: you can ask Claude to complete it."
+      ]
+    }
+  },
+  {
     version: "59", date: "2026-11-19",
     points: {
       ko: [

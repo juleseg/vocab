@@ -75,6 +75,8 @@ function renderLists() {
   if (imgBtn) { imgBtn.hidden = !(list && typeof Images !== "undefined" && Images.on()); if (list) imgBtn.textContent = t("img.side.btn", { v: imgSideLabel(list) }); }
   if (list && typeof audListLabel === "function") $("#lvAudio").textContent = t("aud.list.btn", { v: audListLabel(list) });   // étape 55
   $("#lvUpdate").hidden = $("#lvFxOut").hidden = $("#lvFxIn").hidden = ro;
+  { const gb = $("#lvGender"), gn = list && !ro ? genderMissingCount(list.id) : 0;   // « Compléter le genre (N) » (étape 60)
+    gb.hidden = !gn; if (gn) gb.textContent = t("gd.menu", { n: gn }); }
   if (ro) $("#lvAsk").hidden = true;
   $("#lvActions").hidden = ro;
   $("#lvDelete").textContent = t(shL && !shIsOwner(list) ? "sh.leave" : "lists.delete");
@@ -238,6 +240,7 @@ function cardItem(c, showList) {
   const b = el("button", "item");
   const m = el("div", "main");
   const t1 = el("div", "t1", targetTerm(c, lg) || "—"); t1.lang = lg.target;
+  genderMark(t1, c, lg.target);   // genre des noms (étape 60)
   const tp = posTag(c, lg.target);
   if (tp) t1.appendChild(tp);
   m.appendChild(t1);
@@ -258,6 +261,7 @@ function cardItem(c, showList) {
     const w = term(c, L);
     if (!w) { stMiss.push(L); return; }
     const t3 = el("div", "t2 study-word", L.toUpperCase() + " · " + w); t3.lang = L;
+    genderMark(t3, c, L);
     const p = posTag(c, L);
     if (p) t3.appendChild(p);
     m.appendChild(t3);
@@ -267,6 +271,7 @@ function cardItem(c, showList) {
   const miss = missingSupport(c, lg).concat(stMiss);  // traduction manquante dans une langue d'appui (étape 31) ou étudiée (étape 37)
   if (miss.length) extra.appendChild(el("span", "tag warn", t("card.toFill", { langs: miss.map(x => langName(x)).join(", ") })));
   shFlagTag(c, extra);
+  { const gm = genderMissingTag(c); if (gm && canEditList(c.listId)) extra.appendChild(gm); }   // « Genre manquant » (étape 60)
   HardUI.tags(c, extra);   // « Mot difficile » / « En pause » (étape 57)
   c.tags.forEach(tg => extra.appendChild(el("span", "tag", "#" + tg)));
   if (extra.childNodes.length) m.appendChild(extra);
@@ -333,6 +338,7 @@ function initLists() {
   $("#lvReorder").addEventListener("click", () => { lv.reorder = !lv.reorder; renderLists(); });
   $("#lvUpdate").addEventListener("click", () => { if (lv.listId) openUpdate({ kind: "list", id: lv.listId }); });
   $("#lvUpdateAll").addEventListener("click", () => openUpdate({ kind: "all" }));
+  $("#lvGender").addEventListener("click", () => { const l = getList(lv.listId); if (l) genderOffer(state.cards.filter(c => c.listId === l.id), l.name); });   // étape 60
   $("#lvAsk").addEventListener("click", () => { if (lv.listId) openAskClaude({ kind: "list", id: lv.listId }); });
   $("#lvAskAll").addEventListener("click", () => openAskClaude({ kind: "all" }));
   $("#lvFxOut").addEventListener("click", () => { if (lv.listId) openFxExport("list:" + lv.listId); });

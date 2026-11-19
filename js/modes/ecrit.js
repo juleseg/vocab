@@ -151,7 +151,7 @@ function renderWriteSession(root) {
       box.appendChild(wrDiffNode(d.B, d.mb, "wr-miss"));
     }
     const bp = posTag(c, r.bestLng);
-    if (bp) { const pd = el("div", "wr-pos"); pd.appendChild(bp); box.appendChild(pd); }
+    if (bp) { const pd = el("div", "wr-pos"); genderMark(pd, c, r.bestLng); pd.appendChild(bp); box.appendChild(pd); }
     const asp = spkItemsRow(f.a.items);
     if (asp) box.appendChild(asp);
     // Lecture auto de la réponse après validation, remplacée par la répétition auditive si elle se déclenche (étape 55).

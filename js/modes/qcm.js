@@ -63,6 +63,7 @@ function mcqQuestion(root, g, it, next, opts) {
     q.appendChild(el("div", "sw-lang", langName(L)));
     const m = el("div", "gm-qmain"); m.lang = L;
     m.appendChild(document.createTextNode(term(c, L)));
+    genderMark(m, c, L);
     const p = posTag(c, L); if (p) m.appendChild(p);
     q.appendChild(m);
     const sp = speakBtn(term(c, L), L);
@@ -85,6 +86,7 @@ function mcqQuestion(root, g, it, next, opts) {
   const btns = it.choices.map((ch, i) => {
     const b = el("button", "gm-choice", ch.text);
     b.type = "button"; b.lang = it.code;
+    if (it.code === L) genderMark(b, state.cards.find(x => x.id === ch.id), L);   // genre des noms (étape 60) : réponses dans la langue étudiée
     b.addEventListener("click", () => answer(i));
     grid.appendChild(b);
     return b;

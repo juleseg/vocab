@@ -29,7 +29,7 @@ Object.assign(I18N.fr, {
   "tuto.session.title": "Lancer une session",
   "tuto.session.text": "Choisis ce que tu veux réviser (listes, dossiers, langue, mots difficiles, nombre de cartes), puis touche « Commencer ». Pour t'entraîner autrement, choisis un jeu : QCM, Course 60 s, Paires ou Remettre en ordre.",
   "tuto.modes.title": "Modes de révision",
-  "tuto.modes.text": "Cartes, Écrit, Interrogateur (quelqu'un te pose les questions), Tableau pour la conjugaison, Dictée (écoute et écris) et Prononciation (dis le mot à voix haute). Réponds Trouvé, Hésité ou Raté : chaque carte revient au bon moment. Après un Trouvé, l'appli te propose parfois d'écrire une phrase avec le mot : Claude la corrige (Stats → Mes phrases).",
+  "tuto.modes.text": "Cartes, Écrit, Interrogateur (quelqu'un te pose les questions), Tableau pour la conjugaison, Dictée (écoute et écris) et Prononciation (dis le mot à voix haute). Réponds Trouvé, Hésité ou Raté : chaque carte revient au bon moment. Après un Trouvé, l'appli te propose parfois d'écrire une phrase avec le mot : Claude la corrige (Stats → Mes phrases). Le mode « le / la ? » (parmi les jeux) t'entraîne aux articles, sans toucher à ta progression.",
   "tuto.pending.title": "À valider",
   "tuto.pending.text": "Pour compléter tes cartes avec Claude, ouvre une liste et touche « Mettre à jour ». Ses propositions arrivent ici : rien ne change sans ton accord.",
   "tuto.streak.title": "Série et objectif du jour",

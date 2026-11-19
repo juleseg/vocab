@@ -44,7 +44,8 @@ function defaultSettings(target, support) {
     games: normGames(null),                                                            // jeux (étape 42)
     listen: { slow: false },                                                           // dictée : lecture lente (étape 46)
     retention: FSRS_RET.def,                                                           // FSRS : taux de rétention visé (étape 47)
-    sentence: { on: true }                                                             // « Ma phrase » : proposition après un « Trouvé » (étape 58)
+    sentence: { on: true },                                                            // « Ma phrase » : proposition après un « Trouvé » (étape 58)
+    gender: { colors: true, symbols: false }                                           // genre des noms : couleurs (défaut oui), mode daltonien ♂♀⚥ (étape 60)
   };
 }
 
@@ -316,7 +317,8 @@ function normalizeData(raw) {
       games: normGames(s.games),  // jeux d'entraînement (étape 42)
       listen: { slow: !!(s.listen && s.listen.slow === true) },   // dictée : lecture lente (étape 46)
       retention: clampInt(s.retention, FSRS_RET.min, FSRS_RET.max, FSRS_RET.def),   // FSRS : taux de rétention visé (étape 47)
-      sentence: { on: !(s.sentence && s.sentence.on === false) }   // « Ma phrase » (étape 58) : activée par défaut
+      sentence: { on: !(s.sentence && s.sentence.on === false) },   // « Ma phrase » (étape 58) : activée par défaut
+      gender: { colors: !(s.gender && s.gender.colors === false), symbols: !!(s.gender && s.gender.symbols === true) }   // genre des noms (étape 60) : couleurs oui, symboles non par défaut
     },
     folders: arr(d.folders).filter(f => f && f.id).map((f, i) => Object.assign(
       { id: String(f.id), name: String(f.name || ""), order: num(f.order, i) }, normLangPair(f), lastUpdateOf(f), normSharedMark(f))),
