@@ -119,14 +119,15 @@ function lisDetails(box, c, it) {
   if (it.kind === "word") { const ex = exampleNode(c, "wr-ex", it.lg); if (ex) box.appendChild(ex); }
 }
 // Boutons « Suivant (résultat proposé) » + correction (les deux autres résultats), comme le mode Écrit.
+// Libellés : clés ans.* (Trouvé / Hésité / Raté, étape 56).
 function lisGradeButtons(root, sug, onGrade) {
-  const next = el("button", "btn primary", t("write.next", { r: t("cat." + sug) }));
+  const next = el("button", "btn primary", t("write.next", { r: t("ans." + sug) }));
   next.addEventListener("click", () => onGrade(sug));
   root.appendChild(next);
   root.appendChild(el("div", "wr-fix", t("write.fix")));
   const g = el("div", "btns two");
   [["known", "ok"], ["review", "warn"], ["unknown", "danger"]].filter(([x]) => x !== sug).forEach(([x, cls]) => {
-    const b = el("button", "btn " + cls, t("cat." + x));
+    const b = el("button", "btn " + cls, t("ans." + x));
     b.addEventListener("click", () => onGrade(x));
     g.appendChild(b);
   });
@@ -137,6 +138,7 @@ function lisMeta(root, s, c, it) {
   const meta = el("div", "meta-row");
   meta.append(el("span", null, t("cards.left", { n: s.queue.length })), el("span", null, t("cat." + Leitner.category(c, it.L))));
   root.appendChild(meta);
+  HardUI.sessionExtras(root, c, { lang: it.L }, { noTip: true });   // badge « Mot difficile » (étape 57)
 }
 
 // === MODE DICTÉE ===

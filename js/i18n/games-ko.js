@@ -5,7 +5,7 @@
 Object.assign(I18N.ko, {
   "mode.mcq": "객관식", "mode.race": "60초 레이스", "mode.pairs": "짝 맞추기", "mode.order": "순서 맞추기",
   "review.games": "연습 게임",
-  "review.gamesHint": "단어 카드만 나와요. 게임에서 맞혀도 카드 상자는 올라가지 않고, 틀리면 '다시 보기'로 기록돼요.",
+  "review.gamesHint": "단어 카드만 나와요. 게임에서 맞혀도 카드 상자는 올라가지 않고, 틀리면 ‘애매해요’로 기록돼요.",
   "gm.order.kind": "순서 맞추기 대상", "gm.order.words": "단어", "gm.order.sents": "문장", "gm.order.both": "둘 다",
   "gm.need.title": "카드가 부족해요",
   "gm.need.mcq": "객관식에는 한 목록 안에 답이 서로 다른 단어 카드가 4장 이상 필요해요. 목록에 단어를 추가하거나 더 큰 목록을 고르세요.",

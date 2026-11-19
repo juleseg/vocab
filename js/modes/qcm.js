@@ -94,6 +94,13 @@ function mcqQuestion(root, g, it, next, opts) {
   root.appendChild(aImgBox);
   const after = el("div", "gm-after");
   root.appendChild(after);
+  const hdBox = el("div", "hd-box");   // étape 57 : deux mots côte à côte après une confusion
+  root.appendChild(hdBox);
+  const hdShow = () => {
+    if (!(opts && opts.aud) || it.pick == null || it.pick === it.correct || hdBox.firstChild) return;
+    const o = state.cards.find(x => x.id === it.choices[it.pick].id);
+    if (o) hdBox.appendChild(HardUI.pairNode(c, o, L));
+  };
   const live = el("div", "sr-only"); live.setAttribute("aria-live", "polite");
   root.appendChild(live);
 
@@ -112,7 +119,7 @@ function mcqQuestion(root, g, it, next, opts) {
     after.appendChild(nb);
     try { nb.focus({ preventScroll: true }); } catch (e) {}
   };
-  if (it.pick != null) { show(); if ((it.pick !== it.correct || it.aud) && !timed) nextBtn(); }
+  if (it.pick != null) { show(); hdShow(); if ((it.pick !== it.correct || it.aud) && !timed) nextBtn(); }
 
   function answer(i) {
     if (it.pick != null) {                                   // après la réponse : toucher un mot de la langue étudiée le lit
@@ -122,8 +129,10 @@ function mcqQuestion(root, g, it, next, opts) {
     if (timed && opts.expired && opts.expired()) return;
     it.pick = i;
     const ok = i === it.correct;
+    if (!ok && opts && opts.aud) Hard.confuse(it.id, it.choices[i].id, L);   // étape 57 : vraie confusion (QCM seul, pas la Course)
     gameGrade(g, it.id, ok);
     show();
+    hdShow();
     gameFlash(btns[i], ok);
     if (!ok) gameFlash(btns[it.correct], true);
     GameSound.play(ok ? "ok" : "bad");

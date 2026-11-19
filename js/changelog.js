@@ -8,6 +8,69 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "58", date: "2026-11-19",
+    points: {
+      ko: [
+        "새 기능 '내 문장': '알아요' 뒤에 가끔 그 단어로 문장을 써 보라고 해요. Claude가 첨삭하고 설명해 줘요(+5 XP, 하루 10개까지).",
+        "통계 → '내 문장'에서 첨삭 결과를 보고, 고친 문장을 카드 예문으로 쓸 수 있어요.",
+        "설정에서 문장 제안을 끌 수 있어요."
+      ],
+      fr: [
+        "Nouveau : « Ma phrase ». Après un Trouvé, l'appli te propose parfois d'écrire une phrase avec le mot. Claude la corrige et l'explique (+5 XP, 10 par jour au plus).",
+        "Stats → « Mes phrases » : tu vois les corrections et tu peux garder la version corrigée comme exemple de la carte.",
+        "Tu peux couper cette proposition dans Réglages."
+      ],
+      en: [
+        "New: \"My sentence\". After a Got it, the app sometimes asks you to write a sentence with the word. Claude checks and explains it (+5 XP, 10 per day at most).",
+        "Stats → \"My sentences\": see the corrections and keep the corrected version as the card's example.",
+        "You can turn this offer off in Settings."
+      ]
+    }
+  },
+  {
+    version: "57", date: "2026-11-19",
+    points: {
+      ko: [
+        "어려운 단어가 표시돼요: 총 6번 틀리거나 연속 4번 틀리면 배지가 붙어요.",
+        "어려운 단어를 또 틀리면 ‘이 단어 고치기’가 나와요: 이미지, 내 예문, 나의 팁, 또는 일시 중지.",
+        "‘나의 팁’은 나만 볼 수 있어요. 공유 목록에서도 비공개예요.",
+        "통계에 ‘어려운 단어’, ‘비슷해서 헷갈리는 단어’, ‘일시 중지’ 목록이 생겼고, 복습 범위로도 고를 수 있어요."
+      ],
+      fr: [
+        "Les mots difficiles sont repérés : un badge apparaît après 6 « Raté » au total ou 4 de suite.",
+        "Quand tu rates un mot difficile, « Réparer ce mot » te propose une image, ton exemple, « Mon astuce » ou une pause.",
+        "« Mon astuce » est privée : toi seul la vois, même sur une liste commune.",
+        "Stats : nouvelles listes « Mots difficiles », « Mots qui se ressemblent » et « En pause », aussi disponibles pour choisir une session."
+      ],
+      en: [
+        "Tricky words are spotted: a badge appears after 6 misses in total or 4 in a row.",
+        "When you miss a tricky word, “Fix this word” offers a picture, your own example, “My tip” or a pause.",
+        "“My tip” is private: only you see it, even on a shared list.",
+        "Stats: new lists “Tricky words”, “Look-alike words” and “Paused”, also available when choosing a session."
+      ]
+    }
+  },
+  {
+    version: "56", date: "2026-11-19",
+    points: {
+      ko: [
+        "답 버튼 이름이 바뀌었어요: 알아요 / 애매해요 / 몰라요.",
+        "카드 분류 이름도 바뀌었어요: 익힘 / 익히는 중 / 배울 것 (목록, 통계, 복습 선택).",
+        "이름만 바뀌었어요. 학습 진행 상황은 그대로예요."
+      ],
+      fr: [
+        "Nouveaux noms des réponses : Trouvé / Hésité / Raté.",
+        "Nouveaux noms des catégories de cartes : Acquis / En cours / À apprendre (listes, Stats, choix d'une session).",
+        "Seuls les noms changent : ta progression reste la même."
+      ],
+      en: [
+        "New answer names: Got it / Unsure / Missed.",
+        "New card category names: Learned / Learning / To learn (lists, Stats, session choice).",
+        "Only the names change: your progress stays the same."
+      ]
+    }
+  },
+  {
     version: "55", date: "2026-11-19",
     points: {
       ko: [

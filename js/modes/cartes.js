@@ -2,6 +2,8 @@
 
 // === MODE CARTES ===
 // Tap = retourner. Swipe droite = Su, gauche = Pas su, haut = À revoir. Boutons équivalents sous la carte.
+// Libellés (étape 56) : réponses = clés ans.* (Trouvé / Hésité / Raté : tampons, boutons, fin de session) ;
+// catégorie de la carte (en haut) = clés cat.* (Acquis / En cours / À apprendre). Noms techniques inchangés.
 const SWIPE = { DIST: 90, OUT_MS: 280 };
 let cardsBusy = false; // vrai pendant l'animation de sortie (évite une double notation)
 
@@ -102,6 +104,7 @@ function renderCardsSession(root) {
   const meta = el("div", "meta-row");
   meta.append(el("span", null, t("cards.left", { n: s.queue.length })), el("span", null, t("cat." + Leitner.category(c))));
   root.appendChild(meta);
+  HardUI.sessionExtras(root, c, item);   // badge « Mot difficile » et « Mon astuce » (étape 57)
 
   const stage = el("div", "sw-stage");
   const card = el("div", "sw-card sw-enter");
@@ -115,7 +118,7 @@ function renderCardsSession(root) {
   inner.append(fFront, fBack);
   card.appendChild(inner);
   const stamps = {};
-  ["known", "unknown", "review"].forEach(r => { stamps[r] = el("div", "sw-stamp sw-stamp-" + r, t("cat." + r)); card.appendChild(stamps[r]); });
+  ["known", "unknown", "review"].forEach(r => { stamps[r] = el("div", "sw-stamp sw-stamp-" + r, t("ans." + r)); card.appendChild(stamps[r]); });
   stage.appendChild(card);
   root.appendChild(stage);
   root.appendChild(el("div", "sw-hint", t("cards.tap")));
@@ -180,7 +183,7 @@ function renderCardsSession(root) {
   // Boutons équivalents (même disposition que les gestes)
   const g = el("div", "btns three");
   [["unknown", "danger", "← ", ""], ["review", "warn", "↑ ", ""], ["known", "ok", "", " →"]].forEach(([r, cls, pre, post]) => {
-    const b = el("button", "btn " + cls, pre + t("cat." + r) + post);
+    const b = el("button", "btn " + cls, pre + t("ans." + r) + post);
     b.addEventListener("click", () => fly(r));
     g.appendChild(b);
   });
@@ -219,7 +222,7 @@ function renderSessionSummary(root) {
   const grid = el("div", "sum-grid");
   [["known", "ok"], ["review", "warn"], ["unknown", "bad"]].forEach(([r, cls]) => {
     const cell = el("div", "sum-cell " + cls);
-    cell.append(el("div", "sum-num", String(n[r])), el("div", "sum-lbl", t("cat." + r)));
+    cell.append(el("div", "sum-num", String(n[r])), el("div", "sum-lbl", t("ans." + r)));
     grid.appendChild(cell);
   });
   box.appendChild(grid);

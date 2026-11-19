@@ -7,7 +7,7 @@
 Object.assign(I18N.fr, {
   "mode.mcq": "QCM", "mode.race": "Course 60 s", "mode.pairs": "Paires", "mode.order": "Remettre en ordre",
   "review.games": "Jeux d'entraînement",
-  "review.gamesHint": "Vocabulaire seulement. Une bonne réponse dans un jeu ne fait pas monter la carte de boîte ; une erreur compte comme « À revoir ».",
+  "review.gamesHint": "Vocabulaire seulement. Une bonne réponse dans un jeu ne fait pas monter la carte de boîte ; une erreur compte comme « Hésité ».",
   "gm.order.kind": "À remettre en ordre", "gm.order.words": "Mots", "gm.order.sents": "Phrases", "gm.order.both": "Les deux",
   "gm.need.title": "Pas assez de cartes",
   "gm.need.mcq": "Le QCM a besoin d'au moins 4 cartes de vocabulaire avec des réponses différentes dans une même liste. Ajoute des mots à la liste ou choisis-en une plus grande.",

@@ -5,7 +5,7 @@
 Object.assign(I18N.en, {
   "mode.mcq": "Multiple choice", "mode.race": "60-second race", "mode.pairs": "Pairs", "mode.order": "Put in order",
   "review.games": "Practice games",
-  "review.gamesHint": "Vocabulary only. A right answer in a game doesn't move the card up a box; a mistake counts as \"To review\".",
+  "review.gamesHint": "Vocabulary only. A right answer in a game doesn't move the card up a box; a mistake counts as “Unsure”.",
   "gm.order.kind": "What to put in order", "gm.order.words": "Words", "gm.order.sents": "Sentences", "gm.order.both": "Both",
   "gm.need.title": "Not enough cards",
   "gm.need.mcq": "Multiple choice needs at least 4 vocabulary cards with different answers in the same list. Add words to the list or pick a bigger one.",

@@ -49,21 +49,21 @@ I18N.fr = {
     "bulk.header": "ligne d'en-tête reconnue", "bulk.page": "{a}–{b} sur {n}",
     "bulk.nothing": "Rien à importer", "bulk.done": "{n} cartes ajoutées, {m} remplacées",
     "review.scope": "Périmètre", "scope.all": "Tout", "scope.lists": "Listes", "scope.tags": "Tags", "scope.cat": "Catégorie",
-    "cat.unknown": "Pas su", "cat.review": "À revoir", "cat.known": "Su",
+    "cat.unknown": "À apprendre", "cat.review": "En cours", "cat.known": "Acquis",
     "review.which": "Mots", "which.due": "À réviser aujourd'hui", "which.all": "Tous les mots",
     "review.dir": "Sens", "dir.mix": "Mélangé",
     "review.count": "Nombre de cartes", "review.mode": "Mode", "mode.cards": "Cartes", "mode.write": "Écrit", "mode.quiz": "Interrogateur",
     "review.available": "{n} cartes disponibles", "review.start": "Commencer", "review.none": "Aucune carte ne correspond",
     "review.pickOne": "Choisissez au moins un élément", "review.noTags": "Aucun tag pour l'instant",
     "quiz.answer": "Réponse ({lang})", "quiz.hide": "Masquer", "quiz.show": "Afficher", "quiz.hidden": "Réponse masquée",
-    "cards.tap": "Touchez pour retourner · droite = Su · gauche = Pas su · haut = À revoir", "cards.left": "{n} cartes restantes", "cards.quit": "Arrêter",
+    "cards.tap": "Touchez pour retourner · droite = Trouvé · gauche = Raté · haut = Hésité", "cards.left": "{n} cartes restantes", "cards.quit": "Arrêter",
     "sum.title": "Session terminée", "sum.cards": "{n} cartes révisées", "sum.retry": "Rejouer les ratés ({n})", "sum.new": "Nouvelle session", "sum.noMiss": "Aucun raté, bravo !", "write.check": "Vérifier",
     "write.ok": "Juste !", "write.accents": "Juste — attention aux accents", "write.wrong": "Faux",
     "write.yours": "Votre réponse", "write.correct": "Bonne réponse", "write.all": "Réponses acceptées : {a}",
     "write.next": "Continuer · {r}", "write.fix": "Corriger le résultat :",
     "audio.play": "Écouter",
     "stats.empty": "Pas encore de cartes", "stats.allLists": "Toutes les listes", "stats.words": "Mots", "stats.rate": "Taux de réussite", "stats.pct": "{n} %",
-    "stats.rateHint": "{c} « Su » sur {s} réponses", "stats.byCat": "Par catégorie", "stats.byBox": "Par boîte", "stats.box": "Boîte {n}",
+    "stats.rateHint": "{c} « Trouvé » sur {s} réponses", "stats.byCat": "Par catégorie", "stats.byBox": "Par boîte", "stats.box": "Boîte {n}",
     "stats.byList": "Par liste", "stats.listLine": "{n} cartes · {r} de réussite",
     "stats.missed": "Mots les plus ratés", "stats.noMissed": "Aucun mot raté pour l'instant", "stats.missedCount": "{w} ratés sur {s}",
     "auth.loading": "Chargement…", "auth.loginTitle": "Connexion", "auth.createTitle": "Créer un compte", "auth.firstTitle": "Créer le premier compte",
@@ -361,7 +361,7 @@ Object.assign(I18N.fr, {
   "al.s.login.pin": "connexion avec le PIN",
   "al.s.login.create": "création du compte",
   "al.s.login.resume": "ouverture (session gardée)",
-  "al.s.session": "{mode} · {n} cartes · {k} sues · {r} à revoir · {u} pas sues · {min} min",
+  "al.s.session": "{mode} · {n} cartes · Trouvé {k} · Hésité {r} · Raté {u} · {min} min",
   "al.s.lists": "{n} listes",
   "al.s.added": "{n} cartes",
   "al.s.import": "{n} nouvelles cartes · {m} remplacées",
@@ -472,7 +472,7 @@ Object.assign(I18N.fr, {
   "fc.type": "Type",
   "fc.box": "Boîte {n}",
   "fc.total": "Total",
-  "fc.boxNote": "Boîte 0 = pas su, boîtes 1-2 = à revoir, boîtes 3-5 = su.",
+  "fc.boxNote": "Boîte 0 = À apprendre, boîtes 1-2 = En cours, boîtes 3-5 = Acquis.",
   "fc.byLang": "Par langue apprise",
   "fc.lang": "Langue",
   "fc.diff": "Difficultés",
@@ -482,7 +482,7 @@ Object.assign(I18N.fr, {
   "fc.wrong": "Ratés",
   "fc.seen": "Vues",
   "fc.blocked0": "Bloquées en boîte 0 ({n})",
-  "fc.blockedNote": "Cartes vues {n} fois ou plus, jamais sues.",
+  "fc.blockedNote": "Cartes vues {n} fois ou plus, jamais « Trouvé ».",
   "fc.noBlocked": "Aucune carte bloquée.",
   "fc.seenN": "vue {n} fois",
   "fc.andMore": "… et {n} de plus",
@@ -876,7 +876,7 @@ Object.assign(I18N.fr, {
   "sh.addedCopy": "« {name} » ajoutée (progression à zéro).",
   "sh.addedCommon": "« {name} » ajoutée à tes listes.",
   "sh.noProgress": "rien de partagé (ou caché)",
-  "sh.progVal": "{su}/{n} sues · {rev} à revoir · {ps} pas sues",
+  "sh.progVal": "{su}/{n} acquis · {rev} en cours · {ps} à apprendre",
   "sh.err.sh_gone": "Liste commune ou invitation introuvable (supprimée ?).",
   "sh.err.sh_owner": "Réservé au propriétaire de la liste.",
   "sh.err.sh_limit": "Limite atteinte (invitations en attente ou listes communes).",
@@ -1220,7 +1220,7 @@ Object.assign(I18N.fr, {
   "study.genLang": "Langue des cartes",
   "study.byLang": "Par langue apprise",
   "study.statLine": "{n} cartes · {d} à réviser · réussite {r}",
-  "study.statDays": "7 jours : {r} révision(s), {p} % sues · {s} jour(s) d'affilée"
+  "study.statDays": "7 jours : {r} révision(s), {p} % « Trouvé » · {s} jour(s) d'affilée"
 });
 
 // --- Étape 38 : invitation à activer les notifications ---
@@ -1318,4 +1318,13 @@ Object.assign(I18N.fr, {
   "wn.title": "Quoi de neuf (version {v})",
   "wn.all": "Tout voir",
   "wn.ok": "OK"
+});
+
+// === ÉTAPE 56 : NOMS DES RÉPONSES ===
+// Boutons de réponse (tous les modes, swipe, fin de session) : ans.known / ans.review / ans.unknown.
+// Les catégories gardent les clés cat.known / cat.review / cat.unknown (Acquis / En cours / À apprendre).
+Object.assign(I18N.fr, {
+  "ans.known": "Trouvé",
+  "ans.review": "Hésité",
+  "ans.unknown": "Raté"
 });

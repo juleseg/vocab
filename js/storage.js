@@ -43,7 +43,8 @@ function defaultSettings(target, support) {
     dailyGoal: 10, privacy: defaultPrivacy(),
     games: normGames(null),                                                            // jeux (étape 42)
     listen: { slow: false },                                                           // dictée : lecture lente (étape 46)
-    retention: FSRS_RET.def                                                            // FSRS : taux de rétention visé (étape 47)
+    retention: FSRS_RET.def,                                                           // FSRS : taux de rétention visé (étape 47)
+    sentence: { on: true }                                                             // « Ma phrase » : proposition après un « Trouvé » (étape 58)
   };
 }
 
@@ -58,7 +59,10 @@ function emptyData(target, support) {
     history: [],
     streak: normStreak(null, []),   // série (voir SÉRIES)
     xp: normXp(null, [], null, null),   // XP, niveaux, défis du jour (étape 43, js/xp.js)
+    sentences: [],   // « Ma phrase » (étape 58, js/sentences.js) : phrases envoyées à Claude, 200 max
     stories: {},     // histoires par liste (étape 45, js/story.js) : { <id de liste>: [histoire…] }
+    hard: normHard(null),   // mots difficiles : compteurs, pause, paires (étape 57, js/difficiles.js)
+    tips: {},               // « Mon astuce » privée par carte (étape 57)
     proposals: [],   // propositions « À valider » : { id, cardId, field (code de langue | example | extr:<code> | pos:<code> | dup), type, oldValue, newValue, reason, createdAt }
     rejected: [],    // clés des propositions refusées (carte|champ|empreinte de la valeur) : jamais reproposées
     lastCheckAt: 0,  // dernière vérification automatique (0 = pas encore démarrée)
@@ -164,6 +168,56 @@ function normCardImage(o) {
 }
 // Réglage « Images » d'une liste (étape 49) : imgSide = "q" (côté question) | "a" (côté réponse) | "never" ; absent = automatique.
 function normImgSide(o) { return o && ["q", "a", "never"].includes(o.imgSide) ? { imgSide: o.imgSide } : {}; }
+// === MOTS DIFFICILES (ÉTAPE 57) ===
+// state.hard = { v: 1, w: { <idCarte>: { <langue étudiée>: { n, r, o?, h?, f?, p?, at? } } }, c: [ { a, b, L, n, at } ] }
+//   n = « Raté » au total, r = « Raté » de suite, o = « Trouvé » de suite (seulement si difficile), h = 1 difficile,
+//   f = 1 réparé (image, exemple ou astuce enregistrés depuis que le mot est difficile), p = 1 en pause, at = date (ms).
+//   c = paires confondues (a < b, ids de cartes, L = langue étudiée, n = nombre de confusions), 300 au plus.
+// state.tips = { <idCarte>: texte (150 caractères au plus) }. Deux morceaux user_data (hard, tips), jamais dans une carte ni dans sharedprogress.
+// Champs facultatifs (DATA_VERSION inchangé) : un appareil en version 56 les efface en renvoyant ses données.
+const HARD_TIP_MAX = 150;
+const HARD_PAIRS_MAX = 300;
+function normHardRec(v) {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return null;
+  const o = { n: clampInt(v.n, 0, 9999, 0), r: clampInt(v.r, 0, 9999, 0) };
+  if (v.h) { o.h = 1; o.o = clampInt(v.o, 0, 99, 0); if (v.f) o.f = 1; o.at = num(v.at, 0); }
+  if (v.p) o.p = 1;
+  return (o.n || o.r || o.h || o.p) ? o : null;
+}
+function normHard(raw, cardIds, keepUnknown) {
+  const out = { v: 1, w: {}, c: [] };
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;
+  const known = id => keepUnknown || !cardIds || cardIds.has(id);
+  const W = raw.w && typeof raw.w === "object" && !Array.isArray(raw.w) ? raw.w : {};
+  Object.keys(W).forEach(id => {
+    if (!known(id) || !W[id] || typeof W[id] !== "object") return;
+    const e = {};
+    Object.keys(W[id]).forEach(L => { if (!isLang(L)) return; const r = normHardRec(W[id][L]); if (r) e[L] = r; });
+    if (Object.keys(e).length) out.w[id] = e;
+  });
+  const seen = new Set();
+  arr(raw.c).forEach(p => {
+    if (!p || typeof p.a !== "string" || typeof p.b !== "string" || p.a === p.b || !isLang(p.L)) return;
+    const a = p.a < p.b ? p.a : p.b, b = p.a < p.b ? p.b : p.a, k = a + "|" + b + "|" + p.L;
+    if (seen.has(k) || !known(a) || !known(b)) return;
+    seen.add(k);
+    out.c.push({ a, b, L: p.L, n: clampInt(p.n, 1, 9999, 1), at: num(p.at, 0) });
+  });
+  out.c.sort((x, y) => y.n - x.n || y.at - x.at);
+  out.c = out.c.slice(0, HARD_PAIRS_MAX);
+  return out;
+}
+function hardHas(h) { return !!h && ((h.w && Object.keys(h.w).length > 0) || arr(h.c).length > 0); }
+function normTips(raw, cardIds, keepUnknown) {
+  const out = {};
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;
+  Object.keys(raw).forEach(id => {
+    if (!(keepUnknown || !cardIds || cardIds.has(id))) return;
+    const v = String(raw[id] == null ? "" : raw[id]).replace(/\s+/g, " ").trim().slice(0, HARD_TIP_MAX);
+    if (v) out[id] = v;
+  });
+  return out;
+}
 // === APPRENTISSAGE AUDITIF (étape 55) ===
 // Réglage du compte : settings.audio.learn = { when: off|wrong|right|always, langs: target|both, repeat: 1..3 }.
 // Réglage d'une liste : audioLearn absent = comme le compte ; "off" = jamais ; objet = réglage propre (même forme).
@@ -223,6 +277,22 @@ function dataVersion(raw) { return (raw && typeof raw === "object") ? num(raw.ve
 //   depuis sa boîte et ses stats, et lb = ancienne boîte (fsrsMigrateProg, js/fsrs.js) ; box = équivalent FSRS ; dueAt et
 //   stats jamais modifiés ; rien supprimé ; aucun nouveau morceau (tout reste dans les morceaux cards). Une progression qui a
 //   déjà ses champs FSRS n'est jamais refaite (relancer ne migre pas deux fois). Export JSON de sécurité avant (DATA_VERSION 7).
+// « Ma phrase » (étape 58) : { id, cardId, lang, word, text, status: "pending"|"done"|"error", reqId, at, corrected, explain, ok, used, xp }.
+// 200 max (les plus récentes), champs texte bornés.
+function normSentences(v) {
+  const out = [];
+  arr(v).forEach(x => {
+    if (!x || !x.id || !String(x.text || "").trim()) return;
+    out.push({
+      id: String(x.id), cardId: String(x.cardId || ""), lang: String(x.lang || ""), word: String(x.word || "").slice(0, 120),
+      text: String(x.text).slice(0, 400), status: ["pending", "done", "error"].includes(x.status) ? x.status : "pending",
+      reqId: x.reqId ? String(x.reqId) : "", at: num(x.at, 0),
+      corrected: String(x.corrected || "").slice(0, 400), explain: String(x.explain || "").slice(0, 600),
+      ok: x.ok === true, used: x.used === true, xp: x.xp === true
+    });
+  });
+  return out.sort((a, b) => b.at - a.at).slice(0, 200);
+}
 function normalizeData(raw) {
   const d = (raw && typeof raw === "object") ? raw : {};
   const s = d.settings || {};
@@ -245,7 +315,8 @@ function normalizeData(raw) {
       privacy: normPrivacy(s.privacy),
       games: normGames(s.games),  // jeux d'entraînement (étape 42)
       listen: { slow: !!(s.listen && s.listen.slow === true) },   // dictée : lecture lente (étape 46)
-      retention: clampInt(s.retention, FSRS_RET.min, FSRS_RET.max, FSRS_RET.def)   // FSRS : taux de rétention visé (étape 47)
+      retention: clampInt(s.retention, FSRS_RET.min, FSRS_RET.max, FSRS_RET.def),   // FSRS : taux de rétention visé (étape 47)
+      sentence: { on: !(s.sentence && s.sentence.on === false) }   // « Ma phrase » (étape 58) : activée par défaut
     },
     folders: arr(d.folders).filter(f => f && f.id).map((f, i) => Object.assign(
       { id: String(f.id), name: String(f.name || ""), order: num(f.order, i) }, normLangPair(f), lastUpdateOf(f), normSharedMark(f))),
@@ -282,9 +353,12 @@ function normalizeData(raw) {
 
   const cardIds = new Set(out.cards.map(c => c.id));
   const listIds0 = new Set(out.lists.map(l => l.id));
+  out.sentences = normSentences(d.sentences);   // étape 58 : phrases envoyées à Claude
   out.stories = normStories(d.stories, listIds0);   // étape 45 : histoires des listes existantes seulement
   // Listes communes (étape 30) : leurs cartes arrivent après (cache du partage), les propositions sont gardées.
   const keepUnknown = out.lists.some(isSharedList);
+  out.hard = normHard(d.hard, cardIds, keepUnknown);   // étape 57 : mots difficiles (cartes inconnues gardées s'il y a des listes communes)
+  out.tips = normTips(d.tips, cardIds, keepUnknown);   // étape 57 : « Mon astuce » (jamais dans les cartes communes)
   out.proposals = out.proposals.filter(p => p.field === "new" ? listIds0.has(p.listId) : (cardIds.has(p.cardId) || keepUnknown));
   if (d.aiResume && d.aiResume.kind === "complete") {
     const ids = arr(d.aiResume.ids).map(String).filter(id => cardIds.has(id));
@@ -397,7 +471,10 @@ function looksLikeAppData(raw) {
 //   user:<id>:folders / :lists / :history
 //   user:<id>:streak                série (étape 28, voir SÉRIES) — aussi modifiée par les fonctions admin de l'étape 28
 //   user:<id>:xp                    XP, niveau, défis du jour, badges de l'étape 43 (voir js/xp.js)
+//   user:<id>:sentences             phrases « Ma phrase » envoyées à Claude (étape 58, js/sentences.js), 200 max
 //   user:<id>:stories:<listId>      histoires de la liste (étape 45, voir js/story.js), 20 max par liste
+//   user:<id>:hard                  mots difficiles (étape 57, js/difficiles.js) : { v, w: { idCarte: { langue: compteurs } }, c: [paires] }
+//   user:<id>:tips                  « Mon astuce » (étape 57) : { idCarte: texte (150 caractères) } — privée, jamais dans les cartes communes
 //   user:<id>:proposals:<n>         propositions « À valider » (500 max par morceau)
 //   user:<id>:cards:<listId>:<n>    { cards: [200 max], sig: { idCarte: empreinte vérifiée } }
 //   user:<id>:resume:<n>            ids des cartes restant à compléter (complétion en pause, 2000 max par morceau)
@@ -652,8 +729,13 @@ const Storage = (() => {
     put("history", data.history);
     put("streak", data.streak);
     if (data.xp) put("xp", data.xp);   // étape 43 : nouveau morceau, toujours envoyé avant l'index (règle 33b)
+    // Étape 57 : mots difficiles (compteurs, pause, paires) et astuces : deux nouveaux morceaux, toujours envoyés avant l'index
+    // (règle 33b) ; absents = vides (pas de morceau). Astuces à part : les compteurs changent à chaque réponse, pas les textes.
+    if (hardHas(data.hard)) put("hard", data.hard);
+    if (data.tips && Object.keys(data.tips).length) put("tips", data.tips);
     // Étape 45 : histoires, un morceau par liste (listes existantes seulement : une liste supprimée emporte ses histoires).
     // Nouveaux morceaux, toujours envoyés avant l'index (règle 33b). Liste sans histoire : pas de morceau.
+    if (arr(data.sentences).length) put("sentences", data.sentences);   // étape 58 : « Ma phrase », un seul morceau, avant l'index (règle 33b)
     const stIds = new Set(arr(data.lists).map(l => l.id)), stories = data.stories || {};
     Object.keys(stories).forEach(L => { if (stIds.has(L) && arr(stories[L]).length) put("stories:" + L, stories[L]); });
     // Cartes : par liste, morceaux de 200 cartes max (et taille limitée, pour les cartes avec de longs exemples).
@@ -709,7 +791,9 @@ const Storage = (() => {
       folders: arr(getPiece(P + "folders")), lists: arr(getPiece(P + "lists")), history: arr(getPiece(P + "history")),
       streak: getPiece(P + "streak"),   // absent (version 3 et moins) : calculé par normalizeData
       xp: getPiece(P + "xp"),           // absent (version 42 et moins) : XP de départ calculé par normalizeData (étape 43)
-      cards: [], proposals: [], checkedSig: {}, aiResume: null, sharedProgress: {}, stories: {}
+      hard: getPiece(P + "hard"),       // étape 57 : absent (version 56 et moins) = aucun mot difficile
+      tips: getPiece(P + "tips"),       // étape 57 : absent = aucune astuce
+      cards: [], proposals: [], checkedSig: {}, aiResume: null, sharedProgress: {}, stories: {}, sentences: []
     };
     const ids = [];
     let missing = 0;
@@ -718,10 +802,12 @@ const Storage = (() => {
       const v = getPiece(k);
       // « streak » absent (étape 33b) : pas bloquant, la série est recalculée depuis history (comme en v3) puis renvoyée.
       // « xp » absent (étape 43) : pas bloquant non plus, l'XP de départ est recalculé depuis history puis renvoyé.
-      if (v === undefined) { if (k !== P + "streak" && k !== P + "xp") { missing++; lost.push(k.slice(P.length)); } return; }
+      // « hard » et « tips » absents (étape 57) : pas bloquant non plus (données vides).
+      if (v === undefined) { if (k !== P + "streak" && k !== P + "xp" && k !== P + "hard" && k !== P + "tips") { missing++; lost.push(k.slice(P.length)); } return; }
       if (k.startsWith(P + "cards:")) { out.cards.push(...arr(v.cards)); Object.assign(out.checkedSig, v.sig || {}); }
       else if (k.startsWith(P + "proposals:")) out.proposals.push(...arr(v));
       else if (k.startsWith(P + "resume:")) ids.push(...arr(v));
+      else if (k === P + "sentences") out.sentences = arr(v);   // étape 58
       else if (k.startsWith(P + "stories:")) out.stories[k.slice((P + "stories:").length)] = arr(v);   // étape 45
       else if (k.startsWith(P + "sharedprogress:") && v && typeof v === "object") {   // étape 30
         const U = k.slice((P + "sharedprogress:").length).split(":")[0];

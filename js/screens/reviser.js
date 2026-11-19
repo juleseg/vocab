@@ -47,9 +47,11 @@ function sessionLangs(c, cfg, now, lg, stage) {
   const out = [];
   cardStudyLangs(c).forEach((L, i) => {
     if (i === 0 ? !cardUsable(c, lg) : !cardUsable(c, studyLg(L))) return;
+    if (Hard.isPaused(c, L)) return;   // mot en pause (étape 57) : ne revient plus en révision
     if (cfg.scope === "cat" && Leitner.category(c, L) !== cfg.cat) return;
     if (cfg.scope === "lang" && L !== cfg.lang) return;
-    if (cfg.onlyDue && !Leitner.isDue(c, now, L)) return;
+    if ((cfg.scope === "hard" || cfg.scope === "pairs") && !Hard.inScope(c, L, cfg.scope)) return;   // « Mots difficiles » / « Mots qui se ressemblent » (étape 57)
+    if (cfg.onlyDue && cfg.scope !== "pairs" && !Leitner.isDue(c, now, L)) return;   // paires : les deux mots sont toujours là
     if (stage !== "base" && arr(cfg.langs).length && !cfg.langs.includes(L)) return;
     // Dictée / Prononciation (étape 46) : mot ou phrase à écouter / dire dans L (dictée : voix de L nécessaire)
     if (!stage && isListenMode(cfg.mode) && !lisKinds(c, L, cfg.mode, cfg.listenKind, i === 0 ? lg : studyLg(L)).length) return;
@@ -144,7 +146,7 @@ function renderSessionConfig(root) {
 
   // Périmètre : un seul choix (pastilles, car 6 options)
   const sc = chipsField(
-    [["all", "scope.all"], ["folders", "scope.folders"], ["lists", "scope.lists"], ["tags", "scope.tags"], ["cat", "scope.cat"], ["lang", "scope.lang"]]
+    [["all", "scope.all"], ["folders", "scope.folders"], ["lists", "scope.lists"], ["tags", "scope.tags"], ["cat", "scope.cat"], ["lang", "scope.lang"], ["hard", "hd.scope.hard"], ["pairs", "hd.scope.pairs"]]
       .map(([v, k]) => ({ value: v, label: t(k) })),
     [cfg.scope], v => { cfg.scope = v; });
   sc.insertBefore(el("label", null, t("review.scope")), sc.firstChild);
@@ -170,6 +172,8 @@ function renderSessionConfig(root) {
     box.appendChild(segField("scope.cat",
       [["unknown", "cat.unknown"], ["review", "cat.review"], ["known", "cat.known"]],
       cfg.cat, v => { cfg.cat = v; }));
+  } else if (cfg.scope === "hard" || cfg.scope === "pairs") {
+    box.appendChild(el("div", "field hint", t(cfg.scope === "hard" ? "hd.scope.hardHint" : "hd.scope.pairsHint")));
   } else if (cfg.scope === "lang") {
     const langs = targetLangsInUse();
     if (langs.length && !langs.includes(cfg.lang)) cfg.lang = langs[0];
@@ -314,17 +318,35 @@ function startSession() {
   const cfg = rv.cfg;
   if (cfg.mode === "table") return startTableSession(cfg);
   if (isGameMode(cfg.mode)) return startGame(cfg);   // jeux d'entraînement (étape 42)
-  const pool = shuffle(sessionPool(cfg)).slice(0, cfg.count);
-  if (!pool.length) return false;
+  const all = sessionPool(cfg);
+  if (!all.length) return false;
   const lgs = langsByList(), now = Date.now();
-  const queue = pool.map(c => {
-    const ls = sessionLangs(c, cfg, now, lgs.get(c.listId));
-    const lang = ls[Math.floor(Math.random() * ls.length)] || primaryLang(c);   // une seule langue par carte
+  const mk = (c, lang) => {
     const d = (cfg.dirs && cfg.dirs[lang]) || cfg.dir;
     const q = { id: c.id, lang, dir: d === "mix" ? (Math.random() < 0.5 ? "toT" : "fromT") : d };
     if (isListenMode(cfg.mode)) q.lk = lisPickKind(c, lang, cfg.mode, cfg.listenKind);   // mot ou phrase (étape 46)
     return q;
-  });
+  };
+  let queue;
+  if (cfg.scope === "pairs") {
+    // Étape 57 : les deux mots d'une paire sont posés l'un après l'autre, dans la langue de la paire.
+    const byId = new Map(all.map(c => [c.id, c])), used = new Set();
+    queue = [];
+    shuffle(Hard.pairs().slice()).forEach(p => {
+      [p.a, p.b].forEach(id => {
+        const c = byId.get(id);
+        if (!c || used.has(id) || queue.length >= cfg.count + 1) return;
+        if (!sessionLangs(c, cfg, now, lgs.get(c.listId)).includes(p.L)) return;
+        used.add(id); queue.push(mk(c, p.L));
+      });
+    });
+  } else {
+    queue = shuffle(all).slice(0, cfg.count).map(c => {
+      const ls = sessionLangs(c, cfg, now, lgs.get(c.listId));
+      return mk(c, ls[Math.floor(Math.random() * ls.length)] || primaryLang(c));   // une seule langue par carte
+    });
+  }
+  if (!queue.length) return false;
   newRun(queue, cfg.mode);
   return true;
 }
@@ -354,12 +376,15 @@ function gradeCurrent(result) {
   const c = item && state.cards.find(x => x.id === item.id);
   if (!c) { renderReview(); return; }
   const r = Leitner.grade(c, result, undefined, item.lang || s.langs[item.id]);
+  if (result === "unknown") { if (!s.missed) s.missed = {}; s.missed[c.id] = 1; }   // astuce ouverte d'office au retour de la carte (étape 57)
   s.counts[result]++;
   if (!(item.id in s.first)) s.first[item.id] = result;
   s.log.unshift({ word: cardTitle(c), result, from: r.from, to: r.to, dueAt: r.dueAt });
   if (result === "unknown") s.queue.push(item);
   s.revealed = false;
   commit();
+  if (result === "known") sentenceAfterKnown(c, item.lang || s.langs[item.id], s);   // « Ma phrase » (étape 58, js/sentences.js)
+  HardUI.afterGrade(c, r.lang, r);   // mot difficile raté : « Réparer ce mot » (étape 57)
 }
 function endSession() { if (typeof SpeechRec !== "undefined") SpeechRec.stop(); rv.phase = "config"; rv.s = null; StudyCtx.cards.clear(); Storage.flushNow(); renderReview(); } // synchro en ligne après chaque session
 

@@ -44,6 +44,9 @@ const XP_RULES = {
   story: {                    // histoires (étape 45, js/story.js) : une fois par histoire et par question
     correct: 5,               // bonne réponse à une question de compréhension (premier choix)
     read: 10                  // histoire lue (bouton « J'ai lu l'histoire », ou toutes les questions répondues)
+  },
+  sentence: {                 // « Ma phrase » (étape 58, js/sentences.js) : une fois par phrase envoyée à Claude
+    send: 5
   }
 };
 // Badges de l'étape 43 (affichés dans Stats avec les badges de série).
@@ -383,6 +386,8 @@ const XP = (() => {
     commitQuiet();
     return got;
   }
+  // « Ma phrase » (étape 58) : +5 XP à l'envoi ; js/sentences.js garde sur la phrase (champ xp) qu'elle a déjà rapporté.
+  function onSentence(L) { return onStory(XP_RULES.sentence.send, L); }
   // Récompense d'une idée (étape 52, js/ideas.js) : une seule fois par idée sur ce compte (xp.ideas, morceau xp synchronisé).
   // v = XP à ajouter (gels sans place déjà convertis), badge = badge « Idée retenue ». Pas de sauvegarde ici : l'appelant
   // enregistre en une fois (XP et gels). Renvoie null si l'idée a déjà été récompensée, sinon { xp, badge (nouveau) }.
@@ -469,7 +474,7 @@ const XP = (() => {
     return Object.assign(xpProgress(x.total), { total: x.total, week: w.total, weekByLang: w.byLang, byLang: x.byLang,
       chDone: x.chDone, chDays: x.chDays.length, answers: x.answers });
   }
-  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, onDuel, onDuelWin, onStory, onIdea, onTeam, challenges, label, icon, summary, has, earn };
+  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, onDuel, onDuelWin, onStory, onSentence, onIdea, onTeam, challenges, label, icon, summary, has, earn };
 })();
 
 // --- Affichage commun : barre de niveau (Accueil, Stats) ---

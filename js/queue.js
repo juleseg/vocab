@@ -6,7 +6,7 @@
 // dans claude_proposals. L'appli les récupère (fonction claude_claim_proposals) et les range dans « À valider »,
 // avec les mêmes règles que l'accès direct (addProposal, addGenProposals). Rien n'est écrit dans les cartes.
 //
-// Demande (ligne claude_requests) : { kind: "complete"|"verify"|"generate"|"story", label, card_count, batch_count, payload }
+// Demande (ligne claude_requests) : { kind: "complete"|"verify"|"generate"|"story"|"sentence", label, card_count, batch_count, payload }
 // payload = {
 //   v: 1, app: "vocab", kind, uiLang, created: date ISO,
 //   answer: format de la réponse attendue pour chaque lot,
@@ -43,6 +43,7 @@ const Queue = (() => {
     if (["42P01", "PGRST205", "PGRST202", "42883"].includes(code) || /does not exist|schema cache|could not find/i.test(msg)) return "missing";
     if (/trop de demandes/i.test(msg)) return "limit";
     if (/trop grosse/i.test(msg)) return "big";
+    if (/sentence_day/i.test(String((e && e.hint) || "") + " " + msg)) return "sentday";   // étape 58 : 10 phrases par jour
     if (code === "23514" && /kind/i.test(msg)) return "kind";   // type « story » refusé : script de l'étape 45 pas lancé
     if (sbErrKind(e) === "net") return "net";
     return "server";
@@ -84,7 +85,7 @@ const Queue = (() => {
     try { resp = ok(await withTimeout(client().rpc("claude_claim_proposals"), T * 2)); }
     catch (e) { noteError(e); return null; }
     status = "ok";
-    if (!resp || !arr(resp.proposals).length) return { added: 0, cards: 0, bad: 0, stories: 0 };
+    if (!resp || !arr(resp.proposals).length) return { added: 0, cards: 0, bad: 0, stories: 0, sentences: 0 };
     if (Storage.getUser() !== who || state !== st) return null;   // compte changé : « Récupérer à nouveau » plus tard
     const r = queueApply(resp);
     if (r.added) { commitQuiet(); if (!quiet) toast(queueGotText(r.added)); }
@@ -92,6 +93,11 @@ const Queue = (() => {
       commitQuiet();
       toast(t(r.stories === 1 ? "st.got1" : "st.got", { n: r.stories }));
       if (currentScreen === "stories" || currentScreen === "lists") renderScreen();
+    }
+    if (r.sentences) {                                             // « Ma phrase » (étape 58) : corrections reçues
+      commitQuiet();
+      toast(t(r.sentences === 1 ? "sn.got1" : "sn.got", { n: r.sentences }));
+      if (currentScreen === "sentences") renderScreen();
     }
     return r;
   }
@@ -105,6 +111,7 @@ const Queue = (() => {
       try {
         res = await claim(!!opts.report);
         await refresh();
+        if (typeof sentenceSyncErrors === "function") sentenceSyncErrors(items);   // « Ma phrase » : demandes en erreur (étape 58)
         QStats.flush();                                 // compteurs en attente (hors connexion) : renvoyés
       } finally {
         busy = null;
@@ -361,7 +368,7 @@ function queueApply(resp) {
   const reqs = new Map(arr(resp.requests).map(r => [r.id, r]));
   const byId = new Map(state.cards.map(c => [c.id, c]));
   const genReqs = new Map();      // une nouvelle liste recréée une seule fois par demande
-  const out = { added: 0, cards: 0, bad: 0, stories: 0 };
+  const out = { added: 0, cards: 0, bad: 0, stories: 0, sentences: 0 };
   const got = {};                 // demande → propositions ajoutées dans « À valider » (compteur « reçues »)
   arr(resp.proposals).forEach(p => {
     const before = state.proposals.length;
@@ -384,6 +391,11 @@ function queueApply(resp) {
       if (!b) { out.bad++; return; }
       if (r.kind === "story") {                                    // étape 45 : histoire rangée dans sa liste
         if (typeof storyFromQueue === "function" && storyFromQueue(p.result, pl.story || b.story)) out.stories++;
+        else out.bad++;
+        return;
+      }
+      if (r.kind === "sentence") {                                // étape 58 : correction rangée dans « Mes phrases »
+        if (typeof sentenceFromQueue === "function" && sentenceFromQueue(p.result, pl.sentence || b.sentence, r.id)) out.sentences++;
         else out.bad++;
         return;
       }

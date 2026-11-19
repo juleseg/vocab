@@ -14,6 +14,7 @@ function renderSettings() {
   renderReviewCard();       // Réglages → Rythme de révision : choix actuel, ouvre l'écran #rythme (FSRS, étape 47)
   renderAudioCard();
   if (typeof renderAudLearnCard === "function") renderAudLearnCard();   // Réglages → Apprentissage auditif (étape 55, js/auditif.js)
+  renderSentCard();         // Réglages → « Ma phrase » (étape 58, js/sentences.js, mode Supabase)
   renderAiCard();
   renderFriendsPrivCard();   // Réglages → Amis (étape 29)
   renderPushCard();          // Réglages → Notifications (étape 32)

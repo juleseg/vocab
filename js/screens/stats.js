@@ -121,6 +121,8 @@ function renderStats() {
   if (byL) root.appendChild(byL);
   root.appendChild(statsXp());       // XP, niveau, XP par langue, défis réussis (étape 43, js/xp.js)
   root.appendChild(statsStreak());
+  const snEntry = sentenceStatsEntry();   // « ✍️ Mes phrases » (étape 58, mode Supabase)
+  if (snEntry) root.appendChild(snEntry);
 
   // Par catégorie
   const n = catCounts(cards);
@@ -229,6 +231,7 @@ function renderStats() {
     ms.appendChild(row);
   });
   root.appendChild(ms);
+  root.appendChild(HardUI.statsCards(cards));   // mots difficiles, mots qui se ressemblent, en pause (étape 57)
 }
 
 // Par langue étudiée (étape 37), s'il y en a plusieurs : cartes, à réviser, réussite, catégories, révisions sur 7 jours,

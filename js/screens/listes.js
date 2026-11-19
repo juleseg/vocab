@@ -267,6 +267,7 @@ function cardItem(c, showList) {
   const miss = missingSupport(c, lg).concat(stMiss);  // traduction manquante dans une langue d'appui (étape 31) ou étudiée (étape 37)
   if (miss.length) extra.appendChild(el("span", "tag warn", t("card.toFill", { langs: miss.map(x => langName(x)).join(", ") })));
   shFlagTag(c, extra);
+  HardUI.tags(c, extra);   // « Mot difficile » / « En pause » (étape 57)
   c.tags.forEach(tg => extra.appendChild(el("span", "tag", "#" + tg)));
   if (extra.childNodes.length) m.appendChild(extra);
   const im = typeof Images !== "undefined" ? Images.info(c) : null;   // vignette de l'image (étape 49) : toucher = agrandir
@@ -294,6 +295,7 @@ function typedCardItem(c, showList) {
   if (showList) { const l = getList(c.listId); if (l) extra.appendChild(el("span", "tag", "▸ " + l.name)); }
   if (!typedUsable(c)) extra.appendChild(el("span", "tag warn", t("type.incomplete")));
   shFlagTag(c, extra);
+  HardUI.tags(c, extra);   // « Mot difficile » / « En pause » (étape 57)
   c.tags.forEach(tg => extra.appendChild(el("span", "tag", "#" + tg)));
   if (extra.childNodes.length) m.appendChild(extra);
   b.append(m, el("span", "chev", "›"));
@@ -695,7 +697,10 @@ function openCardEditor(cardId, listId) {
   const c = cardId ? state.cards.find(x => x.id === cardId) : null;
   if (cardId && !c) return;
   if (c) Shared.clearFlag(c.id);   // marque « modifiée par … » vue (étape 30)
-  if (!canEditList(c ? c.listId : listId)) { toast(t("sh.readOnly")); if (c) renderLists(); return; }
+  if (!canEditList(c ? c.listId : listId)) {
+    if (c) { HardUI.tipModal(c, { readOnly: true }); return; }   // liste en lecture seule : seule « Mon astuce » (privée) est modifiable (étape 57)
+    toast(t("sh.readOnly")); return;
+  }
   if (!state.lists.length) { toast(t("lists.empty")); return; }
   const sel = listSelect(c ? c.listId : listId, false);
   let type = c ? cardType(c) : lastNewType;
@@ -731,10 +736,18 @@ function openCardEditor(cardId, listId) {
     const f = el("div", "field"); f.appendChild(typeBadge(type)); wrap.appendChild(f);
   }
   if (!form) build();
-  wrap.append(body, formField(t("card.tags"), tags));
+  const tipIn = HardUI.tipInput(c);   // « Mon astuce » (étape 57) : privée, 150 caractères, dans le morceau « tips » (jamais dans la carte)
+  wrap.append(body, formField(t("card.tags"), tags), formField(t("hd.tip.label"), tipIn, false, t("hd.tip.hint")));
   const save = () => {
+    const before = c ? { img: JSON.stringify(c.image || null), ex: JSON.stringify(c.examples || null) + "|" + (c.example || ""), tip: Hard.tip(c.id) } : null;
     const r = form.save(parseTags(tags.value));
     if (!r) return false;                          // champ manquant : message déjà affiché, fenêtre gardée
+    const tipId = c ? c.id : (r.added && r.added[0]);
+    if (tipId) {
+      Hard.setTip(tipId, tipIn.value);
+      // Réparation (étape 57) : image, exemple ou astuce ajoutés ou changés sur un mot difficile
+      if (c && before && (before.img !== JSON.stringify(c.image || null) || before.ex !== JSON.stringify(c.examples || null) + "|" + (c.example || "") || before.tip !== Hard.tip(c.id))) Hard.markRepaired(c);
+    }
     commit();
     if (r.added && r.added.length) {               // journal : cartes ajoutées à la main (regroupées par liste et par heure)
       const per = {};

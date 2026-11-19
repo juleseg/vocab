@@ -295,7 +295,17 @@ const Leitner = (() => {
   }
   // Copie de la langue principale dans les champs box / dueAt / stats de la carte (anciens écrans, fiche admin).
   function syncTop(c, L, P) { if (L === primaryLang(c)) { c.box = P.box; c.dueAt = P.dueAt; c.stats = Object.assign({}, P.stats); } }
-  function isDue(c, now, lang) { return prog(c, lang).dueAt <= (now || Date.now()); }
+  // Étape 57 : un mot en pause (js/difficiles.js) n'est jamais « à réviser » ; sa progression reste intacte.
+  function isDue(c, now, lang) {
+    if (paused(c, lang)) return false;
+    return prog(c, lang).dueAt <= (now || Date.now());
+  }
+  function paused(c, lang) {
+    try {
+      if (typeof Hard === "undefined") return false;
+      return Hard.isPaused(c, isUnit(c) && (!lang || lang === c.unitLang) ? c.unitLang : langOf(c, lang));
+    } catch (e) { return false; }
+  }
   // "unknown" = Pas su (jamais vue ou dernière réponse « encore »), "review" = À revoir (stabilité < 7 j), "known" = Su (≥ 7 j)
   function category(c, lang) { return fsrsCategory(prog(c, lang)); }
   // Langues étudiées où la carte est à réviser maintenant. Langue en plus : seulement si la carte y est utilisable
@@ -339,7 +349,9 @@ const Leitner = (() => {
   }
   // result : "known" (Su) | "review" (À revoir) | "unknown" (Pas su). lang : langue révisée (facultatif).
   // Modifie la carte et l'historique, sans sauvegarder (l'appelant fait commit()). FSRS (étape 47) : voir plus haut.
-  function grade(c, result, now, lang) {
+  // Étape 57 : renvoie aussi `hard` (état « mots difficiles » après la réponse, voir Hard.onAnswer) ; `game` = vrai pour une
+  // erreur de jeu (« Hésité » technique) : les compteurs des mots difficiles ne bougent pas.
+  function grade(c, result, now, lang, game) {
     now = now || Date.now();
     const L = langOf(c, lang);
     const P = ensure(c, L);
@@ -357,12 +369,14 @@ const Leitner = (() => {
     syncTop(c, L, P);
     logHistory(now, result === "known", L);
     xpAnswer(c, L, result === "known", now);   // XP (étape 43)
-    return { from, to: P.box, dueAt: P.dueAt, lang: L };
+    let hard = null;
+    if (!game) { try { if (typeof Hard !== "undefined") hard = Hard.onAnswer(c, L, result, now); } catch (e) {} }   // mots difficiles (étape 57)
+    return { from, to: P.box, dueAt: P.dueAt, lang: L, hard };
   }
   // Jeux d'entraînement (étape 42) : poids réduit. ok = bonne réponse : stats « vu / juste » seulement (date de révision,
   // stabilité, difficulté et boîte inchangées). Mauvaise réponse = « difficile » (comme « À revoir »). Compte pour l'objectif du jour.
   function gradeGame(c, ok, now, lang) {
-    if (!ok) return grade(c, "review", now, lang);
+    if (!ok) return grade(c, "review", now, lang, true);   // étape 57 : une erreur de jeu ne compte pas pour les mots difficiles
     now = now || Date.now();
     const L = langOf(c, lang);
     const P = ensure(c, L);
@@ -403,6 +417,8 @@ const Leitner = (() => {
     });
     const L0 = primaryLang(c);
     if (done && c.progress[L0]) syncTop(c, L0, c.progress[L0]);
+    // Étape 57 : compteurs, statut « difficile » et pause des langues remises à zéro (les paires restent).
+    try { if (typeof Hard !== "undefined") Hard.resetCard(c.id, only ? [...only] : null); } catch (e) {}
     return done;
   }
   // La carte a-t-elle déjà une progression dans cette langue (null = dans au moins une langue) ? (compte avant réinitialisation)

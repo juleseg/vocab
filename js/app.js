@@ -16,8 +16,8 @@ function applyTheme() {
 }
 
 // === NAVIGATION ===
-const SCREENS = ["home", "review", "lists", "stats", "pending", "friends", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "about", "stories", "rhythm", "ideas", "adminidea", "messages", "adminmsg", "team", "adminteam", "auditory"];
-const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", friends: "amis", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles", adminpush: "admin-notifications", admindict: "admin-dictionnaire", adminerr: "admin-erreurs", adminbk: "admin-sauvegardes", about: "a-propos", stories: "histoires", rhythm: "rythme", ideas: "idees", adminidea: "admin-idees", messages: "messages", adminmsg: "admin-messages", team: "equipe", adminteam: "admin-equipes", auditory: "auditif" }; // "settings" est réservé dans l'URL
+const SCREENS = ["home", "review", "lists", "stats", "pending", "friends", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "about", "stories", "rhythm", "ideas", "adminidea", "messages", "adminmsg", "team", "adminteam", "auditory", "sentences"];
+const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", friends: "amis", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles", adminpush: "admin-notifications", admindict: "admin-dictionnaire", adminerr: "admin-erreurs", adminbk: "admin-sauvegardes", about: "a-propos", stories: "histoires", rhythm: "rythme", ideas: "idees", adminidea: "admin-idees", messages: "messages", adminmsg: "admin-messages", team: "equipe", adminteam: "admin-equipes", auditory: "auditif", sentences: "phrases" }; // "settings" est réservé dans l'URL
 const ADMIN_SCREENS = ["admin", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "adminidea", "adminmsg", "adminteam"];
 const ADMIN_SB_SCREENS = ["adminreq", "adminlog", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "adminidea", "adminmsg", "adminteam"];   // mode Supabase seulement
 let currentScreen = "home";
@@ -34,7 +34,7 @@ function showScreen(name) {
   if (ADMIN_SB_SCREENS.includes(currentScreen) && auth.mode !== "supabase") currentScreen = "admin";
   if (currentScreen === "requests" && !Queue.usable()) currentScreen = "settings"; // Demandes à Claude : mode Supabase seulement
   document.querySelectorAll(".screen").forEach(el => el.classList.toggle("active", el.id === "screen-" + currentScreen));
-  document.querySelectorAll("nav.bottom button").forEach(b => b.classList.toggle("active", b.dataset.nav === currentScreen || (currentScreen === "stories" && b.dataset.nav === "lists") || (currentScreen === "rhythm" && b.dataset.nav === "settings") || (currentScreen === "auditory" && b.dataset.nav === "settings") || (currentScreen === "ideas" && b.dataset.nav === "settings") || (currentScreen === "messages" && b.dataset.nav === "friends") || (currentScreen === "team" && b.dataset.nav === "friends")));   // étape 53 : Messages → Amis ; étape 54 : Équipe → Amis
+  document.querySelectorAll("nav.bottom button").forEach(b => b.classList.toggle("active", b.dataset.nav === currentScreen || (currentScreen === "stories" && b.dataset.nav === "lists") || (currentScreen === "rhythm" && b.dataset.nav === "settings") || (currentScreen === "auditory" && b.dataset.nav === "settings") || (currentScreen === "sentences" && b.dataset.nav === "stats") || (currentScreen === "ideas" && b.dataset.nav === "settings") || (currentScreen === "messages" && b.dataset.nav === "friends") || (currentScreen === "team" && b.dataset.nav === "friends")));   // étape 53 : Messages → Amis ; étape 54 : Équipe → Amis
   renderScreen();
   if (currentScreen === "team" && prevScreen !== "team") { try { Teams.enter(); } catch (e) {} }   // étape 54 : équipe relue à chaque ouverture
   window.scrollTo(0, 0);
@@ -175,6 +175,7 @@ function renderScreen() {
   else if (currentScreen === "stories") renderStories();   // histoires (étape 45)
   else if (currentScreen === "rhythm") renderRhythm();   // rythme de révision (étape 47)
   else if (currentScreen === "auditory") renderAuditory();   // apprentissage auditif (étape 55, js/auditif.js)
+  else if (currentScreen === "sentences") renderSentences();   // mes phrases (étape 58, js/sentences.js)
   else if (currentScreen === "ideas") renderIdeas();   // mes idées (étape 52)
   else if (currentScreen === "adminidea") renderAdminIdeas();   // idées des utilisateurs (admin, étape 52)
   else if (currentScreen === "messages") renderMessages();   // messages reçus et fil de l'équipe (étape 53)

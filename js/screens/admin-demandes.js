@@ -232,7 +232,7 @@ function aqFilters() {
   };
   const accts = (aq.stats || []).slice().sort((a, b) => String(a.identifiant).localeCompare(String(b.identifiant)));
   mk(t("aq.f.account"), [["", t("aq.f.all")]].concat(accts.map(a => [a.user_id, a.identifiant])), aq.f.user, v => { aq.f.user = v; });
-  mk(t("aq.f.kind"), [["", t("aq.f.all")]].concat(["complete", "verify", "generate", "story"].map(k => [k, t("queue.kind." + k)])), aq.f.kind, v => { aq.f.kind = v; });
+  mk(t("aq.f.kind"), [["", t("aq.f.all")]].concat(["complete", "verify", "generate", "story", "sentence"].map(k => [k, t("queue.kind." + k)])), aq.f.kind, v => { aq.f.kind = v; });
   mk(t("aq.f.status"), [["", t("aq.f.all")]].concat(["pending", "processing", "done", "error"].map(k => [k, t("aq.st." + k)])), aq.f.status, v => { aq.f.status = v; });
   mk(t("aq.f.period"), [["", t("aq.pAll")], ["7", t("aq.p7")], ["30", t("aq.p30")]], aq.f.days, v => { aq.f.days = v; });
   return box;
@@ -319,7 +319,10 @@ async function aqOpenDetail(r0) {
   else {
     // Cartes envoyées
     body.appendChild(el("h4", null, t("aq.sent")));
-    if (r.kind === "story") {                                     // étape 45 : mots demandés
+    if (r.kind === "sentence") {                                  // étape 58 : phrase de l'utilisateur
+      const sn = pl.sentence || (batches[0] && batches[0].sentence) || {};
+      body.appendChild(aqTable([t("aq.param"), t("aq.value")], [["langue", sn.lang || ""], ["mot", sn.word || ""], ["phrase", sn.text || ""], ["langue de l'explication", sn.tl || pl.uiLang || ""]]));
+    } else if (r.kind === "story") {                                     // étape 45 : mots demandés
       const sr = pl.story || (batches[0] && batches[0].story) || {};
       body.appendChild(el("p", "muted", [sr.lang, sr.level, sr.len].filter(Boolean).join(" · ")));
       const rows = arr(sr.words).map(w => [w.k || "", w.w || "", w.tr || ""]);
@@ -352,7 +355,11 @@ async function aqOpenDetail(r0) {
       const cards = new Map(aqBatchCards(batches[p.batch]).map(it => [it.id, it]));
       const res = p.result;
       let rows = [], head;
-      if (r.kind === "story") {                                   // étape 45 : titre, phrases, questions
+      if (r.kind === "sentence") {                                // étape 58 : correction
+        head = [t("aq.field"), t("aq.content")];
+        const o = res && typeof res === "object" ? res : {};
+        rows.push(["correct", String(o.correct === true)], ["corrected", String(o.corrected || "")], ["explanation", String(o.explanation || "")]);
+      } else if (r.kind === "story") {                                   // étape 45 : titre, phrases, questions
         head = ["#", t("aq.content")];
         const o = res && typeof res === "object" ? res : {};
         if (o.title) rows.push(["", String(o.title)]);

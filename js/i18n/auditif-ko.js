@@ -10,7 +10,7 @@ Object.assign(I18N.ko, {
   "aud.when.off": "안 함",
   "aud.when.off.d": "반복하지 않아요 (기본값).",
   "aud.when.wrong": "틀린 카드",
-  "aud.when.wrong.d": "‘몰라요’ 또는 ‘다시 보기’ 뒤에 (쓰기: 틀린 답).",
+  "aud.when.wrong.d": "‘몰라요’ 또는 ‘애매해요’ 뒤에 (쓰기: 틀린 답).",
   "aud.when.right": "맞힌 카드",
   "aud.when.right.d": "‘알아요’ 뒤에 (쓰기: 맞은 답).",
   "aud.when.always": "항상",

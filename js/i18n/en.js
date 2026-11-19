@@ -49,21 +49,21 @@ I18N.en = {
     "bulk.header": "header line recognized", "bulk.page": "{a}–{b} of {n}",
     "bulk.nothing": "Nothing to import", "bulk.done": "{n} cards added, {m} replaced",
     "review.scope": "Scope", "scope.all": "All", "scope.lists": "Lists", "scope.tags": "Tags", "scope.cat": "Category",
-    "cat.unknown": "Didn't know", "cat.review": "To review", "cat.known": "Knew it",
+    "cat.unknown": "To learn", "cat.review": "Learning", "cat.known": "Learned",
     "review.which": "Words", "which.due": "Due today", "which.all": "All words",
     "review.dir": "Direction", "dir.mix": "Mixed",
     "review.count": "Number of cards", "review.mode": "Mode", "mode.cards": "Cards", "mode.write": "Writing", "mode.quiz": "Quizzer",
     "review.available": "{n} cards available", "review.start": "Start", "review.none": "No matching cards",
     "review.pickOne": "Pick at least one", "review.noTags": "No tags yet",
     "quiz.answer": "Answer ({lang})", "quiz.hide": "Hide", "quiz.show": "Show", "quiz.hidden": "Answer hidden",
-    "cards.tap": "Tap to flip · right = Knew it · left = Didn't know · up = To review", "cards.left": "{n} cards left", "cards.quit": "Stop",
+    "cards.tap": "Tap to flip · right = Got it · left = Missed · up = Unsure", "cards.left": "{n} cards left", "cards.quit": "Stop",
     "sum.title": "Session complete", "sum.cards": "{n} cards reviewed", "sum.retry": "Replay missed ({n})", "sum.new": "New session", "sum.noMiss": "No misses, well done!", "write.check": "Check",
     "write.ok": "Correct!", "write.accents": "Correct — watch the accents", "write.wrong": "Wrong",
     "write.yours": "Your answer", "write.correct": "Correct answer", "write.all": "Accepted answers: {a}",
     "write.next": "Continue · {r}", "write.fix": "Change the result:",
     "audio.play": "Listen",
     "stats.empty": "No cards yet", "stats.allLists": "All lists", "stats.words": "Words", "stats.rate": "Success rate", "stats.pct": "{n}%",
-    "stats.rateHint": "{c} \"Knew it\" out of {s} answers", "stats.byCat": "By category", "stats.byBox": "By box", "stats.box": "Box {n}",
+    "stats.rateHint": "{c} “Got it” out of {s} answers", "stats.byCat": "By category", "stats.byBox": "By box", "stats.box": "Box {n}",
     "stats.byList": "By list", "stats.listLine": "{n} cards · {r} success",
     "stats.missed": "Most missed words", "stats.noMissed": "No missed words yet", "stats.missedCount": "missed {w} of {s}",
     "auth.loading": "Loading…", "auth.loginTitle": "Sign in", "auth.createTitle": "Create an account", "auth.firstTitle": "Create the first account",
@@ -361,7 +361,7 @@ Object.assign(I18N.en, {
   "al.s.login.pin": "signed in with PIN",
   "al.s.login.create": "account created",
   "al.s.login.resume": "app opened (session kept)",
-  "al.s.session": "{mode} · {n} cards · {k} known · {r} to review · {u} unknown · {min} min",
+  "al.s.session": "{mode} · {n} cards · Got it {k} · Unsure {r} · Missed {u} · {min} min",
   "al.s.lists": "{n} lists",
   "al.s.added": "{n} cards",
   "al.s.import": "{n} new cards · {m} replaced",
@@ -472,7 +472,7 @@ Object.assign(I18N.en, {
   "fc.type": "Type",
   "fc.box": "Box {n}",
   "fc.total": "Total",
-  "fc.boxNote": "Box 0 = didn't know, boxes 1-2 = to review, boxes 3-5 = knew it.",
+  "fc.boxNote": "Box 0 = To learn, boxes 1-2 = Learning, boxes 3-5 = Learned.",
   "fc.byLang": "By learning language",
   "fc.lang": "Language",
   "fc.diff": "Difficulties",
@@ -482,7 +482,7 @@ Object.assign(I18N.en, {
   "fc.wrong": "Missed",
   "fc.seen": "Seen",
   "fc.blocked0": "Stuck in box 0 ({n})",
-  "fc.blockedNote": "Cards seen {n} times or more, never known.",
+  "fc.blockedNote": "Cards seen {n} times or more, never “Got it”.",
   "fc.noBlocked": "No stuck cards.",
   "fc.seenN": "seen {n} times",
   "fc.andMore": "… and {n} more",
@@ -876,7 +876,7 @@ Object.assign(I18N.en, {
   "sh.addedCopy": "“{name}” added (progress at zero).",
   "sh.addedCommon": "“{name}” added to your lists.",
   "sh.noProgress": "nothing shared (or hidden)",
-  "sh.progVal": "{su}/{n} known · {rev} to review · {ps} not known",
+  "sh.progVal": "{su}/{n} learned · {rev} learning · {ps} to learn",
   "sh.err.sh_gone": "Shared list or invitation not found (deleted?).",
   "sh.err.sh_owner": "Only the list owner can do this.",
   "sh.err.sh_limit": "Limit reached (pending invitations or shared lists).",
@@ -1220,7 +1220,7 @@ Object.assign(I18N.en, {
   "study.genLang": "Language of the cards",
   "study.byLang": "By learning language",
   "study.statLine": "{n} cards · {d} to review · success {r}",
-  "study.statDays": "7 days: {r} review(s), {p}% known · {s} day(s) in a row"
+  "study.statDays": "7 days: {r} review(s), {p}% “Got it” · {s} day(s) in a row"
 });
 
 // --- Étape 38 : invitation à activer les notifications ---
@@ -1318,4 +1318,13 @@ Object.assign(I18N.en, {
   "wn.title": "What's new (version {v})",
   "wn.all": "See all",
   "wn.ok": "OK"
+});
+
+// === ÉTAPE 56 : NOMS DES RÉPONSES ===
+// Boutons de réponse (tous les modes, swipe, fin de session) : ans.known / ans.review / ans.unknown.
+// Les catégories gardent les clés cat.known / cat.review / cat.unknown (Acquis / En cours / À apprendre).
+Object.assign(I18N.en, {
+  "ans.known": "Got it",
+  "ans.review": "Unsure",
+  "ans.unknown": "Missed"
 });

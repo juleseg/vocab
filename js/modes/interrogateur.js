@@ -3,7 +3,7 @@
 // === MODE INTERROGATEUR ===
 // Pour une 2e personne qui tient le téléphone : question en grand, réponse visible pour l'interrogateur
 // (bouton Masquer/Afficher, choix gardé tant que l'appli est ouverte), exemple sous la réponse,
-// 3 gros boutons Su / À revoir / Pas su. Fin de session : renderSessionSummary().
+// 3 gros boutons Su / À revoir / Pas su (libellés : clés ans.*, étape 56). Fin de session : renderSessionSummary().
 let quizHideAnswer = false;
 
 function renderQuizSession(root) {
@@ -20,6 +20,7 @@ function renderQuizSession(root) {
   const meta = el("div", "meta-row");
   meta.append(el("span", null, t("cards.left", { n: s.queue.length })), el("span", null, t("cat." + Leitner.category(c))));
   root.appendChild(meta);
+  HardUI.sessionExtras(root, c, item);   // badge « Mot difficile » et « Mon astuce » (étape 57)
 
   // Question (en grand)
   const q = el("div", "card qz-q");
@@ -65,7 +66,7 @@ function renderQuizSession(root) {
   // Notation
   const g = el("div", "qz-btns");
   [["known", "ok"], ["review", "warn"], ["unknown", "danger"]].forEach(([r, cls]) => {
-    const b = el("button", "btn " + cls, t("cat." + r));
+    const b = el("button", "btn " + cls, t("ans." + r));
     b.addEventListener("click", () => gradeCurrent(r));
     g.appendChild(b);
   });

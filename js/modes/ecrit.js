@@ -4,6 +4,7 @@
 // Saisie de la réponse. Comparaison sans casse, espaces en trop ni accents ; plusieurs réponses acceptées ("/").
 // Juste mais accents faux = compté juste + bonne orthographe avec différences surlignées.
 // Après vérification : valider le résultat proposé, ou le corriger (Su / À revoir / Pas su).
+// Libellés des réponses : clés ans.* (étape 56) ; catégorie de la carte : clés cat.*.
 // État de la carte en cours : rv.s.w = { typed, res } (remis à zéro à chaque notation).
 
 // Nettoyage commun : espaces simplifiés, apostrophes unifiées (’ du clavier iPhone = '). Casse et accents gardés.
@@ -95,6 +96,7 @@ function renderWriteSession(root) {
   const meta = el("div", "meta-row");
   meta.append(el("span", null, t("cards.left", { n: s.queue.length })), el("span", null, t("cat." + Leitner.category(c))));
   root.appendChild(meta);
+  HardUI.sessionExtras(root, c, item, { noTip: !w.res });   // badge ; astuce seulement après la réponse (étape 57)
 
   // Question (nature affichée seulement après la réponse)
   const q = el("div", "card wr-q");
@@ -121,7 +123,7 @@ function renderWriteSession(root) {
   root.appendChild(inp);
 
   if (!w.res) {
-    const check = () => { w.typed = inp.value; w.res = wrCheck(inp.value, alts); renderReview(); };
+    const check = () => { w.typed = inp.value; w.res = wrCheck(inp.value, alts); HardUI.writeConfusion(c, item, w.res); renderReview(); };   // étape 57 : confusion avec un autre mot
     inp.addEventListener("input", () => { w.typed = inp.value; });
     inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); check(); } });
     const b = el("button", "btn primary", t("write.check"));
@@ -163,16 +165,18 @@ function renderWriteSession(root) {
     }
     const ex = exampleNode(c, "wr-ex", f.lg); if (ex) box.appendChild(ex);   // exemple + traductions (étape 35)
     root.appendChild(box);
+    const other = r.conf ? state.cards.find(x => x.id === r.conf) : null;   // étape 57 : deux mots côte à côte
+    if (other) root.appendChild(HardUI.pairNode(c, other, item.lang || primaryLang(c)));
 
     // Résultat proposé + correction possible
     const sug = r.verdict === "wrong" ? "unknown" : "known";
-    const next = el("button", "btn primary", t("write.next", { r: t("cat." + sug) }));
+    const next = el("button", "btn primary", t("write.next", { r: t("ans." + sug) }));
     next.addEventListener("click", () => wrGrade(sug));
     root.appendChild(next);
     root.appendChild(el("div", "wr-fix", t("write.fix")));
     const g = el("div", "btns two");
     [["known", "ok"], ["review", "warn"], ["unknown", "danger"]].filter(([x]) => x !== sug).forEach(([x, cls]) => {
-      const b = el("button", "btn " + cls, t("cat." + x));
+      const b = el("button", "btn " + cls, t("ans." + x));
       b.addEventListener("click", () => wrGrade(x));
       g.appendChild(b);
     });

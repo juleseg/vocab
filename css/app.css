@@ -1500,3 +1500,46 @@ html[lang="ko"] .lx-help,html[lang="ko"] .lx-field .hint{word-break:keep-all;ove
 @media (prefers-reduced-motion:reduce){.aud-lbl{animation:none}}
 /* Mode Cartes : au dos, rappel des mots de la question (les deux langues visibles, étape 55) */
 .sw-other{margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:16px;font-weight:400;color:var(--muted);overflow-wrap:anywhere;word-break:keep-all;max-width:92%}
+
+/* === MOTS DIFFICILES (ÉTAPE 57) : badge, « Mon astuce », « Réparer ce mot », paires, listes Stats === */
+.hd-extras{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:-2px 0 10px}
+.hd-badge{display:inline-block;font-size:13px;font-weight:600;color:var(--warn);background:var(--surface2);border:1px solid var(--warn);border-radius:999px;padding:2px 10px}
+.tag.hd-tag{color:var(--warn)}
+.tag.hd-paused{color:var(--muted)}
+.hd-tip{flex:1 1 100%;min-width:0}
+.hd-tip-btn{padding:4px 0}
+.hd-tip-text{background:var(--surface2);border-radius:10px;padding:8px 12px;margin-top:4px;font-size:15px;overflow-wrap:anywhere}
+.hd-repair .hd-repair-word{font-size:22px;font-weight:700;text-align:center;margin:6px 0 14px;overflow-wrap:anywhere}
+.hd-repair .hd-opt{display:block;width:100%;text-align:left;margin-top:8px;min-height:44px}
+.hd-opt-hint{margin:2px 4px 0}
+.hd-pair{margin-top:12px}
+.hd-pair-title{font-weight:700;margin-bottom:8px}
+.hd-pair-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hd-pair-col{background:var(--surface2);border-radius:10px;padding:10px;min-width:0;text-align:center}
+.hd-pair-main{font-size:20px;font-weight:700;overflow-wrap:anywhere}
+.hd-pair-sub{font-size:14px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+.hd-prow{padding:10px 0;border-bottom:1px solid var(--border)}
+.hd-prow:last-child{border-bottom:0}
+.hd-prow .cnt{color:var(--bad);font-size:14px;margin-top:6px;text-align:center}
+.hd-card .hint{margin:0 0 8px}
+.hd-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.hd-mini{padding:6px 10px;min-height:36px;font-size:14px}
+.hd-go{margin-top:12px;width:100%}
+.hd-stats{display:block}
+.hd-stats > .card{margin-top:12px}
+@media (max-width:380px){.hd-pair-row{grid-template-columns:1fr}.hd-pair-main{font-size:18px}}
+/* === MA PHRASE (étape 58, js/sentences.js) === */
+.sn-entry{width:100%;margin-top:12px}
+.sn-ta{width:100%;resize:vertical;min-height:84px}
+.sn-offer .hint{margin-top:8px}
+.sn-item{display:flex;flex-direction:column;gap:6px}
+.sn-tags{display:inline-flex;flex-wrap:wrap;gap:6px}
+.sn-st-pending{background:var(--surface2);color:var(--muted)}
+.sn-st-done{background:color-mix(in srgb,var(--good,#2e9d57) 18%,var(--surface));color:var(--text)}
+.sn-st-error{background:color-mix(in srgb,var(--bad,#d64545) 15%,var(--surface));color:var(--text)}
+.sn-lbl{font-size:12px;font-weight:700;color:var(--muted);margin-top:4px}
+.sn-text,.sn-expl{overflow-wrap:anywhere;word-break:keep-all;font-size:16px}
+.sn-fixed{font-weight:600}
+.sn-right{color:var(--accent);font-weight:600}
+.sn-btns{display:grid;gap:8px;margin-top:8px}
+.sn-used{font-size:14px;color:var(--muted)}

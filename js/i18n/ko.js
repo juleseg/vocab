@@ -49,21 +49,21 @@ I18N.ko = {
     "bulk.header": "제목 줄 인식됨", "bulk.page": "{n}개 중 {a}–{b}",
     "bulk.nothing": "가져올 내용이 없습니다", "bulk.done": "카드 {n}개 추가, {m}개 변경",
     "review.scope": "범위", "scope.all": "전체", "scope.lists": "목록", "scope.tags": "태그", "scope.cat": "분류",
-    "cat.unknown": "몰라요", "cat.review": "다시 보기", "cat.known": "알아요",
+    "cat.unknown": "배울 것", "cat.review": "익히는 중", "cat.known": "익힘",
     "review.which": "복습 대상", "which.due": "오늘 복습할 단어", "which.all": "모든 단어",
     "review.dir": "방향", "dir.mix": "섞어서",
     "review.count": "카드 수", "review.mode": "모드", "mode.cards": "카드", "mode.write": "쓰기", "mode.quiz": "질문자",
     "review.available": "해당 카드 {n}개", "review.start": "시작", "review.none": "조건에 맞는 카드가 없습니다",
     "review.pickOne": "하나 이상 선택하세요", "review.noTags": "아직 태그가 없습니다",
     "quiz.answer": "정답 ({lang})", "quiz.hide": "숨기기", "quiz.show": "보기", "quiz.hidden": "정답이 숨겨져 있습니다",
-    "cards.tap": "탭해서 뒤집기 · 오른쪽 = 알아요 · 왼쪽 = 몰라요 · 위 = 다시 보기", "cards.left": "남은 카드 {n}개", "cards.quit": "그만하기",
+    "cards.tap": "탭해서 뒤집기 · 오른쪽 = 알아요 · 왼쪽 = 몰라요 · 위 = 애매해요", "cards.left": "남은 카드 {n}개", "cards.quit": "그만하기",
     "sum.title": "세션 끝", "sum.cards": "카드 {n}개 복습", "sum.retry": "틀린 카드 다시 하기 ({n})", "sum.new": "새 세션", "sum.noMiss": "틀린 카드가 없어요. 잘했어요!", "write.check": "확인",
     "write.ok": "정답!", "write.accents": "정답 — 악상(강세 부호)을 확인하세요", "write.wrong": "오답",
     "write.yours": "내 답", "write.correct": "정답", "write.all": "가능한 답: {a}",
     "write.next": "계속 · {r}", "write.fix": "결과 고치기:",
     "audio.play": "듣기",
     "stats.empty": "아직 카드가 없습니다", "stats.allLists": "모든 목록", "stats.words": "단어", "stats.rate": "정답률", "stats.pct": "{n}%",
-    "stats.rateHint": "응답 {s}번 중 {c}번 알아요", "stats.byCat": "분류별", "stats.byBox": "상자별", "stats.box": "{n}번 상자",
+    "stats.rateHint": "응답 {s}번 중 ‘알아요’ {c}번", "stats.byCat": "분류별", "stats.byBox": "상자별", "stats.box": "{n}번 상자",
     "stats.byList": "목록별", "stats.listLine": "카드 {n}개 · 정답률 {r}",
     "stats.missed": "가장 많이 틀린 단어", "stats.noMissed": "아직 틀린 단어가 없습니다", "stats.missedCount": "{s}번 중 {w}번 틀림",
     "auth.loading": "불러오는 중…", "auth.loginTitle": "로그인", "auth.createTitle": "계정 만들기", "auth.firstTitle": "첫 계정 만들기",
@@ -361,7 +361,7 @@ Object.assign(I18N.ko, {
   "al.s.login.pin": "PIN으로 로그인",
   "al.s.login.create": "계정 만들기",
   "al.s.login.resume": "앱 열기(로그인 유지)",
-  "al.s.session": "{mode} · 카드 {n}개 · 앎 {k} · 다시 {r} · 모름 {u} · {min}분",
+  "al.s.session": "{mode} · 카드 {n}개 · 알아요 {k} · 애매해요 {r} · 몰라요 {u} · {min}분",
   "al.s.lists": "목록 {n}개",
   "al.s.added": "카드 {n}개",
   "al.s.import": "새 카드 {n}개 · 바꾼 카드 {m}개",
@@ -472,7 +472,7 @@ Object.assign(I18N.ko, {
   "fc.type": "종류",
   "fc.box": "{n}번 상자",
   "fc.total": "합계",
-  "fc.boxNote": "0번 상자 = 몰라요, 1-2번 = 다시 보기, 3-5번 = 알아요.",
+  "fc.boxNote": "0번 상자 = 배울 것, 1-2번 = 익히는 중, 3-5번 = 익힘.",
   "fc.byLang": "학습 언어별",
   "fc.lang": "언어",
   "fc.diff": "어려운 부분",
@@ -876,7 +876,7 @@ Object.assign(I18N.ko, {
   "sh.addedCopy": "「{name}」를 추가했어요 (진도 0부터).",
   "sh.addedCommon": "「{name}」를 내 목록에 추가했어요.",
   "sh.noProgress": "공유된 것 없음 (또는 숨김)",
-  "sh.progVal": "{su}/{n} 앎 · {rev} 다시 보기 · {ps} 모름",
+  "sh.progVal": "{su}/{n} 익힘 · {rev} 익히는 중 · {ps} 배울 것",
   "sh.err.sh_gone": "공동 목록이나 초대를 찾을 수 없어요 (삭제됐나요?).",
   "sh.err.sh_owner": "목록 소유자만 할 수 있어요.",
   "sh.err.sh_limit": "한도에 도달했어요 (대기 중인 초대 또는 공동 목록).",
@@ -1318,4 +1318,13 @@ Object.assign(I18N.ko, {
   "wn.title": "새로운 기능 (버전 {v})",
   "wn.all": "모두 보기",
   "wn.ok": "확인"
+});
+
+// === ÉTAPE 56 : NOMS DES RÉPONSES ===
+// Boutons de réponse (tous les modes, swipe, fin de session) : ans.known / ans.review / ans.unknown.
+// Les catégories gardent les clés cat.known / cat.review / cat.unknown (Acquis / En cours / À apprendre).
+Object.assign(I18N.ko, {
+  "ans.known": "알아요",
+  "ans.review": "애매해요",
+  "ans.unknown": "몰라요"
 });
