@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vocab</title>
-<link rel="stylesheet" href="css/app.css?v=53">
+<link rel="stylesheet" href="css/app.css?v=54">
 <!-- === PWA (appli installable) === -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2f5bd3">
@@ -131,6 +131,8 @@
     <section class="screen" id="screen-adminidea"></section>
     <!-- Messages (admin, étape 53) : conversations avec les comptes, messages prédéfinis -->
     <section class="screen" id="screen-adminmsg"></section>
+    <!-- Équipes (admin, étape 54) -->
+    <section class="screen" id="screen-adminteam"></section>
     <!-- À propos (étape 39) -->
     <section class="screen" id="screen-about"></section>
     <!-- Histoires avec mes mots (étape 45) -->
@@ -141,6 +143,8 @@
     <section class="screen" id="screen-ideas"></section>
     <!-- Messages reçus et fil « L'équipe Vocab » (étape 53) : ouvert depuis Amis, Réglages et À propos -->
     <section class="screen" id="screen-messages"></section>
+    <!-- Équipe (étape 54) : ouvert depuis Amis (carte « 👥 Mon équipe ») -->
+    <section class="screen" id="screen-team"></section>
 
     <section class="screen" id="screen-settings">
       <div class="card">
@@ -238,115 +242,120 @@
 <!-- Configuration Supabase (fichier séparé, absent dans Claude : l'appli passe alors au stockage de l'artifact ou du navigateur) -->
 <script src="config.js"></script>
 <!-- Scripts de l'appli, dans l'ordre (scripts classiques, sans build). -->
-<script src="js/core.js?v=53"></script>
-<script src="js/errors.js?v=53"></script>
-<script src="js/languages.js?v=53"></script>
-<script src="js/i18n/ko.js?v=53"></script>
-<script src="js/i18n/fr.js?v=53"></script>
-<script src="js/i18n/en.js?v=53"></script>
-<script src="js/i18n/tutorial-ko.js?v=53"></script>
-<script src="js/i18n/tutorial-fr.js?v=53"></script>
-<script src="js/i18n/tutorial-en.js?v=53"></script>
-<script src="js/i18n/errors-ko.js?v=53"></script>
-<script src="js/i18n/errors-fr.js?v=53"></script>
-<script src="js/i18n/errors-en.js?v=53"></script>
-<script src="js/i18n/games-ko.js?v=53"></script>
-<script src="js/i18n/games-fr.js?v=53"></script>
-<script src="js/i18n/games-en.js?v=53"></script>
-<script src="js/i18n/xp-ko.js?v=53"></script>
-<script src="js/i18n/xp-fr.js?v=53"></script>
-<script src="js/i18n/xp-en.js?v=53"></script>
-<script src="js/i18n/league-ko.js?v=53"></script>
-<script src="js/i18n/league-fr.js?v=53"></script>
-<script src="js/i18n/league-en.js?v=53"></script>
-<script src="js/i18n/story-ko.js?v=53"></script>
-<script src="js/i18n/story-fr.js?v=53"></script>
-<script src="js/i18n/story-en.js?v=53"></script>
-<script src="js/i18n/listen-ko.js?v=53"></script>
-<script src="js/i18n/listen-fr.js?v=53"></script>
-<script src="js/i18n/listen-en.js?v=53"></script>
-<script src="js/i18n/fsrs-ko.js?v=53"></script>
-<script src="js/i18n/fsrs-fr.js?v=53"></script>
-<script src="js/i18n/fsrs-en.js?v=53"></script>
-<script src="js/i18n/release-ko.js?v=53"></script>
-<script src="js/i18n/release-fr.js?v=53"></script>
-<script src="js/i18n/release-en.js?v=53"></script>
-<script src="js/i18n/backup-ko.js?v=53"></script>
-<script src="js/i18n/backup-fr.js?v=53"></script>
-<script src="js/i18n/backup-en.js?v=53"></script>
-<script src="js/i18n/images-ko.js?v=53"></script>
-<script src="js/i18n/images-fr.js?v=53"></script>
-<script src="js/i18n/images-en.js?v=53"></script>
-<script src="js/i18n/ideas-ko.js?v=53"></script>
-<script src="js/i18n/ideas-fr.js?v=53"></script>
-<script src="js/i18n/ideas-en.js?v=53"></script>
-<script src="js/i18n/langs-ko.js?v=53"></script>
-<script src="js/i18n/langs-fr.js?v=53"></script>
-<script src="js/i18n/langs-en.js?v=53"></script>
-<script src="js/i18n/messages-ko.js?v=53"></script>
-<script src="js/i18n/messages-fr.js?v=53"></script>
-<script src="js/i18n/messages-en.js?v=53"></script>
-<script src="js/fsrs.js?v=53"></script>
-<script src="js/release.js?v=53"></script>
-<script src="js/storage.js?v=53"></script>
-<script src="js/cards.js?v=53"></script>
-<script src="js/langhelp.js?v=53"></script>
-<script src="js/auth.js?v=53"></script>
-<script src="js/leitner.js?v=53"></script>
-<script src="js/xp.js?v=53"></script>
-<script src="js/modes/cartes.js?v=53"></script>
-<script src="js/modes/ecrit.js?v=53"></script>
-<script src="js/modes/interrogateur.js?v=53"></script>
-<script src="js/modes/tableau.js?v=53"></script>
-<script src="js/modes/jeux.js?v=53"></script>
-<script src="js/modes/qcm.js?v=53"></script>
-<script src="js/modes/course.js?v=53"></script>
-<script src="js/modes/paires.js?v=53"></script>
-<script src="js/modes/ordre.js?v=53"></script>
-<script src="js/modes/dictee.js?v=53"></script>
-<script src="js/modes/prononciation.js?v=53"></script>
-<script src="js/screens/accueil.js?v=53"></script>
-<script src="js/screens/reviser.js?v=53"></script>
-<script src="js/screens/listes.js?v=53"></script>
-<script src="js/screens/stats.js?v=53"></script>
-<script src="js/screens/reglages.js?v=53"></script>
-<script src="js/screens/a-valider.js?v=53"></script>
-<script src="js/screens/amis.js?v=53"></script>
-<script src="js/league.js?v=53"></script>
-<script src="js/duel.js?v=53"></script>
-<script src="js/screens/admin.js?v=53"></script>
-<script src="js/screens/admin-dashboard.js?v=53"></script>
-<script src="js/screens/admin-demandes.js?v=53"></script>
-<script src="js/screens/admin-journal.js?v=53"></script>
-<script src="js/screens/admin-fiche.js?v=53"></script>
-<script src="js/screens/admin-comptes.js?v=53"></script>
-<script src="js/screens/admin-notifications.js?v=53"></script>
-<script src="js/screens/admin-invite.js?v=53"></script>
-<script src="js/screens/admin-release.js?v=53"></script>
-<script src="js/screens/admin-backups.js?v=53"></script>
-<script src="js/screens/admin-dictionnaire.js?v=53"></script>
-<script src="js/screens/admin-images.js?v=53"></script>
-<script src="js/screens/admin-erreurs.js?v=53"></script>
-<script src="js/screens/admin-idees.js?v=53"></script>
-<script src="js/screens/admin-messages.js?v=53"></script>
-<script src="js/partage.js?v=53"></script>
-<script src="js/import.js?v=53"></script>
-<script src="js/completion.js?v=53"></script>
-<script src="js/queue.js?v=53"></script>
-<script src="js/dictionary.js?v=53"></script>
-<script src="js/images.js?v=53"></script>
-<script src="js/study.js?v=53"></script>
-<script src="js/story.js?v=53"></script>
-<script src="js/ideas.js?v=53"></script>
-<script src="js/messages.js?v=53"></script>
-<script src="js/activity.js?v=53"></script>
-<script src="js/audio.js?v=53"></script>
-<script src="js/notifications.js?v=53"></script>
-<script src="js/notif-invite.js?v=53"></script>
-<script src="js/changelog.js?v=53"></script>
-<script src="js/qrcode.js?v=53"></script>
-<script src="js/screens/a-propos.js?v=53"></script>
-<script src="js/tutorial.js?v=53"></script>
-<script src="js/app.js?v=53"></script>
+<script src="js/core.js?v=54"></script>
+<script src="js/errors.js?v=54"></script>
+<script src="js/languages.js?v=54"></script>
+<script src="js/i18n/ko.js?v=54"></script>
+<script src="js/i18n/fr.js?v=54"></script>
+<script src="js/i18n/en.js?v=54"></script>
+<script src="js/i18n/tutorial-ko.js?v=54"></script>
+<script src="js/i18n/tutorial-fr.js?v=54"></script>
+<script src="js/i18n/tutorial-en.js?v=54"></script>
+<script src="js/i18n/errors-ko.js?v=54"></script>
+<script src="js/i18n/errors-fr.js?v=54"></script>
+<script src="js/i18n/errors-en.js?v=54"></script>
+<script src="js/i18n/games-ko.js?v=54"></script>
+<script src="js/i18n/games-fr.js?v=54"></script>
+<script src="js/i18n/games-en.js?v=54"></script>
+<script src="js/i18n/xp-ko.js?v=54"></script>
+<script src="js/i18n/xp-fr.js?v=54"></script>
+<script src="js/i18n/xp-en.js?v=54"></script>
+<script src="js/i18n/league-ko.js?v=54"></script>
+<script src="js/i18n/league-fr.js?v=54"></script>
+<script src="js/i18n/league-en.js?v=54"></script>
+<script src="js/i18n/story-ko.js?v=54"></script>
+<script src="js/i18n/story-fr.js?v=54"></script>
+<script src="js/i18n/story-en.js?v=54"></script>
+<script src="js/i18n/listen-ko.js?v=54"></script>
+<script src="js/i18n/listen-fr.js?v=54"></script>
+<script src="js/i18n/listen-en.js?v=54"></script>
+<script src="js/i18n/fsrs-ko.js?v=54"></script>
+<script src="js/i18n/fsrs-fr.js?v=54"></script>
+<script src="js/i18n/fsrs-en.js?v=54"></script>
+<script src="js/i18n/release-ko.js?v=54"></script>
+<script src="js/i18n/release-fr.js?v=54"></script>
+<script src="js/i18n/release-en.js?v=54"></script>
+<script src="js/i18n/backup-ko.js?v=54"></script>
+<script src="js/i18n/backup-fr.js?v=54"></script>
+<script src="js/i18n/backup-en.js?v=54"></script>
+<script src="js/i18n/images-ko.js?v=54"></script>
+<script src="js/i18n/images-fr.js?v=54"></script>
+<script src="js/i18n/images-en.js?v=54"></script>
+<script src="js/i18n/ideas-ko.js?v=54"></script>
+<script src="js/i18n/ideas-fr.js?v=54"></script>
+<script src="js/i18n/ideas-en.js?v=54"></script>
+<script src="js/i18n/langs-ko.js?v=54"></script>
+<script src="js/i18n/langs-fr.js?v=54"></script>
+<script src="js/i18n/langs-en.js?v=54"></script>
+<script src="js/i18n/messages-ko.js?v=54"></script>
+<script src="js/i18n/messages-fr.js?v=54"></script>
+<script src="js/i18n/messages-en.js?v=54"></script>
+<script src="js/i18n/teams-ko.js?v=54"></script>
+<script src="js/i18n/teams-fr.js?v=54"></script>
+<script src="js/i18n/teams-en.js?v=54"></script>
+<script src="js/fsrs.js?v=54"></script>
+<script src="js/release.js?v=54"></script>
+<script src="js/storage.js?v=54"></script>
+<script src="js/cards.js?v=54"></script>
+<script src="js/langhelp.js?v=54"></script>
+<script src="js/auth.js?v=54"></script>
+<script src="js/leitner.js?v=54"></script>
+<script src="js/xp.js?v=54"></script>
+<script src="js/modes/cartes.js?v=54"></script>
+<script src="js/modes/ecrit.js?v=54"></script>
+<script src="js/modes/interrogateur.js?v=54"></script>
+<script src="js/modes/tableau.js?v=54"></script>
+<script src="js/modes/jeux.js?v=54"></script>
+<script src="js/modes/qcm.js?v=54"></script>
+<script src="js/modes/course.js?v=54"></script>
+<script src="js/modes/paires.js?v=54"></script>
+<script src="js/modes/ordre.js?v=54"></script>
+<script src="js/modes/dictee.js?v=54"></script>
+<script src="js/modes/prononciation.js?v=54"></script>
+<script src="js/screens/accueil.js?v=54"></script>
+<script src="js/screens/reviser.js?v=54"></script>
+<script src="js/screens/listes.js?v=54"></script>
+<script src="js/screens/stats.js?v=54"></script>
+<script src="js/screens/reglages.js?v=54"></script>
+<script src="js/screens/a-valider.js?v=54"></script>
+<script src="js/screens/amis.js?v=54"></script>
+<script src="js/league.js?v=54"></script>
+<script src="js/duel.js?v=54"></script>
+<script src="js/screens/admin.js?v=54"></script>
+<script src="js/screens/admin-dashboard.js?v=54"></script>
+<script src="js/screens/admin-demandes.js?v=54"></script>
+<script src="js/screens/admin-journal.js?v=54"></script>
+<script src="js/screens/admin-fiche.js?v=54"></script>
+<script src="js/screens/admin-comptes.js?v=54"></script>
+<script src="js/screens/admin-notifications.js?v=54"></script>
+<script src="js/screens/admin-invite.js?v=54"></script>
+<script src="js/screens/admin-release.js?v=54"></script>
+<script src="js/screens/admin-backups.js?v=54"></script>
+<script src="js/screens/admin-dictionnaire.js?v=54"></script>
+<script src="js/screens/admin-images.js?v=54"></script>
+<script src="js/screens/admin-erreurs.js?v=54"></script>
+<script src="js/screens/admin-idees.js?v=54"></script>
+<script src="js/screens/admin-messages.js?v=54"></script>
+<script src="js/screens/admin-equipes.js?v=54"></script>
+<script src="js/partage.js?v=54"></script>
+<script src="js/import.js?v=54"></script>
+<script src="js/completion.js?v=54"></script>
+<script src="js/queue.js?v=54"></script>
+<script src="js/dictionary.js?v=54"></script>
+<script src="js/images.js?v=54"></script>
+<script src="js/study.js?v=54"></script>
+<script src="js/story.js?v=54"></script>
+<script src="js/ideas.js?v=54"></script>
+<script src="js/messages.js?v=54"></script>
+<script src="js/teams.js?v=54"></script>
+<script src="js/activity.js?v=54"></script>
+<script src="js/audio.js?v=54"></script>
+<script src="js/notifications.js?v=54"></script>
+<script src="js/notif-invite.js?v=54"></script>
+<script src="js/changelog.js?v=54"></script>
+<script src="js/qrcode.js?v=54"></script>
+<script src="js/screens/a-propos.js?v=54"></script>
+<script src="js/tutorial.js?v=54"></script>
+<script src="js/app.js?v=54"></script>
 </body>
 </html>

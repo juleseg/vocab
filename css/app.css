@@ -1430,3 +1430,50 @@ html[lang="ko"] .lx-help,html[lang="ko"] .lx-field .hint{word-break:keep-all;ove
 .amg-langs dd{margin:0;overflow-wrap:anywhere;word-break:keep-all}
 .amg-edit .field{margin-bottom:10px}
 .amg-edit textarea{width:100%}
+
+/* === ÉQUIPES (étape 54) — .tm-* (utilisateur, js/teams.js), .atm-* (admin, js/screens/admin-equipes.js) === */
+.tm-h{margin:4px 0 10px}
+.tm-card.tm-mine{cursor:pointer}
+.tm-card.tm-mine:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tm-head{display:flex;align-items:center;gap:12px;min-width:0}
+.tm-emoji{font-size:30px;line-height:1;flex:none}
+.tm-emoji.big{font-size:44px}
+.tm-hname{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.tm-hname b,.tm-name{font-size:18px;overflow-wrap:anywhere;word-break:keep-all}
+.tm-chev{font-size:24px;color:var(--muted);flex:none}
+.tm-small{font-size:14px;overflow-wrap:anywhere;word-break:keep-all}
+.tm-sub{margin:8px 0 4px}
+.tm-bar{margin:6px 0 8px}
+.tm-goalv{font-size:20px;font-weight:700;margin:6px 0 0;font-variant-numeric:tabular-nums}
+.tm-member{padding:2px 0 8px;border-bottom:1px solid var(--border)}
+.tm-member .am-row{border-bottom:0;padding-bottom:4px}
+.tm-member.me .am-id{color:var(--accent)}
+.tm-stats{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:14px;color:var(--muted)}
+.tm-list{border-bottom:1px solid var(--border);padding-bottom:6px}
+.tm-list .am-row{border-bottom:0}
+.tm-form .input,.tm-addlist .input{width:100%}
+.tm-lab{display:flex;flex-direction:column;gap:6px;font-weight:600;margin:6px 0}
+.tm-count{text-align:right;margin-top:2px}
+.tm-emojis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin:4px 0 8px}
+.tm-emo{min-height:44px;font-size:24px;border:2px solid var(--border);border-radius:12px;background:var(--surface2);cursor:pointer;padding:0}
+.tm-emo[aria-checked="true"]{border-color:var(--accent);background:var(--surface)}
+.tm-ferr{margin:4px 0}
+.tm-goalset .seg{margin:10px 0}
+.tm-level{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;min-height:56px;margin:0 0 8px;padding:10px 14px;border:2px solid var(--border);border-radius:12px;background:var(--surface2);color:inherit;font:inherit;text-align:left;cursor:pointer}
+.tm-level.on{border-color:var(--accent);background:var(--surface)}
+.tm-level:disabled{opacity:.5;cursor:default}
+.tm-level span{font-size:18px;font-weight:700}
+.tm-pick .am-row{padding:8px 0}
+.tm-pick-id{font-weight:700}
+.tm-addlist .seg{margin:4px 0 8px}
+.tm-reward .ix-reward-main{font-size:17px}
+.atm-list{padding:6px 10px}
+.atm-row{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:10px 4px;border:0;border-bottom:1px solid var(--border);background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.atm-row:last-child{border-bottom:0}
+.atm-row:hover{background:var(--surface2)}
+.atm-emo{font-size:26px;flex:none}
+.atm-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.atm-main b{overflow-wrap:anywhere}
+.atm-sub{font-size:13px;overflow-wrap:anywhere}
+.atm-table td .link-btn{padding:0;min-height:0}
+.atm-reason{width:100%;resize:vertical}

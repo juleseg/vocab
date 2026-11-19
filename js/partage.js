@@ -8,7 +8,7 @@
 //    si l'ami accepte, elles sont ajoutées à ses données (nouvelles cartes, boîte 0), indépendantes ensuite.
 //  - Liste commune : une seule version des cartes, dans shared_cards ; chacun garde sa progression.
 //    · Dans l'appli, une liste commune est une liste normale de state.lists avec l.shared = { id (shared_lists),
-//      role (owner | read | write), owner, ownerName, folder (dossier commun) } ; un dossier commun : f.shared.
+//      role (owner | read | write), owner, ownerName, folder (dossier commun), team (liste d'équipe, étape 54) } ; un dossier commun : f.shared.
 //    · Ses cartes sont ajoutées à state.cards (attach) depuis un cache local (localStorage "vocabfr.shared:<identifiant>"),
 //      mais jamais enregistrées dans user_data : seule la progression l'est (clé sharedprogress:<id>, voir STORAGE).
 //    · Avant chaque sauvegarde (capture), les cartes des listes communes sont comparées au cache : les différences
@@ -39,6 +39,7 @@ function normSharedMark(o) {
     out.shared = { id: s.id, role: ["owner", "read", "write"].includes(s.role) ? s.role : "read",
       owner: String(s.owner || ""), ownerName: String(s.ownerName || "").slice(0, 40) };
     if (typeof s.folder === "string" && /^[0-9a-f-]{36}$/i.test(s.folder)) out.shared.folder = s.folder;
+    if (typeof s.team === "string" && /^[0-9a-f-]{36}$/i.test(s.team)) out.shared.team = s.team;   // liste d'équipe (étape 54, recalculé à chaque synchro)
   }
   if (o && typeof o.copiedFrom === "string" && o.copiedFrom) out.copiedFrom = o.copiedFrom.slice(0, 40);
   return out;
@@ -350,6 +351,7 @@ const Shared = (() => {
       const r = byId.get(f.shared.id);
       if (!r) { delete f.shared; changed = true; return; }                 // plus partagé : dossier normal
       const s = { id: r.id, role: r.role, owner: r.owner, ownerName: r.owner_ident || "" };
+      if (r.team_id) s.team = r.team_id;              // dossier d'équipe (étape 54)
       if (shStable(s) !== shStable(f.shared)) { f.shared = s; changed = true; }
       if (r.role !== "owner" && f.name !== r.name && !cache.meta[r.id]) { f.name = r.name; changed = true; }
     });
@@ -381,6 +383,7 @@ const Shared = (() => {
       let l = state.lists.find(x => isSharedList(x) && x.shared.id === r.id);
       const s = { id: r.id, role: r.role, owner: r.owner, ownerName: r.owner_ident || "" };
       if (r.folder) s.folder = r.folder;
+      if (r.team_id) s.team = r.team_id;              // liste d'équipe (étape 54)
       if (!l) {
         const fd = (r.folder && state.folders.find(f => isSharedFolder(f) && f.shared.id === r.folder)) || (r.my_folder && getFolder(r.my_folder)) || null;
         const fid = fd ? fd.id : null;
@@ -1059,7 +1062,8 @@ function shFriendProgress(userId) {
 // Petit libellé « partagée » d'une liste ou d'un dossier.
 function shTag(o) {
   if (!o || !o.shared) return "";
-  return "👥 " + (o.shared.role === "owner" ? t("sh.byMe") : t("sh.byOwner", { id: o.shared.ownerName || "?" })) + (o.shared.role === "read" ? " · " + t("sh.role.read") : "");
+  return "👥 " + (o.shared.role === "owner" ? t("sh.byMe") : t("sh.byOwner", { id: o.shared.ownerName || "?" })) + (o.shared.role === "read" ? " · " + t("sh.role.read") : "")
+    + (o.shared.team ? " · " + t("tm.teamList") : "");   // liste d'équipe (étape 54)
 }
 
 // --- Fiche du compte (admin) : partages et invitations ---

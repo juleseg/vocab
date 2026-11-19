@@ -103,11 +103,11 @@ function renderAdmin() {
   root.appendChild(top);
   // Autres écrans de l'administration
   const nav = el("div", "dash-nav");
-  [["dash.accounts", "adminacc"], ["aq.open", "adminreq"], ["al.open", "adminlog"], ["an.open", "adminann"], ["tp.open", "admintpl"], ["np.open", "adminpush"], ["dict.open", "admindict"], ["ce.open", "adminerr"], ["bk.open", "adminbk"], ["aix.open", "adminidea"], ["amg.open", "adminmsg"]].forEach(([k, scr]) => {
+  [["dash.accounts", "adminacc"], ["aq.open", "adminreq"], ["al.open", "adminlog"], ["an.open", "adminann"], ["tp.open", "admintpl"], ["np.open", "adminpush"], ["dict.open", "admindict"], ["ce.open", "adminerr"], ["bk.open", "adminbk"], ["aix.open", "adminidea"], ["amg.open", "adminmsg"], ["atm.open", "adminteam"]].forEach(([k, scr]) => {   // étape 54 : équipes
     const n = scr === "adminidea" ? num(aix.newCount, 0) : scr === "adminmsg" ? num(amg.unread, 0) : 0;   // étape 52 : idées nouvelles ; étape 53 : messages non lus
     const b = el("button", "btn" + (n ? " aix-navnew" : ""), n ? t(scr === "adminmsg" ? "amg.openN" : "aix.openN", { n }) : t(k));
     b.type = "button";
-    b.addEventListener("click", () => { if (scr === "adminidea") aixOpenWith(n ? { status: "new" } : null); else { if (scr === "adminmsg") { amg.threadUser = null; amg.thread = null; amg.unreadOnly = n > 0; amg.started = false; } location.hash = "#" + HASH_OF[scr]; } });
+    b.addEventListener("click", () => { if (scr === "adminidea") aixOpenWith(n ? { status: "new" } : null); else { if (scr === "adminmsg") { amg.threadUser = null; amg.thread = null; amg.unreadOnly = n > 0; amg.started = false; } if (scr === "adminteam") { atm.started = false; atm.open = null; atm.detail = null; } location.hash = "#" + HASH_OF[scr]; } });
     nav.appendChild(b);
   });
   root.appendChild(nav);

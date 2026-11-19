@@ -376,7 +376,7 @@ const Messages = (() => {
     const row = el("div", "mg-cheer" + (!x.read_at || mg.fresh.has(x.id) ? " mg-new" : ""));
     const tx = el("div", "mg-cheer-tx");
     tx.append(el("div", "mg-cheer-m", mgText(x.message, x.vars)),
-      el("div", "muted mg-time", t("mg.from", { id: x.identifiant || "?" }) + " · " + mgTime(x.created_at)));
+      el("div", "muted mg-time", t("mg.from", { id: x.identifiant || "?" }) + (x.team ? " · 👥 " + t("tm.toTeam") : "") + " · " + mgTime(x.created_at)));   // étape 54 : message envoyé à toute l'équipe
     row.appendChild(tx);
     const canThank = x.message && x.message.category !== "thanks" && x.friend !== false && arr(mg.catalog).some(m => m.category === "thanks");
     if (x.thanked_at) row.appendChild(el("span", "muted mg-thanked", "✓ " + t("mg.thanked")));

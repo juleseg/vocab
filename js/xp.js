@@ -54,7 +54,8 @@ const XP_BADGES = [
   { id: "race1", icon: "⏱️" },
   { id: "lvl5", icon: "⭐", level: 5 }, { id: "lvl10", icon: "🌟", level: 10 }, { id: "lvl20", icon: "💫", level: 20 },
   { id: "lvl30", icon: "🏵️", level: 30 }, { id: "lvl50", icon: "👑", level: 50 },
-  { id: "idea1", icon: "💡" }    // « Idée retenue » (étape 52) : donné seulement par une récompense de l'admin (XP.onIdea)
+  { id: "idea1", icon: "💡" },   // « Idée retenue » (étape 52) : donné seulement par une récompense de l'admin (XP.onIdea)
+  { id: "team1", icon: "🏆" }    // « Équipe en or » (étape 54) : 1er objectif d'équipe atteint (XP.onTeam, récompense réservée sur le serveur)
 ];
 const XP_BADGE_IDS = XP_BADGES.map(b => b.id);
 // Défis possibles : k = sorte, n = objectif. Modes proposés seulement s'ils ont déjà été utilisés (use) ;
@@ -89,7 +90,7 @@ function xpLangMap(o) {
 }
 function xpEmpty() {
   return { v: 1, total: 0, byLang: {}, days: {}, answers: 0, perfects: 0, levelSeen: 1, badges: [], use: {},
-    ch: null, chDone: 0, chDays: [], init: null, duels: [], ideas: [] };
+    ch: null, chDone: 0, chDays: [], init: null, duels: [], ideas: [], teams: [] };
 }
 function xpTrimDays(days, today) {
   const from = skAdd(today || todayStr(), -(XP_RULES.keepDays - 1));
@@ -133,6 +134,7 @@ function normXp(raw, history, streak, settings) {
   x.init = raw.init && typeof raw.init === "object" ? { at: num(raw.init.at, 0), from: xpInt(raw.init.from) } : null;
   x.duels = arr(raw.duels).filter(k => typeof k === "string" && /^[pw]:[0-9a-f-]{36}$/i.test(k)).slice(-200);   // étape 44
   x.ideas = Array.from(new Set(arr(raw.ideas).filter(k => typeof k === "string" && /^[0-9a-f-]{36}$/i.test(k)))).slice(-200);   // étape 52
+  x.teams = Array.from(new Set(arr(raw.teams).filter(xpDayOk))).sort().slice(-60);   // étape 54 : semaines (lundi) dont la récompense d'équipe est appliquée
   return x;
 }
 // Migration : XP de départ depuis history (et les jours de série validés), sans défis. Badges déjà atteints sans animation.
@@ -395,6 +397,20 @@ const XP = (() => {
     checkBadges();
     return { xp: got, badge: b };
   }
+  // Récompense d'objectif d'équipe (étape 54) : réservée sur le serveur (team_reward_claim) par js/teams.js, appliquée
+  // ici une seule fois par semaine (week = lundi « AAAA-MM-JJ », gardé dans x.teams, morceau xp synchronisé). Sans sauvegarde :
+  // l'appelant enregistre (commit). Renvoie { xp, badge } ou null si déjà appliquée.
+  function onTeam(week, v, badge) {
+    checkUser();
+    const x = data();
+    if (!Array.isArray(x.teams)) x.teams = [];
+    if (!xpDayOk(week) || x.teams.includes(week)) return null;
+    x.teams = x.teams.concat(week).sort().slice(-60);
+    const got = add(v, null);
+    const b = badge ? earn("team1") : false;
+    checkBadges();
+    return { xp: got, badge: b };
+  }
   // Jour de série validé (Streak : objectif du jour atteint).
   function onStreakDay(day) { checkUser(); return add(XP_RULES.streakDay, null, day); }
   // Au lancement et au changement de jour (appelé par Streak.tick) : défis du jour, badges et niveau en retard.
@@ -453,7 +469,7 @@ const XP = (() => {
     return Object.assign(xpProgress(x.total), { total: x.total, week: w.total, weekByLang: w.byLang, byLang: x.byLang,
       chDone: x.chDone, chDays: x.chDays.length, answers: x.answers });
   }
-  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, onDuel, onDuelWin, onStory, onIdea, challenges, label, icon, summary, has, earn };
+  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, onDuel, onDuelWin, onStory, onIdea, onTeam, challenges, label, icon, summary, has, earn };
 })();
 
 // --- Affichage commun : barre de niveau (Accueil, Stats) ---

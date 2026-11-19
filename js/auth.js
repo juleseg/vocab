@@ -284,7 +284,8 @@ async function enterSupabase(session, target) {
   // Étape 40 : puis le tutoriel (nouveau compte, ou « Reprendre le tutoriel ? » s'il a été interrompu).
   // Étape 52 : puis les récompenses d'idées pas encore reçues (réservées sur le serveur, puis appliquées une fois) et un
   // message si l'équipe a répondu à une idée.
-  Ann.check().finally(() => NotifInvite.check()).finally(() => WhatsNew.check()).finally(() => Ideas.check()).finally(() => Tutorial.check());
+  // Étape 54 : puis les récompenses d'objectif d'équipe (+30 XP, badge « Équipe en or »), réservées puis appliquées une fois.
+  Ann.check().finally(() => NotifInvite.check()).finally(() => WhatsNew.check()).finally(() => Ideas.check()).finally(() => Teams.check()).finally(() => Tutorial.check());
 }
 // Compte bloqué (étape 27) : déconnexion tout de suite (session oubliée sur l'appareil), puis écran avec la raison.
 // Rien n'est envoyé ni effacé : les données du compte restent en ligne et dans le cache de l'appareil.

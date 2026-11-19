@@ -803,9 +803,9 @@ function fcPush() {
 // incomplet : avertissement, le reste de l'écran marche.
 // Journal : schedule_create / schedule_edit / schedule_pause / schedule_resume / schedule_delete, rule_on / rule_off / rule_edit.
 const NP_RULES = ["streak_danger", "goal_reminder", "inactive", "streak_milestone", "freeze_used", "friend_request", "share_invite",
-  "duel_invite", "duel_result", "league_end", "idea_reply", "cheer", "team_message"];   // étape 44 : duels et fin de ligue ; étape 52 : réponse à une idée ; étape 53 : messages
-const NP_EVENT_RULES = ["streak_milestone", "freeze_used", "friend_request", "share_invite", "duel_invite", "duel_result", "idea_reply", "cheer", "team_message"];
-const NP_FRIEND_RULES = ["friend_request", "share_invite", "duel_invite", "duel_result", "league_end", "cheer"];   // catégorie Amis (cheer : étape 53)
+  "duel_invite", "duel_result", "league_end", "idea_reply", "cheer", "team_message", "team_invite", "team_goal", "team_week"];   // étape 44 : duels et fin de ligue ; étape 52 : réponse à une idée ; étape 53 : messages ; étape 54 : équipes
+const NP_EVENT_RULES = ["streak_milestone", "freeze_used", "friend_request", "share_invite", "duel_invite", "duel_result", "idea_reply", "cheer", "team_message", "team_invite", "team_goal"];
+const NP_FRIEND_RULES = ["friend_request", "share_invite", "duel_invite", "duel_result", "league_end", "cheer", "team_invite", "team_goal", "team_week"];   // catégorie Amis (cheer : étape 53 ; équipes : étape 54)
 const NP_MILESTONES = [7, 30, 100, 365];
 
 // Version de send-push (GET : { version }). 404 : fonction absente.

@@ -8,6 +8,29 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "54", date: "2026-11-19",
+    points: {
+      ko: [
+        "팀을 만들거나 친구 팀에 들어가세요(2~10명): 친구 화면의 ‘👥 내 팀’.",
+        "매주 팀 공동 목표(XP 또는 카드): 달성하면 모두 +30 XP, 처음이면 ‘황금 팀’ 배지.",
+        "팀 순위: 멤버 XP 평균으로 비교해서 작은 팀도 기회가 같아요.",
+        "준비된 메시지로 팀 전체를 응원하고, 팀장은 목록을 팀과 공유할 수 있어요."
+      ],
+      fr: [
+        "Crée une équipe ou rejoins celle d'un ami (2 à 10 membres) : carte « 👥 Mon équipe » dans l'écran Amis.",
+        "Un objectif commun chaque semaine (XP ou cartes) : atteint, chacun gagne +30 XP, et le badge « Équipe en or » la première fois.",
+        "Classement des équipes : la moyenne des XP des membres compte, donc une petite équipe a les mêmes chances.",
+        "Encourage toute l'équipe avec un message tout prêt ; le chef peut partager des listes avec l'équipe."
+      ],
+      en: [
+        "Create a team or join a friend's (2 to 10 members): “👥 My team” card on the Friends screen.",
+        "A shared goal every week (XP or cards): when reached, everyone gets +30 XP, plus the “Golden team” badge the first time.",
+        "Team ranking: it uses the members' average XP, so a small team has the same chances.",
+        "Cheer the whole team on with a ready-made message; the leader can share lists with the team."
+      ]
+    }
+  },
+  {
     version: "53", date: "2026-11-19",
     points: {
       ko: [
