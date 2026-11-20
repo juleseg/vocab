@@ -107,7 +107,8 @@ function renderReview() {
   rv.cfg.listIds = rv.cfg.listIds.filter(id => getList(id)); // listes supprimées entre-temps
   rv.cfg.folderIds = rv.cfg.folderIds.filter(id => id === NO_FOLDER || getFolder(id));
   if (rv.phase === "run" && rv.s) {
-    if (rv.s.mode === "cards") renderCardsSession(root);
+    if (rv.s.mix || isMixMode(rv.s.mode)) renderMixSession(root);   // Mix de modes (étape 70, js/mix.js) : avant les autres (rv.s.mode = exercice en cours)
+    else if (rv.s.mode === "cards") renderCardsSession(root);
     else if (rv.s.mode === "write") renderWriteSession(root);
     else if (rv.s.mode === "table") renderTableSession(root);
     else if (isGameMode(rv.s.mode)) renderGameSession(root);   // jeux d'entraînement (étape 42)
@@ -270,7 +271,10 @@ function renderSessionConfig(root) {
   const cnt = el("input");
   cnt.type = "number"; cnt.min = "1"; cnt.max = "500"; cnt.inputMode = "numeric"; cnt.value = cfg.count;
   cnt.addEventListener("change", () => { cfg.count = clampInt(cnt.value, 1, 500, state.settings.sessionSize); cnt.value = cfg.count; });
-  box.appendChild(formField(t("review.count"), cnt));
+  if (isMixMode(cfg.mode)) box.appendChild(mixCountField(cfg));   // Mix (étape 70) : 10, 20 ou 30 cartes
+  else box.appendChild(formField(t("review.count"), cnt));
+
+  box.appendChild(mixField(cfg, poolLangs));   // bouton « Mix » (étape 70, js/mix.js), juste avant le champ Mode
 
   // Mode Tableau : seulement s'il y a des cartes de conjugaison d'une langue qui a une grammaire (étape 35).
   const modes = [["cards", "mode.cards"], ["write", "mode.write"], ["quiz", "mode.quiz"]];
@@ -334,8 +338,16 @@ function startSession() {
   if (isGameMode(cfg.mode)) return startGame(cfg);   // jeux d'entraînement (étape 42)
   if (cfg.mode === "gender") return startGenderDrill(cfg);   // « le / la ? » (étape 60, js/genre.js)
   if (isEarMode(cfg.mode)) return startEar(cfg);             // l'oreille et la bouche (étape 69, js/oreille.js)
+  if (isMixMode(cfg.mode)) return startMix(cfg);             // Mix de modes (étape 70, js/mix.js)
+  const queue = sessionQueue(cfg, cfg.count);
+  if (!queue.length) return false;
+  newRun(queue, cfg.mode);
+  return true;
+}
+// File d'une session (étape 70 : séparée de startSession, reprise par le Mix) : [{ id, lang, dir, lk? }], au plus count cartes.
+function sessionQueue(cfg, count) {
   const all = sessionPool(cfg);
-  if (!all.length) return false;
+  if (!all.length) return [];
   const lgs = langsByList(), now = Date.now();
   const mk = (c, lang) => {
     const d = (cfg.dirs && cfg.dirs[lang]) || cfg.dir;
@@ -351,20 +363,18 @@ function startSession() {
     shuffle(Hard.pairs().slice()).forEach(p => {
       [p.a, p.b].forEach(id => {
         const c = byId.get(id);
-        if (!c || used.has(id) || queue.length >= cfg.count + 1) return;
+        if (!c || used.has(id) || queue.length >= count + 1) return;
         if (!sessionLangs(c, cfg, now, lgs.get(c.listId)).includes(p.L)) return;
         used.add(id); queue.push(mk(c, p.L));
       });
     });
   } else {
-    queue = shuffle(all).slice(0, cfg.count).map(c => {
+    queue = shuffle(all).slice(0, count).map(c => {
       const ls = sessionLangs(c, cfg, now, lgs.get(c.listId));
       return mk(c, ls[Math.floor(Math.random() * ls.length)] || primaryLang(c));   // une seule langue par carte
     });
   }
-  if (!queue.length) return false;
-  newRun(queue, cfg.mode);
-  return true;
+  return queue;
 }
 // Langue de chaque carte de la session (étape 37) : StudyCtx.cards, vidé à la fin de la session.
 function setSessionLangs(langs) {

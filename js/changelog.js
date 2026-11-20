@@ -9,6 +9,23 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "70", date: "2026-11-20",
+    points: {
+      ko: [
+        "복습에 새 '믹스': 카드마다 연습 방식이 바뀌어요(카드, 쓰기, 객관식, 짝 맞추기, 받아쓰기…).",
+        "카드 10장, 20장, 30장 중에서 골라요. 모든 답이 평소 복습처럼 기록돼요."
+      ],
+      fr: [
+        "Nouveau « Mix » dans Réviser : l'exercice change à chaque carte (cartes, écrit, QCM, paires, dictée…).",
+        "Choisis 10, 20 ou 30 cartes : chaque réponse compte comme une révision normale."
+      ],
+      en: [
+        "New \"Mix\" in Review: the exercise changes with every card (cards, writing, multiple choice, pairs, dictation…).",
+        "Pick 10, 20 or 30 cards: every answer counts as a normal review."
+      ]
+    }
+  },
+  {
     version: "69", date: "2026-11-20",
     points: {
       ko: [

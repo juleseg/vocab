@@ -1,0 +1,12 @@
+/* =====================================================================================
+   css/app-6.css — nouvelles sections de styles à partir de l'étape 70, chargé en dernier (après css/app-5.css).
+   Couleurs : variables des thèmes de css/app.css (clair, sombre, auto). Barre : .progress / .progress-fill (css/app.css).
+   ===================================================================================== */
+
+/* === MIX DE MODES (ÉTAPE 70) === */
+.mix-btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.mix-hd{margin:0 0 10px}
+.mix-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.mix-title{min-width:0;font-weight:700;font-size:15px;color:var(--accent);overflow-wrap:anywhere}
+.mix-count{flex:none;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.mix-bar{height:10px}

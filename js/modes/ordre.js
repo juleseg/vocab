@@ -71,9 +71,15 @@ function renderOrderSession(root, g) {
   while (g.idx < g.items.length && !sessionCard(g.items[g.idx].id)) g.idx++;
   if (g.idx >= g.items.length) { gameFinish(g); renderGameSummary(root, g); return; }
   const it = g.items[g.idx];
+  gameHeader(root, g, t("gm.q", { i: g.idx + 1, n: g.items.length }));
+  orderQuestion(root, g, it, () => { g.idx++; if (g.idx >= g.items.length) gameFinish(g); gameRerender(g); });
+  gameQuitLink(root, g);
+}
+// Une question (étape 70 : séparée de la partie, pour le Mix, js/mix.js). g = partie (notation, gameIsLive, indices) ;
+// it = élément de orderItem ; next() : passer à la suite (une seule fois, partie toujours en cours).
+function orderQuestion(root, g, it, next) {
   const c = sessionCard(it.id);
   const L = it.lang, lg = it.lg;
-  gameHeader(root, g, t("gm.q", { i: g.idx + 1, n: g.items.length }));
 
   // Consigne + indice de sens : traductions du mot, ou traduction de la phrase d'exemple
   const q = el("div", "card gm-q");
@@ -167,7 +173,6 @@ function renderOrderSession(root, g) {
   root.appendChild(after);
   const live = el("div", "sr-only"); live.setAttribute("aria-live", "polite");
   root.appendChild(live);
-  gameQuitLink(root, g);
 
   function redraw() { gameRerender(g); }
   function place(k) { if (it.checked != null) return; it.pool = it.pool.filter(x => x !== k); it.placed.push(k); redraw(); }
@@ -196,7 +201,7 @@ function renderOrderSession(root, g) {
     if (k == null) return;
     it.pool = it.pool.filter(x => x !== k);
     it.placed.push(k);
-    it.hints++; g.hints++;
+    it.hints++; g.hints = (g.hints || 0) + 1;
     redraw();
   }
   function check() {
@@ -216,8 +221,6 @@ function renderOrderSession(root, g) {
   function go() {
     if (it.left || !gameIsLive(g)) return;
     it.left = true;
-    g.idx++;
-    if (g.idx >= g.items.length) gameFinish(g);
-    gameRerender(g);
+    next();
   }
 }

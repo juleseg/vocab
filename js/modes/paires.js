@@ -11,13 +11,14 @@
 // Étape 55 : chaque case touchée (gauche ou droite, même déjà choisie, même pour la désélectionner) est lue tout de suite
 // dans sa langue ; une nouvelle case coupe la lecture en cours (priorité à la dernière touchée). Langue sans voix : rien.
 // Plus de relecture automatique du mot après une bonne paire (elle couperait la case qu'on vient de toucher).
-function pairsNewGame(pool, cfg) {
-  const want = Math.max(GAME.PAIRS_MIN, Math.min(GAME.PAIRS_MAX, num(cfg.count, GAME.PAIRS_MAX)));
+// Étape 70 : sélection et grille séparées du jeu, pour que le Mix (js/mix.js) pose une grille de quelques cartes.
+// Cartes de pool (file { id, lang, dir }) utilisables en paires, mots et traductions tous différents, au plus want.
+function pairsPick(pool, want) {
   const seenL = new Set(), seenR = new Set(), picked = [];
   for (const q of pool) {
     if (picked.length >= want) break;
     const c = state.cards.find(x => x.id === q.id);
-    if (!c) continue;
+    if (!c || !isVocab(c)) continue;
     const lg = gameLg(c, q.lang), sup = supportTerms(c, lg);
     const a = term(c, q.lang).trim();
     if (!a || !sup.length) continue;
@@ -26,13 +27,21 @@ function pairsNewGame(pool, cfg) {
     seenL.add(ka); seenR.add(kb);
     picked.push({ q, a, b: sup[0].text, bl: sup[0].code });
   }
-  if (picked.length < GAME.PAIRS_MIN) return null;
+  return picked;
+}
+// État d'une grille : colonnes mélangées, paires trouvées, cartes passées par une mauvaise paire, sélection, erreurs.
+function pairsState(picked) {
   return {
     left: shuffle(picked.map(p => ({ id: p.q.id, text: p.a, lng: p.q.lang }))),
     right: shuffle(picked.map(p => ({ id: p.q.id, text: p.b, lng: p.bl }))),
-    matched: [], errIds: [], sel: null, errors: 0, found: 0,
-    all: picked.map(p => p.q), start: pairsStart
+    matched: [], errIds: [], sel: null, errors: 0, found: 0
   };
+}
+function pairsNewGame(pool, cfg) {
+  const want = Math.max(GAME.PAIRS_MIN, Math.min(GAME.PAIRS_MAX, num(cfg.count, GAME.PAIRS_MAX)));
+  const picked = pairsPick(pool, want);
+  if (picked.length < GAME.PAIRS_MIN) return null;
+  return Object.assign(pairsState(picked), { all: picked.map(p => p.q), start: pairsStart });
 }
 function pairsStart(g) {
   g.timer = setInterval(() => {
@@ -47,7 +56,13 @@ function pairsShowClock(g) {
 function renderPairsSession(root, g) {
   gameHeader(root, g, "", "gmClock");
   pairsShowClock(g);
-  const prog = el("span", "gm-pairs-prog", t("gm.pairs.found", { n: g.found, m: g.left.length }));
+  pairsBoard(root, g, g, () => { gameFinish(g); gameRerender(g); });
+  gameQuitLink(root, g);
+}
+// Grille de paires (étape 70 : séparée de la partie). g = partie (notation, gameIsLive) ; p = état de la grille (pairsState,
+// g lui-même pour le jeu Paires) ; onDone() quand toutes les paires sont trouvées.
+function pairsBoard(root, g, p, onDone) {
+  const prog = el("span", "gm-pairs-prog", t("gm.pairs.found", { n: p.found, m: p.left.length }));
   const hl = el("div", "gm-hint");
   hl.append(el("span", null, t("gm.pairs.hint") + " "), prog);
   root.appendChild(hl);
@@ -59,46 +74,45 @@ function renderPairsSession(root, g) {
     b.textContent = x.text;
     { const gc = state.cards.find(k => k.id === x.id); if (gc) genderMark(b, gc, x.lng); }   // genre des noms (étape 60)
     b.dataset.side = side; b.dataset.id = x.id;
-    if (g.matched.includes(x.id)) { b.classList.add("done"); b.disabled = true; }
-    if (g.sel && g.sel.side === side && g.sel.id === x.id) b.classList.add("sel");
+    if (p.matched.includes(x.id)) { b.classList.add("done"); b.disabled = true; }
+    if (p.sel && p.sel.side === side && p.sel.id === x.id) b.classList.add("sel");
     b.addEventListener("click", () => tap(side, x));
     nodes[side][x.id] = b;
     return b;
   };
-  for (let i = 0; i < g.left.length; i++) { grid.appendChild(mk("L", g.left[i])); grid.appendChild(mk("R", g.right[i])); }
+  for (let i = 0; i < p.left.length; i++) { grid.appendChild(mk("L", p.left[i])); grid.appendChild(mk("R", p.right[i])); }
   root.appendChild(grid);
   const live = el("div", "sr-only"); live.setAttribute("aria-live", "polite");
   root.appendChild(live);
-  gameQuitLink(root, g);
 
   const setSel = v => {
-    if (g.sel) { const o = nodes[g.sel.side][g.sel.id]; if (o) o.classList.remove("sel"); }
-    g.sel = v;
+    if (p.sel) { const o = nodes[p.sel.side][p.sel.id]; if (o) o.classList.remove("sel"); }
+    p.sel = v;
     if (v) nodes[v.side][v.id].classList.add("sel");
   };
   const score = () => {
     const sc = document.querySelector("#screen-review .gm-score");
-    if (sc) { sc.querySelector(".gm-okn").textContent = "✓ " + g.ok; sc.querySelector(".gm-badn").textContent = "✗ " + g.errors; }
-    prog.textContent = t("gm.pairs.found", { n: g.found, m: g.left.length });
+    if (sc) { sc.querySelector(".gm-okn").textContent = "✓ " + g.ok; sc.querySelector(".gm-badn").textContent = "✗ " + p.errors; }
+    prog.textContent = t("gm.pairs.found", { n: p.found, m: p.left.length });
   };
   function tap(side, x) {
-    if (!gameIsLive(g) || g.matched.includes(x.id)) return;
+    if (!gameIsLive(g) || p.matched.includes(x.id)) return;
     gameSpeak(x.text, x.lng);                                 // étape 55 : chaque case lue au toucher, la dernière coupe la précédente
-    if (!g.sel || g.sel.side === side) { setSel(g.sel && g.sel.side === side && g.sel.id === x.id ? null : { side, id: x.id }); return; }
-    const other = g.sel;
+    if (!p.sel || p.sel.side === side) { setSel(p.sel && p.sel.side === side && p.sel.id === x.id ? null : { side, id: x.id }); return; }
+    const other = p.sel;
     setSel(null);
     const a = nodes[side][x.id], b = nodes[other.side][other.id];
     if (other.id === x.id) {                                  // bonne paire
-      g.matched.push(x.id); g.found++;
-      gameGrade(g, x.id, !g.errIds.includes(x.id));
+      p.matched.push(x.id); p.found++;
+      gameGrade(g, x.id, !p.errIds.includes(x.id));
       [a, b].forEach(n => { n.classList.add("done"); n.disabled = true; gameFlash(n, true); });
       GameSound.play("ok");
       live.textContent = t("gm.right");
       score();
-      if (g.found >= g.left.length) setTimeout(() => { if (gameIsLive(g)) { gameFinish(g); gameRerender(g); } }, 500);
+      if (p.found >= p.left.length) setTimeout(() => { if (gameIsLive(g)) onDone(); }, 500);
     } else {                                                  // mauvaise paire : les deux cartes seront « À revoir »
-      g.errors++;
-      [x.id, other.id].forEach(id => { if (!g.errIds.includes(id)) g.errIds.push(id); });
+      p.errors++;
+      [x.id, other.id].forEach(id => { if (!p.errIds.includes(id)) p.errIds.push(id); });
       [a, b].forEach(n => gameFlash(n, false));
       GameSound.play("bad");
       live.textContent = t("gm.wrong");

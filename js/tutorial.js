@@ -80,7 +80,7 @@ const Tutorial = (() => {
     { id: "session", ok: reviewFree, show: () => go("review"),
       target: () => (reviewFree() ? $("#screen-review > .btn.primary") : null) },
     { id: "modes", ok: reviewFree, show: () => go("review"),
-      target: () => (reviewFree() ? reviewField("review.mode") : null) },
+      target: () => (reviewFree() ? [reviewField("mix.label"), reviewField("review.mode")] : null) },   // étape 70 : bouton « Mix » juste au-dessus du champ Mode
     { id: "pending", show: () => go("pending"), target: () => navOrMore("pending") },   // étape 67 : dans « Plus »
     { id: "streak", show: () => go("home"), target: () => [$("#homeDueCard"), $("#homeStreakCard"), $("#homeGoal")] },
     { id: "short", show: () => go("home"), target: () => $("#homeShort") },   // raccourcis de l'accueil (étape 67)

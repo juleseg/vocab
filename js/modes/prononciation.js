@@ -79,6 +79,7 @@ function speakGrade(result) { SpeechRec.stop(); rv.s.p = null; gradeCurrent(resu
 function speakSkip() {
   SpeechRec.stop(); Speech.stop();
   rv.s.p = null;
+  if (rv.s.mix) { mixSpeakSkip(rv.s); return; }   // Mix (étape 70, js/mix.js) : la carte reste, dans un autre exercice, sans micro
   rv.s.queue.shift();
   renderReview();
 }
