@@ -1,0 +1,29 @@
+/* =====================================================================================
+   css/app-5.css — nouvelles sections de styles à partir de l'étape 69, chargé en dernier (après css/app-4.css).
+   Couleurs : variables des thèmes de css/app.css (clair, sombre, auto). Les choix et le score réutilisent .gm-* (css/app-jeux.css).
+   ===================================================================================== */
+
+/* === L'OREILLE ET LA BOUCHE : PAIRES MINIMALES, RÉPÉTER APRÈS LA VOIX (ÉTAPE 69) === */
+.ear-q{text-align:center}
+.ear-ask{margin-top:6px;font-size:16px;color:var(--text)}
+.ear-choices{grid-template-columns:1fr 1fr}
+.ear-play{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px}
+.ear-play .btn{flex:1 1 0;width:auto;min-width:0;margin:0;padding:8px 10px;white-space:nowrap;font-size:16px}
+.ear-big{font-size:18px;font-weight:600}
+.ear-choices .gm-choice{font-size:22px;min-height:64px;overflow-wrap:anywhere}
+.ear-fb{text-align:center}
+.ear-heard{font-size:18px;font-weight:600;margin-bottom:4px;overflow-wrap:anywhere}
+.ear-sent{font-size:22px;line-height:1.4;font-weight:600;margin:8px 0 4px;overflow-wrap:anywhere}
+.ear-tr{color:var(--muted);font-size:15px;line-height:1.4;overflow-wrap:anywhere}
+.ear-mic{text-align:center}
+.ear-micbtn{width:100%}
+.ear-micbtn.on{background:var(--bad);color:#fff;border-color:var(--bad)}
+.ear-verdict{font-size:20px;font-weight:700;margin-top:12px}
+.ear-verdict.close{color:var(--ok)}
+.ear-verdict.work{color:var(--warn)}
+.ear-heardas{margin-top:4px;overflow-wrap:anywhere}
+.ear-warn{color:var(--warn)}
+.ear-private{margin-top:10px;font-size:13px}
+.ear-mhd{font-weight:600;margin-top:12px}
+.ear-missed{margin-top:6px;display:flex;flex-direction:column;gap:4px}
+.ear-mrow{font-size:16px;overflow-wrap:anywhere}

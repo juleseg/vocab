@@ -50,6 +50,10 @@ const XP_RULES = {
   },
   gender: {                   // mode « le / la ? » (étape 60, js/genre.js) : entraînement seulement, XP et rien d'autre
     correct: 1                // bonne réponse (0 si faux ; une même carte rapporte au plus une fois par XP_RULES.repeatMs)
+  },
+  ear: {                      // L'oreille et la bouche (étape 69, js/oreille.js) : entraînement seulement, XP et rien d'autre
+    minimal: 1,               // paire minimale : bonne réponse (0 si faux ; une même paire au plus une fois par XP_RULES.repeatMs)
+    shadow: 1                 // répéter après la voix : phrase écoutée puis « J'ai répété » (une même phrase au plus une fois par repeatMs)
   }
 };
 // Badges de l'étape 43 (affichés dans Stats avec les badges de série).
@@ -403,6 +407,21 @@ const XP = (() => {
     commitQuiet();
     return got;
   }
+  // L'oreille et la bouche (étape 69) : kind = "minimal" | "shadow", key = paire ou phrase. Comme « le / la ? » : XP seulement
+  // (pas de compteur de réponses, de défi, de série ni de fin de session), anti-répétition propre (clé « e|<key> »).
+  function onEar(kind, key, L) {
+    const v = num(XP_RULES.ear[kind], 0);
+    if (!v || !key) return 0;
+    checkUser();
+    const now = Date.now(), k = "e|" + kind + "|" + key;
+    const last = recent.get(k);
+    if (last && now - last < XP_RULES.repeatMs) return 0;
+    recent.set(k, now);
+    const got = add(v, isLang(L) ? L : null);
+    checkBadges();
+    commitQuiet();
+    return got;
+  }
   // « Ma phrase » (étape 58) : +5 XP à l'envoi ; js/sentences.js garde sur la phrase (champ xp) qu'elle a déjà rapporté.
   function onSentence(L) { return onStory(XP_RULES.sentence.send, L); }
   // Récompense d'une idée (étape 52, js/ideas.js) : une seule fois par idée sur ce compte (xp.ideas, morceau xp synchronisé).
@@ -491,7 +510,7 @@ const XP = (() => {
     return Object.assign(xpProgress(x.total), { total: x.total, week: w.total, weekByLang: w.byLang, byLang: x.byLang,
       chDone: x.chDone, chDays: x.chDays.length, answers: x.answers });
   }
-  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, onDuel, onDuelWin, onStory, onSentence, onGender, onIdea, onTeam, challenges, label, icon, summary, has, earn };
+  return { data, reset, tick, onAnswer, onSessionEnd, onStreakDay, onDuel, onDuelWin, onStory, onSentence, onGender, onEar, onIdea, onTeam, challenges, label, icon, summary, has, earn };
 })();
 
 // --- Affichage commun : barre de niveau (Accueil, Stats) ---

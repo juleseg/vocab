@@ -3,70 +3,70 @@
 // === NOUVEAUTÉS (CHANGELOG, ÉTAPE 39) ===
 // Une entrée par version visible pour les utilisateurs, la plus récente EN PREMIER.
 // { version: "<APP_VERSION>", date: "AAAA-MM-JJ", points: { ko: [...], fr: [...], en: [...] } }
-// 2 à 5 points courts par version, simples, sans détail technique, dans les 3 langues de l'interface.
-// Règle de travail : chaque étape future ajoute son entrée ici (sauf les étapes sans changement visible).
+// Règle (Jules, 20/11, depuis la version 65) : seulement ce que voient les utilisateurs (jamais l'administration, les modérateurs,
+// le serveur, le découpage du code, les erreurs) ; 1 à 3 points, une phrase simple chacun, sans détail technique, en ko / fr / en.
+// Version sans nouveauté visible : une seule ligne « Petites améliorations et corrections » (chaque version a son entrée).
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
-    version: "68", date: "2026-11-20",
+    version: "69", date: "2026-11-20",
     points: {
       ko: [
-        "관리 → 오류: 오류를 여러 개 선택해서 한 번에 '해결됨', '확인함', '새 오류'로 바꿀 수 있어요."
+        "새 연습 '소리 구별': 앱이 단어를 읽어 주면, 비슷한 두 단어 중 들은 단어를 골라요.",
+        "새 연습 '따라 말하기': 예문을 듣고 바로 소리 내어 따라 말해요. 마이크는 선택이에요."
       ],
       fr: [
-        "Administration → Erreurs : on peut cocher plusieurs erreurs et les passer d'un coup en « corrigée », « vue » ou « nouvelle »."
+        "Nouvel entraînement « Paires minimales » : l'appli lit un mot, tu choisis lequel tu as entendu parmi deux mots proches.",
+        "Nouvel entraînement « Répéter après la voix » : écoute la phrase d'exemple et répète-la tout de suite, avec ou sans micro."
       ],
       en: [
-        "Admin → Errors: you can tick several errors and mark them “fixed”, “seen” or “new” in one go."
+        "New practice \"Minimal pairs\": the app reads a word, you pick which one you heard between two similar words.",
+        "New practice \"Repeat after the voice\": listen to the example sentence and repeat it right away, with or without the microphone."
       ]
+    }
+  },
+  {
+    version: "68", date: "2026-11-20",
+    points: {
+      ko: ["작은 개선과 수정"],
+      fr: ["Petites améliorations et corrections"],
+      en: ["Small improvements and fixes"]
     }
   },
   {
     version: "67", date: "2026-11-20",
     points: {
       ko: [
-        "설정이 섹션으로 정리됐어요: 공개 범위, 알림, 학습, 계정과 데이터… 누르면 열리고, 위에서 설정을 검색할 수 있어요.",
-        "아래 메뉴가 간단해졌어요: 통계, 검토, 설정은 '더보기'에 있어요.",
-        "홈에 가장 많이 쓰는 기능 4개가 큰 버튼으로 나오고, 나머지 카드는 접어 둘 수 있어요 (통계도 같아요).",
-        "화면이 더 넓고 읽기 쉬워졌어요."
+        "설정이 접힌 섹션으로 정리됐고, 위에서 설정을 검색할 수 있어요.",
+        "홈과 통계의 카드를 접을 수 있고, 홈에 자주 쓰는 기능 바로가기가 생겼어요.",
+        "아래 메뉴가 간단해졌어요: 나머지는 '더보기'에 있어요."
       ],
       fr: [
-        "Les réglages sont rangés en sections : Confidentialité, Notifications, Apprentissage, Compte et données… Touche pour ouvrir, ou cherche un réglage en haut.",
-        "Barre du bas plus simple : Stats, À valider et Réglages sont dans « Plus ».",
-        "L'accueil montre tes 4 fonctions les plus utilisées en gros boutons ; les autres cartes se replient (Stats aussi).",
-        "Écrans plus aérés et plus lisibles."
+        "Les réglages sont rangés en sections repliées, avec une recherche en haut.",
+        "Les cartes de l'Accueil et des Stats se replient, et l'Accueil a des raccourcis vers ce que tu utilises le plus.",
+        "La barre du bas est plus simple : le reste est dans « Plus »."
       ],
       en: [
-        "Settings are now grouped in sections: Privacy, Notifications, Learning, Account and data… Tap to open, or search for a setting at the top.",
-        "A simpler bottom bar: Stats, Pending and Settings are under “More”.",
-        "Home shows your 4 most used features as big buttons; the other cards fold away (Stats too).",
-        "Roomier, easier-to-read screens."
+        "Settings are grouped in folded sections, with a search at the top.",
+        "Cards on Home and Stats can be folded, and Home has shortcuts to what you use most.",
+        "A simpler bottom bar: everything else is under “More”."
       ]
     }
   },
   {
     version: "66", date: "2026-11-20",
     points: {
-      ko: [
-        "Claude 요청 화면에 Claude가 마지막으로 확인한 시간이 나와요 (예: 마지막 확인: 14시 7분).",
-        "앱 운영을 도와주는 운영자가 생겼어요: 관리자가 정한 일만 할 수 있어요."
-      ],
-      fr: [
-        "L'écran des demandes à Claude montre l'heure de son dernier passage (ex. « Dernier passage à 14 h 07 »).",
-        "Des modérateurs peuvent maintenant aider à gérer l'appli, seulement pour les tâches choisies par l'admin."
-      ],
-      en: [
-        "The Claude requests screen now shows when Claude last checked in (e.g. \"Last run at 2:07 PM\").",
-        "Moderators can now help run the app, only for the tasks chosen by the admin."
-      ]
+      ko: ["Claude 탭에서 Claude가 마지막으로 확인한 시간을 볼 수 있어요."],
+      fr: ["Dans l'onglet Claude, tu vois l'heure du dernier passage de Claude."],
+      en: ["The Claude tab shows when Claude last checked in."]
     }
   },
   {
     version: "65", date: "2026-11-20",
     points: {
-      ko: ["기술 점검: 앱을 더 가볍게 관리할 수 있도록 정리했어요."],
-      fr: ["Entretien technique : l'appli est plus légère à maintenir."],
-      en: ["Technical maintenance: the app is lighter to maintain."]
+      ko: ["작은 개선과 수정"],
+      fr: ["Petites améliorations et corrections"],
+      en: ["Small improvements and fixes"]
     }
   },
   {
