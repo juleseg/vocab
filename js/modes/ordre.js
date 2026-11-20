@@ -11,6 +11,9 @@
 // suivante. « Vérifier » quand tout est placé : comparaison des textes (deux lettres identiques sont interchangeables).
 // Indice utilisé : la réponse juste compte quand même comme juste (nombre d'indices dans le résumé).
 const ORDER_NOSPACE = ["ja", "zh"];
+// Étape 73 : deux cases sont « la même » si elles ne diffèrent que par la ponctuation ou la casse (règle commune wrNoPunct,
+// js/modes/ecrit.js) : « chat, » à la place de « chat » est juste.
+function orderSame(a, b) { const k = x => wrNoPunct(x, true).toLowerCase(); return k(a) === k(b); }
 function orderChars(s) { return Array.from(String(s || "").normalize("NFC")); }
 function orderSentTokens(text, L) {
   const s = String(text || "").normalize("NFC").trim();
@@ -27,6 +30,15 @@ function orderSentTokens(text, L) {
     }
   } catch (e) {}
   return orderChars(s).filter(x => x.trim());
+}
+// Étape 73 : la barre d'action se pose juste au-dessus de la barre de navigation du bas (hauteur mesurée ; sinon la valeur
+// de secours de css/app-8.css). La barre suit le défilement : elle ne bouge jamais, même quand des cases sont posées.
+function orderBarPlace(bar) {
+  try {
+    const nav = document.querySelector("nav.bottom");
+    const h = nav && getComputedStyle(nav).display !== "none" ? nav.getBoundingClientRect().height : 0;
+    bar.style.setProperty("--ord-nav", Math.round(h) + "px");
+  } catch (e) { /* valeur de secours du CSS */ }
 }
 // Élément à remettre en ordre pour une carte, ou null.
 function orderItem(q, kind) {
@@ -146,7 +158,10 @@ function orderQuestion(root, g, it, next) {
   poolBox.addEventListener("drop", e => { e.preventDefault(); const k = dragK(e); if (k != null && it.placed.includes(k)) unplace(k); });
   root.appendChild(poolBox);
 
-  const after = el("div", "gm-after");
+  // Étape 73 : boutons d'action (Indice, Vérifier, Suivant) dans une barre FIXÉE en bas de l'écran (au-dessus de la barre de
+  // navigation), toujours au même endroit quelle que soit la longueur de la phrase ; le résultat s'affiche au-dessus d'eux.
+  // Une réserve de la même hauteur (.ord-space) garde le bas de la page visible. Styles : css/app-8.css.
+  const after = el("div", "gm-after ord-bar");
   if (it.checked == null) {
     const row = el("div", "btns two");
     const hb = el("button", "btn", "💡 " + t("gm.order.hint"));
@@ -170,7 +185,13 @@ function orderQuestion(root, g, it, next) {
       after.appendChild(nb);
     }
   }
+  if (it.checked === true) {                    // juste : passage automatique, bouton grisé à la même place
+    const nb = el("button", "btn primary", t("gm.next")); nb.disabled = true;
+    after.appendChild(nb);
+  }
+  root.appendChild(el("div", "ord-space"));
   root.appendChild(after);
+  orderBarPlace(after);
   const live = el("div", "sr-only"); live.setAttribute("aria-live", "polite");
   root.appendChild(live);
 
@@ -193,11 +214,11 @@ function orderQuestion(root, g, it, next) {
   function hint() {
     if (it.checked != null) return;
     let p = 0;
-    while (p < it.placed.length && it.tiles[it.placed[p]].text === it.tokens[p]) p++;
+    while (p < it.placed.length && orderSame(it.tiles[it.placed[p]].text, it.tokens[p])) p++;
     if (p >= it.tokens.length) return;
     it.pool = it.pool.concat(it.placed.slice(p));            // ce qui est faux à la fin retourne en bas
     it.placed = it.placed.slice(0, p);
-    const k = it.pool.find(x => it.tiles[x].text === it.tokens[p]);
+    const k = it.pool.find(x => orderSame(it.tiles[x].text, it.tokens[p]));
     if (k == null) return;
     it.pool = it.pool.filter(x => x !== k);
     it.placed.push(k);
@@ -206,7 +227,7 @@ function orderQuestion(root, g, it, next) {
   }
   function check() {
     if (it.checked != null || it.placed.length < it.tokens.length) return;
-    const ok = it.placed.every((k, i) => it.tiles[k].text === it.tokens[i]);
+    const ok = it.placed.every((k, i) => orderSame(it.tiles[k].text, it.tokens[i]));
     it.checked = ok;
     gameGrade(g, it.id, ok);
     GameSound.play(ok ? "ok" : "bad");

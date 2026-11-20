@@ -55,7 +55,7 @@ function analyzeUpdate(cards) {
     if (g.length || posFields(lg).some(f => !fieldVal(c, f).trim())) a.pos++;
     if (g.length) a.gender++;
     if (exFields(lg).some(f => !fieldVal(c, f, lg).trim())) a.example++;   // exemple ou une de ses traductions (étape 35)
-    if (pend.has(c.id) || c.auto.length) a.pending++;
+    if (pend.has(c.id) || ClAuto.legacyAuto(c).length) a.pending++;   // étape 73 : les cases de Claude (« cl: ») ne sont plus « à valider »
     if (state.checkedSig[c.id] !== cardSig(c)) a.verify++;
   });
   dupGroups(cards).forEach(g => { if (g.length > 1) a.dup += g.length - 1; });
@@ -94,6 +94,11 @@ function prepWantFor(c) { return prepScope && prepScope.st === state && prepScop
 
 // Ouvre « À valider » filtré sur la liste ou le dossier.
 function goPendingFor(scope) {
+  // Étape 73 : rien à valider pour cette liste → la liste elle-même (les réponses de Claude y sont déjà appliquées).
+  if (scope.kind === "list" && getList(scope.id) && !liveProposals().some(p => pvListOf(p, new Map(state.cards.map(c => [c.id, c]))) === scope.id)) {
+    try { history.replaceState(null, "", "#" + HASH_OF.lists); } catch (e) {}
+    showScreen("lists"); openListView(scope.id); return;
+  }
   pvReset();
   if (scope.kind === "list" && getList(scope.id)) { pv.list = scope.id; pv.folder = pvFolderOf(scope.id); }
   else if (scope.kind === "folder" && getFolder(scope.id)) pv.folder = scope.id;
@@ -163,6 +168,7 @@ async function runUpdate(scope, cats) {
   else if (scope.kind === "folder") { stamp(getFolder(scope.id)); listsIn(scope.id).forEach(stamp); }
   else { state.folders.forEach(stamp); state.lists.forEach(stamp); }
   let added = 0, legacy = 0;
+  const kept0 = ClAuto.kept();   // étape 73 : cases de l'utilisateur gardées (message de fin)
   if (cats.includes("legacy")) cards.forEach(c => { if (isLegacyCard(c)) { Object.assign(c, normalizeCard(c)); legacy++; } });
   if (cats.includes("dup")) added += addDuplicateProposals(cards);
   commit();
@@ -198,6 +204,7 @@ async function runUpdate(scope, cats) {
   let msg = error ? aiErrorText(error) : stopped ? t(fillCards.length ? "ai.paused" : "ai.stopped", { n: added }) : added ? t("ai.done", { n: added }) : t("ai.doneNone");
   if (error && added) msg += " " + t("ai.done", { n: added });
   if (error && state.aiResume && fillCards.length) msg += " " + t("ai.resumeLater");
+  if (ClAuto.kept() > kept0) msg += " " + t("cl.kept", { n: ClAuto.kept() - kept0 });
   if (legacy) msg += " " + t("upd.legacyDone", { n: legacy });
   const actions = [{ label: t("close") }];
   if (added || seePending) actions.push({ label: t("ai.see"), kind: "primary", onClick: () => { goPendingFor(scope); } });

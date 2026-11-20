@@ -59,8 +59,10 @@ function openCardEditor(cardId, listId) {
   wrap.append(body, formField(t("card.tags"), tags), formField(t("hd.tip.label"), tipIn, false, t("hd.tip.hint")));
   const save = () => {
     const before = c ? { img: JSON.stringify(c.image || null), ex: JSON.stringify(c.examples || null) + "|" + (c.example || ""), tip: Hard.tip(c.id) } : null;
+    const clBefore = c ? ClAuto.snap(c) : null;    // étape 73 : cases remplies par Claude avant l'enregistrement
     const r = form.save(parseTags(tags.value));
     if (!r) return false;                          // champ manquant : message déjà affiché, fenêtre gardée
+    if (c) ClAuto.afterEdit(c, clBefore);          // case changée à la main : elle devient celle de l'utilisateur (conservée)
     const tipId = c ? c.id : (r.added && r.added[0]);
     if (tipId) {
       Hard.setTip(tipId, tipIn.value);
@@ -206,7 +208,7 @@ function vocabForm(c, sel) {
       posSels[code] = ps;
       const row = el("div", "term-row");
       row.append(inp, ps);
-      const isAuto = !!(c && c.auto.includes("terms." + code) && (vals[code] || "").trim());   // rempli automatiquement, pas encore vérifié
+      const isAuto = !!(c && (c.auto.includes("terms." + code) || ClAuto.has(c, code)) && (vals[code] || "").trim());   // rempli automatiquement (dictionnaire ou Claude, étape 73), pas encore vérifié
       box.appendChild(i === 0 ? formField(langName(code), row, true, isAuto ? t("card.autoField") : t("card.frHint"))
         : formField(langName(code), row, false, isAuto ? t("card.autoField") : (vals[code] || "").trim() ? "" : t("card.toFillOne")));   // case « à compléter » (étape 31)
     };

@@ -201,6 +201,7 @@ function sentenceUseDo(r, c) {
   if (Array.isArray(c.auto)) {                                             // « généré, non validé » : plus vrai pour cet exemple
     const T = cardLangs(c).target;
     c.auto = c.auto.filter(a => !(L === T && (a === "example" || a.startsWith("extr."))));
+    c.auto = c.auto.filter(a => !(a === "cl:exl:" + L || a.startsWith("cl:exlt:" + L + ":")));   // étape 73 : l'exemple est maintenant celui de l'utilisateur
   }
   r.used = true;
   commit();

@@ -1,0 +1,24 @@
+/* =================================================================================================
+   css/app-8.css — étape 73 (corrections et simplifications ciblées). Chargé en dernier, après css/app-7.css.
+   Les nouvelles sections de styles vont désormais ici.
+   ================================================================================================= */
+
+/* === REMETTRE EN ORDRE : BOUTONS FIXÉS EN BAS (ÉTAPE 73) === */
+/* Barre d'action (Indice, Vérifier, Suivant) collée au-dessus de la barre de navigation : même place pour toutes les phrases.
+   --ord-nav : hauteur de la barre de navigation, posée par orderBarPlace (js/modes/ordre.js). */
+.ord-bar{position:fixed;left:0;right:0;bottom:var(--ord-nav,calc(65px + env(safe-area-inset-bottom)));z-index:20;max-width:560px;margin:0 auto;padding:8px 16px 10px;background:var(--bg);border-top:1px solid var(--border);box-sizing:border-box}
+.ord-bar .btn{margin-top:4px}
+.ord-bar .btns{margin:0}
+.ord-bar .gm-res{margin:2px 0 4px}
+.ord-space{height:150px}
+
+/* === MOTS DIFFICILES REGROUPÉS (ÉTAPE 73) === */
+.hd-filt{margin:8px 0 10px}
+.hd-filt button{font-size:14px}
+
+/* === COPIER LES PROPOSITIONS (ÉTAPE 73) === */
+.cpy-btn{white-space:nowrap}
+.pv-bar .cpy-btn,.adc-copy{width:auto;min-height:44px;padding:6px 14px;font-size:15px}
+.pv-bar .cpy-btn{margin-left:auto;flex:0 0 auto}
+.cpy-pick .btn{margin-top:8px}
+.adc-copy{margin-top:8px;margin-left:auto}

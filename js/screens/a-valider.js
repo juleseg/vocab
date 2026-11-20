@@ -138,7 +138,7 @@ function renderPending() {
     renderPending();
   });
   const count = el("span", "pv-count");
-  bar.append(menu, count);
+  bar.append(menu, count, cpyPendingBtn(vis));   // étape 73 : « Copier » (js/copier.js)
   sticky.appendChild(bar);
   // Compteur sans réafficher les lignes (appelé aussi quand on coche une ligne).
   const refresh = () => { count.textContent = t("pv.selectedOf", { n: pv.sel.size, total: vis.length }); };
@@ -347,7 +347,7 @@ function pvNewInputs(box, ds, fields, lg) {
 // Crée les cartes d'une proposition dans sa liste. Renvoie { added, dupOnly }.
 function pvAcceptNew(p, edited) {
   const listId = p.listId;
-  if (!getList(listId)) return { added: 0, dupOnly: true };
+  if (!getList(listId)) return { added: 0, dupOnly: true, ids: [] };
   const lg = listLangs(listId);
   const ds = edited || p.cards;
   const have = new Set(cardsOf(listId).map(c => isVocab(c) ? "vocab|" + dupKey(c.terms, lg) : typedKey(c.type, c)));
@@ -369,10 +369,10 @@ function pvAcceptNew(p, edited) {
     have.add(k);
     fresh.push(c);
   });
-  if (bad) return { added: 0, dupOnly: false };            // une case non valide : rien n'est créé, la ligne reste (à modifier)
+  if (bad) return { added: 0, dupOnly: false, ids: [] };   // une case non valide : rien n'est créé, la ligne reste (à modifier)
   state.cards.push(...fresh);
   fresh.forEach(c => { if (isVocab(c)) { state.checkedSig[c.id] = cardSig(c); pvNewIds.push(c.id); } });
-  return { added: fresh.length, dupOnly: !fresh.length && dups > 0 };
+  return { added: fresh.length, dupOnly: !fresh.length && dups > 0, ids: fresh.map(c => c.id) };   // ids : étape 73 (Générer)
 }
 
 function pvSelected() { return liveProposals().filter(p => pv.sel.has(p.id)); }

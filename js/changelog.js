@@ -9,6 +9,26 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "73", date: "2026-11-20",
+    points: {
+      ko: [
+        "Claude가 카드를 바로 채워요. 내가 직접 쓴 내용은 절대 바뀌지 않아요.",
+        "답을 쓸 때 문장 부호는 더 이상 따지지 않아요.",
+        "'어려운 단어'에 자주 틀리는 단어와 비슷한 단어가 함께 모였고, 복습 방향은 내 언어와 학습 언어 중에서 간단히 골라요."
+      ],
+      fr: [
+        "Claude remplit tes cartes directement : ce que tu as écrit toi-même ne change jamais.",
+        "La ponctuation ne compte plus quand tu écris une réponse.",
+        "« Mots difficiles » regroupe les mots souvent ratés et ceux qui se ressemblent, et le sens se choisit simplement entre ta langue et la langue apprise."
+      ],
+      en: [
+        "Claude now fills your cards directly: what you wrote yourself never changes.",
+        "Punctuation no longer counts when you type an answer.",
+        "“Tricky words” now groups often-missed and look-alike words, and you simply pick the direction between your language and the one you're learning."
+      ]
+    }
+  },
+  {
     version: "71", date: "2026-11-20",
     points: {
       ko: [

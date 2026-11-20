@@ -11,6 +11,17 @@
 function wrClean(s) {
   return String(s || "").normalize("NFC").replace(/[’‘ʼ´`]/g, "'").replace(/\s+/g, " ").trim();
 }
+// Étape 73 : la ponctuation n'est JAMAIS prise en compte quand on vérifie une réponse (tous les modes). SEUL endroit qui la
+// définit : WR_PUNCT_RE (ponctuation et symboles Unicode : . , ! ? ; : ' " « » “ ” ‘ ’ - – — ( ) … ~ ・ 。 、 「 」 『 』 《 》 ¿ ¡ …).
+// join = false : remplacée par une espace (« peut-être » = « peut être ») ; join = true : retirée (« s'il » = « sil »).
+// Texte fait seulement de ponctuation (ex. « ? ») : gardé tel quel. Utilisée par wrCheck (Écrit, Dictée, Tableau, Mix…),
+// lisKey (Prononciation, Répéter après la voix) et orderSame (Remettre en ordre).
+const WR_PUNCT_RE = /[\p{P}\p{S}]/gu;
+function wrNoPunct(s, join) {
+  const x = String(s == null ? "" : s);
+  const y = x.replace(WR_PUNCT_RE, join ? "" : " ").replace(/\s+/g, " ").trim();
+  return y || x.trim();
+}
 // Réponses acceptées : champ(s) de la face réponse, découpés sur "/" : [{ text, lng }].
 // Réponse attendue en langues d'appui : une réponse juste dans l'une d'elles suffit.
 function wrAlts(c, dir) {
@@ -45,19 +56,20 @@ function wrLcs(a, b) {
   }
   return { A, B, ma, mb, len: L[0][0] };
 }
-// verdict : "exact" | "accents" (juste, accents faux) | "spaces" (juste, espaces faux) | "punct" (juste, ponctuation) | "wrong".
+// verdict : "exact" | "accents" (juste, accents faux) | "spaces" (juste, espaces faux) | "wrong".
+// Étape 73 : la ponctuation est ignorée à chaque étape (wrNoPunct, deux façons : remplacée par une espace ou retirée) ;
+// une réponse qui ne diffère que par la ponctuation est donc « exact » (le verdict "punct" n'est plus produit).
+// Casse : toujours ignorée ; accents et espaces : règles de la langue (inchangées).
 // best / bestLng = réponse acceptée la plus proche et sa langue.
 function wrCheck(typed, alts) {
   const tx = wrClean(typed);
   const res = (verdict, a) => ({ verdict, typed: tx, best: a ? a.text : "—", bestLng: a ? a.lng : "" });
   if (!tx || !alts.length) return res("wrong", alts[0]);
-  const low = tx.toLowerCase();
-  for (const a of alts) if (a.text.toLowerCase() === low) return res("exact", a);
-  for (const a of alts) { const r = langRules(a.lng); if (r.accents && wrKey(a.text, r) === wrKey(tx, r)) return res("accents", a); }
-  for (const a of alts) { const r = langRules(a.lng); if (r.spaces && wrKey(a.text, r, true) === wrKey(tx, r, true)) return res("spaces", a); }
-  // Ponctuation différente seulement (point final oublié…) : compté juste
-  const np = (x, r) => wrKey(x, r, true).replace(/[.,!?;:«»"“”()¿¡…。、]/g, "").replace(/\s+/g, "");
-  for (const a of alts) { const r = langRules(a.lng); if (np(a.text, r) && np(a.text, r) === np(tx, r)) return res("punct", a); }
+  const same = (a, b, key) => [false, true].some(j => key(wrNoPunct(a, j)) === key(wrNoPunct(b, j)));
+  const low = x => wrClean(x).toLowerCase();
+  for (const a of alts) if (same(a.text, tx, low)) return res("exact", a);
+  for (const a of alts) { const r = langRules(a.lng); if (r.accents && same(a.text, tx, x => wrKey(x, r))) return res("accents", a); }
+  for (const a of alts) { const r = langRules(a.lng); if (r.spaces && same(a.text, tx, x => wrKey(x, r, true))) return res("spaces", a); }
   let best = alts[0], score = -1;
   alts.forEach(a => {
     const r = wrLcs(tx, a.text);

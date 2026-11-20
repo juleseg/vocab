@@ -178,6 +178,7 @@ function adcCase(r) {
     btns.append(bS, bM);
     box.appendChild(btns);
   }
+  box.appendChild(cpyAdcBtn(r));   // étape 73 : « Copier » ce cas (js/copier.js)
   return box;
 }
 

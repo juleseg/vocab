@@ -3,8 +3,8 @@
 // === FILE D'ATTENTE CLAUDE ===
 // Mode Supabase seulement (GitHub Pages, sans accès direct à Claude) : l'appli dépose une demande dans la table
 // claude_requests ; une tâche programmée Claude (connecteur Supabase) la traite plus tard et écrit ses réponses
-// dans claude_proposals. L'appli les récupère (fonction claude_claim_proposals) et les range dans « À valider »,
-// avec les mêmes règles que l'accès direct (addProposal, addGenProposals). Rien n'est écrit dans les cartes.
+// dans claude_proposals. L'appli les récupère (fonction claude_claim_proposals) et les applique avec les mêmes règles que
+// l'accès direct (addProposal, addGenProposals). Étape 73 : écrites directement dans les cartes (règle des cases, js/claude-auto.js).
 //
 // Demande (ligne claude_requests) : { kind: "complete"|"verify"|"generate"|"story"|"sentence", label, card_count, batch_count, payload }
 // payload = {
@@ -127,8 +127,11 @@ const Queue = (() => {
     status = "ok";
     if (!resp || !arr(resp.proposals).length) return { added: 0, cards: 0, bad: 0, stories: 0, sentences: 0 };
     if (Storage.getUser() !== who || state !== st) return null;   // compte changé : « Récupérer à nouveau » plus tard
+    const kept0 = ClAuto.kept();
     const r = queueApply(resp);
-    if (r.added) { commitQuiet(); if (!quiet) toast(queueGotText(r.added)); }
+    const kept = ClAuto.kept() - kept0;   // étape 73 : cases de l'utilisateur gardées
+    if (r.added) { commitQuiet(); if (!quiet) toast(queueGotText(r.added) + (kept ? " " + t("cl.kept", { n: kept }) : "")); }
+    else if (kept && !quiet) toast(t("queue.nothingNew") + " " + t("cl.kept", { n: kept }));
     if (r.stories) {                                               // histoires (étape 45)
       commitQuiet();
       toast(t(r.stories === 1 ? "st.got1" : "st.got", { n: r.stories }));
@@ -407,15 +410,17 @@ function queueGenReq(saved) {
   if (!getList(req.listId)) { req.listId = "__new__"; req.folder = getFolder(req.folder) ? req.folder : null; }
   return req;
 }
-// Range les réponses récupérées dans « À valider ». Renvoie { added, cards, bad }.
+// Applique les réponses récupérées (étape 73 : directement dans les cartes, js/claude-auto.js ; doublons et cartes générées
+// non valides : « À valider »). Renvoie { added, cards, bad }.
 function queueApply(resp) {
   const reqs = new Map(arr(resp.requests).map(r => [r.id, r]));
   const byId = new Map(state.cards.map(c => [c.id, c]));
   const genReqs = new Map();      // une nouvelle liste recréée une seule fois par demande
   const out = { added: 0, cards: 0, bad: 0, stories: 0, sentences: 0 };
   const got = {};                 // demande → propositions ajoutées dans « À valider » (compteur « reçues »)
+  const done = {};                // étape 73 : cases écrites directement (comptées reçues ET acceptées)
   arr(resp.proposals).forEach(p => {
-    const before = state.proposals.length;
+    const before = state.proposals.length, ap = ClAuto.applied(), gc = genCreated;
     try { queueApplyOne(p); } catch (e) { out.bad++; }
     // addProposal / addGenProposals ajoutent en fin de tableau : les nouvelles gardent l'id de leur demande
     const fresh = state.proposals.slice(before);
@@ -423,7 +428,10 @@ function queueApply(resp) {
       fresh.forEach(x => { x.reqId = String(p.request_id); });
       got[p.request_id] = (got[p.request_id] || 0) + fresh.length;
     }
+    const n = ClAuto.applied() - ap + (genCreated - gc);
+    if (p.request_id && n > 0) done[p.request_id] = (done[p.request_id] || 0) + n;
   });
+  Object.keys(done).forEach(id => { got[id] = (got[id] || 0) + done[id]; QStats.add(id, "accepted", done[id]); });
   Object.keys(got).forEach(id => QStats.add(id, "received", got[id]));
   if (Object.keys(got).length) QStats.flush();
   return out;

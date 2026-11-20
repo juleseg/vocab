@@ -8,9 +8,13 @@ const HardUI = (() => {
   const multiLang = c => cardStudyLangs(c).length > 1;
   const suffix = (c, L) => (multiLang(c) ? " (" + L.toUpperCase() + ")" : "");
 
+  // Étape 73 : « Mots difficiles » regroupe les mots souvent ratés ET les mots qui se ressemblent (paire de confusion).
+  const paired = (c, L) => !!c && Hard.partnersOf(c.id, L).some(id => Hard.cardOf(id));
+  const isHardAny = (c, L) => !!c && !Hard.isPaused(c, L) && (Hard.isHard(c, L) || paired(c, L));
+
   // --- Badge « Mot difficile » : session (une langue) et listes (étiquettes de la carte) ---
   function badge(c, L) {
-    if (!c || !Hard.isHard(c, L)) return null;
+    if (!c || !isHardAny(c, L)) return null;
     const b = el("span", "hd-badge", "🔥 " + t("hd.badge"));
     b.title = t("hd.badge");
     return b;
@@ -19,9 +23,8 @@ const HardUI = (() => {
   function tags(c, box) {
     cardStudyLangs(c).forEach(L => {
       const r = Hard.rec(c.id, L);
-      if (!r) return;
-      if (r.h) box.appendChild(el("span", "tag hd-tag", "🔥 " + t("hd.badge") + suffix(c, L)));
-      if (r.p) box.appendChild(el("span", "tag hd-tag hd-paused", "⏸ " + t("hd.badgePaused") + suffix(c, L)));
+      if (isHardAny(c, L)) box.appendChild(el("span", "tag hd-tag", "🔥 " + t("hd.badge") + suffix(c, L)));   // étape 73 : ratés ou qui se ressemblent
+      if (r && r.p) box.appendChild(el("span", "tag hd-tag hd-paused", "⏸ " + t("hd.badgePaused") + suffix(c, L)));
     });
   }
 
@@ -216,6 +219,8 @@ const HardUI = (() => {
     return box;
   }
   // units : cartes (vues) du périmètre de Stats, chacune avec id et unitLang.
+  // Filtre affiché dans la carte « Mots difficiles » de Stats (étape 73) : "missed" (souvent ratés) | "alike" (qui se ressemblent).
+  let statFilt = "missed";
   function statsCards(units) {
     const inScope = new Set(units.map(u => u.id + "|" + u.unitLang));
     const has = (id, L) => inScope.has(id + "|" + L);
@@ -228,9 +233,6 @@ const HardUI = (() => {
       right.appendChild(act(t("hd.stats.pause"), () => { Hard.pause(e.c, e.L); commit(); }));
       return statRow(e.c, e.L, right);
     });
-    const hs = section(t("hd.stats.hard"), t("hd.stats.hardHint"), t("hd.stats.hardEmpty"), hardRows);
-    if (hardRows.length) hs.appendChild(goBtn("hard"));
-    frag.appendChild(hs);
 
     const pairRows = Hard.pairs().filter(p => has(p.a, p.L) && has(p.b, p.L)).map(p => {
       const a = Hard.cardOf(p.a), b = Hard.cardOf(p.b);
@@ -248,9 +250,31 @@ const HardUI = (() => {
       row.appendChild(el("div", "cnt", t("hd.stats.confused", { n: p.n }) + (multiLang(a) ? " · " + p.L.toUpperCase() : "")));
       return row;
     });
-    const ps = section(t("hd.stats.pairs"), t("hd.stats.pairsHint"), t("hd.stats.pairsEmpty"), pairRows);
-    if (pairRows.length) ps.appendChild(goBtn("pairs"));
-    frag.appendChild(ps);
+    // Étape 73 : UNE carte « Mots difficiles », deux petits filtres « Souvent ratés » / « Qui se ressemblent »,
+    // UNE session qui mélange les deux (portée "hard" de js/screens/reviser.js).
+    const box = el("div", "card hd-card");
+    box.appendChild(el("h2", null, t("hd.stats.hard")));
+    box.appendChild(el("div", "hint", t("hd.group.hint")));
+    const body = el("div");
+    const draw = () => {
+      body.textContent = "";
+      const seg = el("div", "seg hd-filt");
+      [["missed", hardRows.length], ["alike", pairRows.length]].forEach(([k, n]) => {
+        const b = el("button", null, t("hd.filt." + k) + " (" + n + ")"); b.type = "button";
+        b.setAttribute("aria-pressed", String(statFilt === k));
+        b.addEventListener("click", () => { statFilt = k; draw(); });
+        seg.appendChild(b);
+      });
+      body.appendChild(seg);
+      const alike = statFilt === "alike", rows = alike ? pairRows : hardRows;
+      body.appendChild(el("div", "hint", t(alike ? "hd.stats.pairsHint" : "hd.stats.hardHint")));
+      if (!rows.length) body.appendChild(el("div", "muted", t(alike ? "hd.stats.pairsEmpty" : "hd.stats.hardEmpty")));
+      rows.slice(0, 30).forEach(n => body.appendChild(n));
+    };
+    draw();
+    box.appendChild(body);
+    if (hardRows.length || pairRows.length) box.appendChild(goBtn("hard"));
+    frag.appendChild(box);
 
     const pausedRows = Hard.pausedEntries().filter(e => has(e.c.id, e.L)).map(e => {
       const right = el("div", "hd-right");
@@ -266,16 +290,17 @@ const HardUI = (() => {
     b.addEventListener("click", () => startScope(scope));
     return b;
   }
-  // Lance une session Cartes sur les mots difficiles ou les paires (aucune date de révision exigée).
+  // Lance une session Cartes sur les mots difficiles (étape 73 : ratés ET qui se ressemblent, une seule portée "hard" ;
+  // aucune date de révision exigée).
   function startScope(scope) {
     rv.cfg = defaultSessionCfg();
-    rv.cfg.scope = scope; rv.cfg.onlyDue = false; rv.cfg.mode = "cards";
+    rv.cfg.scope = "hard"; rv.cfg.onlyDue = false; rv.cfg.mode = "cards";
     rv.phase = "config"; rv.s = null;
     if (!sessionPool(rv.cfg).length) { toast(t("hd.stats.noneToReview")); return; }
     showScreen("review");
     if (!startSession()) toast(t("hd.stats.noneToReview"));
   }
 
-  return { tipInput: pickTipInput, badge, tags, tipRow, sessionExtras, metaBadge, pairNode, writeConfusion, tipModal, repair, afterGrade, statsCards, startScope };
+  return { tipInput: pickTipInput, badge, isHardAny, tags, tipRow, sessionExtras, metaBadge, pairNode, writeConfusion, tipModal, repair, afterGrade, statsCards, startScope };
 })();
 window.App.HardUI = HardUI;

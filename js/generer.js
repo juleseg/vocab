@@ -342,12 +342,24 @@ function addGenProposals(drafts, req) {
       return true;
     });
     if (!fresh.length || !canEditList(listId)) return;
-    state.proposals.push({ id: uid(), cardId: "", listId, field: "new", type: "newcard", cards: fresh,
-      oldValue: "", newValue: "", reason: genLabel(req), createdAt: Date.now() });
-    res.added++; res.cards += fresh.length;
+    const prop = { id: uid(), cardId: "", listId, field: "new", type: "newcard", cards: fresh,
+      oldValue: "", newValue: "", reason: genLabel(req), createdAt: Date.now() };
+    // Étape 73 : cartes créées directement dans la liste, toutes leurs cases marquées « Claude » (js/claude-auto.js).
+    // Une case non valide : rien n'est créé, le groupe reste dans « À valider » (à modifier), comme avant.
+    const r = pvAcceptNew(prop, null);
+    if (r.added) {
+      r.ids.forEach(id => ClAuto.markCard(state.cards.find(c => c.id === id)));
+      genCreated += r.added;
+      res.added++; res.cards += r.added;
+    } else if (!r.dupOnly) {
+      state.proposals.push(prop);
+      res.added++; res.cards += fresh.length; res.pending = (res.pending || 0) + 1;
+    }
   });
+  if (pvNewIds.length) { const ids = pvNewIds; pvNewIds = []; Dict.afterAdd(ids); }   // dictionnaire commun (étape 36)
   return res;
 }
+let genCreated = 0;   // étape 73 : cartes créées directement par « Générer » depuis le lancement (compteur de la file d'attente)
 
 // --- Accès direct (capacité sample) ---
 async function runGenerate(req) {
@@ -390,7 +402,7 @@ function genDone(tot, req, error) {
   }
   const acts = [{ label: t("close") }];
   if (error) acts.unshift({ label: t("gen.prepare"), onClick: () => { openGenPrepare(req); } });
-  if (tot.added) acts.push({ label: t("ai.see"), kind: "primary", onClick: () => { goPendingFor({ kind: "list", id: genListId(req) }); } });
+  if (tot.added) acts.push({ label: t("ai.see"), kind: "primary", onClick: () => { goPendingFor({ kind: "list", id: genListId(req) }); } });   // étape 73 : ouvre la liste (ou « À valider » s'il y reste un groupe)
   openModal(t("gen.title"), wrap, acts);
 }
 

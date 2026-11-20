@@ -50,8 +50,8 @@ function sessionLangs(c, cfg, now, lg, stage) {
     if (Hard.isPaused(c, L)) return;   // mot en pause (étape 57) : ne revient plus en révision
     if (cfg.scope === "cat" && Leitner.category(c, L) !== cfg.cat) return;
     if (cfg.scope === "lang" && L !== cfg.lang) return;
-    if ((cfg.scope === "hard" || cfg.scope === "pairs") && !Hard.inScope(c, L, cfg.scope)) return;   // « Mots difficiles » / « Mots qui se ressemblent » (étape 57)
-    if (cfg.onlyDue && cfg.scope !== "pairs" && cfg.mode !== "gender" && !isEarMode(cfg.mode) && !Leitner.isDue(c, now, L)) return;   // paires : les deux mots sont toujours là ; « le / la ? » (étape 60) et l'oreille et la bouche (étape 69) : tout le périmètre
+    if ((cfg.scope === "hard" || cfg.scope === "pairs") && !Hard.inScope(c, L, "hard") && !Hard.inScope(c, L, "pairs")) return;   // « Mots difficiles » (étape 57 ; étape 73 : ratés ET qui se ressemblent, une seule portée)
+    if (cfg.onlyDue && cfg.scope !== "pairs" && cfg.scope !== "hard" && cfg.mode !== "gender" && !isEarMode(cfg.mode) && !Leitner.isDue(c, now, L)) return;   // paires : les deux mots sont toujours là ; « le / la ? » (étape 60) et l'oreille et la bouche (étape 69) : tout le périmètre
     if (stage !== "base" && arr(cfg.langs).length && !cfg.langs.includes(L)) return;
     // Dictée / Prononciation (étape 46) : mot ou phrase à écouter / dire dans L (dictée : voix de L nécessaire)
     if (!stage && isListenMode(cfg.mode) && !lisKinds(c, L, cfg.mode, cfg.listenKind, i === 0 ? lg : studyLg(L)).length) return;
@@ -121,6 +121,17 @@ function renderReview() {
   else renderSessionConfig(root);
 }
 
+// Libellés du sens (étape 73) : ma langue = langue de l'appli (si c'est aussi une langue apprise de la session : la 1re
+// langue d'aide de cette langue) ; langues apprises = celles de la session (noms complets, « / » entre elles).
+function dirLabels(targets) {
+  const ui = state.settings.uiLang;
+  const ts = LANG_CODES.filter(L => targets.includes(L));
+  let mine = ui;
+  if (ts.length && ts.every(L => L === ui)) mine = (studyLg(ui).support || [])[0] || "";
+  const me = isLang(mine) ? langName(mine) : t("dir73.mine");
+  const learn = ts.filter(L => L !== mine).map(L => langName(L)).join(" / ") || t("dir73.learn");
+  return { toT: me + " → " + learn, fromT: learn + " → " + me };
+}
 // options : [[valeur, cléI18n], ...] ; labels : textes déjà traduits (optionnel, remplace les clés)
 function segField(labelKey, options, current, onPick, labels) {
   const seg = el("div", "seg");
@@ -147,11 +158,12 @@ function chipsField(items, selected, onToggle) {
 
 function renderSessionConfig(root) {
   const cfg = rv.cfg;
+  if (cfg.scope === "pairs") cfg.scope = "hard";   // étape 73 : « Mots qui se ressemblent » est dans « Mots difficiles »
   const box = el("div", "card");
 
   // Périmètre : un seul choix (pastilles, car 6 options)
   const sc = chipsField(
-    [["all", "scope.all"], ["folders", "scope.folders"], ["lists", "scope.lists"], ["tags", "scope.tags"], ["cat", "scope.cat"], ["lang", "scope.lang"], ["hard", "hd.scope.hard"], ["pairs", "hd.scope.pairs"]]
+    [["all", "scope.all"], ["folders", "scope.folders"], ["lists", "scope.lists"], ["tags", "scope.tags"], ["cat", "scope.cat"], ["lang", "scope.lang"], ["hard", "hd.scope.hard"]]   // étape 73 : une seule portée « Mots difficiles »
       .map(([v, k]) => ({ value: v, label: t(k) })),
     [cfg.scope], v => { cfg.scope = v; });
   sc.insertBefore(el("label", null, t("review.scope")), sc.firstChild);
@@ -177,8 +189,8 @@ function renderSessionConfig(root) {
     box.appendChild(segField("scope.cat",
       [["unknown", "cat.unknown"], ["review", "cat.review"], ["known", "cat.known"]],
       cfg.cat, v => { cfg.cat = v; }));
-  } else if (cfg.scope === "hard" || cfg.scope === "pairs") {
-    box.appendChild(el("div", "field hint", t(cfg.scope === "hard" ? "hd.scope.hardHint" : "hd.scope.pairsHint")));
+  } else if (cfg.scope === "hard") {
+    box.appendChild(el("div", "field hint", t("hd.scope.hardHint")));
   } else if (cfg.scope === "lang") {
     const langs = targetLangsInUse();
     if (langs.length && !langs.includes(cfg.lang)) cfg.lang = langs[0];
@@ -187,7 +199,7 @@ function renderSessionConfig(root) {
       : el("div", "field hint", t("lists.empty")));
   }
 
-  if (!isEarMode(cfg.mode))   // l'oreille et la bouche (étape 69) : entraînement sur tout le périmètre
+  if (!isEarMode(cfg.mode) && cfg.scope !== "hard")   // l'oreille et la bouche (étape 69) : tout le périmètre ; mots difficiles (étape 73) : tous
     box.appendChild(segField("review.which", [[true, "which.due"], [false, "which.all"]], cfg.onlyDue, v => { cfg.onlyDue = v; }));
 
   // Langues étudiées (étape 37) : plusieurs choix, aucun = toutes ; seulement s'il y en a plusieurs dans le périmètre
@@ -240,32 +252,20 @@ function renderSessionConfig(root) {
     if (cj.childNodes.length > 1) { cj.appendChild(el("div", "hint", t("review.conjHint"))); box.appendChild(cj); }
   } else { cfg.tenses = []; cfg.verbs = []; cfg.persons = []; }
 
-  // Sens : libellés concrets si toutes les cartes du périmètre ont les mêmes langues (ex. KO·EN → FR).
-  // Plusieurs langues étudiées dans la session (étape 37) : un choix de sens par langue.
+  // Sens (étape 73) : UN seul choix simple entre MA langue (langue de l'appli) et la ou les langues apprises de la session :
+  // « Français → Coréen », « Coréen → Français », « Mélangé ». Les langues d'aide restent sur les cartes (traductions) mais ne
+  // sont plus un choix au lancement. Plus de choix par langue (cfg.dirs vidé : cfg.dir vaut pour toutes les langues).
   const pool = sessionPool(cfg);
   const lgs = langsByList(), nowP = Date.now();
   const sesLangs = new Set();
-  pool.forEach(c => { if (isVocab(c)) sessionLangs(c, cfg, nowP, lgs.get(c.listId)).forEach(L => sesLangs.add(L)); });
-  const dirOpts = [["toT", "dir.toTarget"], ["fromT", "dir.fromTarget"], ["mix", "dir.mix"]];
-  if (isListenMode(cfg.mode) || cfg.mode === "gender" || isEarMode(cfg.mode)) { /* Dictée / Prononciation (étape 46), « le / la ? » (étape 60), oreille et bouche (étape 69) : pas de sens */ }
-  else if (sesLangs.size > 1) {
-    if (!cfg.dirs || typeof cfg.dirs !== "object") cfg.dirs = {};
-    LANG_CODES.filter(L => sesLangs.has(L)).forEach(L => {
-      const lg = studyLg(L);
-      const f = segField("review.dir", dirOpts, cfg.dirs[L] || cfg.dir, v => { cfg.dirs[L] = v; },
-        [pairLabel(lg), langCodes([L]) + " → " + langCodes(lg.support), t("dir.mix")]);
-      f.querySelector("label").textContent = t("study.dirFor", { lang: langName(L) });
-      box.appendChild(f);
-    });
-  } else {
-    const pairs = new Map();
-    pool.forEach(c => { const L = isVocab(c) ? sessionLangs(c, cfg, nowP, lgs.get(c.listId))[0] : ""; const lg = L && L !== lgs.get(c.listId).target ? studyLg(L) : lgs.get(c.listId); pairs.set(pairLabel(lg), lg); });
-    let dirLabels = null;
-    if (pairs.size === 1) {
-      const lg = [...pairs.values()][0];
-      dirLabels = [pairLabel(lg), langCodes([lg.target]) + " → " + langCodes(lg.support), t("dir.mix")];
-    }
-    box.appendChild(segField("review.dir", dirOpts, cfg.dir, v => { cfg.dir = v; }, dirLabels));
+  pool.forEach(c => {
+    if (isVocab(c)) sessionLangs(c, cfg, nowP, lgs.get(c.listId)).forEach(L => sesLangs.add(L));
+    else if (isLang(c.lang)) sesLangs.add(c.lang);
+  });
+  cfg.dirs = {};
+  if (!(isListenMode(cfg.mode) || cfg.mode === "gender" || isEarMode(cfg.mode))) {   // Dictée / Prononciation (étape 46), « le / la ? » (étape 60), oreille et bouche (étape 69) : pas de sens
+    const dl = dirLabels([...sesLangs]);
+    box.appendChild(segField("review.dir", [["toT", ""], ["fromT", ""], ["mix", "dir.mix"]], cfg.dir, v => { cfg.dir = v; }, [dl.toT, dl.fromT, t("dir.mix")]));
   }
 
   const cnt = el("input");
@@ -356,18 +356,29 @@ function sessionQueue(cfg, count) {
     return q;
   };
   let queue;
-  if (cfg.scope === "pairs") {
-    // Étape 57 : les deux mots d'une paire sont posés l'un après l'autre, dans la langue de la paire.
-    const byId = new Map(all.map(c => [c.id, c])), used = new Set();
-    queue = [];
-    shuffle(Hard.pairs().slice()).forEach(p => {
+  if (cfg.scope === "hard" || cfg.scope === "pairs") {
+    // Étape 73 : une seule session « Mots difficiles » qui mélange les mots souvent ratés et les mots qui se ressemblent.
+    // Unités tirées au hasard : une paire (les deux mots l'un après l'autre, dans la langue de la paire, comme à l'étape 57)
+    // ou un mot raté seul. Une paire commencée est toujours finie (count + 1 au plus).
+    const byId = new Map(all.map(c => [c.id, c])), used = new Set(), units = [];
+    Hard.pairs().forEach(p => {
+      const u = [];
       [p.a, p.b].forEach(id => {
         const c = byId.get(id);
-        if (!c || used.has(id) || queue.length >= count + 1) return;
+        if (!c || used.has(id)) return;
         if (!sessionLangs(c, cfg, now, lgs.get(c.listId)).includes(p.L)) return;
-        used.add(id); queue.push(mk(c, p.L));
+        used.add(id); u.push(mk(c, p.L));
       });
+      if (u.length) units.push(u);
     });
+    all.forEach(c => {
+      if (used.has(c.id)) return;
+      const ls = sessionLangs(c, cfg, now, lgs.get(c.listId)).filter(L => Hard.inScope(c, L, "hard"));
+      if (!ls.length) return;
+      used.add(c.id); units.push([mk(c, ls[Math.floor(Math.random() * ls.length)])]);
+    });
+    queue = [];
+    shuffle(units).forEach(u => { if (queue.length < count) queue.push(...u); });
   } else {
     queue = shuffle(all).slice(0, count).map(c => {
       const ls = sessionLangs(c, cfg, now, lgs.get(c.listId));

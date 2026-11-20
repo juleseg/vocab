@@ -43,7 +43,8 @@ const AI = (() => {
 })();
 
 // === COMPLÉTION & VÉRIFICATION ===
-// Toutes les propositions vont dans state.proposals (section « À valider ») : rien n'est écrit directement dans les cartes.
+// Étape 73 : les réponses de Claude s'appliquent directement aux cartes (règle des cases : js/claude-auto.js) ;
+// seuls les doublons vont encore dans state.proposals (section « À valider »).
 // Champs d'une proposition : code de langue (traduction), "example", "extr:<code>" (traduction de l'exemple, étape 35),
 // "pos:<code>" (nature grammaticale) ou "dup".
 // Complétion : langues affichées (displayLangs), exemple dans la langue apprise et ses traductions dans les langues
@@ -129,8 +130,8 @@ function fillType(c, f) {
 function cardsWithGaps(cards) { return cards.filter(c => missingFields(c).length); }
 function chunks(a, n) { const out = []; for (let i = 0; i < a.length; i += n) out.push(a.slice(i, i + n)); return out; }
 
-// Ajoute une proposition si elle est utile : jamais sur un champ rempli à la main (complétion),
-// jamais une valeur déjà refusée, une seule proposition en attente par carte et par champ.
+// Réponse de Claude pour une case (étape 73 : appliquée directement, voir ClAuto.apply) ou doublon (« dup », proposition
+// « À valider ») : jamais une valeur déjà refusée, une seule proposition en attente par carte et par champ.
 function addProposal(p) {
   const c = state.cards.find(x => x.id === p.cardId);
   if (!c) return false;
@@ -140,10 +141,13 @@ function addProposal(p) {
   if (p.field !== "dup") {
     if (!nv || !checkFields(c).includes(p.field)) return false;
     const cur = fieldVal(c, p.field).trim();
-    if (p.type === "completion" && (cur || p.field === cardLangs(c).target)) return false;
-    if (p.type === "correction" && (!cur || cur === nv)) return false;
+    if (p.type === "completion" && p.field === cardLangs(c).target) return false;   // étape 73 : case remplie → règle des cases (ClAuto.apply)
+    if (p.type === "correction" && cur === nv) return false;
   }
   if (state.rejected.includes(rejectKey(c.id, p.field, nv))) return false;
+  // Étape 73 : une réponse de Claude s'applique directement (règle des cases : js/claude-auto.js) ; seuls les doublons
+  // (« dup », suppression d'une carte) passent encore par « À valider ». Renvoie true si une case a été écrite.
+  if (p.field !== "dup") return ClAuto.apply(c, p.field, p.type, nv);
   if (state.proposals.some(x => x.cardId === c.id && x.field === p.field)) return false;
   state.proposals.push({
     id: uid(), cardId: c.id, field: p.field, type: p.type,
@@ -283,6 +287,7 @@ async function runAiJob(kind, cards, opts) {
   const job = { ctl, hiddenAt: 0, wasHidden: false, interrupted: false, onHide: null };
   aiJob = job;
   let added = opts.extra || 0, error = null, stopped = false, prog = null, next = 0;
+  const kept0 = ClAuto.kept();   // étape 73 : cases de l'utilisateur gardées (message de fin)
   // Complétion : enregistre les cartes restantes (reprise plus tard), ou rien si tout est fait.
   const saveResume = () => {
     if (!isComplete) return;
@@ -339,13 +344,16 @@ async function runAiJob(kind, cards, opts) {
   let msg = error ? aiErrorText(error) : stopped ? t(isComplete ? "ai.paused" : "ai.stopped", { n: added }) : added ? t("ai.done", { n: added }) : t("ai.doneNone");
   if (error && added) msg += " " + t("ai.done", { n: added });
   if (error && isComplete && state.aiResume) msg += " " + t("ai.resumeLater");
+  if (ClAuto.kept() > kept0) msg += " " + t("cl.kept", { n: ClAuto.kept() - kept0 });
   const actions = [{ label: t("close") }];
   if (added) actions.push({ label: t("ai.see"), kind: "primary", onClick: () => { goPending(); } });
   openModal(t("ai.doneTitle"), el("p", null, msg), actions);
   return result;
 }
 
+// Étape 73 : « Voir » après une demande à Claude : « À valider » s'il y reste quelque chose (doublons), sinon les listes.
 function goPending() {
+  if (!liveProposals().length) { try { history.replaceState(null, "", "#" + HASH_OF.lists); } catch (e) {} showScreen("lists"); return; }
   try { history.replaceState(null, "", "#" + HASH_OF.pending); } catch (e) {}
   showScreen("pending");
 }

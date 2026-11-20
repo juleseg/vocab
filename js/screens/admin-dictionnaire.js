@@ -91,6 +91,9 @@ function adPropSection(root) {
   const data = ad.props || { total: 0, rows: [] };
   if (!data.rows.length) { root.appendChild(el("p", "muted", t("dict.none"))); return; }
   const pending = ad.status === "pending";
+  const cpy = el("div", "btns");   // étape 73 : « Copier » (page affichée ou sélection, js/copier.js)
+  cpy.appendChild(cpyAdPropBtn(data.rows));
+  root.appendChild(cpy);
   let bar = null;
   if (pending) {
     bar = modGate(el("div", "ad-bar"), "dict.decide");   // étape 66 : case du modo

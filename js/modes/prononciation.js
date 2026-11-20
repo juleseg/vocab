@@ -61,7 +61,7 @@ function lisKey(s, L) {
   const r = langRules(L);
   let x = wrClean(s).toLowerCase();
   if (r.accents) x = x.normalize("NFD").replace(/[̀-ͯ]/g, "").normalize("NFC");
-  x = x.replace(/[\p{P}\p{S}]/gu, " ").replace(/\s+/g, " ").trim();
+  x = wrNoPunct(x);   // étape 73 : ponctuation et symboles ignorés, règle commune (js/modes/ecrit.js)
   if (r.spaces) x = x.replace(/\s+/g, "");
   return x;
 }
