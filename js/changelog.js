@@ -8,6 +8,37 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "63", date: "2026-11-20",
+    points: {
+      ko: [
+        "카드를 추가할 때 단어가 공용 사전에 이미 다른 뜻으로 있어도 더 이상 고르라고 묻지 않아요. 카드는 내가 쓴 내용을 그대로 지켜요.",
+        "이런 카드에는 '사전에 다른 뜻으로 있음' 표시가 붙어요. '제안하기'로 어떻게 하면 좋을지 관리자에게 알려 줄 수 있어요 (코멘트 선택)."
+      ],
+      fr: [
+        "Ajouter une carte dont le mot a déjà plusieurs sens dans le dictionnaire commun ne demande plus de choisir : ta carte garde tes valeurs.",
+        "Ces cartes portent le repère « Déjà au dictionnaire autrement ». Avec « Faire une proposition », tu dis à l'admin ce que tu préfères (commentaire facultatif)."
+      ],
+      en: [
+        "Adding a card whose word already has several meanings in the shared dictionary no longer asks you to choose: your card keeps your values.",
+        "These cards show the mark \"In the dictionary differently\". With \"Make a suggestion\", you tell the admin what you prefer (optional comment)."
+      ]
+    }
+  },
+  {
+    version: "62", date: "2026-11-20",
+    points: {
+      ko: [
+        "연결이 불안정할 때도 앱이 더 안정적으로 열려요. 불러오기가 끝나지 않으면 '새로고침' 버튼이 나타나요."
+      ],
+      fr: [
+        "L'appli s'ouvre de façon plus fiable quand la connexion est instable. Si le chargement est incomplet, un bouton « Recharger » s'affiche."
+      ],
+      en: [
+        "The app opens more reliably on an unstable connection. If loading is incomplete, a \"Reload\" button appears."
+      ]
+    }
+  },
+  {
     version: "61", date: "2026-11-19",
     points: {
       ko: [

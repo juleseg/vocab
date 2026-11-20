@@ -1,20 +1,27 @@
 // Service worker : appli installable + fonctionnement hors connexion.
 // Pages et scripts du site : réseau d'abord (les mises à jour arrivent tout de suite), cache si hors ligne.
 // Supabase (données, connexion) : jamais mis en cache.
-const CACHE = "vocab-v12";
+// Étape 62 (fiabilité du chargement) : repli vers index.html seulement pour une navigation (page) ; un script,
+// un style ou une image absents du cache reçoivent une erreur réseau normale (plus jamais du HTML à la place).
+// Installation fichier par fichier ; le cache des images « vocab-img » (étape 49) est gardé à l'activation.
+const CACHE = "vocab-v13";
 const CORE = ["./", "./index.html", "./config.js", "./pwa.js", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
 
+// Un fichier à la fois : un fichier qui échoue ne fait plus échouer les autres (il sera pris au réseau plus tard).
+const addEach = (c, urls) => Promise.all(urls.map((u) => c.add(u).catch(() => {})));
+
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE).catch(() => {})
+  e.waitUntil(caches.open(CACHE).then((c) => addEach(c, CORE)
     .then(() => fetch("./index.html", { cache: "no-cache" })).then((r) => r.text())
-    .then((html) => c.addAll([...html.matchAll(/(?:src|href)="((?:css|js)\/[^"]+)"/g)].map((m) => "./" + m[1])))
-    .catch(() => {})).then(() => self.skipWaiting()));
+    .then((html) => addEach(c, [...html.matchAll(/(?:src|href)="((?:css|js)\/[^"]+)"/g)].map((m) => "./" + m[1]))))
+    .catch(() => {}).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(caches.keys()
-    .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+    // Seulement les anciens caches de l'appli « vocab-vNN » ; « vocab-img » (images des cartes) et les autres restent.
+    .then((keys) => Promise.all(keys.filter((k) => /^vocab-v\d+$/.test(k) && k !== CACHE).map((k) => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 
@@ -38,7 +45,11 @@ self.addEventListener("fetch", (e) => {
   e.respondWith(fetch(req).then((res) => {                   // reste du site : réseau d'abord
     if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
     return res;
-  }).catch(() => caches.match(req).then((hit) => hit || caches.match("./index.html"))));
+  }).catch(() => caches.match(req).then((hit) => {
+    if (hit) return hit;
+    if (req.mode === "navigate") return caches.match("./index.html").then((page) => page || Response.error());   // page : appli hors connexion
+    return Response.error();                                 // script, style, image… : erreur réseau normale, jamais index.html
+  })));
 });
 
 // === NOTIFICATIONS PUSH (étape 32) ===

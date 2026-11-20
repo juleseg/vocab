@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vocab</title>
-<link rel="stylesheet" href="css/app.css?v=61">
+<link rel="stylesheet" href="css/app.css?v=63">
+<link rel="stylesheet" href="css/app-2.css?v=63">
 <!-- === PWA (appli installable) === -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2f5bd3">
@@ -258,142 +259,212 @@
 
 <!-- Configuration Supabase (fichier séparé, absent dans Claude : l'appli passe alors au stockage de l'artifact ou du navigateur) -->
 <script src="config.js"></script>
+<!-- === FIABILITÉ DU CHARGEMENT (étape 62), partie 1 : note un script de l'appli (js/…) qui ne se charge pas
+     (erreur réseau, fichier absent) ou qui n'est pas du JavaScript (SyntaxError, ex. du HTML reçu à la place).
+     Doit être AVANT les scripts : leurs erreurs de chargement ne se voient qu'au moment où elles arrivent.
+     Rien de global : marque data-load-fail sur <html>, lue par la partie 2 tout à la fin. config.js n'est pas surveillé. -->
+<script>
+(function () {
+  try {
+    var isApp = function (u) { try { var x = new URL(u, location.href); return x.origin === location.origin && /\/js\/.+\.js$/.test(x.pathname); } catch (e) { return false; } };
+    window.addEventListener("error", function (ev) {
+      try {
+        var t = ev && ev.target, bad = false;
+        if (t && t.tagName === "SCRIPT") bad = isApp(t.src);                       // script non chargé
+        else if (ev && ev.filename && isApp(ev.filename)) {                          // script reçu mais illisible
+          var m = String((ev.error && ev.error.name) || "") + " " + String(ev.message || "");
+          bad = /SyntaxError|Unexpected token/i.test(m);
+        }
+        if (bad) document.documentElement.setAttribute("data-load-fail", "1");
+      } catch (e) {}
+    }, true);
+  } catch (e) {}
+})();
+</script>
 <!-- Scripts de l'appli, dans l'ordre (scripts classiques, sans build). -->
-<script src="js/core.js?v=61"></script>
-<script src="js/errors.js?v=61"></script>
-<script src="js/languages.js?v=61"></script>
-<script src="js/i18n/ko.js?v=61"></script>
-<script src="js/i18n/fr.js?v=61"></script>
-<script src="js/i18n/en.js?v=61"></script>
-<script src="js/i18n/tutorial-ko.js?v=61"></script>
-<script src="js/i18n/tutorial-fr.js?v=61"></script>
-<script src="js/i18n/tutorial-en.js?v=61"></script>
-<script src="js/i18n/errors-ko.js?v=61"></script>
-<script src="js/i18n/errors-fr.js?v=61"></script>
-<script src="js/i18n/errors-en.js?v=61"></script>
-<script src="js/i18n/games-ko.js?v=61"></script>
-<script src="js/i18n/games-fr.js?v=61"></script>
-<script src="js/i18n/games-en.js?v=61"></script>
-<script src="js/i18n/xp-ko.js?v=61"></script>
-<script src="js/i18n/xp-fr.js?v=61"></script>
-<script src="js/i18n/xp-en.js?v=61"></script>
-<script src="js/i18n/league-ko.js?v=61"></script>
-<script src="js/i18n/league-fr.js?v=61"></script>
-<script src="js/i18n/league-en.js?v=61"></script>
-<script src="js/i18n/story-ko.js?v=61"></script>
-<script src="js/i18n/story-fr.js?v=61"></script>
-<script src="js/i18n/story-en.js?v=61"></script>
-<script src="js/i18n/sentence-ko.js?v=61"></script>
-<script src="js/i18n/sentence-fr.js?v=61"></script>
-<script src="js/i18n/sentence-en.js?v=61"></script>
-<script src="js/i18n/listen-ko.js?v=61"></script>
-<script src="js/i18n/listen-fr.js?v=61"></script>
-<script src="js/i18n/listen-en.js?v=61"></script>
-<script src="js/i18n/fsrs-ko.js?v=61"></script>
-<script src="js/i18n/fsrs-fr.js?v=61"></script>
-<script src="js/i18n/fsrs-en.js?v=61"></script>
-<script src="js/i18n/release-ko.js?v=61"></script>
-<script src="js/i18n/release-fr.js?v=61"></script>
-<script src="js/i18n/release-en.js?v=61"></script>
-<script src="js/i18n/backup-ko.js?v=61"></script>
-<script src="js/i18n/backup-fr.js?v=61"></script>
-<script src="js/i18n/backup-en.js?v=61"></script>
-<script src="js/i18n/images-ko.js?v=61"></script>
-<script src="js/i18n/images-fr.js?v=61"></script>
-<script src="js/i18n/images-en.js?v=61"></script>
-<script src="js/i18n/ideas-ko.js?v=61"></script>
-<script src="js/i18n/ideas-fr.js?v=61"></script>
-<script src="js/i18n/ideas-en.js?v=61"></script>
-<script src="js/i18n/langs-ko.js?v=61"></script>
-<script src="js/i18n/langs-fr.js?v=61"></script>
-<script src="js/i18n/langs-en.js?v=61"></script>
-<script src="js/i18n/messages-ko.js?v=61"></script>
-<script src="js/i18n/messages-fr.js?v=61"></script>
-<script src="js/i18n/messages-en.js?v=61"></script>
-<script src="js/i18n/teams-ko.js?v=61"></script>
-<script src="js/i18n/teams-fr.js?v=61"></script>
-<script src="js/i18n/teams-en.js?v=61"></script>
-<script src="js/i18n/auditif-ko.js?v=61"></script>
-<script src="js/i18n/auditif-fr.js?v=61"></script>
-<script src="js/i18n/auditif-en.js?v=61"></script>
-<script src="js/i18n/difficiles-ko.js?v=61"></script>
-<script src="js/i18n/difficiles-fr.js?v=61"></script>
-<script src="js/i18n/difficiles-en.js?v=61"></script>
-<script src="js/i18n/genre-ko.js?v=61"></script>
-<script src="js/i18n/genre-fr.js?v=61"></script>
-<script src="js/i18n/genre-en.js?v=61"></script>
-<script src="js/i18n/moments-ko.js?v=61"></script>
-<script src="js/i18n/moments-fr.js?v=61"></script>
-<script src="js/i18n/moments-en.js?v=61"></script>
-<script src="js/fsrs.js?v=61"></script>
-<script src="js/release.js?v=61"></script>
-<script src="js/storage.js?v=61"></script>
-<script src="js/cards.js?v=61"></script>
-<script src="js/langhelp.js?v=61"></script>
-<script src="js/auth.js?v=61"></script>
-<script src="js/difficiles.js?v=61"></script>
-<script src="js/leitner.js?v=61"></script>
-<script src="js/xp.js?v=61"></script>
-<script src="js/difficiles-ui.js?v=61"></script>
-<script src="js/genre.js?v=61"></script>
-<script src="js/modes/cartes.js?v=61"></script>
-<script src="js/modes/ecrit.js?v=61"></script>
-<script src="js/modes/interrogateur.js?v=61"></script>
-<script src="js/modes/tableau.js?v=61"></script>
-<script src="js/modes/jeux.js?v=61"></script>
-<script src="js/modes/qcm.js?v=61"></script>
-<script src="js/modes/course.js?v=61"></script>
-<script src="js/modes/paires.js?v=61"></script>
-<script src="js/modes/ordre.js?v=61"></script>
-<script src="js/modes/dictee.js?v=61"></script>
-<script src="js/modes/prononciation.js?v=61"></script>
-<script src="js/screens/accueil.js?v=61"></script>
-<script src="js/screens/reviser.js?v=61"></script>
-<script src="js/screens/listes.js?v=61"></script>
-<script src="js/screens/stats.js?v=61"></script>
-<script src="js/screens/reglages.js?v=61"></script>
-<script src="js/screens/a-valider.js?v=61"></script>
-<script src="js/screens/amis.js?v=61"></script>
-<script src="js/league.js?v=61"></script>
-<script src="js/duel.js?v=61"></script>
-<script src="js/screens/admin.js?v=61"></script>
-<script src="js/screens/admin-dashboard.js?v=61"></script>
-<script src="js/screens/admin-demandes.js?v=61"></script>
-<script src="js/screens/admin-journal.js?v=61"></script>
-<script src="js/screens/admin-fiche.js?v=61"></script>
-<script src="js/screens/admin-comptes.js?v=61"></script>
-<script src="js/screens/admin-notifications.js?v=61"></script>
-<script src="js/screens/admin-invite.js?v=61"></script>
-<script src="js/screens/admin-release.js?v=61"></script>
-<script src="js/screens/admin-backups.js?v=61"></script>
-<script src="js/screens/admin-dictionnaire.js?v=61"></script>
-<script src="js/screens/admin-images.js?v=61"></script>
-<script src="js/screens/admin-erreurs.js?v=61"></script>
-<script src="js/screens/admin-idees.js?v=61"></script>
-<script src="js/screens/admin-messages.js?v=61"></script>
-<script src="js/screens/admin-equipes.js?v=61"></script>
-<script src="js/partage.js?v=61"></script>
-<script src="js/import.js?v=61"></script>
-<script src="js/completion.js?v=61"></script>
-<script src="js/queue.js?v=61"></script>
-<script src="js/dictionary.js?v=61"></script>
-<script src="js/images.js?v=61"></script>
-<script src="js/study.js?v=61"></script>
-<script src="js/story.js?v=61"></script>
-<script src="js/sentences.js?v=61"></script>
-<script src="js/ideas.js?v=61"></script>
-<script src="js/messages.js?v=61"></script>
-<script src="js/teams.js?v=61"></script>
-<script src="js/activity.js?v=61"></script>
-<script src="js/audio.js?v=61"></script>
-<script src="js/auditif.js?v=61"></script>
-<script src="js/notifications.js?v=61"></script>
-<script src="js/notif-invite.js?v=61"></script>
-<script src="js/moments.js?v=61"></script>
-<script src="js/changelog.js?v=61"></script>
-<script src="js/qrcode.js?v=61"></script>
-<script src="js/screens/a-propos.js?v=61"></script>
-<script src="js/tutorial.js?v=61"></script>
-<script src="js/app.js?v=61"></script>
+<script src="js/core.js?v=63"></script>
+<script src="js/errors.js?v=63"></script>
+<script src="js/languages.js?v=63"></script>
+<script src="js/i18n/ko.js?v=63"></script>
+<script src="js/i18n/fr.js?v=63"></script>
+<script src="js/i18n/en.js?v=63"></script>
+<script src="js/i18n/tutorial-ko.js?v=63"></script>
+<script src="js/i18n/tutorial-fr.js?v=63"></script>
+<script src="js/i18n/tutorial-en.js?v=63"></script>
+<script src="js/i18n/errors-ko.js?v=63"></script>
+<script src="js/i18n/errors-fr.js?v=63"></script>
+<script src="js/i18n/errors-en.js?v=63"></script>
+<script src="js/i18n/games-ko.js?v=63"></script>
+<script src="js/i18n/games-fr.js?v=63"></script>
+<script src="js/i18n/games-en.js?v=63"></script>
+<script src="js/i18n/xp-ko.js?v=63"></script>
+<script src="js/i18n/xp-fr.js?v=63"></script>
+<script src="js/i18n/xp-en.js?v=63"></script>
+<script src="js/i18n/league-ko.js?v=63"></script>
+<script src="js/i18n/league-fr.js?v=63"></script>
+<script src="js/i18n/league-en.js?v=63"></script>
+<script src="js/i18n/story-ko.js?v=63"></script>
+<script src="js/i18n/story-fr.js?v=63"></script>
+<script src="js/i18n/story-en.js?v=63"></script>
+<script src="js/i18n/sentence-ko.js?v=63"></script>
+<script src="js/i18n/sentence-fr.js?v=63"></script>
+<script src="js/i18n/sentence-en.js?v=63"></script>
+<script src="js/i18n/listen-ko.js?v=63"></script>
+<script src="js/i18n/listen-fr.js?v=63"></script>
+<script src="js/i18n/listen-en.js?v=63"></script>
+<script src="js/i18n/fsrs-ko.js?v=63"></script>
+<script src="js/i18n/fsrs-fr.js?v=63"></script>
+<script src="js/i18n/fsrs-en.js?v=63"></script>
+<script src="js/i18n/release-ko.js?v=63"></script>
+<script src="js/i18n/release-fr.js?v=63"></script>
+<script src="js/i18n/release-en.js?v=63"></script>
+<script src="js/i18n/backup-ko.js?v=63"></script>
+<script src="js/i18n/backup-fr.js?v=63"></script>
+<script src="js/i18n/backup-en.js?v=63"></script>
+<script src="js/i18n/images-ko.js?v=63"></script>
+<script src="js/i18n/images-fr.js?v=63"></script>
+<script src="js/i18n/images-en.js?v=63"></script>
+<script src="js/i18n/ideas-ko.js?v=63"></script>
+<script src="js/i18n/ideas-fr.js?v=63"></script>
+<script src="js/i18n/ideas-en.js?v=63"></script>
+<script src="js/i18n/langs-ko.js?v=63"></script>
+<script src="js/i18n/langs-fr.js?v=63"></script>
+<script src="js/i18n/langs-en.js?v=63"></script>
+<script src="js/i18n/messages-ko.js?v=63"></script>
+<script src="js/i18n/messages-fr.js?v=63"></script>
+<script src="js/i18n/messages-en.js?v=63"></script>
+<script src="js/i18n/teams-ko.js?v=63"></script>
+<script src="js/i18n/teams-fr.js?v=63"></script>
+<script src="js/i18n/teams-en.js?v=63"></script>
+<script src="js/i18n/auditif-ko.js?v=63"></script>
+<script src="js/i18n/auditif-fr.js?v=63"></script>
+<script src="js/i18n/auditif-en.js?v=63"></script>
+<script src="js/i18n/difficiles-ko.js?v=63"></script>
+<script src="js/i18n/difficiles-fr.js?v=63"></script>
+<script src="js/i18n/difficiles-en.js?v=63"></script>
+<script src="js/i18n/genre-ko.js?v=63"></script>
+<script src="js/i18n/genre-fr.js?v=63"></script>
+<script src="js/i18n/genre-en.js?v=63"></script>
+<script src="js/i18n/moments-ko.js?v=63"></script>
+<script src="js/i18n/moments-fr.js?v=63"></script>
+<script src="js/i18n/moments-en.js?v=63"></script>
+<script src="js/i18n/doublons-ko.js?v=63"></script>
+<script src="js/i18n/doublons-fr.js?v=63"></script>
+<script src="js/i18n/doublons-en.js?v=63"></script>
+<script src="js/fsrs.js?v=63"></script>
+<script src="js/release.js?v=63"></script>
+<script src="js/storage.js?v=63"></script>
+<script src="js/cards.js?v=63"></script>
+<script src="js/langhelp.js?v=63"></script>
+<script src="js/auth.js?v=63"></script>
+<script src="js/difficiles.js?v=63"></script>
+<script src="js/leitner.js?v=63"></script>
+<script src="js/xp.js?v=63"></script>
+<script src="js/difficiles-ui.js?v=63"></script>
+<script src="js/genre.js?v=63"></script>
+<script src="js/modes/cartes.js?v=63"></script>
+<script src="js/modes/ecrit.js?v=63"></script>
+<script src="js/modes/interrogateur.js?v=63"></script>
+<script src="js/modes/tableau.js?v=63"></script>
+<script src="js/modes/jeux.js?v=63"></script>
+<script src="js/modes/qcm.js?v=63"></script>
+<script src="js/modes/course.js?v=63"></script>
+<script src="js/modes/paires.js?v=63"></script>
+<script src="js/modes/ordre.js?v=63"></script>
+<script src="js/modes/dictee.js?v=63"></script>
+<script src="js/modes/prononciation.js?v=63"></script>
+<script src="js/screens/accueil.js?v=63"></script>
+<script src="js/screens/reviser.js?v=63"></script>
+<script src="js/screens/listes.js?v=63"></script>
+<script src="js/screens/stats.js?v=63"></script>
+<script src="js/screens/reglages.js?v=63"></script>
+<script src="js/screens/a-valider.js?v=63"></script>
+<script src="js/screens/amis.js?v=63"></script>
+<script src="js/league.js?v=63"></script>
+<script src="js/duel.js?v=63"></script>
+<script src="js/screens/admin.js?v=63"></script>
+<script src="js/screens/admin-dashboard.js?v=63"></script>
+<script src="js/screens/admin-demandes.js?v=63"></script>
+<script src="js/screens/admin-journal.js?v=63"></script>
+<script src="js/screens/admin-fiche.js?v=63"></script>
+<script src="js/screens/admin-comptes.js?v=63"></script>
+<script src="js/screens/admin-notifications.js?v=63"></script>
+<script src="js/screens/admin-invite.js?v=63"></script>
+<script src="js/screens/admin-release.js?v=63"></script>
+<script src="js/screens/admin-backups.js?v=63"></script>
+<script src="js/screens/admin-dictionnaire.js?v=63"></script>
+<script src="js/screens/admin-images.js?v=63"></script>
+<script src="js/screens/admin-doublons.js?v=63"></script>
+<script src="js/screens/admin-erreurs.js?v=63"></script>
+<script src="js/screens/admin-idees.js?v=63"></script>
+<script src="js/screens/admin-messages.js?v=63"></script>
+<script src="js/screens/admin-equipes.js?v=63"></script>
+<script src="js/partage.js?v=63"></script>
+<script src="js/import.js?v=63"></script>
+<script src="js/completion.js?v=63"></script>
+<script src="js/queue.js?v=63"></script>
+<script src="js/dictionary.js?v=63"></script>
+<script src="js/doublons.js?v=63"></script>
+<script src="js/images.js?v=63"></script>
+<script src="js/study.js?v=63"></script>
+<script src="js/story.js?v=63"></script>
+<script src="js/sentences.js?v=63"></script>
+<script src="js/ideas.js?v=63"></script>
+<script src="js/messages.js?v=63"></script>
+<script src="js/teams.js?v=63"></script>
+<script src="js/activity.js?v=63"></script>
+<script src="js/audio.js?v=63"></script>
+<script src="js/auditif.js?v=63"></script>
+<script src="js/notifications.js?v=63"></script>
+<script src="js/notif-invite.js?v=63"></script>
+<script src="js/moments.js?v=63"></script>
+<script src="js/changelog.js?v=63"></script>
+<script src="js/qrcode.js?v=63"></script>
+<script src="js/screens/a-propos.js?v=63"></script>
+<script src="js/tutorial.js?v=63"></script>
+<script src="js/app.js?v=63"></script>
+<!-- === FIABILITÉ DU CHARGEMENT (étape 62), partie 2 : après le chargement de la page, si l'appli ne s'est pas lancée
+     (window.App absent, js/app.js absent, ou un script de l'appli non chargé : voir partie 1), bandeau simple
+     « Chargement incomplet (connexion instable). Recharger » dans la langue connue (sinon celle du navigateur).
+     Styles écrits ici : css/app.css peut lui aussi manquer. Jamais affiché quand tout s'est chargé. -->
+<script>
+(function () {
+  var TXT = {
+    ko: ["불러오기가 완료되지 않았어요 (연결이 불안정해요).", "새로고침"],
+    fr: ["Chargement incomplet (connexion instable).", "Recharger"],
+    en: ["Loading incomplete (unstable connection).", "Reload"]
+  };
+  function lang() {
+    try { var p = JSON.parse(localStorage.getItem("vocabfr.prefs") || "null"); if (p && TXT[p.uiLang]) return p.uiLang; } catch (e) {}
+    var n = String((navigator.languages && navigator.languages[0]) || navigator.language || "").toLowerCase().slice(0, 2);
+    return TXT[n] ? n : "en";
+  }
+  function check() {
+    try {
+      var failed = document.documentElement.getAttribute("data-load-fail") === "1";
+      if (!failed && window.App && typeof init === "function") return;              // tout va bien : rien
+      if (document.getElementById("loadFailBar")) return;
+      var t = TXT[lang()];
+      var bar = document.createElement("div");
+      bar.id = "loadFailBar";
+      bar.setAttribute("role", "alert");
+      bar.style.cssText = "position:fixed;left:0;right:0;top:0;z-index:2147483000;display:flex;align-items:center;gap:12px;" +
+        "justify-content:center;flex-wrap:wrap;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));" +
+        "background:#fff4ce;color:#3d2e00;border-bottom:1px solid #e0c46c;font:16px/1.4 system-ui,-apple-system,sans-serif;" +
+        "box-shadow:0 2px 8px rgba(0,0,0,.15)";
+      var msg = document.createElement("span");
+      msg.textContent = t[0];
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = t[1];
+      btn.style.cssText = "font:inherit;font-weight:600;padding:8px 18px;border-radius:10px;border:0;background:#2f5bd3;color:#fff;cursor:pointer";
+      btn.addEventListener("click", function () { location.reload(); });
+      bar.appendChild(msg); bar.appendChild(btn);
+      document.body.appendChild(bar);
+    } catch (e) {}
+  }
+  if (document.readyState === "complete") check(); else window.addEventListener("load", check);
+})();
+</script>
 </body>
 </html>

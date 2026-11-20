@@ -1,0 +1,53 @@
+/* =====================================================================================
+   css/app-2.css — second fichier de styles (étape 63), chargé juste après css/app.css.
+   css/app.css approche 120 Ko : les nouvelles sections de styles vont ici, chacune avec son titre.
+   ===================================================================================== */
+
+/* === FAUX DOUBLONS DU DICTIONNAIRE (ÉTAPE 63) === */
+/* Côté utilisateur (js/doublons.js) : marque dans la liste, repère dans l'éditeur, fenêtre « Faire une proposition ». */
+.tag.dcf-tag{color:var(--warn)}
+.dcf-note{border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:10px;padding:8px 10px;margin:0 0 10px;background:var(--surface2)}
+.dcf-note-t{margin:0;font-size:14px;overflow-wrap:anywhere}
+.dcf-note-r{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:4px}
+.dcf-note .dcf-btn{padding:4px 0}
+.dcf-sent{font-size:13px}
+.dcf-edhint{color:var(--warn)}
+.dcf-opts{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.dcf-opt{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--surface)}
+.dcf-opt input{margin-top:3px;flex:0 0 auto;width:20px;height:20px}
+.dcf-opt:has(input:checked){border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.dcf-opt-m{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.dcf-opt-h{font-weight:600;margin-bottom:2px}
+.dcf-opt .dict-sense{margin:0}
+.dcf-vals{font-size:14px;color:var(--muted)}
+.dcf-ta{width:100%;resize:vertical;min-height:72px}
+.dcf-err{margin-top:8px}
+
+/* Administration → Dictionnaire → Faux doublons (js/screens/admin-doublons.js) */
+.ad-tabs button.adc-tabnew{color:var(--warn);font-weight:600}
+.seg.ad-tabs4{flex-wrap:wrap}
+.seg.ad-tabs4 button{flex:1 1 calc(50% - 4px);hyphens:manual}
+.adc-help{font-size:14px}
+.adc-tools .input{flex:1 1 140px}
+.adc-list{display:flex;flex-direction:column;gap:12px}
+.adc-case{padding:12px;overflow-wrap:anywhere}
+.adc-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px}
+.adc-word{font-size:20px;font-weight:700}
+.adc-h .tag{margin:0}
+.adc-meta{font-size:13px;margin-top:2px}
+.adc-senses{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.adc-sense{width:100%;text-align:left}
+.adc-sub{font-size:14px;margin:12px 0 4px;color:var(--muted)}
+.adc-row{border-top:1px solid var(--border);padding:6px 0;display:flex;flex-direction:column;gap:2px}
+.adc-row-t{font-size:15px}
+.adc-row-s{font-size:13px}
+.adc-row .link-btn{align-self:flex-start;padding:2px 0}
+.adc-prop.done{opacity:.7}
+.adc-comment{font-size:14px;font-style:italic;background:var(--surface2);border-radius:8px;padding:4px 8px;white-space:pre-wrap}
+.adc-acts{margin-top:10px}
+.adc-msenses{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.adc-mrow{border:1px solid var(--border);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:4px}
+.adc-mcb,.adc-keep{display:flex;align-items:flex-start;gap:8px;overflow-wrap:anywhere}
+.adc-mcb input,.adc-keep input{margin-top:3px;flex:0 0 auto}
+.adc-keep{font-size:13px}
+.adc-dash .dash-al-title{color:var(--warn)}

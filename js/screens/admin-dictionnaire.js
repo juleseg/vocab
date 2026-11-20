@@ -7,6 +7,7 @@
 // Onglets : Propositions (en attente / validées / refusées, 50 par page, sélection, Valider / Refuser) et Recherche.
 // Toucher un sens : détail (valeurs par langue, historique des versions, retour à une version, fusion d'un doublon).
 // Script pas lancé : « Lancez le script SQL de l'étape 36 ». Chaque action est notée au journal (admin_dict).
+// Étape 63 : onglet « Faux doublons (N) » (ad.tab = "conf", js/screens/admin-doublons.js) ; compteur relu à chaque chargement.
 const AD_PAGE = 50;
 const ad = {
   tab: "prop", status: "pending", page: 0, props: null, sum: null, sel: new Set(),
@@ -29,6 +30,8 @@ function adWords(vals) {
 }
 
 async function adLoad() {
+  if (ad.tab === "conf") { ad.started = true; ad.err = ""; return adcLoad(); }  // onglet Faux doublons (étape 63, js/screens/admin-doublons.js)
+  adcLoadCount().then(() => adRerender());                                      // compteur de l'onglet (jamais bloquant)
   if (ad.tab === "img") { ad.started = true; ad.err = ""; return aimLoad(); }   // onglet Images (étape 49, js/screens/admin-images.js)
   ad.started = true; ad.loading = true; ad.err = "";
   adRerender();
@@ -63,15 +66,16 @@ function renderAdminDict() {
   if (ad.missing) { root.appendChild(el("div", "card q-err", t("dict.missing"))); return; }
   if (ad.sum) root.appendChild(el("p", "muted", t("dict.sum", { s: dashFmt(ad.sum.senses), v: dashFmt(ad.sum.values), p: dashFmt(ad.sum.pending) })));
   // Onglets
-  const tabs = el("div", "seg ad-tabs");
-  [["prop", "dict.tab.prop"], ["search", "dict.tab.search"], ["img", "img.tab"]].forEach(([k, lab]) => {
-    const b = el("button", null, t(lab)); b.type = "button"; b.setAttribute("aria-pressed", String(ad.tab === k));
+  const tabs = el("div", "seg ad-tabs ad-tabs4");   // 4 onglets sur 2 lignes (étape 63)
+  [["prop", "dict.tab.prop"], ["search", "dict.tab.search"], ["img", "img.tab"], ["conf", ""]].forEach(([k, lab]) => {
+    const b = el("button", k === "conf" && adc.count ? "adc-tabnew" : null, k === "conf" ? adcTabLabel() : t(lab));   // étape 63 : compteur
+    b.type = "button"; b.setAttribute("aria-pressed", String(ad.tab === k));
     b.addEventListener("click", () => { if (ad.tab === k) return; ad.tab = k; ad.sel.clear(); adLoad(); });
     tabs.appendChild(b);
   });
   root.appendChild(tabs);
   if (ad.err) root.appendChild(el("p", "q-err", ad.err));
-  if (ad.tab === "prop") adPropSection(root); else if (ad.tab === "img") aimSection(root); else adSearchSection(root);
+  if (ad.tab === "prop") adPropSection(root); else if (ad.tab === "img") aimSection(root); else if (ad.tab === "conf") adcSection(root); else adSearchSection(root);
 }
 
 // --- Propositions ---

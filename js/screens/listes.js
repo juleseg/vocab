@@ -272,6 +272,7 @@ function cardItem(c, showList) {
   if (miss.length) extra.appendChild(el("span", "tag warn", t("card.toFill", { langs: miss.map(x => langName(x)).join(", ") })));
   shFlagTag(c, extra);
   { const gm = genderMissingTag(c); if (gm && canEditList(c.listId)) extra.appendChild(gm); }   // « Genre manquant » (étape 60)
+  DictConf.tag(c, extra);   // « Ce mot existe déjà dans le dictionnaire autrement » (faux doublon, étape 63)
   HardUI.tags(c, extra);   // « Mot difficile » / « En pause » (étape 57)
   c.tags.forEach(tg => extra.appendChild(el("span", "tag", "#" + tg)));
   if (extra.childNodes.length) m.appendChild(extra);
@@ -798,8 +799,10 @@ function vocabForm(c, sel) {
   if (imgF) node.appendChild(imgF.node);
   node.append(exBox, stBox);
   // --- Dictionnaire commun (étape 36) : carte pas encore reliée → recherche du mot tapé (en quittant le champ) ---
-  // Un seul sens probable : cases vides remplies tout de suite (marquées « auto ») ; plusieurs : choix ; aucun : nouveau sens.
-  const dict = { pick: null, cands: null, q: "", auto: new Set(), busy: 0 };
+  // Un seul sens probable : cases vides remplies tout de suite (marquées « auto ») ; aucun : nouveau sens.
+  // Plusieurs (faux doublon, étape 63) : aucun choix demandé ; cases vides remplies depuis le sens le plus proche s'il est
+  // clair, sinon rien ; à l'enregistrement la carte garde ses valeurs et le cas est signalé (Dict.afterAdd).
+  const dict = { pick: null, cands: null, q: "", auto: new Set(), busy: 0, conflict: false };
   const canDict = () => Dict.on() && !(c && c.senseId);
   const formVals = () => {
     const o = {};
@@ -809,32 +812,20 @@ function vocabForm(c, sel) {
   };
   const dictDraw = () => {
     dictBox.textContent = "";
+    const cf = c ? DictConf.note(c) : null;   // faux doublon (étape 63) : repère + « Faire une proposition »
+    if (cf) dictBox.appendChild(cf);
     if (c && c.senseId) { dictBox.appendChild(el("p", "hint dict-hint", t("dict.edLinked"))); return; }
-    if (!canDict()) return;
+    if (cf || !canDict()) return;
     if (dict.busy) { dictBox.appendChild(el("p", "hint dict-hint", t("dict.edSearching"))); return; }
     if (dict.pick === "new") { dictBox.appendChild(el("p", "hint dict-hint", t("dict.edNone"))); return; }
+    if (dict.conflict) {                         // plusieurs sens : aucun choix demandé (étape 63)
+      dictBox.appendChild(el("p", "hint dict-hint dcf-edhint", t("dcf.edHint")));
+      if (dict.pick && dict.pick.id) dictBox.appendChild(dictSenseNode(dict.pick, [lg.target].concat(lg.support), dict.q.split("|")[0]));
+      return;
+    }
     if (dict.pick && dict.pick.id) {
       dictBox.appendChild(el("p", "hint dict-hint", t("dict.edFound")));
       dictBox.appendChild(dictSenseNode(dict.pick, [lg.target].concat(lg.support), dict.q.split("|")[0]));
-      if (dict.cands && dict.cands.length > 1) {
-        const b = el("button", "link-btn", t("dict.edChange")); b.type = "button";
-        b.addEventListener("click", () => { dict.pick = null; dictDraw(); });
-        dictBox.appendChild(b);
-      }
-      return;
-    }
-    if (dict.cands && dict.cands.length) {
-      dictBox.appendChild(el("p", "hint dict-hint", t("dict.edMany")));
-      const qL = dict.q.split("|")[0];
-      dict.cands.forEach(s => {
-        const b = el("button", "btn dict-opt"); b.type = "button";
-        b.appendChild(dictSenseNode(s, [lg.target].concat(lg.support), qL));
-        b.addEventListener("click", () => dictApply(s));
-        dictBox.appendChild(b);
-      });
-      const bn = el("button", "btn dict-opt dict-new", t("dict.newSense")); bn.type = "button";
-      bn.addEventListener("click", () => { dict.pick = "new"; dictDraw(); });
-      dictBox.appendChild(bn);
     }
   };
   // Sens choisi : cases vides du formulaire remplies avec les valeurs du commun.
@@ -866,10 +857,11 @@ function vocabForm(c, sel) {
     dict.busy--;
     if (dict.q !== q) return;                      // autre recherche lancée entre-temps
     if (res === null) { dict.q = ""; dictDraw(); return; }   // hors connexion : liaison à l'enregistrement
-    dict.cands = res; dict.pick = null;
+    dict.cands = res; dict.pick = null; dict.conflict = false;
     const d = dictDecide(formVals(), res, code);
     if (d === "new") dict.pick = "new";
     else if (d && d.id) dictApply(d);
+    else if (d && d.ambig) { dict.conflict = true; if (d.best) dictApply(d.best); }   // faux doublon (étape 63)
     dictDraw();
   };
   const exGet = code => { if (!exVals[code]) { const e = c ? exEntry(c, code) : null; exVals[code] = { text: e ? e.text : "", tr: Object.assign({}, e ? e.tr : {}) }; } return exVals[code]; };
@@ -971,7 +963,7 @@ function vocabForm(c, sel) {
   // Choix fait dans le formulaire (sens ou « nouveau sens ») et cases remplies depuis le commun (marquées « auto »).
   const dictOpts = id => {
     const o = {};
-    if (dict.pick) o.picks = new Map([[id, dict.pick]]);
+    if (dict.pick && !dict.conflict) o.picks = new Map([[id, dict.pick]]);   // faux doublon : la liaison refait la recherche et signale le cas
     if (dict.auto.size) {
       const keep = new Set([...dict.auto].filter(k => { const p = k.split(":"); return p[0] === "w" ? !!vals[p[1]] : true; }));
       o.auto = new Map([[id, keep]]);

@@ -41,6 +41,8 @@ async function dashLoadPart(part) {
       // Étape 50 : dernière sauvegarde réussie. Jamais bloquant : script absent = pas d'état, sans erreur.
       try { dash.bk = await aqRpc("admin_backup_status"); dash.bkMissing = false; }
       catch (e) { dash.bk = null; dash.bkMissing = alIsMissing(e); }
+      // Étape 63 : faux doublons du dictionnaire à trancher (compteur seulement, jamais de notification). Script absent : rien.
+      await adcLoadCount();
     }
     dash.missing = false;
   } catch (e) {
@@ -406,6 +408,22 @@ function dashAlertSection() {
     const b = el("button", "dash-link", t("bk.dash.see"));
     b.type = "button"; b.id = "dashBkSee";
     b.addEventListener("click", () => { location.hash = "#" + HASH_OF.adminbk; });
+    acts.appendChild(b);
+    it.appendChild(acts);
+    box.appendChild(it);
+    sec.appendChild(box);
+  }
+  // Étape 63 : alerte « faux doublons » (cas ouverts du dictionnaire commun, propositions en attente).
+  if (adc.count) {
+    any = true;
+    const box = el("div", "card dash-alert adc-dash");
+    box.appendChild(el("div", "dash-al-title", "⚖ " + t("adc.dashTitle")));
+    const it = el("div", "dash-al-item");
+    it.appendChild(el("div", "dash-al-txt", t("adc.dashLine", { n: adc.count, p: num(adc.props, 0) })));
+    const acts = el("div", "dash-al-acts");
+    const b = el("button", "dash-link", t("adc.dashSee"));
+    b.type = "button"; b.id = "dashAdcSee";
+    b.addEventListener("click", adcOpen);
     acts.appendChild(b);
     it.appendChild(acts);
     box.appendChild(it);

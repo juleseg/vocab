@@ -22,8 +22,14 @@
 //    pas encore reliées (migration, par lots de 50 avec barre de progression au-delà de 30 cartes, reprise possible),
 //    puis lecture des sens modifiés et mise à jour des cartes. Jamais pendant une session de révision.
 //  - ajout d'une carte (éditeur, import, génération acceptée, copie reçue) : recherche des sens du mot ;
-//    un seul sens probable → relié, cases vides remplies (marquées « auto ») ; plusieurs → choix ; aucun → nouveau sens.
-//    Migration (cartes existantes) : en cas de doute, nouveau sens à part (la carte garde toujours ses valeurs).
+//    un seul sens probable → relié, cases vides remplies (marquées « auto ») ; aucun → nouveau sens ;
+//    plusieurs (étape 63, faux doublon) → JAMAIS de fenêtre de choix : la carte garde ses valeurs (own), reliée au sens
+//    le plus proche s'il est clair (le plus de traductions en commun), sinon sans lien ; le cas est signalé au serveur
+//    (dict_conflict_report, une fois par mot et par groupe de sens). Même règle pour la migration des cartes existantes.
+//  - faux doublons (étape 63) : liste de mes cartes en conflit relue à chaque cycle (dict_conflict_mine, gardée sur
+//    l'appareil « vocabfr.dict:conf:<compte> ») : ces cartes ne sont pas reliées par la migration ; le sens choisi par
+//    l'admin (fusion, « Relier la carte ») est appliqué puis confirmé (dict_conflict_ack). Repère et « Faire une
+//    proposition » : js/doublons.js. Script de l'étape 63 absent : comme avant (sans fenêtre ; doute → nouveau sens).
 //  - valeur saisie à la main ou acceptée dans « À valider » (Dict.track / Dict.changed) : case vide du commun → remplie ;
 //    case déjà remplie avec une autre valeur → gardée chez moi (own) et proposée à l'admin.
 //  - complétion (Claude, file d'attente, fichier, Mettre à jour) : Dict.fillFromCommon d'abord (immédiat).
@@ -183,15 +189,16 @@ function dictCompat(cv, vals, qL) {
   }
   return n;
 }
-// Choix automatique : un sens (probable), "new" (aucun sens compatible) ou { ambig: [sens] }.
+// Choix automatique : un sens (probable), "new" (aucun sens compatible) ou, quand plusieurs sens conviennent (faux
+// doublon, étape 63), { ambig: [sens compatibles], best: sens le plus proche s'il est clair (le plus de traductions en
+// commun, sans égalité), sinon null }.
 function dictDecide(cv, senses, qL) {
   const sc = arr(senses).map(s => ({ s, n: dictCompat(cv, s.vals, qL) })).filter(x => x.n >= 0);
   if (!sc.length) return "new";
   if (sc.length === 1) return sc[0].s;
   const max = Math.max(...sc.map(x => x.n));
   const top = sc.filter(x => x.n === max);
-  if (max > 0 && top.length === 1) return top[0].s;
-  return { ambig: sc.map(x => x.s) };
+  return { ambig: sc.map(x => x.s), best: max > 0 && top.length === 1 ? top[0].s : null };
 }
 // Aperçu d'un sens (choix entre homonymes, éditeur, admin) : mot dans la langue cherchée, puis traductions.
 function dictSenseNode(s, langs, qL) {
@@ -216,6 +223,10 @@ const Dict = (() => {
   let status = "unknown";       // unknown | ok | missing (script pas lancé) | off (compte bloqué)
   let timer = null, cycling = false, lastCycle = 0, flushing = false, outTimer = null, migJob = null, barHidden = false, limitWarned = false;
   let token = 0;
+  // Faux doublons (étape 63) : fonctions SQL à part (script de l'étape 63) ; absentes → « missing » sans toucher au reste.
+  const CONF_N = 50;            // cartes signalées par appel
+  let confStatus = "unknown";   // unknown | ok | missing
+  let confReady = false;        // liste de mes cartes en conflit relue pendant cette session (avant toute migration)
 
   function usable() { return auth.mode === "supabase" && !!auth.sbUid && !!Supa.client() && !!Storage.getUser(); }
   function on() { return usable() && status !== "missing" && status !== "off"; }
@@ -395,41 +406,127 @@ const Dict = (() => {
     return filled;
   }
 
-  // --- Choix entre plusieurs sens (fenêtre) : sens, "new" ou "allnew" ---
-  function choose(c, cands, rest, qL) {
-    return new Promise(res => {
-      const q = qL ? { L: qL, w: dictClean(term(c, qL)) } : (dictQueryOf(c) || { L: cardLangs(c).target, w: "" });
-      const lg = cardLangs(c);
-      const wrap = el("div", "dict-choose");
-      const p = el("p", "muted", t("dict.chooseText", { w: q.w, lang: langName(q.L) }));
-      wrap.appendChild(p);
-      let close = null;
-      const done = v => { if (close) close(); res(v); };
-      cands.forEach(s => {
-        const b = el("button", "btn dict-opt"); b.type = "button";
-        b.appendChild(dictSenseNode(s, [lg.target].concat(lg.support), q.L));
-        b.addEventListener("click", () => done(s));
-        wrap.appendChild(b);
+  // --- Faux doublons (étape 63) ---
+  // Mes cartes en conflit : { [id de carte]: { id (cas), st (open | distinct | merged | closed), l (langue), w (mot de la
+  // carte signalé), to (sens à rejoindre, pas encore appliqué), p (proposition en attente) } }, gardées sur l'appareil.
+  async function crpc(name, args) {
+    try {
+      const r = await withTimeout(Supa.client().rpc(name, args || {}), 20000);
+      if (r && r.error) throw r.error;
+      confStatus = "ok";
+      return r ? r.data : null;
+    } catch (e) {
+      if (isMissing(e)) confStatus = "missing";
+      throw e;
+    }
+  }
+  function confKey() { return CONFIG.LS_USER_PREFIX + "dict:conf:" + (Storage.getUser() || ""); }
+  let conf = null, confUser = null;
+  function confMap() {
+    const u = Storage.getUser();
+    if (conf && confUser === u) return conf;
+    confUser = u; conf = {};
+    try { const o = JSON.parse(localStorage.getItem(confKey()) || "{}"); if (o && typeof o === "object" && !Array.isArray(o)) conf = o; } catch (e) {}
+    return conf;
+  }
+  function confStore() { try { if (Object.keys(conf || {}).length) localStorage.setItem(confKey(), JSON.stringify(conf)); else localStorage.removeItem(confKey()); } catch (e) {} }
+  function confSet(cardId, o) { confMap()[cardId] = Object.assign({}, confMap()[cardId], o); confStore(); }
+  // Conflit d'une carte, seulement si son mot (dans la langue du cas) est toujours le mot signalé.
+  function confOf(c) {
+    if (!c || !isVocab(c)) return null;
+    const x = confMap()[c.id];
+    if (!x || !x.l) return null;
+    return dictOverlap(dictNorms(term(c, x.l)), dictNorms(x.w)) ? x : null;
+  }
+  // Carte écartée de la liaison automatique : cas ouvert, ou sens gardés séparés par l'admin.
+  function confHeld(c) { const x = confOf(c); return !!x && (x.st === "open" || x.st === "distinct"); }
+  // Cas ouvert d'une carte (repère « Ce mot existe déjà dans le dictionnaire autrement »), ou null.
+  function conflictOf(c) { if (confStatus === "missing") return null; const x = confOf(c); return x && x.st === "open" ? x : null; }
+  // Signale au serveur les cartes tombées sur plusieurs sens. items : [{ c, d (dictDecide), L }].
+  // Renvoie Map carte → statut (open | distinct | merged | closed | none | bad | full), ou null (script absent / erreur).
+  async function report(items) {
+    if (confStatus === "missing") return null;
+    const res = new Map();
+    for (let i = 0; i < items.length; i += CONF_N) {
+      const part = items.slice(i, i + CONF_N);
+      const r = arr(await crpc("dict_conflict_report", { p_items: part.map((a, j) => {
+        const vals = {};
+        Object.keys(a.c.terms || {}).forEach(L => { const v = dictClean(a.c.terms[L]); if (v && isLang(L)) vals[L] = v.slice(0, 120); });
+        return { k: j, card: a.c.id, l: a.L, w: dictClean(term(a.c, a.L)), senses: a.d.ambig.map(s => s.id).filter(Boolean),
+                 linked: a.d.best ? a.d.best.id : null, vals };
+      }) }));
+      r.forEach(x => {
+        const a = part[Number(x && x.k)];
+        if (!a || !x.st) return;
+        res.set(a.c.id, x.st);
+        if (x.id && !["none", "bad"].includes(x.st)) confSet(a.c.id, { id: x.id, st: x.st === "full" ? "open" : x.st, l: a.L, w: dictClean(term(a.c, a.L)), to: undefined });
       });
-      const bn = el("button", "btn dict-opt dict-new", t("dict.newSense")); bn.type = "button";
-      bn.addEventListener("click", () => done("new"));
-      wrap.appendChild(bn);
-      if (rest > 0) {
-        const ba = el("button", "link-btn", t("dict.newSenseAll", { n: rest })); ba.type = "button";
-        ba.addEventListener("click", () => done("allnew"));
-        wrap.appendChild(ba);
+    }
+    return res;
+  }
+  // Relit mes cartes en conflit, applique le sens choisi par l'admin (fusion, « Relier la carte »), oublie les cartes
+  // supprimées. Renvoie true si la liste est à jour (la migration peut alors tourner).
+  async function syncConflicts() {
+    if (!on() || confStatus === "missing") return false;
+    const st = state;
+    const rows = arr(await crpc("dict_conflict_mine"));
+    if (state !== st) return false;
+    const map = {};
+    rows.forEach(x => { if (x && x.card) map[x.card] = { id: x.id, st: x.st, l: x.l, w: x.w, to: x.to || undefined, p: x.p ? 1 : undefined }; });
+    conf = map; confUser = Storage.getUser(); confStore();
+    confReady = true;
+    const byId = new Map(state.cards.map(c => [c.id, c]));
+    const gone = Object.keys(map).filter(id => !byId.has(id));
+    for (let i = 0; i < gone.length; i += 500) {
+      try { await crpc("dict_conflict_forget", { p_cards: gone.slice(i, i + 500) }); gone.slice(i, i + 500).forEach(id => { delete conf[id]; }); } catch (e) { break; }
+    }
+    confStore();
+    // Sens à rejoindre : relu dans le commun, puis la carte le rejoint (ses valeurs différentes restent les siennes).
+    const todo = Object.keys(map).filter(id => map[id].to && byId.has(id) && editable(byId.get(id)));
+    if (!todo.length || inSession()) return true;
+    const ids = [...new Set(todo.map(id => map[id].to))];
+    const got = new Map();
+    for (let i = 0; i < ids.length; i += GET_N) {
+      const res = arr(await rpc("dict_get", { p_ids: ids.slice(i, i + GET_N) }));
+      if (state !== st) return false;
+      res.forEach(x => { if (x && x.id && !x.gone) got.set(x.id, { id: x.to || x.id, vals: x.vals || {}, v: num(Number(x.v), 0) }); });
+    }
+    const acks = [], km = knownMap();
+    let changed = false;
+    todo.forEach(id => {
+      const c = byId.get(id), s = got.get(map[id].to);
+      if (!c || !s) return;
+      if (c.senseId !== s.id) {
+        delete c.senseId;
+        reconcile(c, s, "link", null);
+        km[s.id] = s.v;
+        changed = true;
       }
-      close = openModal(t("dict.chooseTitle"), wrap, [], { locked: true });
+      acks.push({ card: id, to: map[id].to });
     });
+    if (changed) { knownSave(); save(true); }
+    if (acks.length) {
+      try { await crpc("dict_conflict_ack", { p_items: acks }); acks.forEach(a => { if (conf[a.card]) delete conf[a.card].to; }); confStore(); } catch (e) {}
+    }
+    return true;
+  }
+  // Fenêtre « Faire une proposition » (js/doublons.js) : détail du cas, envoi de la proposition.
+  async function conflictDetail(id) { return await crpc("dict_conflict_detail", { p_id: id }); }
+  async function conflictPropose(c, x, choice, sense, vals, comment) {
+    const r = await crpc("dict_conflict_propose", { p_id: x.id, p_card: c.id, p_choice: choice, p_sense: sense || null,
+      p_vals: vals || {}, p_comment: String(comment || "").slice(0, 200) });
+    confSet(c.id, { p: 1 });
+    return r;
   }
 
   // --- Liaison de cartes pas encore reliées ---
-  // opts : { ask (choix proposé si plusieurs sens), picks (Map carte → sens | "new"), auto (Map carte → Set de cases
-  // remplies depuis le commun dans l'éditeur) }. Renvoie { linked, created, filled, stop } (null si le compte a changé).
+  // opts : { picks (Map carte → sens | "new"), auto (Map carte → Set de cases remplies depuis le commun dans l'éditeur) }.
+  // Plusieurs sens possibles : jamais de choix demandé (étape 63, voir report). Renvoie { linked, created, filled, stop,
+  // conflicts (cas ouverts signalés) } (null si le compte a changé).
   async function link(cards, opts) {
     opts = opts || {};
     const st = state;
-    const out = { linked: 0, created: 0, filled: 0, stop: null };
+    const out = { linked: 0, created: 0, filled: 0, stop: null, conflicts: 0 };
     const fills = [], toCreate = [], ambig = [];
     const groups = new Map();
     const doLink = (c, s) => {
@@ -462,23 +559,34 @@ const Dict = (() => {
               if (!found.length && x.n + 1 < x.langs.length) { x.n++; next.push(x); return; }
               const d = dictDecide(dictCardVals(x.c), found, L);
               if (d === "new") toCreate.push(x.c);
-              else if (d.ambig) ambig.push({ c: x.c, cands: d.ambig, L });
+              else if (d.ambig) ambig.push({ c: x.c, d, L });
               else doLink(x.c, d);
             });
           }
         }
         round = next;
       }
-      // Plusieurs sens possibles : choix (ajout de cartes) ou nouveau sens à part (migration).
-      let allNew = false;
-      for (let i = 0; i < ambig.length; i++) {
-        const a = ambig[i];
-        if (!opts.ask || allNew) { toCreate.push(a.c); continue; }
-        const v = await choose(a.c, a.cands, ambig.length - i - 1, a.L);
+      // Plusieurs sens possibles (faux doublon, étape 63) : jamais de fenêtre. La carte garde ses valeurs : reliée au sens
+      // le plus proche s'il est clair (sans rien envoyer au commun : ses valeurs différentes restent les siennes), sinon
+      // sans lien ; le cas est signalé au serveur. Script de l'étape 63 absent, ou rien à signaler : sans sens proche,
+      // nouveau sens à part (comme la migration avant l'étape 63).
+      if (ambig.length) {
+        ambig.forEach(a => {
+          if (!a.d.best || a.c.senseId) return;
+          const r = reconcile(a.c, a.d.best, "link", null, opts.auto && opts.auto.get(a.c.id));
+          out.linked++; out.filled += r.filled;
+        });
+        let rep = null;
+        try { rep = await report(ambig); } catch (e) { rep = null; if (errKind(e) === "net") out.stop = "net"; }
         if (state !== st) return null;
-        if (v === "allnew") { allNew = true; toCreate.push(a.c); }
-        else if (v === "new") toCreate.push(a.c);
-        else if (!a.c.senseId) doLink(a.c, v);
+        ambig.forEach(a => {
+          const s = rep ? rep.get(a.c.id) : null;
+          if (s === "open") out.conflicts++;
+          if (a.c.senseId) return;
+          // Pas de sens proche : reste sans lien si le cas est enregistré ; nouveau sens si rien à signaler ou script absent
+          // (erreur réseau : rien, nouvel essai plus tard).
+          if (rep ? (!s || s === "none") : (confStatus === "missing" && out.stop !== "net")) toCreate.push(a.c);
+        });
       }
       // Nouveaux sens : un seul pour les cartes identiques du même lot (même mot, traductions compatibles).
       const reps = [];
@@ -514,8 +622,9 @@ const Dict = (() => {
     return out;
   }
 
-  // Cartes vocab pas encore reliées (migration) : listes modifiables, au moins un mot.
-  function unlinked() { return state.cards.filter(c => !c.senseId && editable(c) && dictQueryOf(c)); }
+  // Cartes vocab pas encore reliées (migration) : listes modifiables, au moins un mot ; sans les cartes en conflit (étape 63 :
+  // elles attendent la décision de l'admin).
+  function unlinked() { return state.cards.filter(c => !c.senseId && editable(c) && dictQueryOf(c) && !confHeld(c)); }
   function pauseKey() { return CONFIG.LS_USER_PREFIX + "dict:pause:" + (Storage.getUser() || ""); }
   function paused() { try { return localStorage.getItem(pauseKey()) === "1"; } catch (e) { return false; } }
   function setPaused(v) { try { if (v) localStorage.setItem(pauseKey(), "1"); else localStorage.removeItem(pauseKey()); } catch (e) {} }
@@ -524,6 +633,7 @@ const Dict = (() => {
   // manual : lancée par « Reprendre ». Fermer l'appli au milieu : la suite repart au lancement suivant.
   async function migrate(manual) {
     if (!on() || migJob || inSession()) return;
+    if (!confReady && confStatus !== "missing") return;   // étape 63 : liste des cartes en conflit relue d'abord
     const todo = unlinked();
     if (!todo.length) { setPaused(false); return; }
     if (!manual && paused() && todo.length > MIG_SILENT) { renderResumeBars(); return; }
@@ -539,7 +649,7 @@ const Dict = (() => {
     try {
       for (let i = 0; i < total && !job.stop; i += MIG_N) {
         const part = todo.slice(i, i + MIG_N).filter(c => !c.senseId && state.cards.includes(c));
-        const r = await link(part, { ask: false });
+        const r = await link(part, {});
         if (!r || state !== st || Storage.getUser() !== who) return;
         linked += r.linked + r.created;
         done = Math.min(total, i + MIG_N);
@@ -589,6 +699,8 @@ const Dict = (() => {
       if (my !== token) return;
       await flush();
       if (my !== token) return;
+      try { await syncConflicts(); } catch (e) { /* hors connexion : migration remise au cycle suivant */ }   // étape 63
+      if (my !== token) return;
       await migrate(false);
       if (my !== token) return;
       await refresh({});
@@ -606,6 +718,7 @@ const Dict = (() => {
     token++;
     clearInterval(timer); timer = null; clearTimeout(outTimer); outTimer = null;
     status = "unknown"; cycling = false; known = null; knownUser = null; barHidden = false; limitWarned = false;
+    confStatus = "unknown"; confReady = false; conf = null; confUser = null;
   }
   try {
     document.addEventListener("visibilitychange", () => {
@@ -648,11 +761,12 @@ const Dict = (() => {
       const withSense = cards.filter(c => c.senseId);        // copie reçue déjà reliée : valeurs du commun à jour
       if (withSense.length) filled += await refresh({ cards: withSense, force: true });
       if (state !== st) return;
-      const r = await link(cards.filter(c => !c.senseId), Object.assign({ ask: true }, opts || {}));
+      const r = await link(cards.filter(c => !c.senseId), opts || {});
       if (!r || state !== st) return;
       filled += r.filled;
       save(true);
-      if (filled) toast(t("dict.filled", { n: filled }));
+      if (r.conflicts) toast(t(r.conflicts > 1 ? "dcf.addedN" : "dcf.added", { n: r.conflicts }));   // étape 63 : faux doublon, sans fenêtre
+      else if (filled) toast(t("dict.filled", { n: filled }));
     } catch (e) {}
   }
 
@@ -664,8 +778,8 @@ const Dict = (() => {
       await flush();
       if (state !== st) return 0;
       let n = 0;
-      const un = arr(cards).filter(c => !c.senseId && editable(c) && dictQueryOf(c));
-      if (un.length && !migJob) { const r = await link(un, { ask: false }); if (!r || state !== st) return 0; n += r.filled; }
+      const un = arr(cards).filter(c => !c.senseId && editable(c) && dictQueryOf(c) && !confHeld(c));
+      if (un.length && !migJob) { const r = await link(un, {}); if (!r || state !== st) return 0; n += r.filled; }
       n += await refresh({ cards: arr(cards) });
       if (state !== st) return 0;
       save(false);
@@ -684,6 +798,7 @@ const Dict = (() => {
   }
 
   return { on, usable, start, reset, track, changed, afterAdd, fillFromCommon, migrate, resumeBar, search, flush,
-    refresh, status: () => status, busy: () => !!migJob };
+    refresh, status: () => status, busy: () => !!migJob,
+    conflictOf, conflictDetail, conflictPropose, syncConflicts, confStatus: () => confStatus };   // étape 63
 })();
 

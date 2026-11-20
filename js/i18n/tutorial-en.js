@@ -23,7 +23,7 @@ Object.assign(I18N.en, {
   "tuto.lists.title": "Lists and folders",
   "tuto.lists.text": "Your cards are kept in lists, and lists in folders. The \"Démo\" list is there for you to try things out. Open a list to create a story with its words.",
   "tuto.card.title": "Create a card",
-  "tuto.card.text": "Add a word with this button. If it's already in the shared dictionary, translations and the example fill in by themselves. You can also add a picture (photo or Wikimedia) and “My tip”: a short phrase to help you remember, visible only to you.",
+  "tuto.card.text": "Add a word with this button. If it's already in the shared dictionary, translations and the example fill in by themselves (if it already has several meanings, your card keeps your values and you can make a suggestion). You can also add a picture (photo or Wikimedia) and “My tip”: a short phrase to help you remember, visible only to you.",
   "tuto.study.title": "Add a learning language to the list",
   "tuto.study.text": "In the list's menu, “Add a learning language to the list” lets you study the same list in another language: same cards, separate progress. Tap “Try it” to open the window.",
   "tuto.session.title": "Start a session",
