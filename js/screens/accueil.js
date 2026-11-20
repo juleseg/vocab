@@ -4,6 +4,8 @@
 // Série en cours (étape 28 : objectif du jour atteint, gels compris — voir SÉRIES).
 // Étape 43 : niveau et XP (#homeXp), défis du jour (#homeChallenges), dessinés par renderHomeXp (js/xp.js).
 // Étape 61 : boutons « ☀️ Rappel du matin » et « ⚡ 2 minutes » (#homeQuick), dessinés par renderMomentsHome (js/moments.js).
+// Étape 64 : carte « 🌱 Mots appris cette semaine » (#homeLearned) et rappel du lundi du bilan d'oubli (#homeBilanMon),
+//            dessinés par renderProgresHome (js/progres.js).
 function computeStreak() { return Streak.data().current; }
 function renderHome() {
   const now = Date.now();
@@ -39,5 +41,6 @@ function renderHome() {
   bar.setAttribute("aria-valuenow", String(Math.min(n, g)));
   const txt = done || n >= g ? t("sk.goalReached") : t("sk.goalLeft", { n: g - n });
   box.append(hd, bar, el("div", "sk-goal-txt", txt));
+  renderProgresHome();   // mots appris cette semaine, rappel du lundi (étape 64, js/progres.js)
   renderHomeXp();   // niveau, XP et défis du jour (étape 43, js/xp.js)
 }

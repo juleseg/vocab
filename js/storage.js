@@ -7,8 +7,12 @@
 // Version 5 : profil de langues (settings.learning) et exemples par langue (cards[].examples) — étape 35, voir LANGUES.
 // Version 6 : langues étudiées d'une liste (lists[].targets) et progression par langue (cards[].progress) — étape 37.
 // Version 7 : répétition FSRS — champs s, d, last, reps, lapses, state (+ lb) dans cards[].progress[langue] — étape 47.
-const DATA_VERSION = 7;
-const PRIVACY_KEYS = ["streak", "today", "week", "success", "badges", "ranking", "shared", "xp"];   // ce que mes amis voient (étape 29 ; shared : étape 30 ; xp : étape 43)
+// Version 8 : progrès visibles — étape 64 : morceau « progres » (mots appris de la semaine, bilan d'oubli), dernière réponse
+//   cards[].progress[langue].lr, réglage settings.privacy.learned. Migration 7 → 8 sans rien changer d'autre (morceau vide,
+//   réglage activé par défaut) ; export JSON de sécurité avant (syncWithRemote). Un appareil en version 63 voit alors des
+//   données « trop récentes » (Release.dataTooNew) et n'écrit plus rien tant qu'il n'est pas mis à jour.
+const DATA_VERSION = 8;
+const PRIVACY_KEYS = ["streak", "today", "week", "success", "badges", "ranking", "shared", "xp", "learned"];   // ce que mes amis voient (étape 29 ; shared : étape 30 ; xp : étape 43 ; learned : mots appris de la semaine, étape 64)
 function defaultPrivacy() { const o = {}; PRIVACY_KEYS.forEach(k => { o[k] = true; }); return o; }
 function normPrivacy(p) { const o = defaultPrivacy(); if (p && typeof p === "object") PRIVACY_KEYS.forEach(k => { if (p[k] === false) o[k] = false; }); return o; }
 // Jeux d'entraînement (étape 42) : settings.games = { sounds (désactivé par défaut), records { clé: meilleur score } }.
@@ -65,6 +69,7 @@ function emptyData(target, support) {
     stories: {},     // histoires par liste (étape 45, js/story.js) : { <id de liste>: [histoire…] }
     hard: normHard(null),   // mots difficiles : compteurs, pause, paires (étape 57, js/difficiles.js)
     tips: {},               // « Mon astuce » privée par carte (étape 57)
+    progres: normProgres(null),   // mots appris de la semaine, bilan d'oubli (étape 64, js/progres.js)
     proposals: [],   // propositions « À valider » : { id, cardId, field (code de langue | example | extr:<code> | pos:<code> | dup), type, oldValue, newValue, reason, createdAt }
     rejected: [],    // clés des propositions refusées (carte|champ|empreinte de la valeur) : jamais reproposées
     lastCheckAt: 0,  // dernière vérification automatique (0 = pas encore démarrée)
@@ -248,6 +253,67 @@ function normMorning(o) {
   return { on: x.on !== false, evening: clampInt(x.evening, MOM_EVENING.min, MOM_EVENING.max, MOM_EVENING.def),
     notif: x.notif !== false, hour: clampInt(x.hour, MOM_HOUR.min, MOM_HOUR.max, MOM_HOUR.def) };
 }
+// === PROGRÈS VISIBLES (étape 64) ===
+// state.progres (morceau user_data « progres », logique dans js/progres.js) :
+//   { v: 1, s: jour de départ (AAAA-MM-JJ, premier lancement en version 64),
+//     l: [[jour, idCarte, langue]] — mots devenus « Acquis » (une fois par carte, langue et semaine), PRG_KEEP_DAYS jours,
+//     f: { jour: { g: { clé de groupe: [réponses, Raté, Hésité] }, x: [[idCarte, langue, "u" | "r"]] } } — réponses notées
+//        sur un mot dont la réponse d'avant était « Trouvé » (bilan d'oubli), PRG_F_DAYS jours ; x = mots ratés / hésités
+//        (« Réviser ces mots »), PRG_X_MAX par jour. Clés de groupe : "p:<nature>" (n, v, adj…), "l:<liste>", "t:<type>",
+//        "c:<langue>|<temps>".
+//     m: lundi dont le rappel du bilan a été fermé sur l'Accueil }
+// Dernière réponse d'une carte : progress[langue].lr = "k" (Trouvé) | "r" (Hésité) | "u" (Raté), écrit par Leitner.grade.
+const PRG_KEEP_DAYS = 70;
+const PRG_F_DAYS = 31;
+const PRG_X_MAX = 150;
+const PRG_DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+const PRG_KEY_RE = /^(p|l|t|c):[^\s"]{1,80}$/;
+function normProgres(raw, cardIds, keepUnknown) {
+  const out = { v: 1, s: "", l: [], f: {}, m: "" };
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;
+  const known = id => keepUnknown || !cardIds || cardIds.has(id);
+  const today = todayStr();
+  if (typeof raw.s === "string" && PRG_DAY_RE.test(raw.s)) out.s = raw.s;
+  if (typeof raw.m === "string" && PRG_DAY_RE.test(raw.m)) out.m = raw.m;
+  const lFrom = skAdd(today, -PRG_KEEP_DAYS), seen = new Set();
+  arr(raw.l).forEach(e => {
+    if (!Array.isArray(e) || typeof e[0] !== "string" || !PRG_DAY_RE.test(e[0]) || e[0] < lFrom || e[0] > skAdd(today, 1)) return;
+    const id = typeof e[1] === "string" ? e[1].slice(0, 80) : "", L = e[2];
+    if (!id || !isLang(L) || !known(id)) return;
+    const k = e[0] + "|" + id + "|" + L;
+    if (seen.has(k)) return;
+    seen.add(k);
+    out.l.push([e[0], id, L]);
+  });
+  out.l.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+  if (out.l.length > 5000) out.l = out.l.slice(-5000);
+  const F = raw.f && typeof raw.f === "object" && !Array.isArray(raw.f) ? raw.f : {};
+  const fFrom = skAdd(today, -PRG_F_DAYS);
+  Object.keys(F).forEach(day => {
+    const v = F[day];
+    if (!PRG_DAY_RE.test(day) || day < fFrom || day > skAdd(today, 1) || !v || typeof v !== "object") return;
+    const g = {}, G = v.g && typeof v.g === "object" && !Array.isArray(v.g) ? v.g : {};
+    Object.keys(G).slice(0, 400).forEach(k => {
+      const a = G[k];
+      if (!PRG_KEY_RE.test(k) || !Array.isArray(a)) return;
+      const n = clampInt(a[0], 0, 100000, 0);
+      if (!n) return;
+      const u = clampInt(a[1], 0, n, 0), r = clampInt(a[2], 0, n - u, 0);
+      g[k] = [n, u, r];
+    });
+    const x = [], xs = new Set();
+    arr(v.x).forEach(e => {
+      if (!Array.isArray(e) || typeof e[0] !== "string" || !isLang(e[1]) || !["u", "r"].includes(e[2])) return;
+      const id = e[0].slice(0, 80), k = id + "|" + e[1];
+      if (!id || xs.has(k) || !known(id)) return;
+      xs.add(k);
+      x.push([id, e[1], e[2]]);
+    });
+    if (Object.keys(g).length || x.length) out.f[day] = { g, x: x.slice(0, PRG_X_MAX) };
+  });
+  return out;
+}
+function progresHas(p) { return !!p && (arr(p.l).length > 0 || (p.f && Object.keys(p.f).length > 0) || !!p.m || !!p.s); }
 
 // Progression par langue étudiée (étape 37) : { <langue>: { box, dueAt, stats } }.
 // box / dueAt / stats de la carte = copie de la progression de sa langue principale (anciennes versions, fiche admin…).
@@ -264,6 +330,7 @@ function normProgress(p) {
       stats: { seen: num(st.seen, 0), correct: num(st.correct, 0), wrong: num(st.wrong, 0), lastSeen: num(st.lastSeen, null) } };
     const F = fsrsNorm(v);
     if (F) Object.assign(out[L], F);
+    if (["k", "r", "u"].includes(v.lr)) out[L].lr = v.lr;   // dernière réponse (étape 64, bilan d'oubli)
   });
   return out;
 }
@@ -374,6 +441,7 @@ function normalizeData(raw) {
   const keepUnknown = out.lists.some(isSharedList);
   out.hard = normHard(d.hard, cardIds, keepUnknown);   // étape 57 : mots difficiles (cartes inconnues gardées s'il y a des listes communes)
   out.tips = normTips(d.tips, cardIds, keepUnknown);   // étape 57 : « Mon astuce » (jamais dans les cartes communes)
+  out.progres = normProgres(d.progres, cardIds, keepUnknown);   // étape 64 : mots appris de la semaine, bilan d'oubli
   out.proposals = out.proposals.filter(p => p.field === "new" ? listIds0.has(p.listId) : (cardIds.has(p.cardId) || keepUnknown));
   if (d.aiResume && d.aiResume.kind === "complete") {
     const ids = arr(d.aiResume.ids).map(String).filter(id => cardIds.has(id));
@@ -490,6 +558,7 @@ function looksLikeAppData(raw) {
 //   user:<id>:stories:<listId>      histoires de la liste (étape 45, voir js/story.js), 20 max par liste
 //   user:<id>:hard                  mots difficiles (étape 57, js/difficiles.js) : { v, w: { idCarte: { langue: compteurs } }, c: [paires] }
 //   user:<id>:tips                  « Mon astuce » (étape 57) : { idCarte: texte (150 caractères) } — privée, jamais dans les cartes communes
+//   user:<id>:progres               progrès visibles (étape 64, js/progres.js) : mots appris par semaine, bilan d'oubli (30 jours)
 //   user:<id>:proposals:<n>         propositions « À valider » (500 max par morceau)
 //   user:<id>:cards:<listId>:<n>    { cards: [200 max], sig: { idCarte: empreinte vérifiée } }
 //   user:<id>:resume:<n>            ids des cartes restant à compléter (complétion en pause, 2000 max par morceau)
@@ -748,6 +817,7 @@ const Storage = (() => {
     // (règle 33b) ; absents = vides (pas de morceau). Astuces à part : les compteurs changent à chaque réponse, pas les textes.
     if (hardHas(data.hard)) put("hard", data.hard);
     if (data.tips && Object.keys(data.tips).length) put("tips", data.tips);
+    if (progresHas(data.progres)) put("progres", data.progres);   // étape 64 : nouveau morceau, toujours avant l'index (règle 33b)
     // Étape 45 : histoires, un morceau par liste (listes existantes seulement : une liste supprimée emporte ses histoires).
     // Nouveaux morceaux, toujours envoyés avant l'index (règle 33b). Liste sans histoire : pas de morceau.
     if (arr(data.sentences).length) put("sentences", data.sentences);   // étape 58 : « Ma phrase », un seul morceau, avant l'index (règle 33b)
@@ -808,6 +878,7 @@ const Storage = (() => {
       xp: getPiece(P + "xp"),           // absent (version 42 et moins) : XP de départ calculé par normalizeData (étape 43)
       hard: getPiece(P + "hard"),       // étape 57 : absent (version 56 et moins) = aucun mot difficile
       tips: getPiece(P + "tips"),       // étape 57 : absent = aucune astuce
+      progres: getPiece(P + "progres"), // étape 64 : absent (version 63 et moins) = rien de compté encore
       cards: [], proposals: [], checkedSig: {}, aiResume: null, sharedProgress: {}, stories: {}, sentences: []
     };
     const ids = [];
@@ -817,8 +888,8 @@ const Storage = (() => {
       const v = getPiece(k);
       // « streak » absent (étape 33b) : pas bloquant, la série est recalculée depuis history (comme en v3) puis renvoyée.
       // « xp » absent (étape 43) : pas bloquant non plus, l'XP de départ est recalculé depuis history puis renvoyé.
-      // « hard » et « tips » absents (étape 57) : pas bloquant non plus (données vides).
-      if (v === undefined) { if (k !== P + "streak" && k !== P + "xp" && k !== P + "hard" && k !== P + "tips") { missing++; lost.push(k.slice(P.length)); } return; }
+      // « hard » et « tips » absents (étape 57) : pas bloquant non plus (données vides). « progres » (étape 64) : pareil.
+      if (v === undefined) { if (k !== P + "streak" && k !== P + "xp" && k !== P + "hard" && k !== P + "tips" && k !== P + "progres") { missing++; lost.push(k.slice(P.length)); } return; }
       if (k.startsWith(P + "cards:")) { out.cards.push(...arr(v.cards)); Object.assign(out.checkedSig, v.sig || {}); }
       else if (k.startsWith(P + "proposals:")) out.proposals.push(...arr(v));
       else if (k.startsWith(P + "resume:")) ids.push(...arr(v));

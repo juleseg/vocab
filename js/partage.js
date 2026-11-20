@@ -78,7 +78,10 @@ const SH_FSRS = ["s", "d", "last", "reps", "lapses", "state", "lb"];
 function shProgArr(b, d, s, P) {
   s = s || {};
   const out = [b, d, num(s.seen, 0), num(s.correct, 0), num(s.wrong, 0), s.lastSeen == null ? null : s.lastSeen];
-  if (P && fsrsHas(P)) SH_FSRS.forEach(k => out.push(P[k] == null ? null : P[k]));
+  if (P && fsrsHas(P)) {
+    SH_FSRS.forEach(k => out.push(P[k] == null ? null : P[k]));
+    if (["k", "r", "u"].includes(P.lr)) out.push(P.lr);   // 14e case (étape 64) : dernière réponse ; les versions d'avant l'ignorent
+  }
   return out;
 }
 function shProg(c) {
@@ -95,6 +98,7 @@ function shProgFrom(v) {
   SH_FSRS.forEach((k, i) => { if (v[6 + i] != null) o[k] = v[6 + i]; });
   const F = fsrsNorm(o);
   if (F) Object.assign(P, F); else fsrsMigrateProg(P);
+  if (["k", "r", "u"].includes(v[6 + SH_FSRS.length])) P.lr = v[6 + SH_FSRS.length];   // dernière réponse (étape 64)
   return P;
 }
 function shWithProg(c, p) {

@@ -8,6 +8,29 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "64", date: "2026-11-20",
+    points: {
+      ko: [
+        "홈에 '이번 주에 익힌 단어' 카드가 생겼어요: 이번 주에 '익힘'이 된 단어 수와 전체 수. 통계에서 언어별 단어 목록을 볼 수 있어요.",
+        "'망각 리포트 보기': 최근 30일 동안 품사, 목록, 카드 종류, 시제별로 무엇을 가장 많이 잊는지 보여 주고, '이 단어 복습하기'로 바로 복습할 수 있어요.",
+        "매주 월요일 홈에 리포트 알림 카드가 나와요 (닫을 수 있어요, 푸시 알림은 없어요).",
+        "친구가 이번 주에 익힌 단어 수를 볼 수 있어요. 설정 → 친구에서 숨길 수 있어요."
+      ],
+      fr: [
+        "Nouvelle carte « Mots appris cette semaine » sur l'Accueil : les mots devenus « Acquis » cette semaine, et le total. Le détail par langue est dans Stats.",
+        "« Voir mon bilan » : sur 30 jours, ce que tu oublies le plus (nature, liste, type de carte, temps), avec « Réviser ces mots » pour les retravailler tout de suite.",
+        "Chaque lundi, un petit rappel du bilan sur l'Accueil (à fermer, jamais de notification).",
+        "Tes amis peuvent voir combien de mots tu as appris cette semaine ; tu peux le cacher dans Réglages → Amis."
+      ],
+      en: [
+        "New \"Words learned this week\" card on Home: words that became \"Learned\" this week, and the total. Details by language are in Stats.",
+        "\"See my forgetting report\": over 30 days, what you forget the most (part of speech, list, card type, tense), with \"Review these words\" to work on them right away.",
+        "Every Monday, a small report reminder on Home (you can close it, never a notification).",
+        "Your friends can see how many words you learned this week; you can hide it in Settings → Friends."
+      ]
+    }
+  },
+  {
     version: "63", date: "2026-11-20",
     points: {
       ko: [

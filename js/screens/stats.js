@@ -6,6 +6,8 @@
 // Taux de réussite = réponses « Su » / toutes les réponses (stats.correct / stats.seen).
 // Étape 37 : on compte des « vues » (carte, langue étudiée) — Leitner.units — : une carte étudiée en coréen et en
 // italien compte deux fois (une par langue) ; filtre de langue = une seule langue. Bloc « Par langue étudiée ».
+// Étape 64 : cartes « 🌱 Mots appris cette semaine » (#stLearned, selon les filtres) et « 📉 Bilan d'oubli » (#stBilan,
+// tout le compte, bouton « Voir mon bilan ») — statsProgres, js/progres.js —, juste après les chiffres clés.
 const stv = { lang: "", scope: "", cap: "" };
 
 function catCounts(cards) {
@@ -117,6 +119,7 @@ function renderStats() {
   top.appendChild(tiles);
   if (rate.seen) top.appendChild(el("div", "hint", t("stats.rateHint", { c: rate.ok, s: rate.seen })));
   root.appendChild(top);
+  root.appendChild(statsProgres(cards));   // mots appris cette semaine, bilan d'oubli (étape 64, js/progres.js)
   const byL = statsByLang(cards, now);
   if (byL) root.appendChild(byL);
   root.appendChild(statsXp());       // XP, niveau, XP par langue, défis réussis (étape 43, js/xp.js)

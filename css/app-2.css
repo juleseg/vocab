@@ -51,3 +51,40 @@
 .adc-mcb input,.adc-keep input{margin-top:3px;flex:0 0 auto}
 .adc-keep{font-size:13px}
 .adc-dash .dash-al-title{color:var(--warn)}
+
+/* === PROGRÈS VISIBLES (ÉTAPE 64) === */
+/* Accueil (js/progres.js : renderProgresHome) : carte « Mots appris cette semaine » (#homeLearned) et rappel du lundi (#homeBilanMon). */
+.prg-home-hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.prg-home-hd h2{margin:0;font-size:17px;min-width:0;overflow-wrap:anywhere}
+.prg-home-n{font-size:30px;font-weight:700;line-height:1.1;color:var(--ok);font-variant-numeric:tabular-nums}
+.prg-home-sub{font-size:14px;color:var(--muted);margin-top:2px}
+.prg-home-langs{font-size:13px;color:var(--muted);margin-top:2px;overflow-wrap:anywhere}
+.prg-home-btns{display:flex;flex-wrap:wrap;gap:0 12px;margin:2px 0 -8px}
+.prg-mon{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:14px;padding:10px 6px 4px 12px;margin-bottom:12px;background:var(--surface)}
+.prg-mon-m{flex:1 1 auto;min-width:0}
+.prg-mon-tx{font-size:15px;overflow-wrap:anywhere}
+.prg-mon-go{padding:6px 0;min-height:40px}
+.prg-mon-x{flex:0 0 auto;border:0;background:none;color:var(--muted);font-size:18px;min-width:44px;min-height:44px;cursor:pointer}
+/* Stats (statsProgres) : mots de la semaine par langue, résumé du bilan. */
+.prg-stats > .card{margin-top:12px}
+.prg-stats > .card:first-child{margin-top:0}
+.prg-tiles{margin:10px 0 4px}
+.prg-st-lang h3{font-size:15px;margin:14px 0 2px;overflow-wrap:anywhere}
+.prg-word .prg-day{font-size:13px;color:var(--muted);white-space:nowrap}
+.prg-st-go{width:100%;margin-top:10px}
+/* Fenêtre « Mon bilan d'oubli » (openBilan). */
+.prg-bilan{max-height:62vh;overflow-y:auto;overflow-wrap:anywhere}
+.prg-b-period{margin:0 0 10px}
+.prg-b-empty,.prg-b-overall{font-size:17px;font-weight:700}
+.prg-b-most{font-weight:600;margin:10px 0 0}
+.prg-b-good{color:var(--ok);font-weight:600}
+.prg-b-sec{margin-top:14px}
+.prg-b-sec h4{margin:0 0 4px;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.prg-b-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.prg-b-row:last-child{border-bottom:0}
+.prg-b-main{flex:1 1 160px;min-width:0}
+.prg-b-name{font-weight:600}
+.prg-b-sub{font-size:13px;color:var(--muted)}
+.prg-b-bar{height:6px;border-radius:3px;background:var(--surface2);overflow:hidden;margin-top:4px}
+.prg-b-bar span{display:block;height:100%;background:var(--bad)}
+.prg-b-go{padding:6px 10px;min-height:38px;font-size:14px}

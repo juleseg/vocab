@@ -356,6 +356,11 @@ const Leitner = (() => {
     const L = langOf(c, lang);
     const P = ensure(c, L);
     const from = P.box;
+    // Étape 64 (progrès visibles) : catégorie et dernière réponse AVANT cette réponse. Sans lr (carte jamais notée depuis la
+    // version 64) : « Trouvé » seulement si toutes les réponses d'avant étaient justes (vues = sues, au moins une).
+    const wasKnown = fsrsCategory(P) === "known";
+    const st0 = P.stats || {};
+    const prevK = P.lr ? P.lr === "k" : (num(st0.seen, 0) > 0 && num(st0.correct, 0) >= num(st0.seen, 0));
     const g = GRADE[result] || 1;
     const elapsed = P.last == null ? null : Math.max(0, fsrsDays(P.last, now));
     const n = FSRS.review(P, g, elapsed);
@@ -371,6 +376,9 @@ const Leitner = (() => {
     xpAnswer(c, L, result === "known", now);   // XP (étape 43)
     let hard = null;
     if (!game) { try { if (typeof Hard !== "undefined") hard = Hard.onAnswer(c, L, result, now); } catch (e) {} }   // mots difficiles (étape 57)
+    if (!game) P.lr = result === "known" ? "k" : result === "review" ? "r" : "u";   // dernière réponse (étape 64 ; erreurs de jeu exclues)
+    // Mots appris de la semaine et bilan d'oubli (étape 64, js/progres.js) : jamais bloquant pour la progression.
+    try { if (typeof Progres !== "undefined") Progres.onAnswer(c, L, result, now, { wasKnown, isKnown: fsrsCategory(P) === "known", prevK, game: !!game }); } catch (e) {}
     return { from, to: P.box, dueAt: P.dueAt, lang: L, hard };
   }
   // Jeux d'entraînement (étape 42) : poids réduit. ok = bonne réponse : stats « vu / juste » seulement (date de révision,

@@ -22,7 +22,7 @@
 //   (tmFriendsCard) ; badge du menu + invitations d'équipe ; mon équipe relue avec l'écran (Teams.load), jamais d'erreur levée.
 const FRIENDS_MAX_PENDING = 20;
 const FRIENDS_POLL_MS = 300000;   // badge des demandes reçues : toutes les 5 min (et au retour au premier plan)
-const PRIVACY_ORDER = ["streak", "today", "week", "success", "badges", "xp", "ranking", "shared"];   // xp : « XP et niveau » (étape 43)
+const PRIVACY_ORDER = ["streak", "today", "week", "learned", "success", "badges", "xp", "ranking", "shared"];   // xp : « XP et niveau » (étape 43) ; learned : « Mots appris de la semaine » (étape 64)
 
 // Lundi de la semaine du jour day ("YYYY-MM-DD").
 function frMonday(day) {
@@ -52,6 +52,7 @@ const Friends = (() => {
   let data = null, stats = null, ranking = null, loadedAt = 0, loading = false, err = "", token = 0;
   let lastPub = "", pubBusy = null, pollTimer = null;
   let xpCols = true;               // étape 43 : colonnes xp_total / xp_week / level (script supabase-etape43.sql) ; false = pas encore là
+  let learnedCols = true;          // étape 64 : colonne learned_week (script supabase-etape64.sql) ; false = pas encore là
   const view = { input: "", rankTab: "cards", busy: false };
   function on() { return auth.mode === "supabase" && !!auth.sbUid && !!Supa.client() && !!Storage.getUser(); }
   function isMissing(e) { return alIsMissing(e); }
@@ -82,8 +83,14 @@ const Friends = (() => {
       today_day: today, today_done: Streak.doneToday(),
       week_start: w.mon, week_cards: Math.min(w.cards, 1000000), week_correct: Math.min(w.correct, w.cards, 1000000),
       privacy: normPrivacy(state.settings.privacy)
-    }, xpRow(today));
+    }, xpRow(today), learnedRow(today));
   }
+  // Mots appris de la semaine (étape 64, js/progres.js) ; les amis ne les voient que si « Mots appris » est montré (côté serveur).
+  function learnedRow(today) {
+    if (!learnedCols || typeof Progres === "undefined") return {};
+    try { return { learned_week: Math.min(Progres.weekCount(today), 1000000) }; } catch (e) { return {}; }
+  }
+  function isLearnedColErr(e) { return /learned_week/i.test(String((e && (e.message || e.msg || e.details)) || "")); }
   // XP de la semaine, XP total et niveau (étape 43) ; les amis ne les voient que si « XP et niveau » est montré (côté serveur).
   function xpRow(today) {
     if (!xpCols || typeof XP === "undefined") return {};
@@ -102,9 +109,14 @@ const Friends = (() => {
     pubBusy = (async () => {
       try {
         let r = await withTimeout(Supa.client().from("user_public_stats").upsert(row, { onConflict: "user_id" }), 15000);
-        if (r && r.error && xpCols && isXpColErr(r.error)) {   // script de l'étape 43 pas lancé : sans les colonnes XP
-          xpCols = false;
-          ["xp_total", "xp_week", "level"].forEach(k => { delete row[k]; });
+        for (let i = 0; i < 2 && r && r.error; i++) {
+          if (learnedCols && isLearnedColErr(r.error)) {   // script de l'étape 64 pas lancé : sans la colonne learned_week
+            learnedCols = false;
+            delete row.learned_week;
+          } else if (xpCols && isXpColErr(r.error)) {   // script de l'étape 43 pas lancé : sans les colonnes XP
+            xpCols = false;
+            ["xp_total", "xp_week", "level"].forEach(k => { delete row[k]; });
+          } else break;
           r = await withTimeout(Supa.client().from("user_public_stats").upsert(row, { onConflict: "user_id" }), 15000);
         }
         if (r && r.error) throw r.error;
@@ -357,6 +369,8 @@ function amFriendBlock(x, s) {
     add(t("am.streak"), s.streak == null ? null : t("am.streakVal", { n: s.streak, b: s.best }));
     add(t("am.today"), s.today_done == null ? null : t(s.today_done ? "am.todayYes" : "am.todayNo"));
     add(t("am.week"), s.week_cards == null ? null : dashFmt(s.week_cards));
+    // Mots appris de la semaine (étape 64) : null = caché par l'ami ; clé absente = script de l'étape 64 pas lancé
+    if ("learned_week" in s) add(t("am.learned"), s.learned_week == null ? null : dashFmt(s.learned_week));
     add(t("am.success"), s.week_correct == null ? null : (num(Number(s.week_total), 0) > 0
       ? dashRate(Math.round(1000 * num(Number(s.week_correct), 0) / num(Number(s.week_total), 1)) / 10) : "—"));
     let bd = null;
