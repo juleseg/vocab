@@ -4,14 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vocab</title>
-<link rel="stylesheet" href="css/app.css?v=66">
-<link rel="stylesheet" href="css/app-admin.css?v=66">
-<link rel="stylesheet" href="css/app-partage.css?v=66">
-<link rel="stylesheet" href="css/app-jeux.css?v=66">
-<link rel="stylesheet" href="css/app-amis.css?v=66">
-<link rel="stylesheet" href="css/app-methodes.css?v=66">
-<link rel="stylesheet" href="css/app-2.css?v=66">
-<link rel="stylesheet" href="css/app-3.css?v=66">
+<link rel="stylesheet" href="css/app.css?v=67">
+<link rel="stylesheet" href="css/app-admin.css?v=67">
+<link rel="stylesheet" href="css/app-partage.css?v=67">
+<link rel="stylesheet" href="css/app-jeux.css?v=67">
+<link rel="stylesheet" href="css/app-amis.css?v=67">
+<link rel="stylesheet" href="css/app-methodes.css?v=67">
+<link rel="stylesheet" href="css/app-2.css?v=67">
+<link rel="stylesheet" href="css/app-3.css?v=67">
+<link rel="stylesheet" href="css/app-4.css?v=67">
 <!-- === PWA (appli installable) === -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2f5bd3">
@@ -44,7 +45,8 @@
     <!-- ÉCRAN : ACCUEIL -->
     <section class="screen" id="screen-home">
       <div class="row2">
-        <div class="card"><div class="big-num" id="homeDue">0</div><div class="muted" data-i18n="home.due"></div><div class="home-due-langs" id="homeDueLangs" hidden></div></div>
+        <!-- Étape 67 : la carte « À réviser » ouvre Réviser (js/ecrans.js) -->
+        <div class="card ecr-due" id="homeDueCard" role="button" tabindex="0"><div class="big-num" id="homeDue">0</div><div class="muted" data-i18n="home.due"></div><div class="home-due-langs" id="homeDueLangs" hidden></div></div>
         <div class="card sk-home" id="homeStreakCard">
           <div class="sk-flame-row"><span class="sk-flame off" id="homeFlame" aria-hidden="true">🔥</span><span class="big-num" id="homeStreak">0</span></div>
           <div class="muted" data-i18n="home.streak"></div>
@@ -56,9 +58,11 @@
       <!-- Étape 64 : rappel du lundi du bilan d'oubli (fermable) et carte « Mots appris cette semaine » (js/progres.js) -->
       <div class="prg-mon" id="homeBilanMon" hidden></div>
       <div class="card sk-goal" id="homeGoal"></div>
-      <div class="card prg-home" id="homeLearned" hidden></div>
-      <div class="card xp-home" id="homeXp"></div>
-      <div class="card sk-goal xp-chall" id="homeChallenges"></div>
+      <!-- Étape 67 (js/ecrans.js) : 4 raccourcis en gros boutons, puis cartes repliables (titre + petit résumé, état retenu sur l'appareil) -->
+      <div class="ecr-short" id="homeShort" hidden></div>
+      <div class="card prg-home" id="homeLearned" data-fold="home.learned" hidden></div>
+      <div class="card xp-home" id="homeXp" data-fold="home.xp" data-fold-t="xp.title"></div>
+      <div class="card sk-goal xp-chall" id="homeChallenges" data-fold="home.ch"></div>
     </section>
 
     <!-- ÉCRAN : RÉVISER -->
@@ -166,86 +170,112 @@
     <section class="screen" id="screen-team"></section>
 
     <section class="screen" id="screen-settings">
-      <div class="card">
-        <!-- Langue de l'appli : dans la carte « Langues » (#langCard), avec les langues apprises (étape 52, complément) -->
-        <div class="field">
-          <label data-i18n="settings.theme"></label>
-          <div class="seg" id="setTheme">
-            <button data-value="light" data-i18n="theme.light"></button>
-            <button data-value="dark" data-i18n="theme.dark"></button>
-            <button data-value="auto" data-i18n="theme.auto"></button>
+      <!-- Étape 67 (js/ecrans.js) : Réglages = sections repliées (une seule ouverte, état retenu sur l'appareil), recherche en haut,
+           « Ouvrir en plein écran » (#reglages-<section>). Chaque carte garde son identifiant et son enregistrement d'avant. -->
+      <div class="ecr-fulltop" id="setFullTop" hidden>
+        <button class="link-btn" id="setFullBack" type="button" data-i18n="admin.back"></button>
+        <h2 id="setFullTitle"></h2>
+      </div>
+      <div class="ecr-search" id="setSearchBox">
+        <input type="search" class="input" id="setSearch" autocomplete="off" enterkeyhint="search">
+        <div class="ecr-res" id="setSearchRes" hidden></div>
+      </div>
+      <div class="acc-list" id="setSecs">
+        <!-- Confidentialité : ce que voient mes amis (étape 29) -->
+        <div class="acc" id="sec-privacy" data-sec="privacy"><div class="acc-body">
+          <div class="card" id="friendsPrivCard" hidden></div>
+        </div></div>
+
+        <!-- Notifications (étape 32) ; rappel du matin, heure du soir, notification du matin (étape 61, js/moments.js) -->
+        <div class="acc" id="sec-notif" data-sec="notif"><div class="acc-body">
+          <div class="card" id="pushCard" hidden></div>
+          <div class="card" id="momentsCard"></div>
+        </div></div>
+
+        <!-- Apprentissage -->
+        <div class="acc" id="sec-learn" data-sec="learn"><div class="acc-body">
+          <div class="card">
+            <div class="field">
+              <label for="setDailyGoal" data-i18n="settings.dailyGoal"></label>
+              <input type="number" id="setDailyGoal" min="5" max="100" inputmode="numeric">
+              <div class="hint" data-i18n="settings.dailyGoalHint"></div>
+            </div>
+            <div class="field">
+              <label for="setSessionSize" data-i18n="settings.sessionSize"></label>
+              <input type="number" id="setSessionSize" min="1" max="500" inputmode="numeric">
+            </div>
           </div>
-        </div>
-        <div class="field">
-          <label for="setSessionSize" data-i18n="settings.sessionSize"></label>
-          <input type="number" id="setSessionSize" min="1" max="500" inputmode="numeric">
-        </div>
-        <div class="field">
-          <label for="setDailyGoal" data-i18n="settings.dailyGoal"></label>
-          <input type="number" id="setDailyGoal" min="5" max="100" inputmode="numeric">
-          <div class="hint" data-i18n="settings.dailyGoalHint"></div>
-        </div>
-      </div>
+          <div class="card" id="reviewCard"></div>
+          <div class="card" id="audioCard"></div>
+          <div class="card" id="audLearnCard"></div>
+          <!-- « Ma phrase » (étape 58, js/sentences.js) : mode Supabase seulement -->
+          <div class="card" id="sentCard" hidden></div>
+          <div class="card" id="genderCard"></div>
+          <div class="card" id="aiCard"></div>
+        </div></div>
 
-      <div class="card" id="reviewCard"></div>
+        <!-- Compte et données -->
+        <div class="acc" id="sec-account" data-sec="account"><div class="acc-body">
+          <div class="card">
+            <h2 data-i18n="account.title"></h2>
+            <p class="muted" id="accountInfo" style="margin-top:0"></p>
+            <div class="btns">
+              <button class="btn" id="btnChangePin" data-i18n="account.changePin"></button>
+              <button class="btn" id="btnLogout" data-i18n="account.logout"></button>
+            </div>
+          </div>
+          <div class="card">
+            <h2 data-i18n="settings.data"></h2>
+            <p class="muted" id="storageInfo" style="margin-top:0"></p>
+            <p class="muted ci-quota" id="imgQuota" hidden></p>
+            <div class="btns two">
+              <button class="btn" id="btnExport" data-i18n="export"></button>
+              <button class="btn" id="btnImport" data-i18n="import"></button>
+            </div>
+            <input type="file" id="importFile" class="hidden-input" accept="application/json,.json">
+          </div>
+        </div></div>
 
-      <!-- Rappel du matin, heure du soir, notification du matin (étape 61, js/moments.js) -->
-      <div class="card" id="momentsCard"></div>
+        <!-- Langues : langue de l'appli et langues apprises (étapes 35 et 52) -->
+        <div class="acc" id="sec-langs" data-sec="langs"><div class="acc-body">
+          <div class="card" id="langCard"></div>
+        </div></div>
 
-      <div class="card" id="audioCard"></div>
+        <!-- Apparence et accueil : thème, raccourcis de l'accueil (étape 67) -->
+        <div class="acc" id="sec-look" data-sec="look"><div class="acc-body">
+          <div class="card">
+            <div class="field">
+              <label data-i18n="settings.theme"></label>
+              <div class="seg" id="setTheme">
+                <button data-value="light" data-i18n="theme.light"></button>
+                <button data-value="dark" data-i18n="theme.dark"></button>
+                <button data-value="auto" data-i18n="theme.auto"></button>
+              </div>
+            </div>
+          </div>
+          <div class="card" id="ecrShortCard"></div>
+        </div></div>
 
-      <div class="card" id="audLearnCard"></div>
+        <!-- Aide : idées (étape 52), écrire à l'équipe (étape 53), À propos et tutoriel -->
+        <div class="acc" id="sec-help" data-sec="help"><div class="acc-body">
+          <div class="card ix-card" id="ideaCard" hidden></div>
+          <div class="card mg-teamcard" id="msgTeamCard" hidden></div>
+          <div class="card">
+            <h2 data-i18n="about.title"></h2>
+            <div class="btns">
+              <button class="btn" id="btnAboutSet" data-i18n="about.open"></button>
+              <button class="btn" id="btnTutoSet" type="button" data-i18n="tuto.replay"></button>
+            </div>
+          </div>
+        </div></div>
 
-      <!-- « Ma phrase » (étape 58, js/sentences.js) : mode Supabase seulement -->
-      <div class="card" id="sentCard" hidden></div>
-
-      <div class="card" id="genderCard"></div>
-
-      <div class="card" id="langCard"></div>
-
-      <div class="card" id="aiCard"></div>
-
-      <div class="card" id="friendsPrivCard" hidden></div>
-
-      <div class="card" id="pushCard" hidden></div>
-
-      <div class="card">
-        <h2 data-i18n="account.title"></h2>
-        <p class="muted" id="accountInfo" style="margin-top:0"></p>
-        <div class="btns">
-          <button class="btn" id="btnChangePin" data-i18n="account.changePin"></button>
-          <button class="btn" id="btnLogout" data-i18n="account.logout"></button>
-        </div>
-      </div>
-
-      <div class="card" id="adminCard" hidden>
-        <h2 data-i18n="admin.title"></h2>
-        <button class="btn" id="btnAdmin" data-i18n="admin.open"></button>
-      </div>
-
-      <div class="card">
-        <h2 data-i18n="settings.data"></h2>
-        <p class="muted" id="storageInfo" style="margin-top:0"></p>
-        <p class="muted ci-quota" id="imgQuota" hidden></p>
-        <div class="btns two">
-          <button class="btn" id="btnExport" data-i18n="export"></button>
-          <button class="btn" id="btnImport" data-i18n="import"></button>
-        </div>
-        <input type="file" id="importFile" class="hidden-input" accept="application/json,.json">
-      </div>
-
-      <!-- Propositions d'amélioration (étape 52, js/ideas.js) : mode Supabase seulement -->
-      <div class="card ix-card" id="ideaCard" hidden></div>
-
-      <!-- Écrire à l'équipe (étape 53, js/messages.js) : mode Supabase seulement -->
-      <div class="card mg-teamcard" id="msgTeamCard" hidden></div>
-
-      <div class="card">
-        <h2 data-i18n="about.title"></h2>
-        <div class="btns">
-          <button class="btn" id="btnAboutSet" data-i18n="about.open"></button>
-          <button class="btn" id="btnTutoSet" type="button" data-i18n="tuto.replay"></button>
-        </div>
+        <!-- Administration : admin, ou modérateur avec au moins une case (étape 66) -->
+        <div class="acc" id="sec-admin" data-sec="admin"><div class="acc-body">
+          <div class="card" id="adminCard" hidden>
+            <h2 data-i18n="admin.title"></h2>
+            <button class="btn" id="btnAdmin" data-i18n="admin.open"></button>
+          </div>
+        </div></div>
       </div>
 
       <p class="app-version" id="appVersion"></p>
@@ -261,6 +291,8 @@
       <button data-nav="pending"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span data-i18n="nav.pending"></span><span class="nav-badge" id="pendingBadge" hidden></span></button>
       <button data-nav="friends"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 5.8"/></svg><span data-i18n="nav.friends"></span><span class="nav-badge" id="friendsBadge" hidden></span></button>
       <button data-nav="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-i18n="nav.settings"></span></button>
+      <!-- Étape 67 : « Plus » (js/ecrans.js) : les onglets hors de la barre (ECR_BAR) et les écrans secondaires -->
+      <button id="navMore" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span data-i18n="ecr.more"></span><span class="nav-badge" id="moreBadge" hidden></span></button>
     </div>
   </nav>
 </div>
@@ -293,177 +325,181 @@
 })();
 </script>
 <!-- Scripts de l'appli, dans l'ordre (scripts classiques, sans build). -->
-<script src="js/core.js?v=66"></script>
-<script src="js/errors.js?v=66"></script>
-<script src="js/languages.js?v=66"></script>
-<script src="js/i18n/ko.js?v=66"></script>
-<script src="js/i18n/fr.js?v=66"></script>
-<script src="js/i18n/en.js?v=66"></script>
-<script src="js/i18n/admin-ko.js?v=66"></script>
-<script src="js/i18n/admin-fr.js?v=66"></script>
-<script src="js/i18n/admin-en.js?v=66"></script>
-<script src="js/i18n/amis-ko.js?v=66"></script>
-<script src="js/i18n/amis-fr.js?v=66"></script>
-<script src="js/i18n/amis-en.js?v=66"></script>
-<script src="js/i18n/notifs-ko.js?v=66"></script>
-<script src="js/i18n/notifs-fr.js?v=66"></script>
-<script src="js/i18n/notifs-en.js?v=66"></script>
-<script src="js/i18n/dico-ko.js?v=66"></script>
-<script src="js/i18n/dico-fr.js?v=66"></script>
-<script src="js/i18n/dico-en.js?v=66"></script>
-<script src="js/i18n/tutorial-ko.js?v=66"></script>
-<script src="js/i18n/tutorial-fr.js?v=66"></script>
-<script src="js/i18n/tutorial-en.js?v=66"></script>
-<script src="js/i18n/errors-ko.js?v=66"></script>
-<script src="js/i18n/errors-fr.js?v=66"></script>
-<script src="js/i18n/errors-en.js?v=66"></script>
-<script src="js/i18n/games-ko.js?v=66"></script>
-<script src="js/i18n/games-fr.js?v=66"></script>
-<script src="js/i18n/games-en.js?v=66"></script>
-<script src="js/i18n/xp-ko.js?v=66"></script>
-<script src="js/i18n/xp-fr.js?v=66"></script>
-<script src="js/i18n/xp-en.js?v=66"></script>
-<script src="js/i18n/league-ko.js?v=66"></script>
-<script src="js/i18n/league-fr.js?v=66"></script>
-<script src="js/i18n/league-en.js?v=66"></script>
-<script src="js/i18n/story-ko.js?v=66"></script>
-<script src="js/i18n/story-fr.js?v=66"></script>
-<script src="js/i18n/story-en.js?v=66"></script>
-<script src="js/i18n/sentence-ko.js?v=66"></script>
-<script src="js/i18n/sentence-fr.js?v=66"></script>
-<script src="js/i18n/sentence-en.js?v=66"></script>
-<script src="js/i18n/listen-ko.js?v=66"></script>
-<script src="js/i18n/listen-fr.js?v=66"></script>
-<script src="js/i18n/listen-en.js?v=66"></script>
-<script src="js/i18n/fsrs-ko.js?v=66"></script>
-<script src="js/i18n/fsrs-fr.js?v=66"></script>
-<script src="js/i18n/fsrs-en.js?v=66"></script>
-<script src="js/i18n/release-ko.js?v=66"></script>
-<script src="js/i18n/release-fr.js?v=66"></script>
-<script src="js/i18n/release-en.js?v=66"></script>
-<script src="js/i18n/backup-ko.js?v=66"></script>
-<script src="js/i18n/backup-fr.js?v=66"></script>
-<script src="js/i18n/backup-en.js?v=66"></script>
-<script src="js/i18n/images-ko.js?v=66"></script>
-<script src="js/i18n/images-fr.js?v=66"></script>
-<script src="js/i18n/images-en.js?v=66"></script>
-<script src="js/i18n/ideas-ko.js?v=66"></script>
-<script src="js/i18n/ideas-fr.js?v=66"></script>
-<script src="js/i18n/ideas-en.js?v=66"></script>
-<script src="js/i18n/langs-ko.js?v=66"></script>
-<script src="js/i18n/langs-fr.js?v=66"></script>
-<script src="js/i18n/langs-en.js?v=66"></script>
-<script src="js/i18n/messages-ko.js?v=66"></script>
-<script src="js/i18n/messages-fr.js?v=66"></script>
-<script src="js/i18n/messages-en.js?v=66"></script>
-<script src="js/i18n/teams-ko.js?v=66"></script>
-<script src="js/i18n/teams-fr.js?v=66"></script>
-<script src="js/i18n/teams-en.js?v=66"></script>
-<script src="js/i18n/auditif-ko.js?v=66"></script>
-<script src="js/i18n/auditif-fr.js?v=66"></script>
-<script src="js/i18n/auditif-en.js?v=66"></script>
-<script src="js/i18n/difficiles-ko.js?v=66"></script>
-<script src="js/i18n/difficiles-fr.js?v=66"></script>
-<script src="js/i18n/difficiles-en.js?v=66"></script>
-<script src="js/i18n/genre-ko.js?v=66"></script>
-<script src="js/i18n/genre-fr.js?v=66"></script>
-<script src="js/i18n/genre-en.js?v=66"></script>
-<script src="js/i18n/moments-ko.js?v=66"></script>
-<script src="js/i18n/moments-fr.js?v=66"></script>
-<script src="js/i18n/moments-en.js?v=66"></script>
-<script src="js/i18n/doublons-ko.js?v=66"></script>
-<script src="js/i18n/doublons-fr.js?v=66"></script>
-<script src="js/i18n/doublons-en.js?v=66"></script>
-<script src="js/i18n/progres-ko.js?v=66"></script>
-<script src="js/i18n/progres-fr.js?v=66"></script>
-<script src="js/i18n/progres-en.js?v=66"></script>
-<script src="js/i18n/mod-ko.js?v=66"></script>
-<script src="js/i18n/mod-fr.js?v=66"></script>
-<script src="js/i18n/mod-en.js?v=66"></script>
-<script src="js/fsrs.js?v=66"></script>
-<script src="js/release.js?v=66"></script>
-<script src="js/storage.js?v=66"></script>
-<script src="js/storage-sync.js?v=66"></script>
-<script src="js/storage-supabase.js?v=66"></script>
-<script src="js/cards.js?v=66"></script>
-<script src="js/langhelp.js?v=66"></script>
-<script src="js/auth.js?v=66"></script>
-<script src="js/difficiles.js?v=66"></script>
-<script src="js/leitner.js?v=66"></script>
-<script src="js/xp.js?v=66"></script>
-<script src="js/difficiles-ui.js?v=66"></script>
-<script src="js/genre.js?v=66"></script>
-<script src="js/modes/cartes.js?v=66"></script>
-<script src="js/modes/ecrit.js?v=66"></script>
-<script src="js/modes/interrogateur.js?v=66"></script>
-<script src="js/modes/tableau.js?v=66"></script>
-<script src="js/modes/jeux.js?v=66"></script>
-<script src="js/modes/qcm.js?v=66"></script>
-<script src="js/modes/course.js?v=66"></script>
-<script src="js/modes/paires.js?v=66"></script>
-<script src="js/modes/ordre.js?v=66"></script>
-<script src="js/modes/dictee.js?v=66"></script>
-<script src="js/modes/prononciation.js?v=66"></script>
-<script src="js/screens/accueil.js?v=66"></script>
-<script src="js/screens/reviser.js?v=66"></script>
-<script src="js/screens/listes.js?v=66"></script>
-<script src="js/screens/listes-cartes.js?v=66"></script>
-<script src="js/screens/stats.js?v=66"></script>
-<script src="js/screens/reglages.js?v=66"></script>
-<script src="js/screens/a-valider.js?v=66"></script>
-<script src="js/screens/amis.js?v=66"></script>
-<script src="js/league.js?v=66"></script>
-<script src="js/duel.js?v=66"></script>
-<script src="js/moderation.js?v=66"></script>
-<script src="js/screens/admin.js?v=66"></script>
-<script src="js/screens/admin-dashboard.js?v=66"></script>
-<script src="js/screens/admin-demandes.js?v=66"></script>
-<script src="js/screens/admin-journal.js?v=66"></script>
-<script src="js/screens/admin-fiche.js?v=66"></script>
-<script src="js/screens/admin-comptes.js?v=66"></script>
-<script src="js/screens/admin-notifications.js?v=66"></script>
-<script src="js/screens/admin-notif-auto.js?v=66"></script>
-<script src="js/screens/admin-invite.js?v=66"></script>
-<script src="js/screens/admin-release.js?v=66"></script>
-<script src="js/screens/admin-backups.js?v=66"></script>
-<script src="js/screens/admin-dictionnaire.js?v=66"></script>
-<script src="js/screens/admin-images.js?v=66"></script>
-<script src="js/screens/admin-doublons.js?v=66"></script>
-<script src="js/screens/admin-erreurs.js?v=66"></script>
-<script src="js/screens/admin-idees.js?v=66"></script>
-<script src="js/screens/admin-messages.js?v=66"></script>
-<script src="js/screens/admin-equipes.js?v=66"></script>
-<script src="js/screens/admin-moderateurs.js?v=66"></script>
-<script src="js/partage.js?v=66"></script>
-<script src="js/import.js?v=66"></script>
-<script src="js/completion.js?v=66"></script>
-<script src="js/echange-fichier.js?v=66"></script>
-<script src="js/generer.js?v=66"></script>
-<script src="js/maj-listes.js?v=66"></script>
-<script src="js/queue.js?v=66"></script>
-<script src="js/claude-passage.js?v=66"></script>
-<script src="js/dictionary.js?v=66"></script>
-<script src="js/doublons.js?v=66"></script>
-<script src="js/doublons-analyse.js?v=66"></script>
-<script src="js/images.js?v=66"></script>
-<script src="js/study.js?v=66"></script>
-<script src="js/story.js?v=66"></script>
-<script src="js/sentences.js?v=66"></script>
-<script src="js/ideas.js?v=66"></script>
-<script src="js/messages.js?v=66"></script>
-<script src="js/teams.js?v=66"></script>
-<script src="js/activity.js?v=66"></script>
-<script src="js/audio.js?v=66"></script>
-<script src="js/auditif.js?v=66"></script>
-<script src="js/notifications.js?v=66"></script>
-<script src="js/notif-invite.js?v=66"></script>
-<script src="js/moments.js?v=66"></script>
-<script src="js/progres.js?v=66"></script>
-<script src="js/changelog.js?v=66"></script>
-<script src="js/qrcode.js?v=66"></script>
-<script src="js/screens/a-propos.js?v=66"></script>
-<script src="js/tutorial.js?v=66"></script>
-<script src="js/app.js?v=66"></script>
+<script src="js/core.js?v=67"></script>
+<script src="js/errors.js?v=67"></script>
+<script src="js/languages.js?v=67"></script>
+<script src="js/i18n/ko.js?v=67"></script>
+<script src="js/i18n/fr.js?v=67"></script>
+<script src="js/i18n/en.js?v=67"></script>
+<script src="js/i18n/admin-ko.js?v=67"></script>
+<script src="js/i18n/admin-fr.js?v=67"></script>
+<script src="js/i18n/admin-en.js?v=67"></script>
+<script src="js/i18n/amis-ko.js?v=67"></script>
+<script src="js/i18n/amis-fr.js?v=67"></script>
+<script src="js/i18n/amis-en.js?v=67"></script>
+<script src="js/i18n/notifs-ko.js?v=67"></script>
+<script src="js/i18n/notifs-fr.js?v=67"></script>
+<script src="js/i18n/notifs-en.js?v=67"></script>
+<script src="js/i18n/dico-ko.js?v=67"></script>
+<script src="js/i18n/dico-fr.js?v=67"></script>
+<script src="js/i18n/dico-en.js?v=67"></script>
+<script src="js/i18n/tutorial-ko.js?v=67"></script>
+<script src="js/i18n/tutorial-fr.js?v=67"></script>
+<script src="js/i18n/tutorial-en.js?v=67"></script>
+<script src="js/i18n/errors-ko.js?v=67"></script>
+<script src="js/i18n/errors-fr.js?v=67"></script>
+<script src="js/i18n/errors-en.js?v=67"></script>
+<script src="js/i18n/games-ko.js?v=67"></script>
+<script src="js/i18n/games-fr.js?v=67"></script>
+<script src="js/i18n/games-en.js?v=67"></script>
+<script src="js/i18n/xp-ko.js?v=67"></script>
+<script src="js/i18n/xp-fr.js?v=67"></script>
+<script src="js/i18n/xp-en.js?v=67"></script>
+<script src="js/i18n/league-ko.js?v=67"></script>
+<script src="js/i18n/league-fr.js?v=67"></script>
+<script src="js/i18n/league-en.js?v=67"></script>
+<script src="js/i18n/story-ko.js?v=67"></script>
+<script src="js/i18n/story-fr.js?v=67"></script>
+<script src="js/i18n/story-en.js?v=67"></script>
+<script src="js/i18n/sentence-ko.js?v=67"></script>
+<script src="js/i18n/sentence-fr.js?v=67"></script>
+<script src="js/i18n/sentence-en.js?v=67"></script>
+<script src="js/i18n/listen-ko.js?v=67"></script>
+<script src="js/i18n/listen-fr.js?v=67"></script>
+<script src="js/i18n/listen-en.js?v=67"></script>
+<script src="js/i18n/fsrs-ko.js?v=67"></script>
+<script src="js/i18n/fsrs-fr.js?v=67"></script>
+<script src="js/i18n/fsrs-en.js?v=67"></script>
+<script src="js/i18n/release-ko.js?v=67"></script>
+<script src="js/i18n/release-fr.js?v=67"></script>
+<script src="js/i18n/release-en.js?v=67"></script>
+<script src="js/i18n/backup-ko.js?v=67"></script>
+<script src="js/i18n/backup-fr.js?v=67"></script>
+<script src="js/i18n/backup-en.js?v=67"></script>
+<script src="js/i18n/images-ko.js?v=67"></script>
+<script src="js/i18n/images-fr.js?v=67"></script>
+<script src="js/i18n/images-en.js?v=67"></script>
+<script src="js/i18n/ideas-ko.js?v=67"></script>
+<script src="js/i18n/ideas-fr.js?v=67"></script>
+<script src="js/i18n/ideas-en.js?v=67"></script>
+<script src="js/i18n/langs-ko.js?v=67"></script>
+<script src="js/i18n/langs-fr.js?v=67"></script>
+<script src="js/i18n/langs-en.js?v=67"></script>
+<script src="js/i18n/messages-ko.js?v=67"></script>
+<script src="js/i18n/messages-fr.js?v=67"></script>
+<script src="js/i18n/messages-en.js?v=67"></script>
+<script src="js/i18n/teams-ko.js?v=67"></script>
+<script src="js/i18n/teams-fr.js?v=67"></script>
+<script src="js/i18n/teams-en.js?v=67"></script>
+<script src="js/i18n/auditif-ko.js?v=67"></script>
+<script src="js/i18n/auditif-fr.js?v=67"></script>
+<script src="js/i18n/auditif-en.js?v=67"></script>
+<script src="js/i18n/difficiles-ko.js?v=67"></script>
+<script src="js/i18n/difficiles-fr.js?v=67"></script>
+<script src="js/i18n/difficiles-en.js?v=67"></script>
+<script src="js/i18n/genre-ko.js?v=67"></script>
+<script src="js/i18n/genre-fr.js?v=67"></script>
+<script src="js/i18n/genre-en.js?v=67"></script>
+<script src="js/i18n/moments-ko.js?v=67"></script>
+<script src="js/i18n/moments-fr.js?v=67"></script>
+<script src="js/i18n/moments-en.js?v=67"></script>
+<script src="js/i18n/doublons-ko.js?v=67"></script>
+<script src="js/i18n/doublons-fr.js?v=67"></script>
+<script src="js/i18n/doublons-en.js?v=67"></script>
+<script src="js/i18n/progres-ko.js?v=67"></script>
+<script src="js/i18n/progres-fr.js?v=67"></script>
+<script src="js/i18n/progres-en.js?v=67"></script>
+<script src="js/i18n/mod-ko.js?v=67"></script>
+<script src="js/i18n/mod-fr.js?v=67"></script>
+<script src="js/i18n/mod-en.js?v=67"></script>
+<script src="js/i18n/ecrans-ko.js?v=67"></script>
+<script src="js/i18n/ecrans-fr.js?v=67"></script>
+<script src="js/i18n/ecrans-en.js?v=67"></script>
+<script src="js/fsrs.js?v=67"></script>
+<script src="js/release.js?v=67"></script>
+<script src="js/storage.js?v=67"></script>
+<script src="js/storage-sync.js?v=67"></script>
+<script src="js/storage-supabase.js?v=67"></script>
+<script src="js/cards.js?v=67"></script>
+<script src="js/langhelp.js?v=67"></script>
+<script src="js/auth.js?v=67"></script>
+<script src="js/difficiles.js?v=67"></script>
+<script src="js/leitner.js?v=67"></script>
+<script src="js/xp.js?v=67"></script>
+<script src="js/difficiles-ui.js?v=67"></script>
+<script src="js/genre.js?v=67"></script>
+<script src="js/modes/cartes.js?v=67"></script>
+<script src="js/modes/ecrit.js?v=67"></script>
+<script src="js/modes/interrogateur.js?v=67"></script>
+<script src="js/modes/tableau.js?v=67"></script>
+<script src="js/modes/jeux.js?v=67"></script>
+<script src="js/modes/qcm.js?v=67"></script>
+<script src="js/modes/course.js?v=67"></script>
+<script src="js/modes/paires.js?v=67"></script>
+<script src="js/modes/ordre.js?v=67"></script>
+<script src="js/modes/dictee.js?v=67"></script>
+<script src="js/modes/prononciation.js?v=67"></script>
+<script src="js/screens/accueil.js?v=67"></script>
+<script src="js/screens/reviser.js?v=67"></script>
+<script src="js/screens/listes.js?v=67"></script>
+<script src="js/screens/listes-cartes.js?v=67"></script>
+<script src="js/screens/stats.js?v=67"></script>
+<script src="js/screens/reglages.js?v=67"></script>
+<script src="js/screens/a-valider.js?v=67"></script>
+<script src="js/screens/amis.js?v=67"></script>
+<script src="js/league.js?v=67"></script>
+<script src="js/duel.js?v=67"></script>
+<script src="js/moderation.js?v=67"></script>
+<script src="js/screens/admin.js?v=67"></script>
+<script src="js/screens/admin-dashboard.js?v=67"></script>
+<script src="js/screens/admin-demandes.js?v=67"></script>
+<script src="js/screens/admin-journal.js?v=67"></script>
+<script src="js/screens/admin-fiche.js?v=67"></script>
+<script src="js/screens/admin-comptes.js?v=67"></script>
+<script src="js/screens/admin-notifications.js?v=67"></script>
+<script src="js/screens/admin-notif-auto.js?v=67"></script>
+<script src="js/screens/admin-invite.js?v=67"></script>
+<script src="js/screens/admin-release.js?v=67"></script>
+<script src="js/screens/admin-backups.js?v=67"></script>
+<script src="js/screens/admin-dictionnaire.js?v=67"></script>
+<script src="js/screens/admin-images.js?v=67"></script>
+<script src="js/screens/admin-doublons.js?v=67"></script>
+<script src="js/screens/admin-erreurs.js?v=67"></script>
+<script src="js/screens/admin-idees.js?v=67"></script>
+<script src="js/screens/admin-messages.js?v=67"></script>
+<script src="js/screens/admin-equipes.js?v=67"></script>
+<script src="js/screens/admin-moderateurs.js?v=67"></script>
+<script src="js/partage.js?v=67"></script>
+<script src="js/import.js?v=67"></script>
+<script src="js/completion.js?v=67"></script>
+<script src="js/echange-fichier.js?v=67"></script>
+<script src="js/generer.js?v=67"></script>
+<script src="js/maj-listes.js?v=67"></script>
+<script src="js/queue.js?v=67"></script>
+<script src="js/claude-passage.js?v=67"></script>
+<script src="js/dictionary.js?v=67"></script>
+<script src="js/doublons.js?v=67"></script>
+<script src="js/doublons-analyse.js?v=67"></script>
+<script src="js/images.js?v=67"></script>
+<script src="js/study.js?v=67"></script>
+<script src="js/story.js?v=67"></script>
+<script src="js/sentences.js?v=67"></script>
+<script src="js/ideas.js?v=67"></script>
+<script src="js/messages.js?v=67"></script>
+<script src="js/teams.js?v=67"></script>
+<script src="js/activity.js?v=67"></script>
+<script src="js/audio.js?v=67"></script>
+<script src="js/auditif.js?v=67"></script>
+<script src="js/notifications.js?v=67"></script>
+<script src="js/notif-invite.js?v=67"></script>
+<script src="js/moments.js?v=67"></script>
+<script src="js/progres.js?v=67"></script>
+<script src="js/changelog.js?v=67"></script>
+<script src="js/qrcode.js?v=67"></script>
+<script src="js/screens/a-propos.js?v=67"></script>
+<script src="js/tutorial.js?v=67"></script>
+<script src="js/ecrans.js?v=67"></script>
+<script src="js/app.js?v=67"></script>
 <!-- === FIABILITÉ DU CHARGEMENT (étape 62), partie 2 : après le chargement de la page, si l'appli ne s'est pas lancée
      (window.App absent, js/app.js absent, ou un script de l'appli non chargé : voir partie 1), bandeau simple
      « Chargement incomplet (connexion instable). Recharger » dans la langue connue (sinon celle du navigateur).

@@ -24,6 +24,7 @@ let currentScreen = "home";
 
 function screenFromHash() {
   const h = (location.hash || "").replace("#", "");
+  if (typeof Ecr !== "undefined" && Ecr.isFullHash(h)) return "settings";   // étape 67 : section des Réglages en plein écran (#reglages-<section>)
   return SCREENS.find(s => HASH_OF[s] === h) || "home";
 }
 function showScreen(name) {
@@ -37,12 +38,13 @@ function showScreen(name) {
   if (currentScreen === "requests" && !Queue.usable()) currentScreen = "settings"; // Demandes à Claude : mode Supabase seulement
   document.querySelectorAll(".screen").forEach(el => el.classList.toggle("active", el.id === "screen-" + currentScreen));
   document.querySelectorAll("nav.bottom button").forEach(b => b.classList.toggle("active", b.dataset.nav === currentScreen || (currentScreen === "stories" && b.dataset.nav === "lists") || (currentScreen === "rhythm" && b.dataset.nav === "settings") || (currentScreen === "auditory" && b.dataset.nav === "settings") || (currentScreen === "sentences" && b.dataset.nav === "stats") || (currentScreen === "ideas" && b.dataset.nav === "settings") || (currentScreen === "messages" && b.dataset.nav === "friends") || (currentScreen === "team" && b.dataset.nav === "friends")));   // étape 53 : Messages → Amis ; étape 54 : Équipe → Amis
+  if (typeof Ecr !== "undefined") Ecr.onShow(currentScreen, prevScreen);   // étape 67 : usage des fonctions (raccourcis de l'accueil)
   renderScreen();
   if (currentScreen === "team" && prevScreen !== "team") { try { Teams.enter(); } catch (e) {} }   // étape 54 : équipe relue à chaque ouverture
   window.scrollTo(0, 0);
 }
 function initNav() {
-  document.querySelectorAll("nav.bottom button").forEach(b => {
+  document.querySelectorAll("nav.bottom button[data-nav]").forEach(b => {   // étape 67 : « Plus » (#navMore, sans data-nav) est géré par js/ecrans.js
     b.addEventListener("click", () => {
       try { history.replaceState(null, "", "#" + HASH_OF[b.dataset.nav]); } catch (e) {}
       showScreen(b.dataset.nav);
@@ -188,6 +190,7 @@ function renderScreen() {
   renderPendingBadge();
   Friends.renderBadge();   // demandes d'amis reçues (étape 29)
   Streak.showNotices();   // messages de série en attente (pas pendant une session de révision)
+  if (typeof Ecr !== "undefined") Ecr.paintNav();   // étape 67 : barre du bas (« Plus » allumé, pastille)
 }
 function render() {
   if (Storage.getUser()) savePrefs(); // langue et thème repris sur l'écran de connexion

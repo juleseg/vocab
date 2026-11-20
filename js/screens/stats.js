@@ -8,6 +8,8 @@
 // italien compte deux fois (une par langue) ; filtre de langue = une seule langue. Bloc « Par langue étudiée ».
 // Étape 64 : cartes « 🌱 Mots appris cette semaine » (#stLearned, selon les filtres) et « 📉 Bilan d'oubli » (#stBilan,
 // tout le compte, bouton « Voir mon bilan ») — statsProgres, js/progres.js —, juste après les chiffres clés.
+// Étape 67 : l'essentiel d'abord (filtres et chiffres clés visibles) ; chaque autre bloc porte data-fold (clé) et data-fold-s
+// (petit résumé) et devient une carte repliable (js/ecrans.js, Ecr.folds ; état retenu sur l'appareil).
 const stv = { lang: "", scope: "", cap: "" };
 
 function catCounts(cards) {
@@ -119,11 +121,20 @@ function renderStats() {
   top.appendChild(tiles);
   if (rate.seen) top.appendChild(el("div", "hint", t("stats.rateHint", { c: rate.ok, s: rate.seen })));
   root.appendChild(top);
-  root.appendChild(statsProgres(cards));   // mots appris cette semaine, bilan d'oubli (étape 64, js/progres.js)
+  const fold = (node, key, sum, title) => {   // étape 67 : bloc repliable (js/ecrans.js)
+    if (!node) return node;
+    node.dataset.fold = "stats." + key;
+    if (sum != null) node.dataset.foldS = String(sum);
+    if (title) node.dataset.foldT = title;
+    return node;
+  };
+  const xs = XP.summary(), sk = Streak.data();
+  const pg = statsProgres(cards), pgN = pg.querySelector(".prg-tiles .st-num");
+  root.appendChild(fold(pg, "learned", t("ecr.sum.learned", { n: pgN ? pgN.textContent : 0 }), "ecr.fold.progres"));   // mots appris cette semaine, bilan d'oubli (étape 64, js/progres.js)
   const byL = statsByLang(cards, now);
-  if (byL) root.appendChild(byL);
-  root.appendChild(statsXp());       // XP, niveau, XP par langue, défis réussis (étape 43, js/xp.js)
-  root.appendChild(statsStreak());
+  if (byL) root.appendChild(fold(byL, "langs", t("ecr.sum.langs", { n: byL.querySelectorAll(".st-list").length })));
+  root.appendChild(fold(statsXp(), "xp", t("xp.level", { n: xs.level }) + " · " + t("ecr.sum.xp", { n: dashFmt(xs.total) })));       // XP, niveau, XP par langue, défis réussis (étape 43, js/xp.js)
+  root.appendChild(fold(statsStreak(), "streak", t("ecr.sum.streak", { n: sk.current, b: sk.best }), "sk.title"));
   const snEntry = sentenceStatsEntry();   // « ✍️ Mes phrases » (étape 58, mode Supabase)
   if (snEntry) root.appendChild(snEntry);
 
@@ -139,6 +150,7 @@ function renderStats() {
     grid.appendChild(cell);
   });
   cat.append(grid, catBar(n, cards.length));
+  fold(cat, "cat", ["known", "review", "unknown"].map(k => t("cat." + k) + " " + n[k]).join(" · "));
   const ra = retAvg(cards, now);   // rétention estimée (FSRS, étape 47)
   const rl = el("div", "fs-retline");
   rl.append(el("b", null, t("fsrs.estRet") + " : " + (ra ? t("stats.pct", { n: ra.pct }) : "—")),
@@ -161,7 +173,7 @@ function renderStats() {
     row.append(el("div", null, t("stats.box", { n: i })), tr, el("div", "st-n", String(v)));
     bx.appendChild(row);
   });
-  root.appendChild(bx);
+  root.appendChild(fold(bx, "box", t("ecr.sum.box0", { n: boxes[0] })));
 
   // Par type de carte (s'il y a plusieurs types dans le périmètre)
   const typesIn = CARD_TYPES.filter(ty => cards.some(c => cardType(c) === ty));
@@ -169,7 +181,7 @@ function renderStats() {
     const pt = el("div", "card");
     pt.appendChild(el("h2", null, t("stats.byType")));
     typesIn.forEach(ty => pt.appendChild(stGroupRow(TYPE_ICON[ty] + " " + t("type." + ty), cards.filter(c => cardType(c) === ty))));
-    root.appendChild(pt);
+    root.appendChild(fold(pt, "type", t("ecr.sum.types", { n: typesIn.length })));
   }
 
   // Par temps (cartes de conjugaison), dans l'ordre des temps de chaque langue
@@ -189,7 +201,7 @@ function renderStats() {
       row.querySelector(".st-list-sub").textContent += " · " + t(verbs > 1 ? "stats.verbs" : "stats.verb1", { n: verbs });
       ptn.appendChild(row);
     });
-    root.appendChild(ptn);
+    root.appendChild(fold(ptn, "tense", t("ecr.sum.tenses", { n: groups.size })));
   }
 
   // Par dossier (vue « tout », s'il y a des dossiers)
@@ -202,7 +214,7 @@ function renderStats() {
     });
     const loose = new Set(lists.filter(l => !l.folderId).map(l => l.id));
     if (loose.size) pf.appendChild(stGroupRow(t("folders.none"), cards.filter(c => loose.has(c.listId))));
-    if (pf.childNodes.length > 1) root.appendChild(pf);
+    if (pf.childNodes.length > 1) root.appendChild(fold(pf, "folder", t("ecr.sum.folders", { n: pf.childNodes.length - 1 })));
   }
 
   // Par liste (périmètre « tout » ou un dossier, s'il y a plusieurs listes)
@@ -210,7 +222,7 @@ function renderStats() {
     const pl = el("div", "card");
     pl.appendChild(el("h2", null, t("stats.byList")));
     scopeLists.forEach(l => pl.appendChild(stGroupRow(stv.scope ? l.name : listLabel(l), cards.filter(c => c.listId === l.id))));
-    root.appendChild(pl);
+    root.appendChild(fold(pl, "list", t("ecr.sum.lists", { n: scopeLists.length })));
   }
 
   // Mots les plus ratés (10 max)
@@ -233,8 +245,9 @@ function renderStats() {
     row.append(m, el("div", "cnt", t("stats.missedCount", { w: c.stats.wrong, s: c.stats.seen })));
     ms.appendChild(row);
   });
-  root.appendChild(ms);
-  root.appendChild(HardUI.statsCards(cards));   // mots difficiles, mots qui se ressemblent, en pause (étape 57)
+  root.appendChild(fold(ms, "missed", t("ecr.sum.words", { n: missed.length })));
+  root.appendChild(fold(HardUI.statsCards(cards), "hard", null, "ecr.fold.hard"));   // mots difficiles, mots qui se ressemblent, en pause (étape 57)
+  if (typeof Ecr !== "undefined") Ecr.folds(root);   // étape 67 : blocs repliables (aussi après un changement de filtre)
 }
 
 // Par langue étudiée (étape 37), s'il y en a plusieurs : cartes, à réviser, réussite, catégories, révisions sur 7 jours,

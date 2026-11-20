@@ -39,6 +39,11 @@ const Tutorial = (() => {
   }
   function inFixed(node) { return !!(node && node.closest("nav.bottom, header.top")); }
   function navBtn(name) { return document.querySelector('nav.bottom button[data-nav="' + name + '"]'); }
+  // Étape 67 : un onglet sorti de la barre du bas (ECR_BAR) est dans « Plus » (#navMore).
+  function navOrMore(name) { const b = navBtn(name); return b && !b.hidden ? b : $("#navMore"); }
+  // Étape 67 : ouvre la section des Réglages (sections repliées, js/ecrans.js) avant de la montrer.
+  function goSec(id) { go("settings"); if (typeof Ecr !== "undefined" && id) Ecr.openSec(id, true); }   // montrée, pas retenue
+  function foldOf(node) { return node && node.closest(".fold") ? node.closest(".fold") : node; }
   function reviewFree() { return typeof rv === "undefined" || !rv || rv.phase === "config"; }
   // Liste présentée : « Démo » (si elle existe et peut être modifiée), sinon la première liste modifiable.
   function demoList() {
@@ -59,7 +64,7 @@ const Tutorial = (() => {
   // show() : va sur le bon écran (sans rien modifier) ; target() : élément (ou éléments) à mettre en évidence ;
   // ok() : le point existe ici (sinon sauté) ; tryIt() : action « Essayer » (ouvre une fenêtre).
   const STEPS = [
-    { id: "langs", show: () => go("settings"), target: () => $("#langCard") },
+    { id: "langs", show: () => goSec("langs"), target: () => $("#langCard") },   // étape 67 : section « Langues »
     { id: "lists", show: () => { lv.listId = null; lv.query = ""; lv.reorder = false; go("lists"); renderLists(); },
       target: () => {
         const d = demoList();
@@ -76,11 +81,12 @@ const Tutorial = (() => {
       target: () => (reviewFree() ? $("#screen-review > .btn.primary") : null) },
     { id: "modes", ok: reviewFree, show: () => go("review"),
       target: () => (reviewFree() ? reviewField("review.mode") : null) },
-    { id: "pending", show: () => go("pending"), target: () => navBtn("pending") },
-    { id: "streak", show: () => go("home"), target: () => [$("#homeStreakCard"), $("#homeGoal")] },
-    { id: "xp", show: () => go("home"), target: () => [$("#homeXp"), $("#homeChallenges")] },   // XP et défis du jour (étape 43)
+    { id: "pending", show: () => go("pending"), target: () => navOrMore("pending") },   // étape 67 : dans « Plus »
+    { id: "streak", show: () => go("home"), target: () => [$("#homeDueCard"), $("#homeStreakCard"), $("#homeGoal")] },
+    { id: "short", show: () => go("home"), target: () => $("#homeShort") },   // raccourcis de l'accueil (étape 67)
+    { id: "xp", show: () => go("home"), target: () => [foldOf($("#homeLearned")), foldOf($("#homeXp")), foldOf($("#homeChallenges"))] },   // XP et défis du jour (étape 43) ; cartes repliables (étape 67)
     { id: "friends", show: () => go("friends"), target: () => navBtn("friends") },
-    { id: "settings", show: () => go("settings"), target: () => (shown($("#pushCard")) ? $("#pushCard") : navBtn("settings")) },
+    { id: "settings", show: () => { goSec(""); window.scrollTo(0, 0); }, target: () => [$("#setSearchBox"), $("#setSecs")] },   // étape 67 : recherche et sections repliées
     { id: "about", show: () => { go("settings"); window.scrollTo(0, 0); }, target: () => $("#btnAbout") }   // ⓘ À propos, dans l'en-tête, remonté en haut de page (étape 51)
   ];
   function targets(s) {

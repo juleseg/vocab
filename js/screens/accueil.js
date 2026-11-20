@@ -6,6 +6,8 @@
 // Étape 61 : boutons « ☀️ Rappel du matin » et « ⚡ 2 minutes » (#homeQuick), dessinés par renderMomentsHome (js/moments.js).
 // Étape 64 : carte « 🌱 Mots appris cette semaine » (#homeLearned) et rappel du lundi du bilan d'oubli (#homeBilanMon),
 //            dessinés par renderProgresHome (js/progres.js).
+// Étape 67 : en haut « À réviser » (touche = Réviser), série et objectif du jour (visibles) ; puis 4 raccourcis (#homeShort) ;
+//            « Mots appris », « XP et niveau » et « Défis du jour » en cartes repliables (data-fold, js/ecrans.js).
 function computeStreak() { return Streak.data().current; }
 function renderHome() {
   const now = Date.now();
@@ -43,4 +45,5 @@ function renderHome() {
   box.append(hd, bar, el("div", "sk-goal-txt", txt));
   renderProgresHome();   // mots appris cette semaine, rappel du lundi (étape 64, js/progres.js)
   renderHomeXp();   // niveau, XP et défis du jour (étape 43, js/xp.js)
+  if (typeof Ecr !== "undefined") Ecr.home();   // étape 67 : raccourcis et cartes repliables (js/ecrans.js)
 }

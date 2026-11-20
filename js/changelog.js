@@ -8,6 +8,29 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "67", date: "2026-11-20",
+    points: {
+      ko: [
+        "설정이 섹션으로 정리됐어요: 공개 범위, 알림, 학습, 계정과 데이터… 누르면 열리고, 위에서 설정을 검색할 수 있어요.",
+        "아래 메뉴가 간단해졌어요: 통계, 검토, 설정은 '더보기'에 있어요.",
+        "홈에 가장 많이 쓰는 기능 4개가 큰 버튼으로 나오고, 나머지 카드는 접어 둘 수 있어요 (통계도 같아요).",
+        "화면이 더 넓고 읽기 쉬워졌어요."
+      ],
+      fr: [
+        "Les réglages sont rangés en sections : Confidentialité, Notifications, Apprentissage, Compte et données… Touche pour ouvrir, ou cherche un réglage en haut.",
+        "Barre du bas plus simple : Stats, À valider et Réglages sont dans « Plus ».",
+        "L'accueil montre tes 4 fonctions les plus utilisées en gros boutons ; les autres cartes se replient (Stats aussi).",
+        "Écrans plus aérés et plus lisibles."
+      ],
+      en: [
+        "Settings are now grouped in sections: Privacy, Notifications, Learning, Account and data… Tap to open, or search for a setting at the top.",
+        "A simpler bottom bar: Stats, Pending and Settings are under “More”.",
+        "Home shows your 4 most used features as big buttons; the other cards fold away (Stats too).",
+        "Roomier, easier-to-read screens."
+      ]
+    }
+  },
+  {
     version: "66", date: "2026-11-20",
     points: {
       ko: [
