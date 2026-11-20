@@ -52,3 +52,29 @@ Object.assign(I18N.fr, {
   "al.a.admin_errors_state": "Erreurs : état changé",
   "al.a.admin_errors_export": "Erreurs : export CSV"
 });
+
+// === ÉTAPE 68 : ERREURS — SÉLECTION MULTIPLE ===
+Object.assign(I18N.fr, {
+  "cem.region": "Sélection des erreurs",
+  "cem.hint": "Cochez des erreurs pour changer leur état d'un coup. La sélection reste quand vous changez de page ; elle s'efface si vous changez un filtre.",
+  "cem.pick": "Sélectionner cette erreur",
+  "cem.n": "{n} erreur(s) sélectionnée(s)",
+  "cem.all": "Tout sélectionner ({n})",
+  "cem.clear": "Tout désélectionner",
+  "cem.allNote": "Toutes les erreurs de ces filtres, sur toutes les pages ({n}).",
+  "cem.act.fixed": "Marquer corrigée",
+  "cem.act.seen": "Marquer vue",
+  "cem.act.new": "Remettre en nouvelle",
+  "cem.title": "Changer l'état des erreurs",
+  "cem.will.fixed": "{n} erreur(s) passeront en « corrigée ».",
+  "cem.will.seen": "{n} erreur(s) passeront en « vue ».",
+  "cem.will.new": "{n} erreur(s) repasseront en « nouvelle ».",
+  "cem.same": "{n} sont déjà « {s} » : elles ne changent pas.",
+  "cem.fixedNote": "Version notée : v{v}. Une erreur qui revient dans une version plus récente redeviendra « nouvelle ».",
+  "cem.nothing": "Rien à changer : les {n} erreur(s) sélectionnée(s) sont déjà « {s} ».",
+  "cem.done.fixed": "{n} erreur(s) marquée(s) corrigée(s)",
+  "cem.done.seen": "{n} erreur(s) marquée(s) vue(s)",
+  "cem.done.new": "{n} erreur(s) remise(s) en nouvelle",
+  "cem.err.many": "5 000 erreurs au plus cochées une par une. Utilisez « Tout sélectionner ».",
+  "cem.missing": "Lancez le script SQL de l'étape 68 (supabase-etape68.sql) dans Supabase pour changer plusieurs erreurs d'un coup."
+});

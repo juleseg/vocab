@@ -88,3 +88,21 @@ nav.bottom button{min-height:64px;font-size:12.5px}
 .ecr-sc-t{font-size:16px;font-weight:700;line-height:1.25;overflow-wrap:anywhere}
 html[lang="ko"] .ecr-sc-t{word-break:keep-all}
 .ecr-sc-n{position:absolute;top:12px;right:12px;background:var(--accent);color:var(--accent-text)}
+
+/* === ERREURS : SÉLECTION MULTIPLE (ÉTAPE 68) === */
+.cem-bar{position:sticky;top:0;z-index:5;padding:12px 14px;margin:8px 0 10px}
+.cem-bar.on{border-color:var(--accent)}
+.cem-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 10px}
+.cem-n{font-weight:600}
+.cem-n.muted{font-weight:400;font-size:14px;line-height:1.4}
+.cem-links{display:flex;flex-wrap:wrap;gap:0 6px}
+.cem-links .link-btn{font-size:14px}
+.cem-allnote{margin:4px 0 0}
+.cem-acts{display:flex;gap:8px;margin-top:10px}
+.cem-acts .btn{width:auto;flex:1 1 0;min-width:0;min-height:48px;padding:6px 8px;font-size:14px;overflow-wrap:anywhere}
+.cem-item{display:flex;align-items:stretch;gap:0}
+.cem-item>.al-row{flex:1;min-width:0}
+.cem-pick{flex:0 0 auto;display:flex;align-items:center;justify-content:center;width:48px;min-height:48px;cursor:pointer}
+.cem-pick input{width:22px;height:22px;margin:0;accent-color:var(--accent);cursor:pointer}
+.cem-item.on>.al-row{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.cem-will{font-weight:600}

@@ -8,6 +8,20 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "68", date: "2026-11-20",
+    points: {
+      ko: [
+        "관리 → 오류: 오류를 여러 개 선택해서 한 번에 '해결됨', '확인함', '새 오류'로 바꿀 수 있어요."
+      ],
+      fr: [
+        "Administration → Erreurs : on peut cocher plusieurs erreurs et les passer d'un coup en « corrigée », « vue » ou « nouvelle »."
+      ],
+      en: [
+        "Admin → Errors: you can tick several errors and mark them “fixed”, “seen” or “new” in one go."
+      ]
+    }
+  },
+  {
     version: "67", date: "2026-11-20",
     points: {
       ko: [

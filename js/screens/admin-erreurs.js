@@ -12,6 +12,8 @@
 //   l'appli notée : une occurrence dans une version plus récente la rouvrira) et « Rouvrir ».
 // - Export CSV : une ligne par occurrence enregistrée, mêmes filtres (séparateur « ; », UTF-8 avec BOM).
 // - Script pas lancé : « Lancez le script SQL de l'étape 41 » (la capture reste sur l'appareil, sans erreur).
+// - Étape 68 : sélection multiple (cases à cocher, « Tout sélectionner » selon les filtres, barre d'actions) :
+//   section « ERREURS : SÉLECTION MULTIPLE (ÉTAPE 68) » à la fin de ce fichier ; fonction SQL admin_errors_set_state_bulk.
 const CE_PAGE = 50;
 const CE_KINDS = ["js", "promise", "sync", "supabase", "push"];
 const ce = { f: { state: "open", kind: "", version: "", user: "", days: "30" }, page: 0, data: null, loading: false, err: "", missing: false };
@@ -82,6 +84,7 @@ function renderAdminErrors() {
   bar.appendChild(csv);
   root.appendChild(bar);
   if (!ce.data.rows.length) { root.appendChild(el("div", "empty", t("ce.none"))); return; }
+  const tools = cemTools(); if (tools) root.appendChild(tools);   // étape 68 : sélection multiple
   const pages = Math.max(1, Math.ceil(ce.data.total / CE_PAGE));
   const pager = () => {
     if (pages < 2) return null;
@@ -97,7 +100,7 @@ function renderAdminErrors() {
   };
   const p1 = pager(); if (p1) root.appendChild(p1);
   const list = el("div", "al-list");
-  ce.data.rows.forEach(r => list.appendChild(ceRow(r)));
+  ce.data.rows.forEach(r => list.appendChild(cemRow(r, ceRow(r))));   // étape 68 : case à cocher
   root.appendChild(list);
   const p2 = pager(); if (p2) root.appendChild(p2);
 }
@@ -110,7 +113,7 @@ function ceFilters() {
     s.value = val;
     if (s.value !== val) s.value = "";
     s.setAttribute("aria-label", label);
-    s.addEventListener("change", () => { on(s.value); ce.page = 0; ceLoad(); });
+    s.addEventListener("change", () => { on(s.value); ce.page = 0; cemReset(); ceLoad(); });   // étape 68 : un filtre change = sélection effacée
     const w = el("label", "aq-f");
     w.append(el("span", null, label), s);
     box.appendChild(w);
@@ -226,4 +229,174 @@ async function ceExportCsv() {
   const okSave = await fxSave(name, inClaude() ? csv : new Blob([csv], { type: "text/csv;charset=utf-8" }));
   if (okSave === true) { toast(t("ce.csvDone", { n: rows.length })); Activity.log("admin_errors_export", { n: rows.length }); }
   else if (okSave !== "declined") showExportText(csv);
+}
+
+// === ERREURS : SÉLECTION MULTIPLE (ÉTAPE 68) ===
+// Case à cocher sur chaque erreur regroupée, « Tout sélectionner » (TOUTES les erreurs des filtres en cours, sur toutes les
+// pages, calculées par le serveur) et « Tout désélectionner ». Barre d'actions dès qu'une case est cochée (nombre sélectionné) :
+// « Marquer corrigée », « Marquer vue », « Remettre en nouvelle » → bilan demandé au serveur (p_dry) → UNE confirmation
+// (« 27 erreurs passeront en corrigée ») → admin_errors_set_state_bulk. Aucune suppression.
+// - Sélection gardée quand on change de page (et après « Actualiser ») ; effacée quand un filtre change (« Tout sélectionner »
+//   suit les filtres en cours) et après une action réussie.
+// - « Tout sélectionner » : cem.all = copie des filtres ; les cases décochées ensuite vont dans cem.except.
+// - Droits : case « Erreurs → corriger » (errors.act) des modérateurs ; sans elle, ni cases ni boutons. Le serveur contrôle
+//   aussi (perm_guard) et note l'action au journal sous le nom de la personne (admin_errors_state, n, bulk).
+// - « Corrigée » note la version de l'appli (APP_VERSION) : une erreur qui revient dans une version plus récente redevient
+//   « nouvelle » (règle de l'étape 41, côté serveur).
+const CEM_MAX = 5000;
+const CEM_ACTS = ["fixed", "seen", "new"];
+const cem = { ids: new Set(), except: new Set(), all: null, busy: false };
+
+function cemCan() { return typeof Mod === "undefined" || Mod.can("errors.act"); }
+function cemReset() { cem.ids.clear(); cem.except.clear(); cem.all = null; }
+function cemCount() { return cem.all ? Math.max(0, cem.all.total - cem.except.size) : cem.ids.size; }
+function cemHas(fp) { return cem.all ? !cem.except.has(fp) : cem.ids.has(fp); }
+function cemErrText(e) {
+  const h = String((e && e.hint) || "");
+  if (h === "ce_many") return t("cem.err.many");
+  if (alIsMissing(e)) return t("cem.missing");
+  if (h === "mod_denied" || String((e && e.code) || "") === "42501") return t("mod.denied");
+  return aqErrText(e);
+}
+// Coche / décoche une erreur. Renvoie false si la limite de 5 000 est atteinte (rien n'est changé).
+function cemToggle(fp, on) {
+  if (cem.all) {
+    if (on) cem.except.delete(fp);
+    else { if (cem.except.size >= CEM_MAX) return false; cem.except.add(fp); }
+    if (cemCount() <= 0) cemReset();
+  } else if (on) { if (cem.ids.size >= CEM_MAX) return false; cem.ids.add(fp); }
+  else cem.ids.delete(fp);
+  return true;
+}
+function cemSelectAll() {
+  cem.ids.clear(); cem.except.clear();
+  cem.all = { f: Object.assign({}, ce.f), total: ce.data ? ce.data.total : 0 };
+  if (cemCount() <= 0) cemReset();
+}
+function cemArgs(st) {
+  const a = { p_state: st, p_version: APP_VERSION, p_fps: null, p_filter: null, p_except: null };
+  if (cem.all) {
+    const f = cem.all.f;
+    a.p_filter = { state: f.state || "", version: f.version || "", user: f.user || "", kind: f.kind || "", days: alDays(f.days) };
+    a.p_except = Array.from(cem.except);
+  } else a.p_fps = Array.from(cem.ids);
+  return a;
+}
+
+// Case à cocher devant une ligne (la ligne reste un bouton qui ouvre le détail).
+function cemRow(r, node) {
+  if (!cemCan() || !r || !r.fingerprint) return node;
+  const fp = r.fingerprint;
+  const w = el("div", "cem-item" + (cemHas(fp) ? " on" : ""));
+  w.setAttribute("data-fp", fp);
+  const lab = el("label", "cem-pick");
+  const cb = el("input");
+  cb.type = "checkbox";
+  cb.checked = cemHas(fp);
+  cb.setAttribute("aria-label", t("cem.pick") + " : " + String(r.message || "").slice(0, 80));
+  cb.addEventListener("change", () => {
+    if (!cemToggle(fp, cb.checked)) { cb.checked = !cb.checked; toast(t("cem.err.many")); return; }
+    cemPaint();
+  });
+  lab.appendChild(cb);
+  w.append(lab, node);
+  return w;
+}
+
+// Barre de sélection (collée en haut de l'écran quand on fait défiler).
+function cemTools() {
+  if (!cemCan() || !ce.data) return null;
+  if (cem.all && !cem.busy) cem.all.total = ce.data.total;   // « Actualiser » : nombre relu
+  const box = el("div", "card cem-bar");
+  box.id = "cemBar";
+  box.setAttribute("role", "region");
+  box.setAttribute("aria-label", t("cem.region"));
+  cemFill(box);
+  return box;
+}
+function cemFill(box) {
+  box.textContent = "";
+  const n = cemCount();
+  box.classList.toggle("on", n > 0);
+  const top = el("div", "cem-top");
+  const st = el("span", "cem-n" + (n ? "" : " muted"), n ? t("cem.n", { n }) : t("cem.hint"));
+  st.setAttribute("aria-live", "polite");
+  top.appendChild(st);
+  const links = el("span", "cem-links");
+  const total = ce.data ? ce.data.total : 0;
+  if (total && !(cem.all && !cem.except.size)) {
+    const all = el("button", "link-btn", t("cem.all", { n: total }));
+    all.type = "button";
+    all.disabled = cem.busy;
+    all.addEventListener("click", () => { cemSelectAll(); cemPaint(); });
+    links.appendChild(all);
+  }
+  if (n) {
+    const none = el("button", "link-btn", t("cem.clear"));
+    none.type = "button";
+    none.disabled = cem.busy;
+    none.addEventListener("click", () => { cemReset(); cemPaint(); });
+    links.appendChild(none);
+  }
+  top.appendChild(links);
+  box.appendChild(top);
+  if (cem.all && n) box.appendChild(el("p", "hint cem-allnote", t("cem.allNote", { n })));
+  if (!n) return;
+  const acts = el("div", "cem-acts");
+  CEM_ACTS.forEach(s => {
+    const b = el("button", "btn" + (s === "fixed" ? " primary" : ""), t("cem.act." + s));
+    b.type = "button";
+    b.disabled = cem.busy;
+    b.addEventListener("click", () => cemAct(s));
+    acts.appendChild(b);
+  });
+  box.appendChild(acts);
+}
+// Met à jour la barre et les lignes affichées, sans refaire l'écran (le focus et la position restent).
+function cemPaint() {
+  if (currentScreen !== "adminerr") return;
+  const box = $("#cemBar");
+  if (box) cemFill(box);
+  document.querySelectorAll("#screen-adminerr .cem-item[data-fp]").forEach(w => {
+    const on = cemHas(w.getAttribute("data-fp"));
+    w.classList.toggle("on", on);
+    const cb = w.querySelector("input[type=checkbox]");
+    if (cb) cb.checked = on;
+  });
+}
+
+// Action de masse : bilan du serveur, une confirmation, puis le changement.
+async function cemAct(st) {
+  if (cem.busy || !cemCount()) return;
+  const args = cemArgs(st);
+  cem.busy = true; cemPaint();
+  let pre;
+  try { pre = await aqRpc("admin_errors_set_state_bulk", Object.assign({}, args, { p_dry: true })); }
+  catch (e) { cem.busy = false; cemPaint(); toast(cemErrText(e)); return; }
+  cem.busy = false; cemPaint();
+  const n = num(Number(pre && pre.changed), 0), same = num(Number(pre && pre.same), 0);
+  const body = el("div", "cem-confirm");
+  if (!n) {
+    body.appendChild(el("p", null, t("cem.nothing", { n: same, s: ceState(st).toLowerCase() })));
+    openModal(t("cem.title"), body, [{ label: t("close") }]);
+    return;
+  }
+  body.appendChild(el("p", "cem-will", t("cem.will." + st, { n })));
+  if (same) body.appendChild(el("p", "hint", t("cem.same", { n: same, s: ceState(st).toLowerCase() })));
+  if (st === "fixed") body.appendChild(el("p", "hint", t("cem.fixedNote", { v: APP_VERSION })));
+  openModal(t("cem.title"), body, [
+    { label: t("cancel") },
+    { label: t("cem.act." + st), kind: "primary", perm: "errors.act", onClick: () => { cemRun(st, args); } }
+  ]);
+}
+async function cemRun(st, args) {
+  if (cem.busy) return;
+  cem.busy = true; cemPaint();
+  try {
+    const r = await aqRpc("admin_errors_set_state_bulk", Object.assign({}, args, { p_dry: false }));
+    toast(t("cem.done." + st, { n: num(Number(r && r.changed), 0) }));
+    cemReset();
+  } catch (e) { toast(cemErrText(e)); }
+  cem.busy = false;
+  ceLoad();
 }

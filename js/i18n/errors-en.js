@@ -51,3 +51,29 @@ Object.assign(I18N.en, {
   "al.a.admin_errors_state": "Errors: status changed",
   "al.a.admin_errors_export": "Errors: CSV export"
 });
+
+// === ÉTAPE 68 : ERRORS — MULTIPLE SELECTION ===
+Object.assign(I18N.en, {
+  "cem.region": "Error selection",
+  "cem.hint": "Tick errors to change their status in one go. The selection stays when you change page; it is cleared if you change a filter.",
+  "cem.pick": "Select this error",
+  "cem.n": "{n} error(s) selected",
+  "cem.all": "Select all ({n})",
+  "cem.clear": "Deselect all",
+  "cem.allNote": "All errors matching these filters, on every page ({n}).",
+  "cem.act.fixed": "Mark as fixed",
+  "cem.act.seen": "Mark as seen",
+  "cem.act.new": "Set back to new",
+  "cem.title": "Change error status",
+  "cem.will.fixed": "{n} error(s) will be marked “fixed”.",
+  "cem.will.seen": "{n} error(s) will be marked “seen”.",
+  "cem.will.new": "{n} error(s) will be set back to “new”.",
+  "cem.same": "{n} are already “{s}”: they stay as they are.",
+  "cem.fixedNote": "Version recorded: v{v}. An error that comes back in a newer version will become “new” again.",
+  "cem.nothing": "Nothing to change: the {n} selected error(s) are already “{s}”.",
+  "cem.done.fixed": "{n} error(s) marked as fixed",
+  "cem.done.seen": "{n} error(s) marked as seen",
+  "cem.done.new": "{n} error(s) set back to new",
+  "cem.err.many": "At most 5,000 errors ticked one by one. Use “Select all”.",
+  "cem.missing": "Run the step 68 SQL script (supabase-etape68.sql) in Supabase to change several errors at once."
+});

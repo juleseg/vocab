@@ -51,3 +51,29 @@ Object.assign(I18N.ko, {
   "al.a.admin_errors_state": "오류: 상태 변경",
   "al.a.admin_errors_export": "오류: CSV 내보내기"
 });
+
+// === ÉTAPE 68 : 오류 — 여러 개 선택 ===
+Object.assign(I18N.ko, {
+  "cem.region": "오류 선택",
+  "cem.hint": "오류를 체크하면 상태를 한 번에 바꿀 수 있어요. 페이지를 넘겨도 선택은 유지되고, 필터를 바꾸면 지워져요.",
+  "cem.pick": "이 오류 선택",
+  "cem.n": "오류 {n}개 선택됨",
+  "cem.all": "모두 선택 ({n})",
+  "cem.clear": "모두 선택 해제",
+  "cem.allNote": "이 필터의 모든 오류, 모든 페이지 ({n}개).",
+  "cem.act.fixed": "해결됨으로 표시",
+  "cem.act.seen": "확인함으로 표시",
+  "cem.act.new": "새 오류로 되돌리기",
+  "cem.title": "오류 상태 바꾸기",
+  "cem.will.fixed": "오류 {n}개가 '해결됨'으로 바뀌어요.",
+  "cem.will.seen": "오류 {n}개가 '확인함'으로 바뀌어요.",
+  "cem.will.new": "오류 {n}개가 다시 '새 오류'가 돼요.",
+  "cem.same": "{n}개는 이미 '{s}' 상태라 그대로예요.",
+  "cem.fixedNote": "기록되는 버전: v{v}. 더 새 버전에서 같은 오류가 다시 생기면 '새 오류'로 돌아가요.",
+  "cem.nothing": "바꿀 것이 없어요: 선택한 오류 {n}개는 이미 '{s}' 상태예요.",
+  "cem.done.fixed": "오류 {n}개를 해결됨으로 표시했어요",
+  "cem.done.seen": "오류 {n}개를 확인함으로 표시했어요",
+  "cem.done.new": "오류 {n}개를 새 오류로 되돌렸어요",
+  "cem.err.many": "하나씩 체크할 수 있는 오류는 5,000개까지예요. '모두 선택'을 쓰세요.",
+  "cem.missing": "여러 오류를 한 번에 바꾸려면 Supabase에서 68단계 SQL 스크립트(supabase-etape68.sql)를 실행하세요."
+});
