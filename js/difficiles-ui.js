@@ -124,7 +124,6 @@ const HardUI = (() => {
     setTimeout(() => { try { ta.focus(); } catch (e) {} }, 60);
   }
   function exampleModal(c, L) {
-    const lg = gameLg(c, L);
     const cur = exEntry(c, L);
     const ta = taInput(cur ? cur.text : "", t("hd.example.ph"), L, 3);
     const wrap = el("div");

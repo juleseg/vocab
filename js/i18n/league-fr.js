@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : LIGUE DE LA SEMAINE ET DUELS (étape 44) — FRANÇAIS (fr) ===
+// === I18N : LIGUE DE LA SEMAINE ET DUELS (ÉTAPE 44) — FRANÇAIS (fr) ===
 // Fichier à part (les fichiers de langue principaux approchent la limite de taille), chargé après xp-fr.js.
 // Contient aussi les noms des règles de notification de l'étape 44 (np.rule.*).
 Object.assign(I18N.fr, {

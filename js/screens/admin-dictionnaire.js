@@ -145,11 +145,11 @@ function adPropRow(r, pending, bar) {
 }
 async function adDecide(ids, accept) {
   if (!ids.length) return;
-  let done = 0, skipped = 0;
+  let done = 0;
   try {
     for (let i = 0; i < ids.length; i += 200) {
       const r = await aqRpc("admin_dict_decide", { p_ids: ids.slice(i, i + 200), p_accept: accept });
-      done += num(Number(r && r.done), 0); skipped += num(Number(r && r.skipped), 0);
+      done += num(Number(r && r.done), 0);
     }
     Activity.log("admin_dict", { action: accept ? "accept" : "reject", n: done });
     toast(t("dict.decided", { n: done }));

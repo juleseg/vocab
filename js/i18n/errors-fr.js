@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : JOURNAL DES ERREURS (étape 41) — FRANÇAIS ===
+// === I18N : JOURNAL DES ERREURS (ÉTAPE 41) — FRANÇAIS ===
 // Fichier à part (fr.js approche la limite de taille), chargé après les fichiers de langue principaux.
 // Écran Administration → Erreurs (js/screens/admin-erreurs.js) et journal d'activité (actions admin).
 Object.assign(I18N.fr, {

@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : GUIDED TUTORIAL (étape 40) — ENGLISH ===
+// === I18N : GUIDED TUTORIAL (ÉTAPE 40) — ENGLISH ===
 // Fichier à part, chargé juste après les fichiers de langue principaux.
 Object.assign(I18N.en, {
   "tuto.label": "Tutorial",

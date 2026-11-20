@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : IMAGES SUR LES CARTES (étape 49) — FRANÇAIS (fr) ===
+// === I18N : IMAGES SUR LES CARTES (ÉTAPE 49) — FRANÇAIS (fr) ===
 // Éditeur de carte (photo, Wikimedia), affichage et agrandissement, réglage « Images » d'une liste, place utilisée,
 // fiche admin, onglet admin « Images » du dictionnaire. Fichier à part, chargé après release-fr.js.
 Object.assign(I18N.fr, {

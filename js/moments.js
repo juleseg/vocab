@@ -1,6 +1,6 @@
 "use strict";
 
-// === BONS MOMENTS POUR RÉVISER (étape 61) ===
+// === BONS MOMENTS POUR RÉVISER (ÉTAPE 61) ===
 // 1. Rappel du matin : les cartes vues (ou ratées) le soir — après l'heure du soir réglée (19 h par défaut) jusqu'à 4 h —
 //    sont reproposées le lendemain matin (de 4 h à midi) dans une petite session en mode Cartes (20 cartes au plus,
 //    ratées d'abord). Bouton sur l'Accueil avec le nombre de cartes ; il disparaît quand la session est finie (résumé

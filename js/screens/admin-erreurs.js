@@ -1,6 +1,6 @@
 "use strict";
 
-// === ADMINISTRATION : ERREURS (étape 41) ===
+// === ADMINISTRATION : ERREURS (ÉTAPE 41) ===
 // Écran #admin-erreurs (admin, mode Supabase). Fonctions SQL du script supabase-etape41.sql (security definer,
 // contrôle is_admin()) : admin_errors_list (liste regroupée, filtres, page), admin_error_detail, admin_error_set_state,
 // admin_errors_export. Textes : js/i18n/errors-<langue>.js.
@@ -17,15 +17,10 @@ const CE_KINDS = ["js", "promise", "sync", "supabase", "push"];
 const ce = { f: { state: "open", kind: "", version: "", user: "", days: "30" }, page: 0, data: null, loading: false, err: "", missing: false };
 
 function ceRerender() { if (currentScreen === "adminerr") renderAdminErrors(); }
-function ceIsMissing(e) {
-  const code = String((e && e.code) || ""), msg = String((e && (e.message || e.msg)) || "");
-  return ["PGRST202", "42883", "PGRST205", "42P01"].includes(code) || /could not find|does not exist|schema cache/i.test(msg);
-}
-function ceErrText(e) { return ceIsMissing(e) ? t("ce.missing") : aqErrText(e); }
-function ceDays(v) { return v === "1" ? 1 : v === "7" ? 7 : v === "30" ? 30 : null; }
+function ceErrText(e) { return alIsMissing(e) ? t("ce.missing") : aqErrText(e); }
 function ceArgs() {
   return { p_state: ce.f.state || null, p_version: ce.f.version || null, p_user: ce.f.user || null,
-           p_days: ceDays(ce.f.days), p_kind: ce.f.kind || null };
+           p_days: alDays(ce.f.days), p_kind: ce.f.kind || null };
 }
 function ceKind(k) { return I18N.fr["ce.k." + k] ? t("ce.k." + k) : String(k || ""); }
 function ceState(s) { return I18N.fr["ce.st." + s] ? t("ce.st." + s) : String(s || ""); }
@@ -42,7 +37,7 @@ async function ceLoad() {
                 versions: arr(r && r.versions), rows: arr(r && r.rows) };
     const pages = Math.max(1, Math.ceil(ce.data.total / CE_PAGE));
     if (ce.page > pages - 1 && ce.page > 0) { ce.page = pages - 1; ce.loading = false; return ceLoad(); }
-  } catch (e) { ce.data = null; ce.missing = ceIsMissing(e); ce.err = ceErrText(e); }
+  } catch (e) { ce.data = null; ce.missing = alIsMissing(e); ce.err = ceErrText(e); }
   ce.loading = false;
   ceRerender();
 }

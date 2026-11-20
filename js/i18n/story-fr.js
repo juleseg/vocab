@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : HISTOIRES AVEC MES MOTS (étape 45) — FRANÇAIS (fr) ===
+// === I18N : HISTOIRES AVEC MES MOTS (ÉTAPE 45) — FRANÇAIS (fr) ===
 // Fichier à part (les fichiers de langue principaux approchent la limite de taille), chargé après league-fr.js.
 Object.assign(I18N.fr, {
   "st.title": "Histoires",

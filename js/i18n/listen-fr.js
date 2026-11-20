@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : ÉCOUTE ET PAROLE (étape 46) — FRANÇAIS (fr) ===
+// === I18N : ÉCOUTE ET PAROLE (ÉTAPE 46) — FRANÇAIS (fr) ===
 // Modes Dictée et Prononciation. Fichier à part, chargé après story-fr.js.
 Object.assign(I18N.fr, {
   "mode.dictation": "Dictée",

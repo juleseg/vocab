@@ -1,8 +1,8 @@
 "use strict";
 
-// === I18N : APPRENTISSAGE AUDITIF (étape 55) — CORÉEN (ko) ===
+// === I18N : APPRENTISSAGE AUDITIF (ÉTAPE 55) — CORÉEN (ko) ===
 // Réglages → carte et écran « Apprentissage auditif », menu d'une liste, pause d'écoute pendant la révision.
-// Fichier à part (js/i18n/ko.js est à 106 Ko, limite 120 Ko), chargé après teams-en.js.
+// Fichier de textes de la fonction, chargé après teams-en.js.
 Object.assign(I18N.ko, {
   "aud.title": "듣기 학습",
   "aud.intro": "귀로 잘 외우는 분을 위해: 답한 뒤 앱이 카드를 소리 내어 반복해요 (예: “tree… 나무”).",

@@ -1,6 +1,6 @@
 "use strict";
 
-// === TUTORIEL GUIDÉ (étape 40) ===
+// === TUTORIEL GUIDÉ (ÉTAPE 40) ===
 // Visite guidée sur les vrais écrans de l'appli : l'élément présenté est mis en évidence (fond assombri autour),
 // une bulle l'explique en 1 à 2 phrases, avec « Précédent », « Suivant », « Passer » et l'avancement (ex. 3 / 10).
 // - Lancé tout seul à la première connexion d'un NOUVEAU compte (Tutorial.markNew à la création, auth.js), après

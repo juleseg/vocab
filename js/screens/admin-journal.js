@@ -1,7 +1,7 @@
 "use strict";
 
 // === ADMINISTRATION : JOURNAL D'ACTIVITÉ ===
-// (suite de la découpe : même section, fichier séparé pour rester sous 120 Ko)
+// (suite de la découpe : même section, fichier séparé ; taille visée depuis l'étape 65 : 60 Ko au plus par fichier)
 // --- Journal d'activité (admin, étape 24) : écran #admin-journal ---
 // Fonctions SQL du script supabase-etape24.sql : admin_activity_log (filtres, page), admin_devices, admin_activity_cleanup.
 // 50 lignes par page (seule la page affichée est dans le DOM). Filtres compte / type / période. Export CSV du journal filtré

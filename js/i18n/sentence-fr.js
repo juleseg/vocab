@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : « MA PHRASE » (étape 58) — FR ===
+// === I18N : « MA PHRASE » (ÉTAPE 58) — FR ===
 // Fichier à part (les fichiers de langue principaux approchent la limite de taille), chargé après story-fr.js.
 Object.assign(I18N.fr, {
   "sn.title": "Mes phrases",

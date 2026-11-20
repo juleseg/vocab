@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : VERSION UPDATES (étape 48) — ENGLISH (en) ===
+// === I18N : VERSION UPDATES (ÉTAPE 48) — ENGLISH (en) ===
 // Bandeau « Nouvelle version », écran « Mise à jour nécessaire », indicateur de synchro en pause, notification, onglet admin « Versions ».
 // Fichier à part, chargé après fsrs-en.js.
 Object.assign(I18N.en, {

@@ -1,6 +1,7 @@
 /* =====================================================================================
-   css/app-2.css — second fichier de styles (étape 63), chargé juste après css/app.css.
-   css/app.css approche 120 Ko : les nouvelles sections de styles vont ici, chacune avec son titre.
+   css/app-2.css — fichier des nouvelles sections de styles (depuis l'étape 63), chargé en dernier
+   (après css/app.css, app-admin.css, app-partage.css, app-jeux.css, app-amis.css, app-methodes.css : étape 65).
+   Les nouvelles sections de styles vont ici, chacune avec son titre (fichier à découper au-delà de 60 Ko).
    ===================================================================================== */
 
 /* === FAUX DOUBLONS DU DICTIONNAIRE (ÉTAPE 63) === */

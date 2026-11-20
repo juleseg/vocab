@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : 팀 (étape 54) — 한국어 ===
+// === I18N : 팀 (ÉTAPE 54) — 한국어 ===
 // Clés tm.* (utilisateur, js/teams.js), atm.* (admin, js/screens/admin-equipes.js), règles et modèles de notification
 // (np.rule.team_*, np.tpl.team_*), journal (al.a.admin_team, al.k.team_*), badge xp.badge.team1.
 // Coréen sans particules variables (이/가, 을/를) après un nom : tournures neutres.

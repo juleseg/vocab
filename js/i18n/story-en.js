@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : STORIES WITH MY WORDS (étape 45) — ENGLISH (en) ===
+// === I18N : STORIES WITH MY WORDS (ÉTAPE 45) — ENGLISH (en) ===
 // Fichier à part, chargé après league-en.js.
 Object.assign(I18N.en, {
   "st.title": "Stories",

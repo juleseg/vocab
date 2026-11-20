@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : JEUX D'ENTRAÎNEMENT (étape 42) — 한국어 ===
+// === I18N : JEUX D'ENTRAÎNEMENT (ÉTAPE 42) — 한국어 ===
 // Fichier à part (ko.js approche la limite de taille), chargé après les fichiers de langue principaux.
 Object.assign(I18N.ko, {
   "mode.mcq": "객관식", "mode.race": "60초 레이스", "mode.pairs": "짝 맞추기", "mode.order": "순서 맞추기",

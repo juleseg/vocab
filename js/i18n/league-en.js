@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : WEEKLY LEAGUE AND DUELS (étape 44) — ENGLISH (en) ===
+// === I18N : WEEKLY LEAGUE AND DUELS (ÉTAPE 44) — ENGLISH (en) ===
 // Fichier à part (les fichiers de langue principaux approchent la limite de taille), chargé après xp-en.js.
 Object.assign(I18N.en, {
   // League

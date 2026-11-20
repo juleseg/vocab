@@ -1,0 +1,94 @@
+/* =================================================================================================
+   css/app-methodes.css — méthodes d'apprentissage (étape 65)
+   Apprentissage auditif (55), mots difficiles (57), Ma phrase (58), genre des noms (60), bons moments (61).
+   Chargé juste après css/app-amis.css, avant css/app-2.css (où vont les nouvelles sections depuis l'étape 63).
+   ================================================================================================= */
+
+/* === APPRENTISSAGE AUDITIF (ÉTAPE 55) === */
+/* Écran « Apprentissage auditif » (#auditif) et fenêtre d'une liste : réutilisent .fs-entry, .fs-opt, .fs-name, .fs-desc */
+.aud-sec{margin-top:16px}
+.aud-sec:first-child{margin-top:0}
+.aud-h{font-size:16px;margin:0 0 8px}
+.aud-opts{gap:8px}
+.aud-opt{padding:12px 14px}
+.aud-dim{opacity:.55}
+.aud-rep button{font-weight:600}
+.aud-own{margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+.aud-modal{max-height:62vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* Pause d'écoute (Cartes, Interrogateur) : toute la carte se touche pour passer */
+.aud-pause{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;min-height:220px;justify-content:center;padding:24px 16px;border:2px solid var(--accent);color:var(--text);font:inherit;text-align:center;cursor:pointer;background:var(--surface);background:color-mix(in srgb,var(--accent) 7%,var(--surface))}
+.aud-lbl{font-size:14px;font-weight:700;color:var(--accent);animation:audPulse 1.4s ease-in-out infinite}
+.aud-word{font-size:32px;font-weight:800;line-height:1.2;overflow-wrap:anywhere;word-break:keep-all}
+.aud-tr{font-size:20px;color:var(--muted);overflow-wrap:anywhere;word-break:keep-all}
+.aud-hint{font-size:13px;color:var(--muted);margin-top:6px}
+.aud-next{width:100%;margin-top:12px}
+@keyframes audPulse{0%,100%{opacity:1}50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.aud-lbl{animation:none}}
+/* Mode Cartes : au dos, rappel des mots de la question (les deux langues visibles, étape 55) */
+.sw-other{margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:16px;font-weight:400;color:var(--muted);overflow-wrap:anywhere;word-break:keep-all;max-width:92%}
+
+/* === MOTS DIFFICILES (ÉTAPE 57) : badge, « Mon astuce », « Réparer ce mot », paires, listes Stats === */
+.hd-extras{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:-2px 0 10px}
+.hd-badge{display:inline-block;font-size:13px;font-weight:600;color:var(--warn);background:var(--surface2);border:1px solid var(--warn);border-radius:999px;padding:2px 10px}
+.tag.hd-tag{color:var(--warn)}
+.tag.hd-paused{color:var(--muted)}
+.hd-tip{flex:1 1 100%;min-width:0}
+.hd-tip-btn{padding:4px 0}
+.hd-tip-text{background:var(--surface2);border-radius:10px;padding:8px 12px;margin-top:4px;font-size:15px;overflow-wrap:anywhere}
+.hd-repair .hd-repair-word{font-size:22px;font-weight:700;text-align:center;margin:6px 0 14px;overflow-wrap:anywhere}
+.hd-repair .hd-opt{display:block;width:100%;text-align:left;margin-top:8px;min-height:44px}
+.hd-opt-hint{margin:2px 4px 0}
+.hd-pair{margin-top:12px}
+.hd-pair-title{font-weight:700;margin-bottom:8px}
+.hd-pair-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hd-pair-col{background:var(--surface2);border-radius:10px;padding:10px;min-width:0;text-align:center}
+.hd-pair-main{font-size:20px;font-weight:700;overflow-wrap:anywhere}
+.hd-pair-sub{font-size:14px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+.hd-prow{padding:10px 0;border-bottom:1px solid var(--border)}
+.hd-prow:last-child{border-bottom:0}
+.hd-prow .cnt{color:var(--bad);font-size:14px;margin-top:6px;text-align:center}
+.hd-card .hint{margin:0 0 8px}
+.hd-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.hd-mini{padding:6px 10px;min-height:36px;font-size:14px}
+.hd-go{margin-top:12px;width:100%}
+.hd-stats{display:block}
+.hd-stats > .card{margin-top:12px}
+@media (max-width:380px){.hd-pair-row{grid-template-columns:1fr}.hd-pair-main{font-size:18px}}
+/* === MA PHRASE (ÉTAPE 58, js/sentences.js) === */
+.sn-entry{width:100%;margin-top:12px}
+.sn-ta{width:100%;resize:vertical;min-height:84px}
+.sn-offer .hint{margin-top:8px}
+.sn-item{display:flex;flex-direction:column;gap:6px}
+.sn-tags{display:inline-flex;flex-wrap:wrap;gap:6px}
+.sn-st-pending{background:var(--surface2);color:var(--muted)}
+.sn-st-done{background:color-mix(in srgb,var(--good,#2e9d57) 18%,var(--surface));color:var(--text)}
+.sn-st-error{background:color-mix(in srgb,var(--bad,#d64545) 15%,var(--surface));color:var(--text)}
+.sn-lbl{font-size:12px;font-weight:700;color:var(--muted);margin-top:4px}
+.sn-text,.sn-expl{overflow-wrap:anywhere;word-break:keep-all;font-size:16px}
+.sn-fixed{font-weight:600}
+.sn-right{color:var(--accent);font-weight:600}
+.sn-btns{display:grid;gap:8px;margin-top:8px}
+.sn-used{font-size:14px;color:var(--muted)}
+
+/* === GENRE DES NOMS (ÉTAPE 60) === */
+.gd-m{color:var(--gd-m)} .gd-f{color:var(--gd-f)} .gd-mf{color:var(--gd-mf)}
+.gd-sym{display:inline-block;margin-left:.25em;font-size:.7em;font-weight:600;vertical-align:.12em;opacity:.9;font-style:normal}
+.gd-miss{cursor:default}
+.gd-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:8px 0;font-weight:600}
+.gd-choices{grid-template-columns:1fr 1fr}
+.gd-word{font-size:1.7em}
+.gd-fb{text-align:center}
+.gd-phrase{font-size:1.4em;font-weight:600}
+.gd-missed{display:flex;flex-direction:column;gap:4px;margin:10px 0;font-weight:600}
+.gd-chip-hint{margin:2px 0 8px}
+
+/* === BONS MOMENTS POUR RÉVISER (ÉTAPE 61, js/moments.js) === */
+.mom-home{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.mom-btn{display:flex;align-items:center;gap:10px;min-height:64px;padding:12px 14px;border-radius:16px;border:1px solid var(--border);background:var(--surface);color:var(--text);box-shadow:var(--shadow);cursor:pointer;text-align:left;font:inherit}
+.mom-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mom-btn.mom-morning{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.mom-ic{font-size:26px;flex:none;line-height:1}
+.mom-tx{display:flex;flex-direction:column;min-width:0;word-break:keep-all;overflow-wrap:anywhere}
+.mom-t{font-weight:700;font-size:17px}
+.mom-s{font-size:13px;opacity:.85;overflow-wrap:anywhere}
+.mom-sel{max-width:10em}

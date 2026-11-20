@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : JOURNAL DES ERREURS (étape 41) — ENGLISH ===
+// === I18N : JOURNAL DES ERREURS (ÉTAPE 41) — ENGLISH ===
 // Fichier à part (même règle que js/i18n/tutorial-en.js), chargé après les fichiers de langue principaux.
 Object.assign(I18N.en, {
   "ce.open": "Errors",

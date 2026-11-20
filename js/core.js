@@ -41,10 +41,11 @@ const CONFIG = {
   PV_CHUNK: 200          // « À valider » : propositions acceptées / refusées par paquet
 };
 // Numéro de la dernière étape réalisée : affiché en bas des Réglages, envoyé au journal d'activité et dans la fiche appareil.
-const APP_VERSION = "64";
+const APP_VERSION = "65";
 
 // === I18N ===
-// Textes de l'interface : un fichier par langue (js/i18n/ko.js, fr.js, en.js), chargés après languages.js.
+// Textes de l'interface : un fichier principal par langue (js/i18n/ko.js, fr.js, en.js), chargés après languages.js, puis
+// (étape 65) leurs suites admin-*, amis-*, notifs-*, dico-* et les fichiers de textes de chaque fonction.
 const I18N = {};
 
 function t(key, vars) {

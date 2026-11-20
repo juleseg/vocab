@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : GENRE DES NOMS (étape 60) — FRANÇAIS (fr) ===
+// === I18N : GENRE DES NOMS (ÉTAPE 60) — FRANÇAIS (fr) ===
 // Couleurs et symboles du genre, mode « le / la ? », badge « genre manquant ». Clés gd.* et mode.gender
 // Fichier à part, chargé après difficiles-fr.js.
 Object.assign(I18N.fr, {

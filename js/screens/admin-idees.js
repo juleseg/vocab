@@ -1,6 +1,6 @@
 "use strict";
 
-// === ADMINISTRATION : IDÉES (étape 52) ===
+// === ADMINISTRATION : IDÉES (ÉTAPE 52) ===
 // Écran #admin-idees (admin, mode Supabase). Fonctions SQL du script supabase-etape52.sql (security definer, contrôle
 // is_admin()) : admin_ideas_list (filtres, 50 par page), admin_idea_detail (ouvrir une idée « nouvelle » la passe à « vue »),
 // admin_idea_set (état + réponse), admin_idea_reward (seulement retenue / faite, raison obligatoire, une par idée),

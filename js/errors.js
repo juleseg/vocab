@@ -1,6 +1,6 @@
 "use strict";
 
-// === JOURNAL DES ERREURS (étape 41) ===
+// === JOURNAL DES ERREURS (ÉTAPE 41) ===
 // Capture les erreurs de l'appli et les envoie au serveur (script supabase-etape41.sql, fonction client_error_add),
 // sans jamais gêner l'utilisateur ni afficher d'erreur.
 // Chargé juste après core.js, pour attraper le plus tôt possible les erreurs des autres fichiers.

@@ -1,6 +1,6 @@
 "use strict";
 
-// === PROPOSITIONS D'AMÉLIORATION ET RÉCOMPENSES (étape 52) — CÔTÉ UTILISATEUR ===
+// === PROPOSITIONS D'AMÉLIORATION ET RÉCOMPENSES (ÉTAPE 52) — CÔTÉ UTILISATEUR ===
 // Mode Supabase seulement (script claude/supabase-etape52.sql). Textes : js/i18n/ideas-<langue>.js (clés ix.*).
 // - « 💡 Proposer une idée » (carte des Réglages #ideaCard et carte d'À propos) : fenêtre catégorie (nouvelle fonction /
 //   problème / contenu / autre), titre (80), texte (500) → idea_add. Limites du serveur : 3 par 24 h, 30 en attente,

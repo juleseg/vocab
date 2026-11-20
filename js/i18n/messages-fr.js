@@ -1,5 +1,5 @@
 "use strict";
-// === I18N : MESSAGES D'ENCOURAGEMENT ET MESSAGES DE L'ÉQUIPE (fr), étape 53 ===
+// === I18N : MESSAGES D'ENCOURAGEMENT ET MESSAGES DE L'ÉQUIPE (fr), ÉTAPE 53 ===
 // Clés mg.* (utilisateur, js/messages.js), amg.* (admin, js/screens/admin-messages.js), journal al.a.admin_message /
 // al.a.admin_cheer, règles de notification np.rule.cheer / np.rule.team_message (+ .d), modèles np.tpl.cheer / team_message.
 Object.assign(I18N.fr, {

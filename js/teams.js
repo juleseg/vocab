@@ -1,6 +1,6 @@
 "use strict";
 
-// === ÉQUIPES (étape 54) — CÔTÉ UTILISATEUR ===
+// === ÉQUIPES (ÉTAPE 54) — CÔTÉ UTILISATEUR ===
 // Mode Supabase seulement (script claude/supabase-etape54.sql). Textes : js/i18n/teams-<langue>.js (clés tm.*).
 // À ne pas confondre avec « L'équipe Vocab » (fil de messages avec l'admin, étape 53 : msg_team_send, js/messages.js).
 // - Une équipe par compte, 2 à 10 membres, chef / membre. Créer (nom 30 caractères + emoji de la liste fixe), inviter un ami

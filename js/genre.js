@@ -5,8 +5,8 @@
 // Le genre vient de la nature grammaticale de la carte pour la langue étudiée : nm / nmpl = masculin, nf / nfpl = féminin,
 // nmf = les deux. Couleur fixe partout où le mot de la langue étudiée est affiché (cartes, listes, révision, jeux) :
 // bleu = masculin (.gd-m), rouge = féminin (.gd-f), violet = les deux (.gd-mf) ; couleurs lisibles en clair et en sombre
-// (variables --gd-* de css/app.css, section GENRE DES NOMS).
-// Réglages (settings.gender = { colors, symbols }, normGender dans js/storage.js) : « colors » (activé par défaut) coupe les
+// (variables --gd-* de css/app-methodes.css, section GENRE DES NOMS).
+// Réglages (settings.gender = { colors, symbols }, normalisé par normalizeData dans js/storage.js) : « colors » (activé par défaut) coupe les
 // couleurs ; « symbols » (mode daltonien, désactivé par défaut) ajoute ♂ / ♀ / ⚥ à côté du mot, en plus de la couleur et
 // même si les couleurs sont coupées.
 // Mode rapide « le / la ? » (mode "gender" de Réviser) : le mot est affiché sans article, on choisit l'article. ENTRAÎNEMENT

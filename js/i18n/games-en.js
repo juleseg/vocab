@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : JEUX D'ENTRAÎNEMENT (étape 42) — ENGLISH ===
+// === I18N : JEUX D'ENTRAÎNEMENT (ÉTAPE 42) — ENGLISH ===
 // Separate file (en.js is close to the size limit), loaded after the main language files.
 Object.assign(I18N.en, {
   "mode.mcq": "Multiple choice", "mode.race": "60-second race", "mode.pairs": "Pairs", "mode.order": "Put in order",

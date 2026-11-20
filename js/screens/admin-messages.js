@@ -1,6 +1,6 @@
 "use strict";
 
-// === ADMINISTRATION : MESSAGES (étape 53) ===
+// === ADMINISTRATION : MESSAGES (ÉTAPE 53) ===
 // Écran #admin-messages (screen-adminmsg, admin et mode Supabase). Script claude/supabase-etape53.sql ; textes amg.* dans
 // js/i18n/messages-<langue>.js.
 // - Onglet « Conversations » : une conversation par compte (non lues d'abord, badge), recherche, « non lues seulement »,
@@ -67,10 +67,6 @@ async function amgLoadThread() {
   } catch (e) { amg.thread = null; amg.threadErr = amgErrText(e); if (Messages.isMissing(e)) amg.missing = true; }
   amg.threadLoading = false;
   amgRerender();
-}
-function amgCheerName(id) {
-  const m = arr(amg.cheers).find(x => x.id === id);
-  return m ? mgText(m, {}) : String(id || "");
 }
 
 function renderAdminMessages() {

@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : 버전 업데이트 (étape 48) — 한국어 (ko) ===
+// === I18N : 버전 업데이트 (ÉTAPE 48) — 한국어 (ko) ===
 // Bandeau « Nouvelle version », écran « Mise à jour nécessaire », indicateur de synchro en pause, notification, onglet admin « Versions ».
 // Fichier à part, chargé après fsrs-ko.js.
 Object.assign(I18N.ko, {

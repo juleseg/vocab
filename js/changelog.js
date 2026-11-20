@@ -1,12 +1,20 @@
 "use strict";
 
-// === NOUVEAUTÉS (CHANGELOG, étape 39) ===
+// === NOUVEAUTÉS (CHANGELOG, ÉTAPE 39) ===
 // Une entrée par version visible pour les utilisateurs, la plus récente EN PREMIER.
 // { version: "<APP_VERSION>", date: "AAAA-MM-JJ", points: { ko: [...], fr: [...], en: [...] } }
 // 2 à 5 points courts par version, simples, sans détail technique, dans les 3 langues de l'interface.
 // Règle de travail : chaque étape future ajoute son entrée ici (sauf les étapes sans changement visible).
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
+  {
+    version: "65", date: "2026-11-20",
+    points: {
+      ko: ["기술 점검: 앱을 더 가볍게 관리할 수 있도록 정리했어요."],
+      fr: ["Entretien technique : l'appli est plus légère à maintenir."],
+      en: ["Technical maintenance: the app is lighter to maintain."]
+    }
+  },
   {
     version: "64", date: "2026-11-20",
     points: {

@@ -1,6 +1,6 @@
 "use strict";
 
-// === NOMS DES TROIS LANGUES : APERÇU DE CARTE ET AIDE « ? » (étape 52, complément) ===
+// === NOMS DES TROIS LANGUES : APERÇU DE CARTE ET AIDE « ? » (ÉTAPE 52, complément) ===
 // Création de compte (auth.js) et Réglages → Langues (reglages.js) montrent les mêmes trois choix, dans cet ordre :
 //   1. Langue de l'appli (uiLang)  2. Langue apprise (target)  3. Langue d'aide, facultative (support du profil),
 // chacun avec une phrase courte, un aperçu en direct d'une carte d'exemple (mot dans la langue apprise en grand, puis

@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : RÉPÉTITION FSRS (étape 47) — FRANÇAIS (fr) ===
+// === I18N : RÉPÉTITION FSRS (ÉTAPE 47) — FRANÇAIS (fr) ===
 // Réglages → carte et écran « Rythme de révision » (taux de rétention visé), Stats (rétention estimée), réinitialiser la progression, message de migration.
 // Fichier à part, chargé après listen-fr.js.
 Object.assign(I18N.fr, {

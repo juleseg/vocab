@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : 내 단어로 만든 이야기 (étape 45) — 한국어 (ko) ===
+// === I18N : 내 단어로 만든 이야기 (ÉTAPE 45) — 한국어 (ko) ===
 // Fichier à part, chargé après league-ko.js.
 Object.assign(I18N.ko, {
   "st.title": "이야기",

@@ -1,0 +1,206 @@
+/* =================================================================================================
+   css/app-partage.css — partage, notifications, langues, dictionnaire, À propos, tutoriel (étape 65)
+   Partage (30), notifications (32, 34), profil de langues (35), dictionnaire commun (36), langues étudiées (37),
+   invitation aux notifications (38), À propos (39), tutoriel (40), journal des erreurs (41). Après css/app-admin.css.
+   ================================================================================================= */
+
+/* === PARTAGE (ÉTAPE 30) === */
+.sh-friends{display:flex;flex-direction:column;gap:6px}
+.sh-friend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:space-between}
+.sh-friend .check-row{flex:1 1 auto;min-width:0;margin:0}
+.sh-role{width:auto;min-width:0;flex:0 0 auto;padding:6px 8px;font-size:14px}
+.sh-members .am-btns{flex-wrap:wrap}
+.sh-line{color:var(--accent)}
+.sh-mark{font-size:13px}
+.sh-flag{color:var(--warn);font-size:12px;font-weight:600}
+.tag.sh-flag{border-color:var(--warn)}
+.sh-prog{display:flex;flex-direction:column;gap:2px}
+.sh-prog-row{font-size:14px;overflow-wrap:anywhere}
+.sh-prog-name{font-weight:600}
+.sh-fc-row{padding:6px 0;border-bottom:1px solid var(--border);overflow-wrap:anywhere}
+
+/* === STYLES : NOTIFICATIONS PUSH (ÉTAPE 32) === */
+.np-note{margin-top:0}
+.np-device{margin-bottom:10px}
+.np-dev-line{font-weight:600}
+.np-dev-line.ok{color:var(--ok)}
+.np-dev-line.bad{color:var(--bad)}
+.np-msg{background:var(--surface2);border-radius:12px;padding:10px 12px;margin:0 0 12px;font-size:15px}
+.np-h3{font-size:16px;margin:18px 0 6px}
+.card > .np-h3:first-child{margin-top:0}
+.np-sub{margin:0 0 10px}
+.np-times{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+.np-time{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted)}
+.np-banner{border-color:var(--accent)}
+.np-banner-t{font-weight:700;margin-bottom:4px}
+.np-banner .btns{margin-top:12px}
+.np-tabs{flex-wrap:wrap;margin-bottom:14px}
+.np-tabs button{flex:1 1 30%;font-size:15px}
+.np-texts{display:flex;flex-direction:column;gap:12px;margin:12px 0}
+.np-lang{display:flex;flex-direction:column;gap:6px}
+.np-lang-h{font-size:13px;color:var(--muted);font-weight:600}
+.np-vars{display:flex;flex-wrap:wrap;align-items:center;gap:2px}
+.np-vars .hint{margin:4px 6px 0 0}
+.np-var{border:1px solid var(--border);cursor:pointer;font-size:13px;padding:4px 8px;color:var(--text)}
+.np-nums{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.np-num{background:var(--surface2);border-radius:12px;padding:8px;text-align:center;display:flex;flex-direction:column}
+.np-num b{font-size:22px}
+.np-num span{font-size:12px;color:var(--muted)}
+.np-num.ok b{color:var(--ok)}
+@media (max-width:400px){.np-nums{grid-template-columns:repeat(2,1fr)}}
+.np-langseg{margin:8px 0}
+.np-mock{display:flex;gap:10px;align-items:flex-start;background:var(--surface2);border-radius:14px;padding:12px;box-shadow:var(--shadow)}
+.np-mock-ic{width:36px;height:36px;border-radius:8px;flex:none}
+.np-mock-tx{min-width:0;overflow-wrap:anywhere}
+.np-mock-app{font-size:12px;color:var(--muted)}
+.np-mock-t{font-weight:700}
+.np-mock-b{font-size:15px}
+.np-item .an-acts .btn{min-height:44px}
+.np-segres{font-size:14px;color:var(--muted);margin:6px 0}
+.np-picklist{max-height:50vh;overflow:auto}
+.np-hrow{text-align:left;width:100%}
+.np-hnums{font-size:13px;color:var(--muted);margin-top:6px}
+.np-fgrid .input{min-height:44px}
+.np-edit .aq-filters{margin-bottom:6px}
+
+/* === NOTIFICATIONS PROGRAMMÉES ET AUTOMATIQUES (ÉTAPE 34) === */
+.np-days{flex-wrap:wrap;margin:6px 0 10px}
+.np-days button{flex:1 0 13%;min-width:42px;font-size:14px;padding:8px 2px}
+.np-next{font-weight:600;margin-top:6px;overflow-wrap:anywhere}
+.np-rep{margin:8px 0}
+.np-edit .seg{margin:6px 0 8px}
+.np-why{margin:10px 0 0;font-size:15px;overflow-wrap:anywhere}
+.np-why-h{font-weight:600;margin-bottom:4px}
+
+/* === PROFIL DE LANGUES ET EXEMPLES (ÉTAPE 35) === */
+.prof-row { border-top: 1px solid var(--border); padding: 12px 0 4px; }
+.prof-row:first-of-type { border-top: 0; }
+.prof-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.prof-head b { font-size: 1.05rem; }
+.prof-head .link-btn { margin-left: auto; }
+.prof-head .link-btn:disabled { opacity: .35; }
+#langCard > .btn { margin-top: 8px; width: 100%; }
+.sw-ex .ex-main, .wr-ex .ex-main, .qz-ex .ex-main { font-style: italic; }
+.sw-ex .ex-tr, .wr-ex .ex-tr, .qz-ex .ex-tr { font-size: 0.85em; opacity: .75; margin-top: 2px; }
+
+/* === DICTIONNAIRE COMMUN (ÉTAPE 36) === */
+.dict-box:empty { display: none; }
+.dict-box { margin: 0 0 10px; }
+.dict-hint { margin: 0 0 6px; }
+.dict-sense { overflow-wrap: anywhere; }
+.dict-w { font-weight: 600; }
+.dict-w .pos { margin-left: 6px; }
+.dict-sub { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+.dict-box > .dict-sense { background: var(--surface2); border-radius: 10px; padding: 8px 10px; }
+.ad-tabs { margin: 8px 0 10px; }
+.ad-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 4px 0 8px; }
+.ad-bar .btns { flex: 1 0 100%; }
+.ad-words { padding: 2px 0; min-height: 0; text-align: left; overflow-wrap: anywhere; }
+.ad-meta { font-size: 0.8rem; margin-top: 4px; }
+.ad-pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 10px 0; }
+.ad-pager .btn { width: auto; min-width: 48px; }
+.ad-search { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 10px; }
+.ad-search .input { flex: 1 1 160px; min-width: 0; }
+.ad-search .btn { flex: 0 0 auto; width: auto; }
+.ad-vals { margin: 8px 0; }
+.ad-val { border-top: 1px solid var(--border); padding: 6px 0; overflow-wrap: anywhere; }
+.ad-val:first-child { border-top: 0; }
+.ad-val .pos { margin-left: 6px; }
+.ad-val .ex-main { font-style: italic; font-size: 0.9rem; }
+.ad-val .ex-tr { font-size: 0.85rem; opacity: .75; }
+.ad-sense > .btn { width: 100%; margin: 6px 0; }
+.ad-ver { border-top: 1px solid var(--border); padding: 6px 0; }
+.ad-ver-h { font-size: 0.9rem; overflow-wrap: anywhere; }
+.ad-ver .lv-links { margin: 0; }
+
+/* === LANGUES ÉTUDIÉES (ÉTAPE 37) === */
+.home-due-langs{margin-top:6px;font-size:13px;font-weight:600;color:var(--muted)}
+.study-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.study-pill{display:inline-block;max-width:100%;font-size:12px;font-weight:600;line-height:1.5;padding:1px 8px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--text);white-space:normal;overflow-wrap:anywhere}
+.study-pill.main{border-color:var(--accent);color:var(--accent)}
+.study-pill.gaps{border-color:var(--warn)}
+.study-list{display:flex;flex-direction:column}
+.study-row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--border)}
+.study-row:first-child{border-top:0}
+.study-row .main{flex:1;min-width:0}
+.study-row .t1{font-weight:600}
+.study-row .t2{font-size:13px;color:var(--muted);margin-top:2px}
+.study-tag{display:inline-block;margin-left:8px;font-size:11px;font-weight:700;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--accent-text);vertical-align:middle}
+.study-acts{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+.study-acts .link-btn{min-height:36px}
+.study-b{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--border);font-size:15px}
+.study-b.ok b{color:var(--ok)}
+.study-b.warn b{color:var(--warn)}
+.study-ok{color:var(--ok);font-weight:600}
+.study-sec{margin-top:14px;padding-top:10px;border-top:2px solid var(--border)}
+.study-sec-hd{font-weight:700;color:var(--accent);margin-bottom:6px}
+.study-word{color:var(--muted)}
+
+/* === INVITATION À ACTIVER LES NOTIFICATIONS (ÉTAPE 38) === */
+.ni-body{font-size:16px;line-height:1.45}
+.ni-body p{margin:0 0 12px}
+.ni-body .hint{font-size:14px}
+.ni-admin{white-space:pre-line}
+.ni-steps{margin:0 0 12px;padding:10px 12px 10px 30px;background:var(--bg);border:1px solid var(--border);border-radius:12px;font-size:15px;line-height:1.5}
+p.ni-steps{padding-left:12px}
+.ni-steps li{margin:2px 0}
+.modal .ni-body + .btns .btn{min-height:48px}
+.ni-intro{margin:4px 0 12px}
+.ni-sample{word-break:break-word}
+.ni-track-h{margin-top:18px}
+.ni-row .an-acts{margin-top:8px}
+
+/* === À PROPOS, PARTAGE ET NOUVEAUTÉS (ÉTAPE 39) === */
+header.top .top-right{display:flex;align-items:center;gap:4px}
+.about-btn{border:0;background:none;color:var(--muted);width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%}
+.about-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.about-btn:active{background:rgba(127,127,127,.15)}
+.ab-top{text-align:center}
+.ab-top .btn{margin-top:4px}
+.ab-name{font-size:24px;font-weight:700}
+.ab-desc{margin:8px 0 12px}
+.ab-share .btns{margin-top:4px}
+.ab-url{margin:12px 0 4px;text-align:center;font-size:14px;color:var(--muted);word-break:break-all;user-select:all}
+.ab-qr{display:flex;justify-content:center;margin-top:12px}
+.ab-qr svg{width:min(220px,70vw);height:auto;border-radius:12px;background:#fff}
+.ab-qr-help{text-align:center;margin:8px 0 0;font-size:14px}
+.ab-ver{padding:12px 0;border-top:1px solid var(--border)}
+.ab-ver.first{border-top:0;padding-top:4px}
+.ab-ver-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.ab-ver-head .muted{font-size:13px}
+.ab-points{margin:6px 0 0;padding-left:20px;line-height:1.45}
+.ab-points li{margin:3px 0}
+.wn-body .ab-points{margin-top:0}
+
+/* === TUTORIEL GUIDÉ (ÉTAPE 40) === */
+.tuto{position:fixed;inset:0;z-index:55}
+.tuto[hidden]{display:none}
+.tuto-block{position:fixed;inset:0;background:transparent}
+.tuto-hole{position:fixed;border-radius:14px;box-shadow:0 0 0 200vmax rgba(0,0,0,.62);outline:3px solid var(--accent);outline-offset:0;pointer-events:none;transition:top .2s,left .2s,width .2s,height .2s}
+.tuto-hole[hidden]{display:block;width:0!important;height:0!important;top:50%!important;left:50%!important;outline:0}
+.tuto-bubble{position:fixed;left:50%;transform:translateX(-50%);width:min(440px,calc(100vw - 24px));max-height:calc(100vh - 16px);overflow:auto;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:18px;padding:12px 16px 16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.tuto-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tuto-prog{font-size:.875rem;color:var(--muted);font-weight:600}
+.tuto-title{font-size:1.15rem;margin:0 0 6px}
+.tuto-text{font-size:1rem;line-height:1.45;margin:0 0 12px}
+.tuto-try{margin-bottom:8px;border-color:var(--accent);color:var(--accent);min-height:48px}
+.tuto-try[hidden]{display:none}
+.tuto-nav{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tuto-nav .btn{min-height:48px}
+.tuto-nav .btn:disabled{opacity:.45;cursor:default}
+.tuto-skip{font-size:.95rem;min-height:44px;padding:8px 0 8px 8px;text-align:right}
+.tuto-bubble button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.tuto-hole{transition:none}}
+html[lang="ko"] .tuto-title,html[lang="ko"] .tuto-text{word-break:keep-all;overflow-wrap:anywhere}
+
+/* === JOURNAL DES ERREURS (admin, ÉTAPE 41) === */
+.ce-counts{margin:0 0 4px}
+.ce-tags{display:flex;flex-wrap:wrap;gap:4px;align-items:baseline}
+.al-tag.ce-st-new{color:var(--bad)}
+.al-tag.ce-st-fixed{color:var(--ok)}
+.ce-msg{margin-top:4px;font-size:14px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ce-ul{margin:0;padding-left:18px;font-size:13px}
+.ce-ul li{margin:2px 0;overflow-wrap:anywhere}
+.ce-ul .link-btn{font-size:13px;padding:0 4px}
+.ce-acts{margin-top:14px}
+

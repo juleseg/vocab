@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : PROGRÈS VISIBLES (étape 64) — 한국어 ===
+// === I18N : PROGRÈS VISIBLES (ÉTAPE 64) — 한국어 ===
 // Mots appris cette semaine (Accueil, Stats), bilan d'oubli, rappel du lundi, confidentialité « mots appris », migration v8.
 Object.assign(I18N.ko, {
   "prg.home.title": "🌱 이번 주에 익힌 단어",

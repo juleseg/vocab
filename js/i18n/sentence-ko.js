@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : « MA PHRASE » (étape 58) — KO ===
+// === I18N : « MA PHRASE » (ÉTAPE 58) — KO ===
 // Fichier à part (les fichiers de langue principaux approchent la limite de taille), chargé après story-ko.js.
 Object.assign(I18N.ko, {
   "sn.title": "내 문장",

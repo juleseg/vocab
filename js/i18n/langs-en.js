@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : noms des trois langues, aperçu de carte et aide « ? » (étape 52, complément) — English ===
+// === I18N : noms des trois langues, aperçu de carte et aide « ? » (ÉTAPE 52, complément) — English ===
 Object.assign(I18N.en, {
   "lx.title": "Your languages",
   "lx.app": "App language",

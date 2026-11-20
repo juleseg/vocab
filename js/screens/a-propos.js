@@ -1,6 +1,6 @@
 "use strict";
 
-// === ÉCRAN : À PROPOS (étape 39) ===
+// === ÉCRAN : À PROPOS (ÉTAPE 39) ===
 // Ouvert depuis les Réglages (carte « À propos ») et depuis le bouton ⓘ de l'en-tête (#a-propos).
 // Nom et version de l'appli, « Revoir le tutoriel » (affiché seulement quand le tutoriel existe : étape 40),
 // partage de l'appli (Partager / Copier le lien / QR code), puis toutes les nouveautés (js/changelog.js).
@@ -143,7 +143,7 @@ function renderAbout() {
   }
 }
 
-// === QUOI DE NEUF (étape 39) ===
+// === QUOI DE NEUF (ÉTAPE 39) ===
 // Une seule fois au premier lancement d'une nouvelle version, sur chaque appareil et pour chaque compte
 // (vocabfr.whatsnew:<identifiant> = dernière version présentée). Lancée APRÈS les autres fenêtres du lancement
 // (migration / sauvegarde / conflit, annonces, invitation aux notifications) et jamais par-dessus : whenNoModal.

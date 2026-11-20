@@ -1,6 +1,6 @@
 "use strict";
 
-// === ADMINISTRATION : ÉQUIPES (étape 54) ===
+// === ADMINISTRATION : ÉQUIPES (ÉTAPE 54) ===
 // Écran « Équipes » (#admin-equipes, screen-adminteam ; admin et mode Supabase) : liste des équipes (recherche par nom ou
 // identifiant d'un membre, 50 par page) avec taille, chef, score et objectif de la semaine ; détail d'une équipe (membres
 // avec XP et cartes de la semaine, série — sans confidentialité pour l'admin —, invitations en attente, objectif, listes

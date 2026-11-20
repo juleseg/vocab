@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : ÉQUIPES (étape 54) — FRANÇAIS ===
+// === I18N : ÉQUIPES (ÉTAPE 54) — FRANÇAIS ===
 // Clés tm.* (utilisateur, js/teams.js), atm.* (admin, js/screens/admin-equipes.js), règles et modèles de notification
 // (np.rule.team_*, np.tpl.team_*), journal (al.a.admin_team, al.k.team_*), badge xp.badge.team1.
 // « Équipe » ici = équipe d'amis ; « L'équipe Vocab » (messages de l'étape 53) garde ses clés mg.*.

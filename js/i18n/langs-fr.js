@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : noms des trois langues, aperçu de carte et aide « ? » (étape 52, complément) — français ===
+// === I18N : noms des trois langues, aperçu de carte et aide « ? » (ÉTAPE 52, complément) — français ===
 // Langue de l'appli (uiLang), langue apprise (target), langue d'aide facultative (support du profil).
 Object.assign(I18N.fr, {
   "lx.title": "Tes langues",

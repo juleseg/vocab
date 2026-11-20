@@ -1,5 +1,5 @@
 "use strict";
-// === I18N : PROPOSITIONS D'AMÉLIORATION ET RÉCOMPENSES (fr), étape 52 ===
+// === I18N : PROPOSITIONS D'AMÉLIORATION ET RÉCOMPENSES (fr), ÉTAPE 52 ===
 // Clés ix.* (utilisateur, js/ideas.js), aix.* (admin, js/screens/admin-idees.js), badge xp.badge.idea1,
 // journal al.a.admin_idea, règle de notification np.rule.idea_reply (+ .d).
 Object.assign(I18N.fr, {

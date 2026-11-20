@@ -63,7 +63,6 @@ function storiesOf(listId) { return state.stories && Array.isArray(state.stories
 function storyGet(listId, id) { return storiesOf(listId).find(s => s.id === id) || null; }
 
 // --- Mots d'une liste dans une langue ---
-function storyFirstForm(s) { return String(s || "").split("/")[0].trim(); }
 // Langues de traduction d'une langue étudiée L dans cette liste (interface, puis appui).
 function storyLg(l, L) { const lg = listLangs(l); return L === lg.target ? lg : studyLg(L); }
 // Langue des traductions de l'histoire : celle de l'interface (sinon la 1re langue d'appui).
@@ -71,7 +70,7 @@ function storyTrLang(l, L) { const ui = state.settings.uiLang; return ui !== L ?
 // Cartes de vocabulaire de la liste qui ont un mot dans la langue L : [{ c, w, tr, score }].
 function storyCandidates(l, L) {
   const lg = storyLg(l, L), now = Date.now();
-  return cardsOf(l.id).filter(c => isVocab(c) && storyFirstForm(term(c, L))).map(c => {
+  return cardsOf(l.id).filter(c => isVocab(c) && gameFirstAlt(term(c, L))).map(c => {
     const P = Leitner.prog(c, L) || {}, st = P.stats || {};
     const cat = Leitner.category(c, L);
     // « À revoir » d'abord : à réviser aujourd'hui, pas su (déjà vu), boîtes 1-2 ; puis les plus ratés.
@@ -80,7 +79,7 @@ function storyCandidates(l, L) {
     if (cat === "unknown" && num(st.seen, 0) > 0) score += 4;
     if (num(P.dueAt, 0) <= now && num(st.seen, 0) > 0) score += 2;
     score += Math.min(3, num(st.wrong, 0) / 2);
-    const trs = lg.support.map(x => storyFirstForm(term(c, x))).filter(Boolean);
+    const trs = lg.support.map(x => gameFirstAlt(term(c, x))).filter(Boolean);
     return { c, w: term(c, L).trim(), tr: trs.join(" · "), score, seen: num(st.seen, 0) };
   });
 }
@@ -335,7 +334,7 @@ function openStoryPrepare(req) {
 }
 function openStoryReply(req) {
   const wrap = el("div");
-  wrap.appendChild(el("p", "muted", t("st.replyHelp", { words: req.words.map(w => storyFirstForm(w.w)).join(", ") })));
+  wrap.appendChild(el("p", "muted", t("st.replyHelp", { words: req.words.map(w => gameFirstAlt(w.w)).join(", ") })));
   const ta = el("textarea");
   ta.spellcheck = false;
   ta.setAttribute("autocapitalize", "off"); ta.setAttribute("autocorrect", "off");
@@ -498,7 +497,7 @@ function storyWordPopup(s, w) {
   const trs = lg ? lg.support.map(x => [x, term(c, x)]).filter(x => x[1]) : [];
   if (trs.length) trs.forEach(([x, v]) => body.appendChild(el("div", "sy-poptr", x.toUpperCase() + " · " + v)));
   else if (w.tr) body.appendChild(el("div", "sy-poptr", w.tr));
-  if (w.f && normText(w.f) !== normText(storyFirstForm(w.w))) body.appendChild(el("div", "muted", t("st.inText", { f: w.f })));
+  if (w.f && normText(w.f) !== normText(gameFirstAlt(w.w))) body.appendChild(el("div", "muted", t("st.inText", { f: w.f })));
   const acts = [];
   if (Speech.has(s.lang)) acts.push({ label: "🔊 " + t("st.listen"), kind: "primary", onClick: () => { Speech.speakSeq([{ text: c ? term(c, s.lang) || w.w : w.w, lng: s.lang }]); return false; } });
   acts.push({ label: t("close") });
@@ -568,7 +567,7 @@ function renderStoryRead(root, l, s) {
   if (s.words.length) {
     const wb = el("div", "sy-wlist");
     wb.appendChild(el("span", "muted", t("st.wordsUsed", { n: s.words.length }) + " "));
-    s.words.forEach(w => { const b = el("button", "sy-hl sy-chip", storyFirstForm(w.w)); b.type = "button"; b.addEventListener("click", () => storyWordPopup(s, w)); wb.appendChild(b); });
+    s.words.forEach(w => { const b = el("button", "sy-hl sy-chip", gameFirstAlt(w.w)); b.type = "button"; b.addEventListener("click", () => storyWordPopup(s, w)); wb.appendChild(b); });
     root.appendChild(wb);
   }
   // Histoire lue

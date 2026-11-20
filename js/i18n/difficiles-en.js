@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : MOTS DIFFICILES (étape 57) — ENGLISH (en) ===
+// === I18N : MOTS DIFFICILES (ÉTAPE 57) — ENGLISH (en) ===
 // Badge, « Réparer ce mot », « Mon astuce », paires, listes Stats, choix de session. Clés hd.*
 // Fichier à part, chargé après auditif-en.js.
 Object.assign(I18N.en, {

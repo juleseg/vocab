@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : TUTORIEL GUIDÉ (étape 40) — FRANÇAIS ===
+// === I18N : TUTORIEL GUIDÉ (ÉTAPE 40) — FRANÇAIS ===
 // Fichier à part (fr.js approche la limite de taille), chargé juste après les fichiers de langue principaux.
 Object.assign(I18N.fr, {
   "tuto.label": "Tutoriel",

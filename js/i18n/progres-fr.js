@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : PROGRÈS VISIBLES (étape 64) — FRANÇAIS ===
+// === I18N : PROGRÈS VISIBLES (ÉTAPE 64) — FRANÇAIS ===
 // Mots appris cette semaine (Accueil, Stats), bilan d'oubli, rappel du lundi, confidentialité « mots appris », migration v8.
 Object.assign(I18N.fr, {
   "prg.home.title": "🌱 Mots appris cette semaine",

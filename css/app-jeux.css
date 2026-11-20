@@ -1,0 +1,354 @@
+/* =================================================================================================
+   css/app-jeux.css — jeux, XP, ligue, histoires, écoute, FSRS, versions, images, sauvegardes (étape 65)
+   Étapes 42 à 50. Chargé juste après css/app-partage.css.
+   ================================================================================================= */
+
+/* === JEUX D'ENTRAÎNEMENT (ÉTAPE 42) : QCM, Course 60 s, Paires, Remettre en ordre === */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.gm-meta{align-items:center;font-size:15px}
+.gm-left{font-weight:600;color:var(--text)}
+.gm-left.gm-hurry{color:var(--bad)}
+.gm-score{font-weight:600;white-space:nowrap}
+.gm-okn{color:var(--ok)}.gm-badn{color:var(--bad)}
+.gm-recline{font-size:13px;color:var(--muted);text-align:right;margin:-4px 0 8px}
+.gm-q{position:relative;text-align:center;padding:18px 16px}
+.gm-q .sw-lang{font-size:13px;color:var(--muted)}
+.gm-qmain{font-size:28px;font-weight:700;line-height:1.25;margin:6px 0;overflow-wrap:anywhere;word-break:keep-all}
+.gm-qsub,.gm-qtr{color:var(--muted);font-size:16px;overflow-wrap:anywhere;word-break:keep-all}
+.gm-qtr{color:var(--text);font-size:18px;font-weight:600;margin:4px 0}
+.gm-ask{font-size:14px;color:var(--muted);margin-top:8px}
+.gm-q .gm-spk{position:absolute;top:10px;right:10px}
+.gm-choices{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+.gm-choice{min-height:56px;padding:10px 14px;border-radius:14px;border:2px solid var(--border);background:var(--surface);font-size:19px;font-weight:600;cursor:pointer;text-align:center;line-height:1.25;overflow-wrap:anywhere;word-break:keep-all;touch-action:manipulation}
+.gm-choice.right{border-color:var(--ok);color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
+.gm-choice.wrong{border-color:var(--bad);color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.gm-after{min-height:8px;margin-bottom:6px}
+.gm-after .btn{margin-top:4px}
+.gm-hint{font-size:14px;color:var(--muted);text-align:center;margin-bottom:6px}
+.au-switch.gm-au{min-height:48px;padding:2px 8px 2px 14px;margin-bottom:6px}
+.au-switch.gm-au .au-track{transform:scale(.8);transform-origin:right center}
+.gm-pairs-prog{font-weight:600;white-space:nowrap}
+.gm-pairs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;margin-bottom:8px}
+.gm-tile{min-width:0;min-height:46px;padding:6px 8px;border-radius:12px;border:2px solid var(--border);background:var(--surface);font-size:16px;font-weight:600;line-height:1.2;cursor:pointer;overflow-wrap:anywhere;word-break:keep-all;hyphens:auto;touch-action:manipulation}
+.gm-tile.sel{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+.gm-tile.done{opacity:.35;border-style:dashed;cursor:default}
+.gm-ans{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;min-height:64px;padding:10px;margin-bottom:12px;border:2px dashed var(--border);border-radius:14px;background:var(--surface2)}
+.gm-ans.right{border-color:var(--ok);border-style:solid}
+.gm-ans.wrong{border-color:var(--bad);border-style:solid}
+.gm-pool{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:56px;margin-bottom:12px}
+.gm-tl{min-width:44px;min-height:46px;padding:6px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow);font-size:20px;font-weight:600;cursor:pointer;word-break:keep-all;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.gm-ans.sent .gm-tl,.gm-pool .gm-tl{font-size:18px}
+.gm-tl.placed{background:var(--surface);border-color:var(--accent)}
+.gm-tl:disabled{cursor:default;opacity:1;color:inherit}
+.gm-ans.right .gm-tl{border-color:var(--ok);color:var(--ok)}
+.gm-ans.wrong .gm-tl{border-color:var(--bad);color:var(--bad)}
+.gm-slot{display:inline-block;width:40px;height:46px;border-radius:10px;border:2px dashed var(--border)}
+.gm-slot.wide{width:56px}
+.gm-gap{display:inline-block;width:14px}
+.gm-res{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;font-weight:600;margin-bottom:8px;text-align:center}
+.gm-res.ok{color:var(--ok)}.gm-res.bad{color:var(--bad)}
+.gm-res-a{color:var(--text);font-size:19px;word-break:keep-all}
+.gm-sum h2{overflow-wrap:anywhere}
+.gm-rec{color:var(--warn)}
+.gm-sndic{font-size:20px;line-height:1}
+.gm-ok{animation:gmOk .45s ease 1}
+.gm-bad{animation:gmBad .4s ease 1}
+@keyframes gmOk{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes gmBad{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+@media (prefers-reduced-motion: reduce){.gm-ok,.gm-bad{animation:none}}
+@media (max-width:360px){.gm-tile{font-size:15px;padding:6px}.gm-qmain{font-size:24px}.gm-tl{font-size:18px;padding:6px 9px}}
+.gm-sum .sum-num{font-size:28px;white-space:nowrap}
+
+/* === XP, NIVEAUX, DÉFIS DU JOUR ET BADGES (ÉTAPE 43) === */
+.xp-home{margin-top:14px}
+.xp-lvl-hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.xp-lvl-n{font-weight:800;font-size:18px}
+.xp-lvl-x{font-weight:600;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.xp-bar > span{background:var(--accent)}
+.xp-lvl-sub{font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.xp-chall{margin-top:14px}
+.xp-ch{list-style:none;margin:10px 0 6px;padding:0;display:flex;flex-direction:column;gap:10px}
+.xp-ch-row{display:flex;align-items:center;gap:10px;min-width:0}
+.xp-ch-ic{font-size:22px;line-height:1;flex:none;width:28px;text-align:center}
+.xp-ch-mid{flex:1;min-width:0}
+.xp-ch-lbl{font-size:15px;font-weight:600;overflow-wrap:anywhere;word-break:keep-all}
+.xp-ch-bar{height:8px;margin:5px 0 0}
+.xp-ch-bar > span{background:var(--accent)}
+.xp-ch-bar.done > span{background:var(--ok)}
+.xp-ch-v{flex:none;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--muted)}
+.xp-ch-row.done .xp-ch-lbl{color:var(--muted);text-decoration:line-through}
+.xp-ch-row.done .xp-ch-v{color:var(--ok)}
+.xp-h3{font-size:15px;margin:14px 0 6px}
+.xp-langs td,.xp-langs th{white-space:nowrap}
+.xp-gain{margin-top:10px;text-align:center;font-weight:800;font-size:18px;color:var(--accent)}
+.xp-pop .ic{animation:xpRise 1s ease 1}
+.xp-pop.xp-lvl .tx{font-size:22px;color:var(--accent)}
+@keyframes xpRise{0%{transform:translateY(16px) scale(.6);opacity:0}60%{transform:translateY(-4px) scale(1.15);opacity:1}100%{transform:none}}
+@media (prefers-reduced-motion: reduce){.xp-pop .ic{animation:none}}
+
+/* === LIGUE DE LA SEMAINE ET DUELS (ÉTAPE 44) === */
+.lg-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:6px;margin:4px 0 10px;text-align:center}
+.lg-step{display:flex;flex-direction:column;align-items:center;min-width:0}
+.lg-medal{font-size:26px;line-height:1.1}
+.lg-name{font-weight:700;font-size:14px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg-xp{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.lg-block{width:100%;margin-top:4px;border-radius:10px 10px 4px 4px;background:var(--surface2);border:1px solid var(--border)}
+.lg-step1 .lg-block{height:56px;background:color-mix(in srgb,var(--warn) 28%,var(--surface2))}
+.lg-step2 .lg-block{height:40px}
+.lg-step3 .lg-block{height:28px}
+.lg-step.me .lg-name{color:var(--accent)}
+.lg-me{font-weight:700;margin:6px 0 8px;overflow-wrap:anywhere}
+.lg-prev{margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
+.lg-prev .lg-podium .lg-block{opacity:.7}
+.du-card .du-new{margin:2px 0 6px}
+.du-create{display:flex;flex-direction:column;gap:10px;min-width:0}
+.du-f{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted)}
+.du-f .input{font-size:16px;color:var(--text)}
+.du-ok{color:var(--ok);font-weight:600;margin:0}
+.du-create .q-err,.du-create .hint{margin:0}
+.du-timer{height:8px;margin:2px 0 10px}
+.du-timer > span{background:var(--accent);transition:width .2s linear}
+.du-sum{text-align:center}
+.du-verdict{font-size:26px}
+.du-verdict.me{color:var(--ok)}
+.du-verdict.other{color:var(--bad)}
+.du-score{font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+@media (prefers-reduced-motion: reduce){.du-timer > span{transition:none}}
+
+/* === HISTOIRES AVEC MES MOTS (ÉTAPE 45) === */
+.sy-create .sy-langone{padding:10px 12px;background:var(--surface2);border-radius:10px}
+.sy-count{font-size:14px;color:var(--muted);margin:2px 0 4px}
+.sy-count.bad{color:var(--bad)}
+.sy-wtools{display:flex;flex-wrap:wrap;gap:4px 14px;margin-bottom:6px}
+.sy-wsearch{margin-bottom:6px}
+.sy-words{max-height:38vh;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:4px 8px;background:var(--surface)}
+.sy-words .sy-wrow{display:flex;align-items:center;gap:10px;padding:8px 2px;margin:0;border-bottom:1px solid var(--border);cursor:pointer;min-height:44px;font-size:17px;font-weight:400;color:var(--text)}
+.sy-words .sy-wrow:last-child{border-bottom:0}
+.sy-wrow input{width:20px;height:20px;flex:none;margin:0}
+.sy-wtxt{flex:1;min-width:0;overflow-wrap:anywhere;word-break:keep-all}
+.sy-wtag{flex:none;font-size:12px;color:var(--warn);border:1px solid var(--warn);border-radius:8px;padding:1px 6px}
+.sy-item{display:flex;align-items:center;gap:10px}
+.sy-item .danger{color:var(--bad);flex:none}
+.sy-open{flex:1;min-width:0;text-align:left;background:none;border:0;color:inherit;font:inherit;padding:0;cursor:pointer}
+.sy-ititle{font-weight:600;overflow-wrap:anywhere;word-break:keep-all}
+.sy-isub{font-size:14px}
+.sy-head{margin-bottom:8px}
+.sy-h{margin:4px 0 2px;word-break:keep-all;overflow-wrap:anywhere}
+.sy-bar{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 10px}
+.sy-bar .btn{flex:1 1 auto;width:auto;min-height:44px;padding:8px 12px;font-size:15px}
+.sy-novoice{font-size:14px}
+.sy-text{padding:6px 14px}
+.sy-sent{padding:10px 6px;border-bottom:1px solid var(--border);border-radius:8px;transition:background .2s}
+.sy-sent:last-child{border-bottom:0}
+.sy-sent.playing{background:var(--surface2);box-shadow:inset 3px 0 0 var(--accent)}
+.sy-src{margin:0;font-size:20px;line-height:1.7;word-break:keep-all;overflow-wrap:anywhere}
+.sy-hl{font:inherit;color:inherit;background:color-mix(in srgb,var(--accent) 18%,transparent);border:0;border-bottom:2px solid var(--accent);border-radius:4px;padding:0 2px;margin:0;cursor:pointer;line-height:inherit}
+.sy-hl:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.sy-stools{display:flex;gap:8px;margin-top:4px}
+.sy-mini{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:16px;min-height:36px;min-width:44px;padding:4px 10px;font-size:14px;cursor:pointer}
+.sy-tr{margin:6px 0 0;color:var(--muted);font-size:16px;word-break:keep-all;overflow-wrap:anywhere}
+.sy-wlist{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0}
+.sy-chip{font-size:15px;padding:4px 8px}
+.sy-readok{margin:10px 0}
+.sy-qs h3{margin-top:0}
+.sy-q{margin-bottom:14px}
+.sy-qt{font-weight:600;margin:0 0 6px;word-break:keep-all;overflow-wrap:anywhere}
+.sy-opts{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.sy-opt{text-align:left;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:48px;word-break:keep-all;overflow-wrap:anywhere}
+.sy-opt .sy-otr{font-size:14px;color:var(--muted)}
+.sy-opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 15%,var(--surface));opacity:1}
+.sy-opt.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 13%,var(--surface));opacity:1}
+.sy-opt:disabled{cursor:default}
+.sy-res{margin:6px 0 0;font-size:15px}
+.sy-res.ok{color:var(--ok)}
+.sy-res.bad{color:var(--bad)}
+.sy-final{font-weight:600;margin-bottom:0}
+.sy-end{margin-top:14px}
+.sy-pop .sy-popw{font-size:26px;font-weight:600;margin-bottom:6px}
+.sy-pop .sy-poptr{font-size:17px;margin-bottom:4px}
+.sy-err{margin-top:8px}
+
+/* === ÉCOUTE ET PAROLE : DICTÉE ET PRONONCIATION (ÉTAPE 46) === */
+.seg.seg-wrap{flex-wrap:wrap}
+.seg.seg-wrap button{flex:1 1 calc(33.333% - 4px)}
+.ls-q{text-align:center;padding:16px 14px}
+.ls-play{width:100%;font-size:19px;min-height:56px;margin:8px 0 10px}
+.ls-speed{max-width:260px;margin:0 auto}
+.ls-hint{display:block;margin:10px auto 0}
+.ls-tr{margin-top:10px;overflow-wrap:anywhere}
+.ls-tr-main{font-size:20px;font-weight:600}
+.ls-tr-q .ls-tr-main{font-size:clamp(24px,7vw,32px)}
+.ls-tr-sub{color:var(--muted);margin-top:2px}
+.ls-tr-res{margin-top:4px}
+.ls-tr-res .ls-tr-main{font-size:18px}
+.ls-word{margin-top:12px;font-size:22px;font-weight:600;color:var(--accent);overflow-wrap:anywhere}
+.ls-try{text-align:center;color:var(--muted);font-size:14px;margin:6px 0 8px}
+.ls-mic{width:100%;font-size:20px;min-height:64px}
+.ls-mic.on{background:var(--bad);border-color:var(--bad);color:#fff;animation:ls-pulse 1.2s ease-in-out infinite}
+@keyframes ls-pulse{0%,100%{box-shadow:0 0 0 0 rgba(220,60,60,.45)}50%{box-shadow:0 0 0 10px rgba(220,60,60,0)}}
+@media (prefers-reduced-motion:reduce){.ls-mic.on{animation:none}}
+.ls-msg{margin-top:10px;font-size:15px;text-align:center}
+.ls-msg.bad{color:var(--bad)}
+.ls-heard{text-align:center;margin-top:6px}
+.ls-heard-txt{font-size:19px;font-weight:600;overflow-wrap:anywhere}
+.ls-tools{margin-top:12px}
+
+/* === RÉPÉTITION FSRS (ÉTAPE 47) === */
+/* Réglages : carte « Rythme de révision » (toute la carte est un bouton) */
+.card.fs-entry-card{padding:0}
+.fs-entry{display:flex;align-items:center;gap:10px;width:100%;min-height:64px;padding:14px 16px;border:0;background:none;color:var(--text);font:inherit;text-align:left;cursor:pointer;border-radius:16px}
+.fs-entry-txt{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.fs-entry-title{font-size:17px;font-weight:700}
+.fs-entry-val{font-size:14px;color:var(--muted)}
+.fs-entry .chev{color:var(--muted);font-size:24px;line-height:1}
+/* Écran « Rythme de révision » (#rythme) */
+.fs-title{font-size:20px;margin:4px 0 6px}
+.fs-intro{margin:0 0 14px;line-height:1.45;word-break:keep-all;overflow-wrap:anywhere}
+.fs-opts{display:flex;flex-direction:column;gap:10px}
+.fs-opt{display:flex;flex-direction:column;align-items:stretch;gap:4px;width:100%;padding:14px 16px;border:2px solid var(--border);border-radius:16px;background:var(--surface);color:var(--text);font:inherit;text-align:left;cursor:pointer;transition:border-color .15s,background-color .15s;word-break:keep-all;overflow-wrap:anywhere}
+.fs-opt.on{border-color:var(--accent);background:var(--surface2);background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+.fs-custom{cursor:default}
+.fs-opt-hd{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+.fs-rate{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;min-width:3.6em}
+.fs-opt.on .fs-rate{color:var(--accent)}
+.fs-name{font-size:17px;font-weight:700}
+.fs-badge{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--accent);color:var(--accent-text)}
+.fs-desc{font-size:14px;color:var(--muted);line-height:1.4}
+.fs-ex{font-size:14px;line-height:1.4}
+.fs-load{font-size:14px;display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline}
+.fs-load-n{font-weight:600}
+.fs-ratio{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.fs-warn{font-size:13px;color:var(--warn);font-weight:600;line-height:1.4}
+.fs-warn[hidden]{display:none}
+.fs-note{font-size:13px;color:var(--muted);margin:12px 2px 0;line-height:1.45}
+/* Curseur 75 à 97 % : grande zone tactile, glissement fluide (pas de défilement de la page pendant le geste) */
+.fs-range{-webkit-appearance:none;appearance:none;width:100%;height:44px;margin:6px 0 0;background:transparent;touch-action:none;cursor:pointer;accent-color:var(--accent)}
+.fs-range:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+.fs-range::-webkit-slider-runnable-track{height:8px;border-radius:999px;background:var(--surface2);border:1px solid var(--border)}
+.fs-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:30px;height:30px;margin-top:-12px;border-radius:50%;background:var(--accent);border:3px solid var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.fs-range::-moz-range-track{height:8px;border-radius:999px;background:var(--surface2);border:1px solid var(--border)}
+.fs-range::-moz-range-progress{height:8px;border-radius:999px;background:var(--accent)}
+.fs-range::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--accent);border:3px solid var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.fs-scale{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:-4px}
+.fs-retline{margin-top:12px}
+.fs-reset-langs{display:flex;flex-direction:column;gap:8px}
+
+/* === MISES À JOUR DE VERSION (ÉTAPE 48) === */
+/* Indicateur de synchro en pause, bandeau « Nouvelle version », écran « Mise à jour nécessaire », onglet admin « Versions » */
+.sync[data-mode="paused"] .dot{background:var(--warn);border-radius:2px}
+.rl-bar{border-left-color:var(--accent)}
+.rl-bar-top{display:flex;align-items:flex-start;gap:8px}
+.rl-bar-text{flex:1;font-weight:600;font-size:15px}
+.rl-x{border:0;background:none;color:var(--muted);font-size:22px;line-height:1;padding:0 4px;min-width:36px;min-height:36px;cursor:pointer}
+.rl-bar .rl-go{width:100%;margin-top:8px}
+.rl-msg{margin:8px 0 0;font-size:14px;color:var(--warn);font-weight:600}
+.rl-block{position:fixed;inset:0;z-index:400;background:var(--bg);display:flex;align-items:center;justify-content:center;
+  padding:calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom));overflow:auto}
+.rl-block[hidden]{display:none}
+.rl-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px 20px;
+  box-shadow:var(--shadow);text-align:center;word-break:keep-all;overflow-wrap:anywhere}
+.rl-icon{font-size:40px;line-height:1;margin-bottom:8px}
+.rl-card h2{margin:0 0 10px;font-size:22px}
+.rl-card p{margin:0 0 10px}
+.rl-keep{color:var(--muted);font-size:15px}
+.rl-vers{font-size:13px;color:var(--muted)}
+.rl-card .rl-go{width:100%;margin-top:8px;min-height:48px;font-size:17px}
+.rl-card .rl-msg{margin:4px 0 6px}
+body.rl-locked{overflow:hidden}
+.rl-kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--border);font-size:15px}
+.rl-kv span{color:var(--muted);flex-shrink:0;white-space:nowrap}
+.rl-kv b{text-align:right}
+.rl-devh{margin-top:12px}
+.rl-nums{grid-template-columns:repeat(2,1fr)}
+.np-num.rl-late b{color:var(--warn)}
+.rl-sub{font-weight:600;font-size:14px;margin:12px 0 6px}
+.rl-vers-list{display:flex;flex-wrap:wrap;gap:6px}
+.rl-chip{background:var(--surface2);border-radius:999px;padding:3px 10px;font-size:13px}
+.rl-chip.ok{color:var(--ok);font-weight:600}
+.rl-late-list{display:flex;flex-direction:column;gap:6px}
+.rl-acc{display:flex;flex-direction:column;align-items:flex-start;text-align:left;width:100%;background:var(--surface2);border:0;border-radius:10px;
+  padding:8px 10px;color:var(--text);font:inherit;font-size:14px;cursor:pointer}
+.rl-acc span{color:var(--muted);font-size:13px}
+.rl-check{display:flex;align-items:center;gap:10px;font-weight:600;margin:10px 0 2px;cursor:pointer}
+.rl-check input{width:22px;height:22px;accent-color:var(--accent)}
+.rl-auto{color:var(--warn)}
+.rl-pv{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.rl-pv-one{background:var(--surface2);border-radius:12px;padding:8px 10px;font-size:14px}
+.rl-pv-lang{font-size:11px;color:var(--muted);font-weight:700}
+.rl-pv-title{font-weight:700}
+.rl-pv-body{white-space:pre-line;word-break:keep-all;overflow-wrap:anywhere}
+
+/* === IMAGES SUR LES CARTES (ÉTAPE 49) === */
+.ci-img{display:inline-flex;align-items:center;justify-content:center;border-radius:12px;overflow:hidden;background:var(--surface2);cursor:zoom-in;flex:none;line-height:0}
+.ci-img[hidden]{display:none}
+.ci-img img{display:block;width:100%;height:100%;object-fit:contain}
+.ci-img:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.ci-img.ci-wait img{visibility:hidden}
+.ci-card{width:auto;max-width:100%;height:min(24vh,170px);aspect-ratio:1/1;margin:0 auto 4px}
+.ci-mid{display:flex;width:min(40vw,150px);height:min(40vw,150px);margin:8px auto 6px}
+.ci-after{text-align:center}
+.ci-after .ci-mid{margin-top:4px}
+.ci-thumb{width:48px;height:48px;border-radius:10px}
+.ci-thumb img{object-fit:cover}
+/* image agrandie */
+.ci-zoom{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:16px calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+.ci-zbox{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:100%;max-height:100%}
+.ci-zbox img{max-width:min(92vw,640px);max-height:66vh;border-radius:14px;background:#fff;object-fit:contain}
+.ci-zbox.ci-zfail img{display:none}
+.ci-zcap{color:#f2f2f4;text-align:center;font-size:14px;line-height:1.45;max-width:min(92vw,560px);overflow-wrap:anywhere}
+.ci-zlink{color:#9db6ff;display:inline-block;margin-top:2px}
+.ci-zsmall{font-size:12px;opacity:.8}
+.ci-zclose{min-width:120px}
+/* éditeur de carte */
+.ci-ed-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ci-ed-thumb{width:96px;height:96px}
+.ci-ed-thumb.ci-ed-small{width:56px;height:56px}
+.ci-ed-side{display:flex;flex-direction:column;gap:6px;flex:1;min-width:150px}
+.ci-ed-btn{width:auto}
+.ci-ed-credit{margin:0;overflow-wrap:anywhere}
+.ci-ed-prop{display:flex;align-items:center;gap:8px;margin-top:10px;font-weight:600}
+.ci-ed-prop input{width:20px;height:20px}
+.ci-ch .ci-pick{display:flex;align-items:center;justify-content:center;width:100%;margin-top:10px;cursor:pointer}
+.ci-crop button{flex:1}
+/* recherche Wikimedia */
+.ci-wm-form{display:flex;gap:8px}
+.ci-wm-form .input{flex:1;min-width:0}
+.ci-wm-form .btn{width:auto}
+.ci-wm-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:6px}
+.ci-wm-cell{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ci-wm-pic{padding:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface2);aspect-ratio:1/1;cursor:pointer;line-height:0}
+.ci-wm-pic img{width:100%;height:100%;object-fit:cover}
+.ci-wm-pic:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.ci-wm-cap{font-size:11px;color:var(--muted);line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.ci-wm-link{font-size:11px}
+/* réglage « Images » d'une liste */
+.ci-sides{display:flex;flex-direction:column;gap:8px}
+/* Réglages : place utilisée */
+.ci-quota{margin:-4px 0 10px}
+.ci-qwarn{color:var(--warn)}
+/* administration : images proposées */
+.ci-arow{display:flex;flex-direction:column;gap:8px}
+.ci-apics{display:flex;gap:12px;flex-wrap:wrap}
+.ci-apic{display:flex;flex-direction:column;align-items:center;gap:4px}
+.ci-athumb{width:110px;height:110px}
+.ci-ameta{display:flex;flex-direction:column;gap:2px;min-width:0;overflow-wrap:anywhere}
+
+/* === SAUVEGARDES (ÉTAPE 50) === */
+.bk-sum .bk-go{width:100%;margin-top:10px;min-height:44px}
+.bk-note,.bk-msg{margin:8px 0 0;font-size:14px}
+.bk-private{color:var(--warn)}
+.bk-list{display:grid;gap:8px}
+.bk-row{padding:10px 12px;margin:0}
+.bk-row.bk-error{border:1px solid var(--bad)}
+.bk-file{font-size:12px;color:var(--muted);overflow-wrap:anywhere;margin-top:2px}
+.bk-err{font-size:14px;color:var(--bad);overflow-wrap:anywhere;margin-top:6px}
+.bk-acts{margin-top:10px}
+.bk-acts .btn{min-height:44px;margin:0;padding:8px 6px;line-height:1.2;overflow-wrap:anywhere}
+.bk-extract select{width:100%}
+.dash-bk .dash-al-txt{overflow-wrap:anywhere}
+/* Nouveautés visibles (complément de l'étape 50) */
+.rl-news-row{display:grid;grid-template-columns:1fr 96px;gap:8px;margin:8px 0}
+.rl-news-row .input{width:100%;min-height:44px}
+.rl-news-prev{margin:4px 0 10px;font-size:14px}
+.ab-newsnote{margin:0 0 6px;font-size:14px}
+

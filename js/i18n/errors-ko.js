@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : JOURNAL DES ERREURS (étape 41) — 한국어 (ko) ===
+// === I18N : JOURNAL DES ERREURS (ÉTAPE 41) — 한국어 (ko) ===
 // Fichier à part (ko.js approche la limite de taille), chargé après les fichiers de langue principaux.
 Object.assign(I18N.ko, {
   "ce.open": "오류",

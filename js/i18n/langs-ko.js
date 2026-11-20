@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : noms des trois langues, aperçu de carte et aide « ? » (étape 52, complément) — 한국어 ===
+// === I18N : noms des trois langues, aperçu de carte et aide « ? » (ÉTAPE 52, complément) — 한국어 ===
 Object.assign(I18N.ko, {
   "lx.title": "내 언어",
   "lx.app": "앱 언어",

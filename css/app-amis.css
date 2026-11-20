@@ -1,0 +1,182 @@
+/* =================================================================================================
+   css/app-amis.css — idées, noms des langues, messages, équipes (étape 65)
+   Étapes 52 à 54. Chargé juste après css/app-jeux.css.
+   ================================================================================================= */
+
+/* === PROPOSITIONS D'AMÉLIORATION ET RÉCOMPENSES (ÉTAPE 52) : .ix-* (utilisateur), .aix-* (admin) === */
+.ix-card .btns,.ix-about .btns{margin-top:8px}
+.ix-mine{position:relative}
+.ix-dot{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;margin-left:8px;padding:0 6px;border-radius:10px;background:var(--bad);color:#fff;font-size:12px;font-weight:700;vertical-align:1px}
+.ix-form .field{margin-bottom:12px}
+.ix-form .input{width:100%}
+.ix-body{min-height:110px;resize:vertical}
+.ix-count{display:block;text-align:right;font-size:12px;color:var(--muted);margin-top:2px}
+.ix-left{margin:0 0 4px}
+.ix-err{margin:8px 0 0}
+.ix-add{width:100%;margin:6px 0 10px}
+.ix-item{margin-bottom:10px}
+.ix-item.ix-new{border-left:4px solid var(--accent)}
+.ix-tags{display:flex;flex-wrap:wrap;gap:4px;min-width:0}
+.ix-t{font-weight:600;margin-top:6px;overflow-wrap:anywhere}
+.ix-b{margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text)}
+.ix-full{white-space:pre-wrap;overflow-wrap:anywhere;margin:4px 0 10px}
+.ix-reply{margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--surface2)}
+.ix-reply b{display:block;font-size:13px;color:var(--muted);margin-bottom:2px}
+.ix-reply p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.ix-rw{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;margin-top:8px;font-size:14px}
+.ix-rw-st{font-size:13px}
+.al-tag.ix-st-new{color:var(--accent)}
+.al-tag.ix-st-kept,.al-tag.ix-st-done,.al-tag.ok{color:var(--ok)}
+.al-tag.ix-st-refused{color:var(--muted)}
+.ix-reward-main{font-size:18px;font-weight:600;margin:0 0 6px}
+.aix-row{text-align:left;width:100%}
+.aix-row.aix-new{border-left:4px solid var(--accent)}
+.aix-short{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.aix-form{margin-top:6px}
+.aix-form .field{display:block;margin-bottom:10px}
+.aix-form .field span{display:block;font-size:14px;color:var(--muted);margin-bottom:4px}
+.aix-form .input{width:100%}
+.aix-form textarea{min-height:90px;resize:vertical}
+.aix-rw-box{margin-top:14px;padding-top:10px;border-top:1px solid var(--border)}
+.aix-reward-btn{width:100%}
+.aix-rwf .field{margin-bottom:12px}
+.aix-xp{width:100%;margin-top:6px;min-height:44px}
+.aix-check{display:flex;align-items:center;gap:10px;min-height:44px;margin:4px 0 10px;cursor:pointer}
+.aix-check input{width:22px;height:22px}
+.aix-rwf textarea{width:100%;resize:vertical}
+.aix-preview{margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--surface2)}
+.aix-pv-msg{margin:4px 0 0;font-weight:600}
+.aix-tile{cursor:pointer}
+.aix-navnew{border-color:var(--accent);color:var(--accent);font-weight:600}
+
+/* === NOMS DES TROIS LANGUES : APERÇU ET « ? » (ÉTAPE 52, complément) === */
+.lx-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}
+.lx-head h2,.lx-head h3{margin:0}
+.lx-head h3{font-size:17px}
+.lx-block{border-top:1px solid var(--border);margin-top:4px;padding-top:14px}
+.lx-q{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--accent);font-weight:700;font-size:18px;cursor:pointer;line-height:1}
+.lx-q:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.lx-lab{font-size:14px;color:var(--muted);margin-bottom:2px}
+.lx-tlabel{margin-bottom:6px}
+.lx-prev{margin:4px 0 12px}
+.lx-cap{font-size:13px;color:var(--muted);margin-bottom:4px}
+.lx-card{border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow);padding:14px 16px;text-align:center}
+.lx-big{font-size:30px;font-weight:700;line-height:1.25;margin-bottom:4px;word-break:keep-all}
+.lx-row{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:2px 8px;margin-top:2px}
+.lx-w{font-size:18px}
+.lx-role{font-size:12px;color:var(--muted)}
+.lx-list{margin:0 0 12px;padding-left:20px}
+.lx-list li{margin:4px 0}
+.lx-help p{margin:0 0 10px}
+.lx-help .lx-more{margin-top:10px;font-size:14px}
+html[lang="ko"] .lx-help,html[lang="ko"] .lx-field .hint{word-break:keep-all;overflow-wrap:anywhere}
+
+/* === MESSAGES D'ENCOURAGEMENT ET MESSAGES DE L'ÉQUIPE (ÉTAPE 53) === */
+/* Utilisateur (js/messages.js) : cartes de l'écran Amis, fenêtre « Encourager », écran Messages, carte « Écrire à l'équipe ». */
+.mg-dot{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;margin-left:8px;padding:0 6px;border-radius:10px;background:var(--bad);color:#fff;font-size:12px;font-weight:700;vertical-align:1px}
+.mg-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mg-head h2{margin:0}
+.mg-sub{margin:4px 0 8px}
+.mg-time{font-size:12px;color:var(--muted);margin-top:2px}
+.mg-cheer{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.mg-cheer:last-of-type{border-bottom:0}
+.mg-cheer-tx{flex:1 1 180px;min-width:0}
+.mg-cheer-m{font-weight:600;overflow-wrap:anywhere;word-break:keep-all}
+.mg-cheer.mg-new .mg-cheer-m::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:8px;vertical-align:2px}
+.mg-thanked{font-size:13px;white-space:nowrap}
+.mg-team-line{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;margin-top:8px;padding:8px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:inherit;font:inherit;font-weight:600;cursor:pointer;text-align:left}
+.mg-team-line.on{border-color:var(--accent)}
+.mg-team-line .muted{font-weight:400;font-size:13px}
+.mg-ev{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.mg-ev-ic{font-size:22px;flex:none;width:30px;text-align:center}
+.mg-ev-tx{flex:1 1 150px;min-width:0;overflow-wrap:anywhere;word-break:keep-all}
+.mg-ev-btn{max-width:100%;text-align:left;white-space:normal;word-break:keep-all}
+.mg-pick-list{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.mg-pick-btn{width:100%;min-height:48px;padding:10px 14px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:inherit;font:inherit;font-weight:600;text-align:left;cursor:pointer;overflow-wrap:anywhere;word-break:keep-all}
+.mg-pick-btn:not(:disabled):hover{border-color:var(--accent)}
+.mg-pick-btn:disabled{opacity:.55;cursor:default}
+.mg-pick-btn small{font-weight:400}
+.mg-tabs{margin-bottom:14px}
+.mg-tabs button{display:inline-flex;align-items:center;justify-content:center}
+.mg-bubbles{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.mg-bubble{max-width:86%;padding:10px 12px;border-radius:14px;background:var(--surface2);border:1px solid var(--border);align-self:flex-start}
+.mg-bubble.mine{align-self:flex-end;background:var(--accent);border-color:var(--accent);color:var(--accent-text)}
+.mg-bubble.mine .mg-time,.mg-bubble.mine .mg-who{color:inherit;opacity:.85}
+.mg-bubble.mg-new{box-shadow:0 0 0 2px var(--accent)}
+.mg-who{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:2px}
+.mg-body{white-space:pre-wrap;overflow-wrap:anywhere;word-break:keep-all}
+.mg-compose label{display:block;font-size:14px;color:var(--muted);margin-bottom:6px}
+.mg-ta{width:100%;resize:vertical;min-height:96px}
+.mg-compose .ix-count{display:block;text-align:right;font-size:12px;color:var(--muted);margin-top:4px}
+.mg-compose .btn{width:100%;margin-top:8px}
+.mg-compose .btns.two .btn{margin-top:0}
+.mg-teamcard .btn,.mg-about .btn{display:inline-flex;align-items:center;justify-content:center}
+.mg-recv{margin-top:6px}
+/* Admin (js/screens/admin-messages.js) */
+.amg-tabs{margin-bottom:12px}
+.amg-bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.amg-filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.amg-filters input[type="search"]{flex:1 1 180px;min-width:0}
+.amg-row.amg-unread{border-color:var(--accent)}
+.amg-who{font-weight:700;display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.amg-last{margin-top:4px;overflow-wrap:anywhere;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.amg-thead h3{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.amg-to{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.amg-count{margin:6px 0 12px}
+.amg-new .field{margin-bottom:12px}
+.amg-new select.input,.amg-edit select.input{width:100%}
+.amg-cheer.amg-off{opacity:.7}
+.amg-cheer .au-switch{width:auto;min-height:44px;margin:0;padding:4px 8px}
+.amg-langs{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:10px 0 0}
+.amg-langs dt{font-weight:700;color:var(--muted);font-size:12px;padding-top:2px}
+.amg-langs dd{margin:0;overflow-wrap:anywhere;word-break:keep-all}
+.amg-edit .field{margin-bottom:10px}
+.amg-edit textarea{width:100%}
+
+/* === ÉQUIPES (ÉTAPE 54) — .tm-* (utilisateur, js/teams.js), .atm-* (admin, js/screens/admin-equipes.js) === */
+.tm-h{margin:4px 0 10px}
+.tm-card.tm-mine{cursor:pointer}
+.tm-card.tm-mine:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tm-head{display:flex;align-items:center;gap:12px;min-width:0}
+.tm-emoji{font-size:30px;line-height:1;flex:none}
+.tm-emoji.big{font-size:44px}
+.tm-hname{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.tm-hname b,.tm-name{font-size:18px;overflow-wrap:anywhere;word-break:keep-all}
+.tm-chev{font-size:24px;color:var(--muted);flex:none}
+.tm-small{font-size:14px;overflow-wrap:anywhere;word-break:keep-all}
+.tm-sub{margin:8px 0 4px}
+.tm-bar{margin:6px 0 8px}
+.tm-goalv{font-size:20px;font-weight:700;margin:6px 0 0;font-variant-numeric:tabular-nums}
+.tm-member{padding:2px 0 8px;border-bottom:1px solid var(--border)}
+.tm-member .am-row{border-bottom:0;padding-bottom:4px}
+.tm-member.me .am-id{color:var(--accent)}
+.tm-stats{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:14px;color:var(--muted)}
+.tm-list{border-bottom:1px solid var(--border);padding-bottom:6px}
+.tm-list .am-row{border-bottom:0}
+.tm-form .input,.tm-addlist .input{width:100%}
+.tm-lab{display:flex;flex-direction:column;gap:6px;font-weight:600;margin:6px 0}
+.tm-count{text-align:right;margin-top:2px}
+.tm-emojis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin:4px 0 8px}
+.tm-emo{min-height:44px;font-size:24px;border:2px solid var(--border);border-radius:12px;background:var(--surface2);cursor:pointer;padding:0}
+.tm-emo[aria-checked="true"]{border-color:var(--accent);background:var(--surface)}
+.tm-ferr{margin:4px 0}
+.tm-goalset .seg{margin:10px 0}
+.tm-level{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;min-height:56px;margin:0 0 8px;padding:10px 14px;border:2px solid var(--border);border-radius:12px;background:var(--surface2);color:inherit;font:inherit;text-align:left;cursor:pointer}
+.tm-level.on{border-color:var(--accent);background:var(--surface)}
+.tm-level:disabled{opacity:.5;cursor:default}
+.tm-level span{font-size:18px;font-weight:700}
+.tm-pick .am-row{padding:8px 0}
+.tm-pick-id{font-weight:700}
+.tm-addlist .seg{margin:4px 0 8px}
+.tm-reward .ix-reward-main{font-size:17px}
+.atm-list{padding:6px 10px}
+.atm-row{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:10px 4px;border:0;border-bottom:1px solid var(--border);background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.atm-row:last-child{border-bottom:0}
+.atm-row:hover{background:var(--surface2)}
+.atm-emo{font-size:26px;flex:none}
+.atm-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.atm-main b{overflow-wrap:anywhere}
+.atm-sub{font-size:13px;overflow-wrap:anywhere}
+.atm-table td .link-btn{padding:0;min-height:0}
+.atm-reason{width:100%;resize:vertical}
+

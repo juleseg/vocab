@@ -1,7 +1,7 @@
 "use strict";
 
 // === ADMINISTRATION : DEMANDES À CLAUDE ===
-// (suite de la découpe : même section, fichier séparé pour rester sous 120 Ko)
+// (suite de la découpe : même section, fichier séparé ; taille visée depuis l'étape 65 : 60 Ko au plus par fichier)
 // --- Demandes à Claude (suivi admin, étape 23) : écran #admin-demandes ---
 // Seulement les demandes de la file d'attente (« Demander à Claude »). Tout passe par les fonctions SQL admin_claude_*
 // (security definer, contrôle is_admin()) du script supabase-etape23.sql.
@@ -38,7 +38,6 @@ function aqErrText(e) {
   return t("admin.err");
 }
 function aqDays(v) { return v === "7" ? 7 : v === "30" ? 30 : null; }
-function aqDate(s) { return s ? queueDate(s) : "—"; }
 async function aqLoadStats() {
   aq.statsLoading = true; aq.statsErr = "";
   if (currentScreen === "adminreq") renderAdminReq();
@@ -328,8 +327,8 @@ function aqRow(r) {
   head.append(left, el("span", "q-st " + r.status, queueStatusText(r)));
   box.appendChild(head);
   box.appendChild(el("div", "q-meta", [
-    t("aq.d.created", { d: aqDate(r.created_at) }), t("aq.d.started", { d: aqDate(r.started_at) }),
-    t("aq.d.finished", { d: aqDate(r.finished_at) }), t("aq.d.fetched", { d: aqDate(r.fetched_at) })].join(" · ")));
+    t("aq.d.created", { d: adDate(r.created_at) }), t("aq.d.started", { d: adDate(r.started_at) }),
+    t("aq.d.finished", { d: adDate(r.finished_at) }), t("aq.d.fetched", { d: adDate(r.fetched_at) })].join(" · ")));
   box.appendChild(el("div", "q-meta aq-counts", t("aq.props", { r: r.proposals_received || 0, a: r.proposals_accepted || 0, x: r.proposals_rejected || 0 })));
   if (r.error) box.appendChild(el("div", "q-err", r.error));
   const tags = el("div", "adm-tags");
@@ -382,8 +381,8 @@ async function aqOpenDetail(r0) {
     [t("aq.f.account"), r.identifiant], [t("aq.f.kind"), t("queue.kind." + r.kind)], [t("aq.label"), r.label || "—"],
     [t("aq.f.status"), queueStatusText(r) + (r.error ? " — " + r.error : "")],
     [t("aq.col.cards"), r.card_count], [t("aq.lots"), r.batch_count], [t("aq.tries"), r.attempts],
-    [t("aq.dates"), [t("aq.d.created", { d: aqDate(r.created_at) }), t("aq.d.started", { d: aqDate(r.started_at) }),
-      t("aq.d.finished", { d: aqDate(r.finished_at) }), t("aq.d.fetched", { d: aqDate(r.fetched_at) })].join(" · ")],
+    [t("aq.dates"), [t("aq.d.created", { d: adDate(r.created_at) }), t("aq.d.started", { d: adDate(r.started_at) }),
+      t("aq.d.finished", { d: adDate(r.finished_at) }), t("aq.d.fetched", { d: adDate(r.fetched_at) })].join(" · ")],
     [t("aq.col.received") + " / " + t("aq.col.accepted") + " / " + t("aq.col.rejected"),
       (r.proposals_received || 0) + " / " + (r.proposals_accepted || 0) + " / " + (r.proposals_rejected || 0)]
   ];
@@ -429,7 +428,7 @@ async function aqOpenDetail(r0) {
     body.appendChild(el("h4", null, t("aq.answer")));
     if (!props.length) body.appendChild(el("p", "muted", t("aq.noAnswer")));
     props.forEach(p => {
-      body.appendChild(el("div", "aq-lothead", t("aq.lotN", { n: num(Number(p.batch), 0) + 1, m: Math.max(batches.length, 1) }) + " · " + aqDate(p.created_at)));
+      body.appendChild(el("div", "aq-lothead", t("aq.lotN", { n: num(Number(p.batch), 0) + 1, m: Math.max(batches.length, 1) }) + " · " + adDate(p.created_at)));
       const cards = new Map(aqBatchCards(batches[p.batch]).map(it => [it.id, it]));
       const res = p.result;
       let rows = [], head;

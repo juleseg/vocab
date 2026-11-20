@@ -132,7 +132,7 @@ const Shared = (() => {
   let status = "unknown";          // unknown | ok | missing (script de l'étape 30 pas lancé)
   let cache = null, cacheUser = null;
   let busy = false, timer = null, saveTimer = null, flushTimer = null, revertWarned = 0;
-  let invites = null, invitesAt = 0, inviteCount = 0, friendsProg = null, lastProgKey = "";
+  let invites = null, inviteCount = 0, friendsProg = null, lastProgKey = "";
   const view = { busy: false };
 
   function on() { return auth.mode === "supabase" && !!auth.sbUid && !!Supa.client() && !!Storage.getUser(); }
@@ -560,7 +560,7 @@ const Shared = (() => {
     if (!on()) { inviteCount = 0; return; }
     try {
       if (full) {
-        invites = await rpc("my_share_invites"); invitesAt = Date.now();
+        invites = await rpc("my_share_invites");
         inviteCount = arr(invites && invites.incoming).length;
       } else inviteCount = num(Number(await rpc("share_incoming_count")), 0);
       status = "ok";
@@ -571,7 +571,7 @@ const Shared = (() => {
     if (!on()) return;
     try {
       const [inv, fp] = await Promise.all([rpc("my_share_invites"), rpc("friends_shared_progress")]);
-      invites = inv; invitesAt = Date.now(); inviteCount = arr(inv && inv.incoming).length;
+      invites = inv; inviteCount = arr(inv && inv.incoming).length;
       friendsProg = {};
       arr(fp).forEach(x => { friendsProg[x.user_id] = arr(x.lists); });
       status = "ok";

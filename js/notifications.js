@@ -315,7 +315,7 @@ const Push = (() => {
 })();
 Push.listen();
 
-// === ÉVÉNEMENTS POUR LES NOTIFICATIONS AUTOMATIQUES (étape 34) ===
+// === ÉVÉNEMENTS POUR LES NOTIFICATIONS AUTOMATIQUES (ÉTAPE 34) ===
 // Palier de série atteint (badge 7 / 30 / 100 / 365) et gel utilisé (jour gelé) : envoyés au serveur (push_event),
 // qui décide d'envoyer ou non une notification (règles automatiques de l'admin). File locale par compte
 // (vocabfr.push:events:<identifiant>, 20 au maximum), envoyée au lancement et dès qu'un événement arrive ; hors ligne :

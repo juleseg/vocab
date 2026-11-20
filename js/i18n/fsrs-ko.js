@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : RÉPÉTITION FSRS (étape 47) — 한국어 (ko) ===
+// === I18N : RÉPÉTITION FSRS (ÉTAPE 47) — 한국어 (ko) ===
 // Réglages → carte et écran « Rythme de révision » (taux de rétention visé), Stats (rétention estimée), réinitialiser la progression, message de migration.
 // Fichier à part, chargé après listen-ko.js.
 Object.assign(I18N.ko, {

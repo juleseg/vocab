@@ -1,6 +1,6 @@
 "use strict";
 
-// === MESSAGES D'ENCOURAGEMENT ET MESSAGES DE L'ÉQUIPE (étape 53) — CÔTÉ UTILISATEUR ===
+// === MESSAGES D'ENCOURAGEMENT ET MESSAGES DE L'ÉQUIPE (ÉTAPE 53) — CÔTÉ UTILISATEUR ===
 // Mode Supabase seulement (script claude/supabase-etape53.sql). Textes : js/i18n/messages-<langue>.js (clés mg.*).
 // RÈGLE ABSOLUE : entre utilisateurs, jamais de texte libre. Un encouragement = l'identifiant d'un message de la liste fixe
 // (cheer_messages, textes ko / fr / en) ; le serveur calcule les variables ({ami}, {serie}, {niveau}) ; chacun lit le

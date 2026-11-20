@@ -12,16 +12,10 @@
 const LISTEN_MODES = ["dictation", "speak"];
 const LISTEN_ICON = { dictation: "🎧", speak: "🎤" };
 function isListenMode(m) { return LISTEN_MODES.includes(m); }
-function lisFirst(s) { return String(s || "").split("/")[0].trim(); }
-// Langues affichées pour une carte posée dans la langue L (langue de sa liste, ou langue étudiée en plus).
-function lisLg(c, L) {
-  const lg = listLangs(c.listId);
-  return (!L || L === lg.target) ? lg : studyLg(L);
-}
 // Élément « mot » ou « phrase » d'une carte dans la langue L, ou null s'il manque.
 function lisItem(c, L, kind, lg) {
   if (!c || !isVocab(c) || !isLang(L)) return null;
-  lg = lg || lisLg(c, L);
+  lg = lg || gameLg(c, L);   // langues affichées (langue de la liste, ou langue étudiée en plus)
   if (kind === "sent") {
     const text = exText(c, L).replace(/\s+/g, " ").trim();
     if (!text) return null;

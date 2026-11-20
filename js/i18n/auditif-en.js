@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : APPRENTISSAGE AUDITIF (étape 55) — ANGLAIS (en) ===
+// === I18N : APPRENTISSAGE AUDITIF (ÉTAPE 55) — ANGLAIS (en) ===
 // Réglages → carte et écran « Apprentissage auditif », menu d'une liste, pause d'écoute pendant la révision.
 // Fichier à part, chargé après auditif-fr.js.
 Object.assign(I18N.en, {

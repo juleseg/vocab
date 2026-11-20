@@ -368,7 +368,6 @@ function supportLangs(target, uiLang, appui) {
 }
 // Langues visibles d'une carte de vocabulaire : langue apprise + langues d'appui (dans l'ordre d'affichage).
 function visibleLangs(lg) { return [lg.target].concat(lg.support); }
-function defaultSupportFor(target) { return supportLangs(target); }
 function cleanSupport(support, target) {
   const out = [];
   arr(support).forEach(c => { if (isLang(c) && c !== target && !out.includes(c)) out.push(c); });
@@ -393,7 +392,7 @@ function addLearningTo(data, code) {
   const L = normLearning(data.settings.learning);
   if (!L.some(x => x.lang === code)) { L.push({ lang: code, support: null }); data.settings.learning = L; }
 }
-// === Fonction centrale (étape 35) : langues affichées d'une carte, d'une liste (objet ou id) ou d'un dossier. ===
+// === Fonction centrale (ÉTAPE 35) : langues affichées d'une carte, d'une liste (objet ou id) ou d'un dossier. ===
 // Utilisée partout : cartes, listes, recherche, révision (4 modes), audio, À valider, complétion, badges, fichiers
 // et demandes pour Claude, import, fiche admin. cardLangs / listLangs / folderLangs / accountLangs l'appellent.
 function displayLangs(x) {
@@ -495,7 +494,6 @@ function accountLangs() { return resolveLangs([]); }
 function folderLangs(folder) { return resolveLangs([folder]); }
 function listLangs(listOrId) { return displayLangs(listOrId); }
 function cardLangs(c) { return displayLangs(c); }
-function sameLangs(a, b) { return a.target === b.target && a.support.join() === b.support.join(); }
 // Menu de langues (création de compte, profil, liste) : noneLabel = 1re option « aucune » (valeur ""), sinon pas d'option vide ;
 // exclude : codes retirés ; only : codes proposés (par défaut toutes les langues de LANGUAGES).
 function langSelect(value, noneLabel, onChange, exclude, only) {

@@ -1,8 +1,8 @@
 "use strict";
 
-// === I18N : APPRENTISSAGE AUDITIF (étape 55) — FRANÇAIS (fr) ===
+// === I18N : APPRENTISSAGE AUDITIF (ÉTAPE 55) — FRANÇAIS (fr) ===
 // Réglages → carte et écran « Apprentissage auditif », menu d'une liste, pause d'écoute pendant la révision.
-// Fichier à part (js/i18n/fr.js approche la limite de 120 Ko), chargé après teams-en.js.
+// Fichier de textes de la fonction, chargé après teams-en.js.
 Object.assign(I18N.fr, {
   "aud.title": "Apprentissage auditif",
   "aud.intro": "Pour ceux qui retiennent à l'oreille : après ta réponse, l'appli répète la carte à voix haute (ex. « tree… arbre »).",

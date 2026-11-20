@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : 카드 이미지 (étape 49) — 한국어 (ko) ===
+// === I18N : 카드 이미지 (ÉTAPE 49) — 한국어 (ko) ===
 // Fichier à part, chargé après release-ko.js.
 Object.assign(I18N.ko, {
   "img.label": "이미지",

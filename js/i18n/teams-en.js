@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : TEAMS (étape 54) — ENGLISH ===
+// === I18N : TEAMS (ÉTAPE 54) — ENGLISH ===
 // Keys tm.* (user, js/teams.js), atm.* (admin, js/screens/admin-equipes.js), notification rules and templates
 // (np.rule.team_*, np.tpl.team_*), activity log (al.a.admin_team, al.k.team_*), badge xp.badge.team1.
 Object.assign(I18N.en, {

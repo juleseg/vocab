@@ -150,8 +150,7 @@ function adminResetPin(a) {
   const wrap = el("div");
   wrap.appendChild(formField(t("pin.new"), pinInput("", v => { f.n1 = v; })));
   wrap.appendChild(formField(t("pin.new2"), pinInput("", v => { f.n2 = v; })));
-  let close = null;
-  close = openModal(t("admin.resetPin") + " — " + a.identifiant, wrap, [
+  openModal(t("admin.resetPin") + " — " + a.identifiant, wrap, [
     { label: t("cancel") },
     { label: t("confirm"), kind: "primary", onClick: () => {
       if (!validPin(f.n1)) { toast(t("auth.err.pin")); return false; }

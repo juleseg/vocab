@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : MOTS DIFFICILES (étape 57) — 한국어 (ko) ===
+// === I18N : MOTS DIFFICILES (ÉTAPE 57) — 한국어 (ko) ===
 // Badge, « Réparer ce mot », « Mon astuce », paires, listes Stats, choix de session. Clés hd.*
 // Fichier à part, chargé après auditif-ko.js.
 Object.assign(I18N.ko, {

@@ -1,6 +1,6 @@
 "use strict";
 
-// === MISES À JOUR DE VERSION (étape 48) ===
+// === MISES À JOUR DE VERSION (ÉTAPE 48) ===
 // Serveur : claude/supabase-etape48.sql (table app_release, fonction app_release_latest, lisible même avant connexion).
 // Contrôle : au lancement (Release.start, dès que le client Supabase est prêt, avant la connexion), au retour au premier
 // plan, au retour de la connexion, quand une notification est touchée (message push-open de sw.js) et toutes les 30 min.
@@ -37,7 +37,7 @@ const Release = (() => {
   const LS_DATA = CONFIG.LS_USER_PREFIX + "release:data:";
   const SS_UPD = CONFIG.LS_USER_PREFIX + "release:updating";
   const NATIVE = (typeof window.fetch === "function") ? window.fetch.bind(window) : null;
-  let info = null, dataV = 0, status = "unknown", started = false, timer = null, lastAt = 0, inflight = null;
+  let info = null, dataV = 0, status = "unknown", started = false, lastAt = 0, inflight = null;
   let updating = false, msg = "", barHidden = 0, refused = 0, notYet = 0;
   const LS_SET = CONFIG.LS_USER_PREFIX + "appsettings";
   let settings = null;                           // { changelog_count: null | 0..100 } ; null = rien de connu : tout est « Toutes »
@@ -298,7 +298,7 @@ const Release = (() => {
     } catch (e) {}
     apply();
     check(true);
-    timer = setInterval(() => check(true), RELEASE_EVERY_MS);
+    setInterval(() => check(true), RELEASE_EVERY_MS);
     try {
       document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") check(false); });
       window.addEventListener("online", () => check(true));

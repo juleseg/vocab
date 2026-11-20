@@ -1,7 +1,7 @@
 "use strict";
 
 // === ADMINISTRATION : GESTION DES COMPTES (ANNONCES, LISTES MODÈLES) ===
-// (suite de la découpe : même section, fichier séparé pour rester sous 120 Ko)
+// (suite de la découpe : même section, fichier séparé ; taille visée depuis l'étape 65 : 60 Ko au plus par fichier)
 // --- Gestion des comptes (admin, étape 27) : annonces (#admin-annonces) et listes modèles (#admin-modeles) ---
 // Fonctions SQL du script supabase-etape27.sql (security definer, contrôle is_admin()).
 // Script pas lancé : « Lancez le script SQL de l'étape 27 » dans ces écrans, le reste de l'administration marche.

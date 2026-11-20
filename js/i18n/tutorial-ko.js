@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : 사용법 안내 (étape 40) — 한국어 ===
+// === I18N : 사용법 안내 (ÉTAPE 40) — 한국어 ===
 // Fichier à part (ko.js approche la limite de taille), chargé juste après les fichiers de langue principaux.
 Object.assign(I18N.ko, {
   "tuto.label": "사용법 안내",

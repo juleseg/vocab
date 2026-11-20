@@ -1,6 +1,6 @@
 "use strict";
 
-// === INVITATION À ACTIVER LES NOTIFICATIONS (étape 38) ===
+// === INVITATION À ACTIVER LES NOTIFICATIONS (ÉTAPE 38) ===
 // Les navigateurs n'activent jamais les notifications sans un geste : l'appli propose une fenêtre avec un bouton.
 // Lancée après les annonces (auth.js, enterSupabase) ; attend qu'aucune autre fenêtre ne soit ouverte (whenNoModal).
 // Une seule fenêtre d'invitation par lancement.

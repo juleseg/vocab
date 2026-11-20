@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : JEUX D'ENTRAÎNEMENT (étape 42) — FRANÇAIS ===
+// === I18N : JEUX D'ENTRAÎNEMENT (ÉTAPE 42) — FRANÇAIS ===
 // Fichier à part (fr.js approche la limite de taille), chargé après les fichiers de langue principaux.
 // Choix d'une session (js/screens/reviser.js), jeux (js/modes/jeux.js, qcm.js, course.js, paires.js, ordre.js),
 // Réglages → Audio (sons des jeux), journal d'activité (événement game).

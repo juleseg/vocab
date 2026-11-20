@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : XP, NIVEAUX, DÉFIS DU JOUR ET BADGES (étape 43) — ENGLISH (en) ===
+// === I18N : XP, NIVEAUX, DÉFIS DU JOUR ET BADGES (ÉTAPE 43) — ENGLISH (en) ===
 // Fichier à part (les fichiers de langue principaux approchent la limite de taille), chargé après games-en.js.
 // Contient aussi am.priv.xp (Réglages > Amis) et tuto.xp.* (tutoriel).
 Object.assign(I18N.en, {

@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : BONS MOMENTS POUR RÉVISER (étape 61) — FRANÇAIS ===
+// === I18N : BONS MOMENTS POUR RÉVISER (ÉTAPE 61) — FRANÇAIS ===
 // Rappel du matin, micro-session « 2 minutes », réglages, règle de notification « morning_recall ». Clés mom.*
 // Fichier à part (fr.js approche la limite de taille), chargé juste après genre-fr.js.
 Object.assign(I18N.fr, {

@@ -1,7 +1,7 @@
 "use strict";
 
 // === ADMINISTRATION : TABLEAU DE BORD ===
-// (suite de la découpe : même section, fichier séparé pour rester sous 120 Ko)
+// (suite de la découpe : même section, fichier séparé ; taille visée depuis l'étape 65 : 60 Ko au plus par fichier)
 // --- Tableau de bord (admin, étape 25) : écran #admin, accueil de l'Administration ---
 // Fonctions SQL du script supabase-etape25.sql (security definer, contrôle is_admin()) : admin_dash_kpis (chiffres clés,
 // + ménage du journal > 90 j et du contenu des demandes Claude > 30 j), admin_dash_series (30 jours / 12 mois),

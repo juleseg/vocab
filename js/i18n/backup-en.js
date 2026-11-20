@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : SAUVEGARDES (étape 50) — EN ===
+// === I18N : SAUVEGARDES (ÉTAPE 50) — EN ===
 // Écran Administration → Sauvegardes (js/screens/admin-backups.js) et alerte du tableau de bord (admin-dashboard.js).
 // Fichier à part, chargé après release-en.js.
 Object.assign(I18N.en, {

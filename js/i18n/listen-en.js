@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : LISTENING AND SPEAKING (étape 46) — ENGLISH (en) ===
+// === I18N : LISTENING AND SPEAKING (ÉTAPE 46) — ENGLISH (en) ===
 // Dictation and Pronunciation modes. Separate file, loaded after story-en.js.
 Object.assign(I18N.en, {
   "mode.dictation": "Dictation",

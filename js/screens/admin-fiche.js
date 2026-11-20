@@ -1,7 +1,7 @@
 "use strict";
 
 // === ADMINISTRATION : FICHE D'UN COMPTE ===
-// (suite de la découpe : même section, fichier séparé pour rester sous 120 Ko)
+// (suite de la découpe : même section, fichier séparé ; taille visée depuis l'étape 65 : 60 Ko au plus par fichier)
 // --- Fiche d'un compte (admin, étape 26) : écran #admin-fiche ---
 // Ouverte depuis la liste des comptes, le tableau de bord (alertes, classements), le journal et l'historique des demandes
 // Claude (openAccountFiche). Un seul compte à la fois.

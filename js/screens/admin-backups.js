@@ -1,6 +1,6 @@
 "use strict";
 
-// === ADMINISTRATION : SAUVEGARDES (étape 50) ===
+// === ADMINISTRATION : SAUVEGARDES (ÉTAPE 50) ===
 // Écran #admin-sauvegardes (admin, mode Supabase). Fonctions SQL du script supabase-etape50.sql (security definer,
 // contrôle is_admin()) : admin_backups_list (lignes de la table backups, taille totale, attente avant « Sauvegarder
 // maintenant »), admin_backup_status (alerte du tableau de bord). Fonction Supabase « backup » (claude/backup-index.ts).
@@ -19,11 +19,7 @@ const BK_FN = "backup";
 const bk = { started: false, loading: false, err: "", missing: false, data: null, fn: "unknown", fnVersion: "", busy: false, msg: "", msgBad: false };
 
 function bkRerender() { if (currentScreen === "adminbk") renderAdminBackups(); }
-function bkIsMissing(e) {
-  const code = String((e && e.code) || ""), msg = String((e && (e.message || e.msg)) || "");
-  return ["PGRST202", "42883", "PGRST205", "42P01"].includes(code) || /could not find|does not exist|schema cache/i.test(msg);
-}
-function bkErrText(e) { return bkIsMissing(e) ? t("bk.missing") : aqErrText(e); }
+function bkErrText(e) { return alIsMissing(e) ? t("bk.missing") : aqErrText(e); }
 // Taille lisible : 480 Ko, 1,2 Mo.
 function bkSize(n) {
   n = Number(n);
@@ -47,7 +43,7 @@ async function bkLoad() {
   try {
     bk.data = await aqRpc("admin_backups_list");
     bk.missing = false;
-  } catch (e) { bk.data = null; bk.missing = bkIsMissing(e); bk.err = bk.missing ? "" : bkErrText(e); }
+  } catch (e) { bk.data = null; bk.missing = alIsMissing(e); bk.err = bk.missing ? "" : bkErrText(e); }
   bk.loading = false;
   bkRerender();
   if (!bk.missing && bk.fn === "unknown") bkCheckFn();

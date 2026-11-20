@@ -623,7 +623,7 @@ window.App.Images = Images;
 Storage.onBeforeSave(data => Images.onSave(data));   // cartes, listes, dossiers supprimés ou image changée → ménage
 
 // === ÉDITEUR DE CARTE : CHAMP « IMAGE » ===
-// Champ ajouté au formulaire vocab (js/screens/listes.js, vocabForm). L'image choisie est traitée et envoyée tout de
+// Champ ajouté au formulaire vocab (js/screens/listes-cartes.js, vocabForm). L'image choisie est traitée et envoyée tout de
 // suite (chemin nouveau à chaque fois) ; elle n'est liée à la carte qu'à l'enregistrement. Fenêtre fermée sans enregistrer :
 // le fichier envoyé est supprimé au prochain contrôle (ou par le ménage du lancement).
 // ctx.word() : mot à chercher sur Wikimedia ; renvoie { node, get(), proposeAsked() }.

@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : 주간 리그와 대결 (étape 44) — 한국어 (ko) ===
+// === I18N : 주간 리그와 대결 (ÉTAPE 44) — 한국어 (ko) ===
 // Fichier à part (les fichiers de langue principaux approchent la limite de taille), chargé après xp-ko.js.
 Object.assign(I18N.ko, {
   // 리그

@@ -1,6 +1,6 @@
 "use strict";
 
-// === MA PHRASE (étape 58) ===
+// === MA PHRASE (ÉTAPE 58) ===
 // Mode Supabase seulement (script claude/supabase-etape58.sql). Textes : js/i18n/sentence-<langue>.js (clés sn.*).
 //
 // Déroulé :
@@ -20,7 +20,7 @@
 //  - Écran « Mes phrases » (#phrases, bouton Stats allumé) : liste, « Utiliser comme exemple de la carte » (version perso :
 //    la carte garde cet exemple, il n'est jamais proposé au dictionnaire commun), « Supprimer ».
 //  - Réglages : carte #sentCard (réglage + entrée vers l'écran).
-const SENT_P = 0.1, SENT_SESSION_MAX = 3, SENT_DAY_MAX = 10, SENT_MAX_LEN = 200, SENT_KEEP = 200, SENT_XP = XP_RULES.sentence.send;
+const SENT_P = 0.1, SENT_SESSION_MAX = 3, SENT_DAY_MAX = 10, SENT_MAX_LEN = 200, SENT_XP = XP_RULES.sentence.send;
 
 function sentOn() {
   try { return auth.mode === "supabase" && !!auth.sbUid && Queue.usable(); } catch (e) { return false; }
@@ -35,11 +35,10 @@ function sentNewId() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, ch => { const r = Math.random() * 16 | 0; return (ch === "x" ? r : (r & 3 | 8)).toString(16); });
 }
 function sentClean(v, max) { return String(v == null ? "" : v).replace(/\s+/g, " ").trim().slice(0, max); }
-function sentLangFr(c) { return LANGUAGES[c] ? LANGUAGES[c].names.fr.toLowerCase() : c; }
 
 // --- Texte de la demande (même texte que les consignes de la tâche programmée, gardé dans le lot) ---
 function sentencePrompt(s) {
-  const L = sentLangFr(s.lang), T = sentLangFr(s.tl);
+  const L = storyLangFr(s.lang), T = storyLangFr(s.tl);
   return [
     "Tu corriges une phrase écrite par un apprenant de " + L + " (code " + s.lang + "), dans une appli de vocabulaire.",
     "Il devait écrire une phrase avec le mot « " + s.word + " ». Sa phrase : « " + s.text + " ».",

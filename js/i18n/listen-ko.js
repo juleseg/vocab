@@ -1,6 +1,6 @@
 "use strict";
 
-// === I18N : 듣기와 말하기 (étape 46) — 한국어 (ko) ===
+// === I18N : 듣기와 말하기 (ÉTAPE 46) — 한국어 (ko) ===
 // 받아쓰기, 발음 모드. 별도 파일, story-ko.js 다음에 불러옴.
 Object.assign(I18N.ko, {
   "mode.dictation": "받아쓰기",

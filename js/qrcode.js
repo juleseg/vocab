@@ -1,6 +1,6 @@
 "use strict";
 
-// === QR CODE (étape 39) ===
+// === QR CODE (ÉTAPE 39) ===
 // Générateur de QR code sans bibliothèque externe : mode octets (UTF-8), correction d'erreur M (~15 %),
 // versions 1 à 10 (jusqu'à 213 octets), masque choisi par pénalité. Sert à l'écran À propos (adresse de l'appli).
 // QR.matrix(texte) → { size, dark(x, y) } ; QR.svg(texte, px) → élément <svg> (fond blanc, marge de 4 modules).

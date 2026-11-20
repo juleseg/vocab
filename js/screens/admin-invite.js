@@ -1,6 +1,6 @@
 "use strict";
 
-// === ADMINISTRATION : INVITER À ACTIVER LES NOTIFICATIONS (étape 38) ===
+// === ADMINISTRATION : INVITER À ACTIVER LES NOTIFICATIONS (ÉTAPE 38) ===
 // Onglet « Inviter à activer » de Administration → Notifications (renderAdminPush, js/screens/admin-notifications.js).
 // - Ciblage : mêmes ciblages et filtres que les notifications (ciblages enregistrés, comptes choisis, filtres).
 // - Nombres avant envoi (admin_invite_target) : comptes concernés (sans notifications actives sur au moins un appareil),
@@ -13,7 +13,6 @@
 // - Journal : admin_push, action invite_send / invite_stop.
 // Script SQL absent : « Lancez le script SQL de l'étape 38 » ; le reste de l'écran Notifications marche.
 const NI_PAGE = 20;
-const NI_STATUSES = ["enabled", "later", "denied", "install", "shown"];
 const nvi = {
   started: false, missing: false, seg: "", users: [], filter: {}, calc: null, calcBusy: false, calcErr: "", calcKey: "",
   text: null, days: 30, busy: false, list: null, listErr: "", listLoading: false, page: 0
