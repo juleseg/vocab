@@ -237,6 +237,7 @@ async function doCreate() {
     auth.legacy = null;
     clearAuthForm();
     Tutorial.markNew(id);   // étape 40 : tutoriel lancé tout seul pour ce nouveau compte
+    if (typeof AccNotif !== "undefined") AccNotif.markNew(id);   // étape 71 (sans effet en mode local : pas de notifications)
     await startUser(id, preset, target);
     toast(t(migrate ? "auth.migrated" : "auth.welcome", { id }));
   } finally { auth.busy = false; }
@@ -249,6 +250,7 @@ async function sbCreate(id, pin, target) {
     auth.loginVia = "create";
     clearAuthForm();
     Tutorial.markNew(id);   // étape 40 : tutoriel lancé tout seul pour ce nouveau compte
+    if (typeof AccNotif !== "undefined") AccNotif.markNew(id);   // étape 71 : rappels proposés juste après la création
     await enterSupabase(session, target);
     toast(t("auth.welcome", { id }));
   } catch (e) { authErrKind(sbErrKind(e)); }
@@ -286,7 +288,11 @@ async function enterSupabase(session, target) {
   // Étape 52 : puis les récompenses d'idées pas encore reçues (réservées sur le serveur, puis appliquées une fois) et un
   // message si l'équipe a répondu à une idée.
   // Étape 54 : puis les récompenses d'objectif d'équipe (+30 XP, badge « Équipe en or »), réservées puis appliquées une fois.
-  Ann.check().finally(() => NotifInvite.check()).finally(() => WhatsNew.check()).finally(() => Ideas.check()).finally(() => Teams.check()).finally(() => Tutorial.check());
+  // Étape 71 : nouveau compte (ou premier lancement de l'appli installée) : la fenêtre des notifications passe AVANT les
+  // annonces, juste après la création du compte (AccNotif.early, js/accueil-notifs.js).
+  const notifFirst = typeof AccNotif !== "undefined" && AccNotif.early(id);
+  (notifFirst ? NotifInvite.check().finally(() => Ann.check()) : Ann.check().finally(() => NotifInvite.check()))
+    .finally(() => WhatsNew.check()).finally(() => Ideas.check()).finally(() => Teams.check()).finally(() => Tutorial.check());
 }
 // Compte bloqué (étape 27) : déconnexion tout de suite (session oubliée sur l'appareil), puis écran avec la raison.
 // Rien n'est envoyé ni effacé : les données du compte restent en ligne et dans le cache de l'appareil.

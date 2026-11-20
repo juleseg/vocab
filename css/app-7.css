@@ -1,0 +1,5 @@
+/* === NOTIFICATIONS À LA CRÉATION DU COMPTE : « ACTIVER LES RAPPELS ? », GUIDE D'INSTALLATION (ÉTAPE 71) === */
+/* Fenêtres de js/accueil-notifs.js ; base commune .ni-body / .ni-steps de l'étape 38 (css/app-partage.css). */
+.acn-body .acn-next{font-weight:600}
+.acn-body .acn-warn{padding:10px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--warn);font-size:15px}
+.acn-body{word-break:keep-all;overflow-wrap:anywhere}

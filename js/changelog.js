@@ -9,6 +9,23 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "71", date: "2026-11-20",
+    points: {
+      ko: [
+        "계정을 만들면 바로 알림(오늘의 목표, 연속 기록, 친구 소식)을 켤 수 있어요.",
+        "앱이 아직 설치되지 않았다면 iPhone과 Android에서 설치 방법을 먼저 알려 드려요."
+      ],
+      fr: [
+        "Juste après la création du compte, l'appli propose d'activer les rappels (objectif du jour, série, amis).",
+        "Si l'appli n'est pas encore installée, elle explique d'abord comment l'installer, sur iPhone et sur Android."
+      ],
+      en: [
+        "Right after you create your account, the app offers to turn on reminders (daily goal, streak, friends).",
+        "If the app isn't installed yet, it first shows how to install it, on iPhone and Android."
+      ]
+    }
+  },
+  {
     version: "70", date: "2026-11-20",
     points: {
       ko: [

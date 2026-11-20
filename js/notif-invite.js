@@ -20,6 +20,10 @@
 //    sur l'appareil (vocabfr.push:invite:q:<identifiant>) et renvoyées au lancement suivant.
 // Journal : push_invite_shown, push_invite_enabled, push_invite_later, push_invite_denied
 //    (data.src = first | admin ; data.mode = install | denied pour les fenêtres d'explication).
+// 3. Étape 71 : nouveau compte sur cet appareil (marque `fresh`, js/accueil-notifs.js, AccNotif) : fenêtre juste après la
+//    création (avant les annonces), guide d'installation aussi pour Android, « Activer les rappels ? », au plus 2 fenêtres
+//    automatiques par appareil ; journal avec data.fresh = true. La fenêtre de première ouverture (point 1) prend les mêmes
+//    textes. Les comptes existants gardent les règles des points 1 et 2.
 const NotifInvite = (() => {
   const LATER_MS = 7 * 86400000;
   let token = 0, busy = false, missing = false;
@@ -138,10 +142,11 @@ const NotifInvite = (() => {
       return;
     }
     log("shown", { src: "first" });
-    const body = el("div", "ni-body");
-    body.appendChild(para(t("ni.text")));
-    body.appendChild(para(t("ni.hint"), "hint"));
-    const r = await ask("🔔 " + t("ni.title"), body, [laterBtn(), enableBtn()]);
+    // Étape 71 : mêmes textes que la fenêtre d'un nouveau compte (« Activer les rappels ? », js/accueil-notifs.js).
+    let body = null, title = "🔔 " + t("ni.title");
+    if (typeof AccNotif !== "undefined") { body = AccNotif.askBody(); title = "🔔 " + t("acn.title"); }
+    else { body = el("div", "ni-body"); body.appendChild(para(t("ni.text"))); body.appendChild(para(t("ni.hint"), "hint")); }
+    const r = await ask(title, body, [laterBtn(), enableBtn()]);
     if (r.k === "enable") await afterEnable(r.p, "first", valid);
     else { setRec({ later: Date.now() }); log("later", { src: "first" }); }
   }
@@ -199,14 +204,25 @@ const NotifInvite = (() => {
       const ps = Push.state();
       if (ps.missing || !ps.st || !ps.st.key) return;   // notifications pas installées côté serveur : rien à proposer
       const sup = Push.support(), perm = Push.permission();
-      if (sup !== "ok" && sup !== "ios_install") return;   // navigateur sans notifications, aperçu Claude…
+      // Étape 71 : nouveau compte sur cet appareil (js/accueil-notifs.js) : guide d'installation (iPhone ET Android, même
+      // dans un navigateur sans notifications, ex. celui de KakaoTalk), puis « Activer les rappels ? ». null = règles ci-dessous.
+      const accOn = typeof AccNotif !== "undefined" && sup !== "nosw";
+      let acc = accOn ? AccNotif.mode(rec(), sup, perm) : null;
+      if (!acc && sup !== "ok" && sup !== "ios_install") return;   // navigateur sans notifications, aperçu Claude…
       await flush();
       if (sup === "ok" && perm === "granted" && ps.st.registered) { setRec({ done: Date.now() }); return; }   // déjà actives
-      const list = await pending();
+      if (acc === "none") return;
+      if (acc === "auto") { await AccNotif.run(acc, api, valid); return; }   // sans fenêtre : pas besoin d'attendre les autres
+      const list = acc ? [] : await pending();
       if (!(await whenNoModal(valid))) return;
       // L'état a pu changer pendant l'attente (Réglages → Notifications).
       const ps2 = Push.state();
       if (sup === "ok" && Push.permission() === "granted" && ps2.st && ps2.st.registered) return;
+      if (acc) {
+        acc = AccNotif.mode(rec(), sup, Push.permission());
+        if (acc && acc !== "none") await AccNotif.run(acc, api, valid);
+        return;
+      }
       if (list.length) { await showAdmin(list, sup, Push.permission(), valid); return; }
       const r = rec() || {};
       if (sup === "ok" && Push.permission() === "denied") { if (!r.deniedInfo) await showDenied(); return; }
@@ -219,5 +235,7 @@ const NotifInvite = (() => {
     finally { busy = false; }
   }
   function reset() { token++; busy = false; missing = false; }
+  // Étape 71 : outils prêtés à js/accueil-notifs.js (même fenêtre, même état de l'appareil, même journal).
+  const api = { rec, setRec, ask, afterEnable, enableBtn, laterBtn, log, showDenied };
   return { check, reset };
 })();
