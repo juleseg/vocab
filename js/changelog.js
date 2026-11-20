@@ -8,6 +8,23 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "66", date: "2026-11-20",
+    points: {
+      ko: [
+        "Claude 요청 화면에 Claude가 마지막으로 확인한 시간이 나와요 (예: 마지막 확인: 14시 7분).",
+        "앱 운영을 도와주는 운영자가 생겼어요: 관리자가 정한 일만 할 수 있어요."
+      ],
+      fr: [
+        "L'écran des demandes à Claude montre l'heure de son dernier passage (ex. « Dernier passage à 14 h 07 »).",
+        "Des modérateurs peuvent maintenant aider à gérer l'appli, seulement pour les tâches choisies par l'admin."
+      ],
+      en: [
+        "The Claude requests screen now shows when Claude last checked in (e.g. \"Last run at 2:07 PM\").",
+        "Moderators can now help run the app, only for the tasks chosen by the admin."
+      ]
+    }
+  },
+  {
     version: "65", date: "2026-11-20",
     points: {
       ko: ["기술 점검: 앱을 더 가볍게 관리할 수 있도록 정리했어요."],

@@ -130,7 +130,7 @@ function renderAdminLog() {
   csv.addEventListener("click", alExportCsv);
   bar.appendChild(csv);
   if (al.f.user) {
-    const fi = el("button", "btn", t("fc.open"));          // fiche du compte (étape 26)
+    const fi = modGate(el("button", "btn", t("fc.open")), "accounts.see");          // fiche du compte (étape 26 ; étape 66 : case du modo)
     fi.addEventListener("click", () => openAccountFiche(al.f.user, "adminlog"));
     bar.appendChild(fi);
     const dv = el("button", "btn", t("al.devices"));
@@ -205,7 +205,7 @@ function alOpenRow(r) {
   const a = arr(adm.list).find(x => x.user_id === r.user_id);
   if (al.f.user !== r.user_id) acts.push({ label: t("al.onlyThis"), onClick: () => { al.f.user = r.user_id; al.page = 0; alLoad(); } });
   acts.push({ label: t("al.devices"), onClick: () => { setTimeout(() => adminDevices(a || { user_id: r.user_id, identifiant: r.identifiant }), 0); } });
-  if (r.user_id) acts.push({ label: t("fc.open"), onClick: () => { openAccountFiche(r.user_id, "adminlog"); } });
+  if (r.user_id) acts.push({ label: t("fc.open"), perm: "accounts.see", onClick: () => { openAccountFiche(r.user_id, "adminlog"); } });
   acts.push({ label: t("close") });
   openModal(alKindLabel(r.kind), body, acts);
 }

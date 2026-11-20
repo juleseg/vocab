@@ -1,0 +1,63 @@
+/* =====================================================================================
+   css/app-3.css — nouvelles sections de styles de l'étape 66, chargé en dernier (après css/app-2.css).
+   ===================================================================================== */
+
+/* === MODÉRATEURS ET RÔLES (ÉTAPE 66) === */
+/* Bouton ou bloc réservé à une case que le modo n'a pas (modGate, js/moderation.js) : jamais affiché. */
+[data-mod-off]{display:none !important}
+.mod-ro input:disabled,.mod-ro select:disabled,.mod-ro textarea:disabled,.mod-ro .btn:disabled{opacity:.55;cursor:not-allowed}
+.mod-me h3{margin:0 0 6px}
+.mod-me p{margin:4px 0}
+.mod-al-h{margin:12px 0 2px;font-size:15px}
+.mod-h{gap:10px}
+.mod-h h3{flex:0 0 auto;white-space:nowrap}
+.mod-h .btn{flex:0 1 auto;width:auto;min-width:0}
+.mod-card{padding:12px}
+.mod-name{font-size:17px}
+.mod-card .lv-links{margin-top:6px}
+.mod-cat{width:100%;text-align:left;margin-bottom:8px}
+.mod-cat:disabled{opacity:.7}
+.mod-cat-p{font-size:12px;overflow-wrap:anywhere}
+.mod-edit{display:flex;flex-direction:column;gap:6px}
+.mod-grid{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.mod-grid .hint{margin:0}
+.mod-quick{display:flex;flex-wrap:wrap;gap:4px 14px}
+.mod-grp{border-top:1px solid var(--border);padding-top:6px;margin-top:4px}
+.mod-grp h4{margin:2px 0 4px;font-size:14px;color:var(--muted)}
+.mod-perm{display:flex;align-items:flex-start;gap:8px;padding:4px 0;cursor:pointer}
+.mod-perm input{margin-top:3px;flex:0 0 auto;width:18px;height:18px}
+.mod-perm-t{flex:1 1 auto;min-width:0;overflow-wrap:anywhere;font-size:14px}
+.mod-perm-k{flex:0 0 auto;display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.mod-perm-k .tag{margin:0;font-size:11px}
+.mod-perm-off{opacity:.5;cursor:not-allowed}
+.mod-super .mod-perm-t{font-weight:600}
+.mod-find{max-height:50vh;overflow:auto;margin-top:8px}
+
+/* === DERNIER PASSAGE DE CLAUDE (ÉTAPE 66) === */
+.cr-card p{margin:4px 0}
+.cr-card.cr-stale{border-left:3px solid var(--bad)}
+.card.cr-alert{font-weight:600}
+
+/* === ANALYSE DES FAUX DOUBLONS : POURCENTAGE (ÉTAPE 66) === */
+.dpa-tools{padding:12px}
+.dpa-tools .hint{margin:4px 0}
+.dpa-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px 12px;margin:6px 0}
+.dpa-row .field{margin:0;flex:1 1 140px}
+.dpa-n,.dpa-tools input.dpa-n{width:84px;flex:0 0 84px;min-height:44px}
+.dpa-row .btn{width:auto;flex:1 1 auto}
+.dpa-from{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.dpa-sel,.dpa-ask{border-top:1px solid var(--border);margin-top:8px;padding-top:8px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.dpa-selbar{align-items:center}
+.dpa-badge{margin:6px 0 2px;display:flex;flex-direction:column;gap:2px}
+.dpa-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.dpa-pct{font-weight:700;font-size:16px;padding:1px 8px;border-radius:999px;border:2px solid currentColor;font-variant-numeric:tabular-nums}
+.dpa-pct.g{color:var(--ok)}
+.dpa-pct.o{color:var(--warn)}
+.dpa-pct.r{color:var(--bad)}
+.dpa-src{margin:0}
+.dpa-pick{display:flex;align-items:center;gap:6px;font-size:14px;margin-left:auto;cursor:pointer}
+.dpa-pick input{width:18px;height:18px}
+.dpa-why{font-size:14px;overflow-wrap:anywhere}
+.dpa-app{font-size:12px;overflow-wrap:anywhere}
+.dpa-bilan p{margin:6px 0}
+.dpa-prog{font-variant-numeric:tabular-nums}

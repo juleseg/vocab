@@ -149,6 +149,7 @@ const Queue = (() => {
     busy = (async () => {
       let res = null;
       const cadP = cadFetch();                          // étape 59 : fréquence de passage (jamais bloquant)
+      if (typeof ClaudeRun !== "undefined") ClaudeRun.fetch();   // étape 66 : dernier passage de Claude (jamais bloquant)
       try {
         res = await claim(!!opts.report);
         await refresh();
@@ -481,12 +482,18 @@ function queueCadenceText(c) {
 }
 // Petit texte près d'un bouton « Demander à Claude » (Réglages, fenêtres de demande).
 function queueCadenceNote() {
-  return el("p", "q-note q-cad", queueCadenceText());
+  return el("p", "q-note q-cad", queueCadenceRunText());
+}
+// Étape 66 : message + « Dernier passage à 14 h 07. » (rien si l'heure n'a jamais été notée).
+function queueCadenceRunText() {
+  const run = typeof ClaudeRun !== "undefined" ? ClaudeRun.text() : "";
+  return queueCadenceText() + (run ? " " + run : "");
 }
 // --- Écran « Demandes en cours » (demandes de l'utilisateur) ---
 function goRequests() {
   try { history.replaceState(null, "", "#" + HASH_OF.requests); } catch (e) {}
   Queue.cadenceFetch();                                   // valeur à jour à l'ouverture (au plus une fois par minute)
+  if (typeof ClaudeRun !== "undefined") ClaudeRun.fetch();   // étape 66 : dernier passage
   showScreen("requests");
 }
 function queueDate(s) {
@@ -495,7 +502,7 @@ function queueDate(s) {
 }
 // Nombre de la demande : cartes, cartes à générer, ou mots de l'histoire (étape 45).
 function queueMetaCount(r) {
-  return t(r.kind === "generate" ? "queue.meta.gen" : r.kind === "story" ? "st.meta" : "queue.meta.cards", { n: r.card_count });
+  return t(r.kind === "generate" ? "queue.meta.gen" : r.kind === "story" ? "st.meta" : r.kind === "dict_dupes" ? "dpa.meta" : "queue.meta.cards", { n: r.card_count });   // étape 66 : cas de faux doublons
 }
 function queueStatusText(r) {
   if (r.status === "done") return t(r.fetched_at ? "queue.st.fetched" : "queue.st.done");
@@ -509,7 +516,7 @@ function renderRequests() {
   back.addEventListener("click", () => { try { history.replaceState(null, "", "#" + HASH_OF.settings); } catch (e) {} showScreen("settings"); });
   root.appendChild(el("div", "lv-top")).appendChild(back);
   root.appendChild(el("h2", null, t("queue.title")));
-  root.appendChild(el("div", "card q-cad", queueCadenceText()));      // étape 59 : message visible par tous
+  root.appendChild(el("div", "card q-cad", queueCadenceRunText()));   // étape 59 : message visible par tous (étape 66 : + dernier passage)
   root.appendChild(el("p", "q-note", t("queue.help")));
   const top = el("div", "btns two");
   const ask = el("button", "btn primary", t("queue.ask"));

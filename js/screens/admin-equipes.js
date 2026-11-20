@@ -119,6 +119,7 @@ function atmDetail(root) {
   const del = el("button", "am-btn danger", t("atm.delete")); del.type = "button"; del.disabled = atm.busy;
   del.addEventListener("click", () => atmDelete(d));
   btns.append(r, del);
+  modGate(btns, "teams.act");   // étape 66 : case du modo
   h.appendChild(btns);
   root.appendChild(h);
   // Membres (tout, sans confidentialité)
@@ -132,7 +133,7 @@ function atmDetail(root) {
     const tr = el("tr");
     const who = el("td");
     const a = el("button", "link-btn", x.identifiant + (x.blocked ? " · " + t("tm.memberBlocked") : ""));
-    a.type = "button";
+    a.type = "button"; a.disabled = !Mod.can("accounts.see");   // étape 66 : fiche = case du modo
     a.addEventListener("click", () => { try { openAccountFiche(x.user_id, "adminteam"); } catch (e) {} });
     who.appendChild(a);
     tr.append(who, el("td", null, x.role === "chef" ? "👑 " + t("atm.chef") : t("atm.member")), el("td", null, dashFmt(x.xp_week)),

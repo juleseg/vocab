@@ -93,7 +93,7 @@ function adPropSection(root) {
   const pending = ad.status === "pending";
   let bar = null;
   if (pending) {
-    bar = el("div", "ad-bar");
+    bar = modGate(el("div", "ad-bar"), "dict.decide");   // étape 66 : case du modo
     const info = el("span", "muted");
     const bAll = el("button", "link-btn", t("dict.selPage")); bAll.type = "button";
     const bOk = el("button", "btn primary", t("dict.accept")), bNo = el("button", "btn", t("dict.reject"));
@@ -113,7 +113,7 @@ function adPropSection(root) {
     root.appendChild(bar);
   }
   const list = el("div", "ad-list");
-  data.rows.forEach(r => list.appendChild(adPropRow(r, pending, bar)));
+  data.rows.forEach(r => list.appendChild(adPropRow(r, pending && Mod.can("dict.decide"), bar)));   // étape 66 : cases à cocher avec la case du modo
   root.appendChild(list);
   root.appendChild(adPager(ad.page, data.total, p => { ad.page = p; ad.sel.clear(); adLoad(); }));
 }
@@ -235,7 +235,7 @@ async function adOpenSense(id) {
   const reopen = () => { if (close) close(); adOpenSense(id); };
   // Fusion d'un doublon dans ce sens
   if (!d.merged_into) {
-    const mb = el("button", "btn", t("dict.merge")); mb.type = "button";
+    const mb = modGate(el("button", "btn", t("dict.merge")), "dict.edit"); mb.type = "button";   // étape 66
     mb.addEventListener("click", () => { if (close) close(); adMergeInto(d); });
     wrap.appendChild(mb);
   }
@@ -261,7 +261,7 @@ async function adOpenSense(id) {
     see.addEventListener("click", () => { det.hidden = !det.hidden; });
     btns.appendChild(see);
     if (i > 0 && !d.merged_into) {
-      const rv2 = el("button", "link-btn", t("dict.revert")); rv2.type = "button";
+      const rv2 = modGate(el("button", "link-btn", t("dict.revert")), "dict.edit"); rv2.type = "button";   // étape 66
       rv2.addEventListener("click", () => {
         openModal(t("dict.revert"), el("p", null, t("dict.revertAsk", { v: x.version })), [
           { label: t("cancel") },

@@ -100,9 +100,12 @@ function renderAdmin() {
   const top = el("div", "adm-top");
   top.appendChild(el("h2", null, t("admin.title")));
   const ref = el("button", "link-btn", t("admin.refresh"));
-  ref.addEventListener("click", dashReload);
+  ref.addEventListener("click", () => { Mod.refresh(true); if (Mod.can("dash.see")) dashReload(); else renderAdmin(); });
   top.appendChild(ref);
   root.appendChild(top);
+  // Étape 66 : un modérateur voit son rôle et règle ses alertes ; seuls les écrans de ses cases sont proposés.
+  if (!auth.isAdmin) root.appendChild(modHomeCard());
+  if (Mod.allow("claude.see|dash.see")) { ClaudeRun.fetch(); const cra = ClaudeRun.alertCard(); if (cra) root.appendChild(cra); }   // Claude ne passe plus
   // Autres écrans de l'administration
   const nav = el("div", "dash-nav");
   [["dash.accounts", "adminacc"], ["aq.open", "adminreq"], ["al.open", "adminlog"], ["an.open", "adminann"], ["tp.open", "admintpl"], ["np.open", "adminpush"], ["dict.open", "admindict"], ["ce.open", "adminerr"], ["bk.open", "adminbk"], ["aix.open", "adminidea"], ["amg.open", "adminmsg"], ["atm.open", "adminteam"]].forEach(([k, scr]) => {   // étape 54 : équipes
@@ -110,9 +113,16 @@ function renderAdmin() {
     const b = el("button", "btn" + (n ? " aix-navnew" : ""), n ? t(scr === "adminmsg" ? "amg.openN" : "aix.openN", { n }) : t(k));
     b.type = "button";
     b.addEventListener("click", () => { if (scr === "adminidea") aixOpenWith(n ? { status: "new" } : null); else { if (scr === "adminmsg") { amg.threadUser = null; amg.thread = null; amg.unreadOnly = n > 0; amg.started = false; } if (scr === "adminteam") { atm.started = false; atm.open = null; atm.detail = null; } location.hash = "#" + HASH_OF[scr]; } });
+    if (!Mod.canScreen(scr)) return;   // étape 66 : écran sans case du modo
     nav.appendChild(b);
   });
+  if (Mod.can("mods.manage")) {   // étape 66 : gestion des modérateurs (admin et super modos)
+    const bm = el("button", "btn", t("mod.open")); bm.type = "button";
+    bm.addEventListener("click", () => { amd.started = false; location.hash = "#" + HASH_OF.adminmod; });
+    nav.appendChild(bm);
+  }
   root.appendChild(nav);
+  if (!Mod.can("dash.see")) return;   // étape 66 : tableau de bord = case « dash.see »
   if (!dash.started) { dashReload(); return; }
   if (dash.missing) { root.appendChild(el("div", "card q-err", t("dash.missing"))); return; }
   root.appendChild(dashKpiSection());

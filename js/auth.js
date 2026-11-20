@@ -278,6 +278,7 @@ async function enterSupabase(session, target) {
   }
   Supa.touch().catch(() => {});
   await startUser(id, null, target, userUuid);
+  Mod.refresh(true);   // étape 66 : rôle de modérateur et cases (Réglages → Administration si au moins une case)
   // Fenêtres du lancement, l'une après l'autre (étape 38) : annonces de l'admin (étape 27), puis invitation à activer
   // les notifications (fenêtre de première ouverture ou invitation de l'admin). Migration / sauvegarde : déjà faites.
   // Étape 39 : puis « Quoi de neuf » (une fois par nouvelle version).
@@ -567,6 +568,7 @@ async function logout() {
   Friends.reset();
   Shared.reset();
   UserStatus.reset();
+  Mod.reset();   // étape 66 : rôle de modérateur oublié (relu au prochain compte)
   Storage.setUser(null);
   Storage.setSession(null);
   if (auth.mode === "supabase") {

@@ -86,6 +86,7 @@ async function fcLoad() {
     (async () => {
       try {
         if (user === auth.sbUid) { fc.data = state; fc.version = state.version; fc.skStored = true; }
+        else if (!Mod.can("accounts.data")) { fc.data = null; fc.version = null; fc.skStored = false; throw { modNoData: true }; }   // étape 66
         else {
           const raw = Storage.unpackRows(await Supa.readRows(user));
           fc.version = raw ? num(Number(raw.version), null) : null;
@@ -93,7 +94,7 @@ async function fcLoad() {
           fc.data = raw ? normalizeData(raw) : null;
         }
         fc.dataErr = "";
-      } catch (e) { fc.data = null; fc.dataErr = aqErrText(e); }
+      } catch (e) { fc.data = null; fc.dataErr = e && e.modNoData ? t("mod.p.accounts.data") + " : " + t("mod.denied") : aqErrText(e); }
     })()
   ]);
   if (my !== fc.token) return;
@@ -195,10 +196,10 @@ function renderAdminFiche() {
   // Liens et actions
   const nav = el("div", "fc-nav");
   const btn = (label, on, cls) => { const b = el("button", "btn" + (cls ? " " + cls : ""), label); b.type = "button"; b.addEventListener("click", on); nav.appendChild(b); return b; };
-  btn(t("fc.journal"), () => { al.f.user = fc.user; al.f.kind = ""; al.f.days = ""; al.page = 0; al.data = null; al.err = ""; location.hash = "#" + HASH_OF.adminlog; });
-  btn(t("fc.requests"), () => dashGoRequests(fc.user, ""));
+  modGate(btn(t("fc.journal"), () => { al.f.user = fc.user; al.f.kind = ""; al.f.days = ""; al.page = 0; al.data = null; al.err = ""; location.hash = "#" + HASH_OF.adminlog; }), "log.see");   // étape 66
+  modGate(btn(t("fc.requests"), () => dashGoRequests(fc.user, "")), "claude.see");
   btn(t("fc.csv"), fcCsv);
-  btn(t("amg.fcBtn"), () => amgOpenThread(fc.user, "adminfiche"));   // conversation avec ce compte (étape 53)
+  modGate(btn(t("amg.fcBtn"), () => amgOpenThread(fc.user, "adminfiche")), "msg.see");   // conversation avec ce compte (étape 53)
   btn(t("fc.actions"), () => { if (adm.list) adminActions(fcAccountObj()); else toast(t("admin.err")); });
   root.appendChild(nav);
   root.appendChild(fcHeader());

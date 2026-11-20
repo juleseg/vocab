@@ -8,7 +8,7 @@ function renderSettings() {
   const gi = $("#setDailyGoal");
   if (document.activeElement !== gi) gi.value = Streak.goal();
   $("#accountInfo").textContent = t("account.info", { id: Storage.getUser() || "" });
-  $("#adminCard").hidden = !(auth.mode === "supabase" && auth.isAdmin);
+  $("#adminCard").hidden = !(auth.mode === "supabase" && Mod.any());   // étape 66 : admin, ou modérateur avec au moins une case
   $("#appVersion").textContent = t("settings.version", { v: APP_VERSION });
   renderLangCard();         // Réglages → Langues (profil de langues, étape 35)
   renderReviewCard();       // Réglages → Rythme de révision : choix actuel, ouvre l'écran #rythme (FSRS, étape 47)

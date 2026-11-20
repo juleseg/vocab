@@ -72,7 +72,7 @@ function aimRow(r) {
   row.appendChild(m);
   if (r.status === "pending") {
     const btns = el("div", "btns two");
-    const no = el("button", "btn", t("dict.reject")), ok = el("button", "btn primary", t("dict.accept"));
+    const no = modGate(el("button", "btn", t("dict.reject")), "dict.decide"), ok = modGate(el("button", "btn primary", t("dict.accept")), "dict.decide");   // étape 66
     no.type = ok.type = "button";
     no.addEventListener("click", () => aimDecide(r, false));
     ok.addEventListener("click", () => aimDecide(r, true));

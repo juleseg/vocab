@@ -212,10 +212,10 @@ function niTrack(root) {
     if (num(Number(x.waiting), 0)) card.appendChild(el("div", "hint", t("ni.adm.waitingN", { n: num(Number(x.waiting), 0) })));
     const b = el("div", "an-acts");
     const det = el("button", "btn", t("ni.adm.detail"));
-    det.type = "button"; det.addEventListener("click", () => niDetail(x));
+    det.type = "button"; det.dataset.modKeep = "1"; det.addEventListener("click", () => niDetail(x));   // étape 66 : « voir » gardé en lecture seule
     b.appendChild(det);
     if (x.open) {
-      const stop = el("button", "btn danger", t("ni.adm.stop"));
+      const stop = modGate(el("button", "btn danger", t("ni.adm.stop")), "notif.send");
       stop.type = "button"; stop.addEventListener("click", () => niStop(x));
       b.appendChild(stop);
     }
@@ -265,7 +265,7 @@ async function niDetail(x) {
 function niStop(x) {
   openModal(t("ni.adm.stop"), el("p", null, t("ni.adm.stopAsk")), [
     { label: t("cancel") },
-    { label: t("ni.adm.stop"), kind: "danger", onClick: () => {
+    { label: t("ni.adm.stop"), kind: "danger", perm: "notif.send", onClick: () => {   // étape 66 : case du modo
       (async () => {
         try { await aqRpc("admin_invite_stop", { p_id: x.id }); npLog("invite_stop", { title: niTitleOf(x).slice(0, 60) }); niLoadList(); }
         catch (e) { toast(niErr(e)); }

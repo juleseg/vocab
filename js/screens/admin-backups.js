@@ -94,7 +94,7 @@ function renderAdminBackups() {
   kv(t("bk.last"), lastOk ? bkWhen(lastOk.created_at) : t("bk.never"));
   const wait = num(Number(d.wait_minutes), 0);
   const running = !!d.running || bk.busy;
-  const go = el("button", "btn primary bk-go", bk.busy ? t("bk.running") : t("bk.now"));
+  const go = modGate(el("button", "btn primary bk-go", bk.busy ? t("bk.running") : t("bk.now")), "backups.act");   // étape 66
   go.type = "button"; go.id = "bkNow";
   go.disabled = running || wait > 0 || bk.fn === "missing";
   go.addEventListener("click", bkRun);
@@ -124,7 +124,7 @@ function bkRow(r) {
       t("bk.tables", { n: num(Number(r.tables_count), 0) }), bkDuration(r.duration_ms)].join(" · ")));
     if (r.file_name) box.appendChild(el("div", "bk-file", r.file_name + (r.app_version ? " · v" + r.app_version : "")));
     const acts = el("div", "btns two bk-acts");
-    const dl = el("button", "btn", t("bk.download")), ex = el("button", "btn", t("bk.extract"));
+    const dl = modGate(el("button", "btn", t("bk.download")), "backups.act"), ex = modGate(el("button", "btn", t("bk.extract")), "backups.act");   // étape 66
     dl.type = "button"; ex.type = "button";
     dl.addEventListener("click", () => bkDownload(r));
     ex.addEventListener("click", () => bkExtract(r));

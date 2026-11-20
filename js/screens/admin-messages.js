@@ -111,7 +111,7 @@ function renderAdminMessages() {
 function amgThreadsTab(root) {
   root.appendChild(el("p", "hint", t("amg.help")));
   const bar = el("div", "amg-bar");
-  const nw = el("button", "btn primary", "✉️ " + t("amg.new"));
+  const nw = modGate(el("button", "btn primary", "✉️ " + t("amg.new")), "msg.send");   // étape 66 : case du modo
   nw.type = "button"; nw.addEventListener("click", () => amgNewMessage(null));
   const csv = el("button", "btn", t("amg.csv"));
   csv.type = "button"; csv.addEventListener("click", () => amgExportCsv(null));
@@ -173,7 +173,7 @@ function amgThreadView(root) {
   if (th.blocked) id.appendChild(el("span", "tag bad", t("blk.tag")));
   head.appendChild(id);
   const nav = el("div", "btns");
-  const fiche = el("button", "btn", t("amg.fiche"));
+  const fiche = modGate(el("button", "btn", t("amg.fiche")), "accounts.see");   // étape 66
   fiche.type = "button"; fiche.addEventListener("click", () => openAccountFiche(th.user_id, "adminmsg"));
   const csv = el("button", "btn", t("amg.csv"));
   csv.type = "button"; csv.addEventListener("click", () => amgExportCsv(th.user_id));
@@ -198,7 +198,7 @@ function amgThreadView(root) {
   c.appendChild(list);
   root.appendChild(c);
   // Répondre
-  const f = el("div", "card mg-compose");
+  const f = modGate(el("div", "card mg-compose"), "msg.send");   // étape 66 : répondre = case du modo
   const ta = el("textarea", "input mg-ta");
   ta.id = "amgReply"; ta.rows = 4; ta.maxLength = MG_TEAM_MAX; ta.value = amg.draft; ta.placeholder = t("amg.replyPh");
   const lab = el("label", null, t("amg.reply")); lab.htmlFor = ta.id;
@@ -374,7 +374,7 @@ async function amgExportCsv(userId) {
 // --- Onglet Messages prédéfinis ---
 function amgCheersTab(root) {
   root.appendChild(el("p", "hint", t("amg.cheersHelp")));
-  const add = el("button", "btn primary", "＋ " + t("amg.cheerAdd"));
+  const add = modGate(el("button", "btn primary", "＋ " + t("amg.cheerAdd")), "msg.cheers");   // étape 66
   add.type = "button"; add.addEventListener("click", () => amgEditCheer(null));
   root.appendChild(add);
   if (amg.cheersErr) root.appendChild(el("div", "card q-err", amg.cheersErr));
@@ -407,6 +407,7 @@ function amgCheersTab(root) {
     down.addEventListener("click", () => amgMove(i, 1));
     ed.addEventListener("click", () => amgEditCheer(m));
     acts.append(up, down, ed);
+    modGate(acts, "msg.cheers"); if (!Mod.can("msg.cheers")) sw.disabled = true;   // étape 66 : case du modo
     c.appendChild(acts);
     root.appendChild(c);
   });

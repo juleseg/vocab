@@ -41,7 +41,7 @@ const CONFIG = {
   PV_CHUNK: 200          // « À valider » : propositions acceptées / refusées par paquet
 };
 // Numéro de la dernière étape réalisée : affiché en bas des Réglages, envoyé au journal d'activité et dans la fiche appareil.
-const APP_VERSION = "65";
+const APP_VERSION = "66";
 
 // === I18N ===
 // Textes de l'interface : un fichier principal par langue (js/i18n/ko.js, fr.js, en.js), chargés après languages.js, puis
@@ -88,6 +88,8 @@ function toast(msg) {
 
 // actions : [{ label, kind: "primary"|"danger"|"", onClick: () => (false pour garder ouverte) }]
 function openModal(title, bodyNode, actions, opts) {
+  // Étape 66 : action réservée à une case de modérateur ({ perm: "case" }) : absente sans la case (js/moderation.js).
+  actions = actions.filter(a => !(a && a.perm && typeof Mod !== "undefined" && !Mod.allow(a.perm)));
   const bg = document.createElement("div");
   bg.className = "modal-bg";
   const box = document.createElement("div");

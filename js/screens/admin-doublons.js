@@ -24,6 +24,7 @@ async function adcLoad() {
     adc.data = { total: num(Number(r && r.total), 0), rows: arr(r && r.rows) };
     adc.count = num(Number(r && r.open), 0);
     adc.missing = false;
+    if (adc.status === "open" && typeof dpaAfterLoad === "function") await dpaAfterLoad();   // étape 66 : % de pertinence, tri, filtre
   } catch (e) {
     adc.missing = alIsMissing(e);
     adc.err = adc.missing ? t("adc.missing") : adErr(e);
@@ -66,7 +67,7 @@ function adcSection(root) {
   root.appendChild(st);
   const f = el("div", "ad-search adc-tools");
   f.appendChild(langSelect(adc.lang, t("dict.allLangs"), v => { adc.lang = v; adc.page = 0; adcLoad(); }));
-  const scan = el("button", "btn", t("adc.scan")); scan.type = "button";
+  const scan = modGate(el("button", "btn", t("adc.scan")), "dict.conflict"); scan.type = "button";   // étape 66 : case du modo
   scan.addEventListener("click", async () => {
     scan.disabled = true;
     try {
@@ -78,6 +79,7 @@ function adcSection(root) {
   });
   f.appendChild(scan);
   root.appendChild(f);
+  if (typeof dpaTools === "function") dpaTools(root);   // étape 66 : pertinence en %, sélection, fusion de masse, analyse Claude
   if (adc.loading && !adc.data) { root.appendChild(el("p", "muted", t("queue.loading"))); return; }
   const data = adc.data || { total: 0, rows: [] };
   if (!data.rows.length) { root.appendChild(el("p", "muted", t(adc.status === "open" ? "adc.none" : "dict.none"))); return; }
@@ -110,6 +112,7 @@ function adcCase(r) {
   h.append(w, el("span", "tag", adcLangName(r.lang)));
   if (r.status !== "open") h.appendChild(el("span", "tag", t("adc.st." + r.status)));
   box.appendChild(h);
+  if (typeof dpaBadge === "function") { const bd = dpaBadge(r); if (bd) box.appendChild(bd); }   // étape 66 : % de pertinence
   const pend = props.filter(p => p.status === "pending").length;
   box.appendChild(el("div", "muted adc-meta", t("adc.meta", { s: senses.length, c: cards.length, p: pend }) + " · " +
     t(r.source === "add" ? "adc.src.add" : "adc.src.scan") + " · " + adDate(r.decided_at || r.updated_at)));
@@ -143,7 +146,7 @@ function adcCase(r) {
                        : x.linked ? t("adc.card.linked", { s: senseName(x.linked) }) : t("adc.card.free");
       row.appendChild(el("div", "muted adc-row-s", stt));
       if (r.status !== "merged" && senses.length) {
-        const b = el("button", "link-btn", t("adc.link")); b.type = "button";
+        const b = modGate(el("button", "link-btn", t("adc.link")), "dict.conflict"); b.type = "button";
         b.addEventListener("click", () => adcLinkCard(r, x, senses));
         row.appendChild(b);
       }
@@ -167,7 +170,7 @@ function adcCase(r) {
   }
   // Actions
   if (r.status === "open" && senses.length >= 2) {
-    const btns = el("div", "btns two adc-acts");
+    const btns = modGate(el("div", "btns two adc-acts"), "dict.conflict");   // étape 66 : case du modo
     const bS = el("button", "btn", t("adc.distinct")), bM = el("button", "btn primary", t("adc.merge"));
     bS.type = bM.type = "button";
     bS.addEventListener("click", () => adcDistinct(r));

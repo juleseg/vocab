@@ -27,7 +27,11 @@ async function aqRpc(name, args) {
   const cl = Supa.client();
   if (!cl) throw new Error("no client");
   const r = await withTimeout(cl.rpc(name, args || {}), 20000);
-  if (r && r.error) throw r.error;
+  if (r && r.error) {
+    // Étape 66 : action refusée par le serveur (rôle retiré, case enlevée) → cases relues tout de suite.
+    if (String(r.error.code || "") === "42501" && typeof Mod !== "undefined" && name !== "mod_me") Mod.refresh(true);
+    throw r.error;
+  }
   return r ? r.data : null;
 }
 function aqErrText(e) {
@@ -139,6 +143,7 @@ function aqCadCard(root) {
   });
   c.append(prev, save);
   upd();
+  modRO(c, "claude.cadence");                        // étape 66 : réglage en lecture seule sans la case du modo
   root.appendChild(c);
 }
 
@@ -156,6 +161,7 @@ function renderAdminReq() {
   top.appendChild(ref);
   root.appendChild(top);
   root.appendChild(el("p", "q-note", t("aq.help")));
+  root.appendChild(ClaudeRun.adminCard());          // étape 66 : dernier passage de Claude (alerte au-delà de 3 fois la fréquence)
   aqCadCard(root);                                   // étape 59 : fréquence de passage de Claude
   if (!aq.stats && !aq.statsLoading && !aq.statsErr) { aqReload(); return; }
 
@@ -185,7 +191,7 @@ function renderAdminReq() {
   root.appendChild(hh);
   root.appendChild(aqFilters());
   if (aq.f.user) {                                   // fiche du compte filtré (étape 26)
-    const fi = el("button", "btn dash-csv aq-csv", t("fc.open"));
+    const fi = modGate(el("button", "btn dash-csv aq-csv", t("fc.open")), "accounts.see");
     fi.type = "button";
     fi.addEventListener("click", () => openAccountFiche(aq.f.user, "adminreq"));
     root.appendChild(fi);
@@ -309,7 +315,7 @@ function aqFilters() {
   };
   const accts = (aq.stats || []).slice().sort((a, b) => String(a.identifiant).localeCompare(String(b.identifiant)));
   mk(t("aq.f.account"), [["", t("aq.f.all")]].concat(accts.map(a => [a.user_id, a.identifiant])), aq.f.user, v => { aq.f.user = v; });
-  mk(t("aq.f.kind"), [["", t("aq.f.all")]].concat(["complete", "verify", "generate", "story", "sentence"].map(k => [k, t("queue.kind." + k)])), aq.f.kind, v => { aq.f.kind = v; });
+  mk(t("aq.f.kind"), [["", t("aq.f.all")]].concat(["complete", "verify", "generate", "story", "sentence", "dict_dupes"].map(k => [k, t("queue.kind." + k)])), aq.f.kind, v => { aq.f.kind = v; });
   mk(t("aq.f.status"), [["", t("aq.f.all")]].concat(["pending", "processing", "done", "error"].map(k => [k, t("aq.st." + k)])), aq.f.status, v => { aq.f.status = v; });
   mk(t("aq.f.period"), [["", t("aq.pAll")], ["7", t("aq.p7")], ["30", t("aq.p30")]], aq.f.days, v => { aq.f.days = v; });
   return box;
@@ -465,9 +471,9 @@ async function aqOpenDetail(r0) {
   }
   const acts = [];
   acts.push({ label: t("aq.json"), onClick: () => { setTimeout(() => aqShowJson(d), 0); return false; } });
-  if (["error", "processing"].includes(r.status) && !r.content_cleared_at) acts.push({ label: t("aq.retry"), kind: "primary", onClick: () => { aqRetry(r); } });
-  acts.push({ label: t("aq.delete"), kind: "danger", onClick: () => { setTimeout(() => aqDelete(r), 0); } });
-  if (r.user_id || r0.user_id) acts.push({ label: t("fc.open"), onClick: () => { openAccountFiche(r.user_id || r0.user_id, "adminreq"); } });
+  if (["error", "processing"].includes(r.status) && !r.content_cleared_at) acts.push({ label: t("aq.retry"), kind: "primary", perm: "claude.act", onClick: () => { aqRetry(r); } });
+  acts.push({ label: t("aq.delete"), kind: "danger", perm: "claude.act", onClick: () => { setTimeout(() => aqDelete(r), 0); } });   // étape 66 : cases du modo
+  if (r.user_id || r0.user_id) acts.push({ label: t("fc.open"), perm: "accounts.see", onClick: () => { openAccountFiche(r.user_id || r0.user_id, "adminreq"); } });
   acts.push({ label: t("close") });
   openModal(t("queue.kind." + r.kind) + " · " + r.identifiant, body, acts);
 }

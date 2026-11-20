@@ -179,7 +179,7 @@ async function ceOpen(r) {
   section(t("ce.d.accounts"), d && d.accounts, (li, x) => {
     li.appendChild(document.createTextNode(ceWho(x.user_id, x.identifiant) + " : ×" + num(Number(x.n), 0) + " · " + alTime(x.last_at) + " "));
     if (x.user_id) {
-      const b = el("button", "link-btn", t("fc.open"));
+      const b = modGate(el("button", "link-btn", t("fc.open")), "accounts.see");
       b.addEventListener("click", () => { close(); openAccountFiche(x.user_id, "adminerr"); });
       li.appendChild(b);
     }
@@ -203,6 +203,7 @@ async function ceOpen(r) {
   };
   if (er.state !== "fixed") { const b = el("button", "btn primary", t("ce.act.fixed")); b.addEventListener("click", () => setState("fixed")); btns.appendChild(b); }
   if (er.state !== "new") { const b = el("button", "btn", t("ce.act.reopen")); b.addEventListener("click", () => setState("new")); btns.appendChild(b); }
+  modGate(btns, "errors.act");   // étape 66 : case du modo
   wrap.appendChild(btns);
 }
 

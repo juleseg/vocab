@@ -102,20 +102,22 @@ function adminAccountsCsv() {
 function adminActions(a) {
   const self = a.user_id === auth.sbUid;
   const acts = [];
-  if (!self) acts.push({ label: t("admin.resetPin"), onClick: () => { setTimeout(() => adminResetPin(a), 0); } });
+  // Étape 66 : chaque action = une case de modérateur (perm) ; le serveur refuse aussi toute action d'un modo sur l'admin,
+  // un autre modo ou lui-même (mod_target_ok).
+  if (!self) acts.push({ label: t("admin.resetPin"), perm: "accounts.pin", onClick: () => { setTimeout(() => adminResetPin(a), 0); } });
   // Étape 27 : bloquer / réactiver (jamais son propre compte)
-  if (!self && admIsBlocked(a.user_id)) acts.push({ label: t("blk.unblock"), onClick: () => { setTimeout(() => adminUnblock(a), 0); } });
-  else if (!self) acts.push({ label: t("blk.block"), kind: "danger", onClick: () => { setTimeout(() => adminBlock(a), 0); } });
+  if (!self && admIsBlocked(a.user_id)) acts.push({ label: t("blk.unblock"), perm: "accounts.block", onClick: () => { setTimeout(() => adminUnblock(a), 0); } });
+  else if (!self) acts.push({ label: t("blk.block"), kind: "danger", perm: "accounts.block", onClick: () => { setTimeout(() => adminBlock(a), 0); } });
   // Étape 28 : série du compte (raison obligatoire, notée dans sa clé streak et au journal)
-  acts.push({ label: "🔥 " + t("sk.adm.set"), onClick: () => { setTimeout(() => skAdmin(a, "set"), 0); } });
-  acts.push({ label: "🔥 " + t("sk.adm.restore"), onClick: () => { setTimeout(() => skAdmin(a, "restore"), 0); } });
-  acts.push({ label: "❄️ " + t("sk.adm.freezes"), onClick: () => { setTimeout(() => skAdmin(a, "freezes"), 0); } });
-  acts.push({ label: t("admin.export"), onClick: () => { adminExport(a); } });
-  acts.push({ label: t("admin.import"), onClick: () => { setTimeout(() => adminImport(a), 0); } });
-  if (adm.list.length > 1) acts.push({ label: t("admin.copy"), onClick: () => { adminCopy(a); } });
-  acts.push({ label: t("al.devices"), onClick: () => { setTimeout(() => adminDevices(a), 0); } });
-  acts.push({ label: t("al.open"), onClick: () => { al.f.user = a.user_id; al.page = 0; al.data = null; al.err = ""; location.hash = "#" + HASH_OF.adminlog; } });
-  if (!self) acts.push({ label: t("admin.delete"), kind: "danger", onClick: () => { setTimeout(() => adminDelete(a), 0); } });
+  acts.push({ label: "🔥 " + t("sk.adm.set"), perm: "accounts.streak", onClick: () => { setTimeout(() => skAdmin(a, "set"), 0); } });
+  acts.push({ label: "🔥 " + t("sk.adm.restore"), perm: "accounts.streak", onClick: () => { setTimeout(() => skAdmin(a, "restore"), 0); } });
+  acts.push({ label: "❄️ " + t("sk.adm.freezes"), perm: "accounts.streak", onClick: () => { setTimeout(() => skAdmin(a, "freezes"), 0); } });
+  acts.push({ label: t("admin.export"), perm: "accounts.import", onClick: () => { adminExport(a); } });
+  acts.push({ label: t("admin.import"), perm: "accounts.import", onClick: () => { setTimeout(() => adminImport(a), 0); } });
+  if (adm.list.length > 1) acts.push({ label: t("admin.copy"), perm: "accounts.copy", onClick: () => { adminCopy(a); } });
+  acts.push({ label: t("al.devices"), perm: "accounts.see|log.see", onClick: () => { setTimeout(() => adminDevices(a), 0); } });
+  acts.push({ label: t("al.open"), perm: "log.see", onClick: () => { al.f.user = a.user_id; al.page = 0; al.data = null; al.err = ""; location.hash = "#" + HASH_OF.adminlog; } });
+  if (!self) acts.push({ label: t("admin.delete"), kind: "danger", perm: "accounts.delete", onClick: () => { setTimeout(() => adminDelete(a), 0); } });
   acts.push({ label: t("close") });
   openModal(a.identifiant, null, acts);
 }

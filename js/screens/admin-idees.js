@@ -175,7 +175,7 @@ async function aixOpen(r) {
 function aixFillDetail(wrap, d, close) {
   wrap.textContent = "";
   const who = el("button", "link-btn", String(d.identifiant || "?"));
-  who.type = "button";
+  who.type = "button"; who.disabled = !Mod.can("accounts.see");   // étape 66 : fiche = case du modo
   who.addEventListener("click", () => { close(); openAccountFiche(d.user_id, currentScreen === "adminfiche" ? fc.from : "adminidea"); });
   const dl = el("dl", "aq-sum");
   [[t("aix.d.author"), who], [t("aix.f.cat"), aixCat(d.category)], [t("aix.f.status"), aixStatus(d.status)],
@@ -219,6 +219,7 @@ function aixFillDetail(wrap, d, close) {
     } catch (e) { toast(aixErrText(e)); save.disabled = false; }
   });
   form.appendChild(save);
+  modRO(form, "ideas.act");   // étape 66 : état et réponse en lecture seule sans la case du modo
   wrap.appendChild(form);
 
   // Récompense
@@ -232,7 +233,7 @@ function aixFillDetail(wrap, d, close) {
       .forEach(([a, b]) => rdl.append(el("dt", null, a), el("dd", null, String(b))));
     rs.appendChild(rdl);
   } else if (d.status === "kept" || d.status === "done") {
-    const b = el("button", "btn aix-reward-btn", "🎁 " + t("aix.rewardBtn"));
+    const b = modGate(el("button", "btn aix-reward-btn", "🎁 " + t("aix.rewardBtn")), "ideas.reward");   // étape 66
     b.type = "button";
     b.addEventListener("click", () => aixRewardForm(d, () => aixFillDetail(wrap, d, close)));
     rs.appendChild(b);

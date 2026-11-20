@@ -109,8 +109,13 @@ function renderAdminPush() {
   if (nps.missing) return;
   if (nps.fn === "missing") root.appendChild(el("div", "card np-msg", t("np.fnMissing")));
   const tabs = el("div", "seg np-tabs");
-  [["send", "np.tab.send"], ["templates", "np.tab.templates"], ["segments", "np.tab.segments"], ["scheduled", "np.tab.scheduled"],
-   ["auto", "np.tab.auto"], ["history", "np.tab.history"], ["invite", "ni.tab"], ["versions", "rl.tab"]].forEach(([k, lab]) => {
+  // Étape 66 : onglets selon les cases du modo (voir : notif.see ; agir : notif.send ; versions : notif.release).
+  const NP_TAB_PERM = { send: "notif.send", templates: "notif.see", segments: "notif.see", scheduled: "notif.see", auto: "notif.see",
+    history: "notif.see", invite: "notif.see", versions: "notif.see|notif.release" };
+  const npTabs = [["send", "np.tab.send"], ["templates", "np.tab.templates"], ["segments", "np.tab.segments"], ["scheduled", "np.tab.scheduled"],
+   ["auto", "np.tab.auto"], ["history", "np.tab.history"], ["invite", "ni.tab"], ["versions", "rl.tab"]].filter(([k]) => Mod.allow(NP_TAB_PERM[k]));
+  if (npTabs.length && !npTabs.some(([k]) => k === nps.tab)) nps.tab = npTabs[0][0];
+  npTabs.forEach(([k, lab]) => {
     const b = el("button", null, t(lab));
     b.type = "button";
     b.setAttribute("aria-pressed", String(nps.tab === k));
@@ -118,14 +123,18 @@ function renderAdminPush() {
     tabs.appendChild(b);
   });
   root.appendChild(tabs);
-  if (nps.tab === "send") npSendTab(root);
-  else if (nps.tab === "templates") npTemplatesTab(root);
-  else if (nps.tab === "segments") npSegmentsTab(root);
-  else if (nps.tab === "history") npHistoryTab(root);
-  else if (nps.tab === "scheduled") npScheduledTab(root);
-  else if (nps.tab === "invite") npInviteTab(root);   // étape 38 : js/screens/admin-invite.js
-  else if (nps.tab === "versions") npReleaseTab(root);   // étape 48 : js/screens/admin-release.js
-  else npAutoTab(root);
+  const box = el("div", "np-tabbox");   // étape 66 : contenu de l'onglet (lecture seule sans la case « agir »)
+  root.appendChild(box);
+  if (nps.tab === "send") npSendTab(box);
+  else if (nps.tab === "templates") npTemplatesTab(box);
+  else if (nps.tab === "segments") npSegmentsTab(box);
+  else if (nps.tab === "history") npHistoryTab(box);
+  else if (nps.tab === "scheduled") npScheduledTab(box);
+  else if (nps.tab === "invite") npInviteTab(box);   // étape 38 : js/screens/admin-invite.js
+  else if (nps.tab === "versions") npReleaseTab(box);   // étape 48 : js/screens/admin-release.js
+  else npAutoTab(box);
+  if (nps.tab === "versions") modRO(box, "notif.release");
+  else if (nps.tab !== "history") modRO(box, "notif.send");
 }
 
 // --- Petits éléments de formulaire ---

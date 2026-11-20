@@ -61,7 +61,7 @@ function renderAdminAnn() {
   if (an.err) root.appendChild(el("div", "card q-err", an.err));
   if (an.missing) return;
   root.appendChild(el("p", "muted an-intro", t("an.intro")));
-  const add = el("button", "btn primary", t("an.new"));
+  const add = modGate(el("button", "btn primary", t("an.new")), "ann.act");   // étape 66 : case du modo
   add.addEventListener("click", () => anEdit(null));
   root.appendChild(add);
   const list = arr(an.list);
@@ -95,11 +95,11 @@ function anItem(a) {
   ].forEach(x => meta.appendChild(el("div", null, x)));
   c.appendChild(meta);
   const acts = el("div", "an-acts");
-  const btn = (label, cls, on) => { const b = el("button", "btn" + (cls ? " " + cls : ""), label); b.type = "button"; b.addEventListener("click", on); acts.appendChild(b); };
-  btn(t("an.edit"), "", () => anEdit(a));
+  const btn = (label, cls, on) => { const b = el("button", "btn" + (cls ? " " + cls : ""), label); b.type = "button"; b.addEventListener("click", on); acts.appendChild(b); return b; };
+  modGate(btn(t("an.edit"), "", () => anEdit(a)), "ann.act");   // étape 66 : cases du modo
   btn(t("an.readsBtn"), "", () => anReads(a));
-  if (a.active) btn(t("an.off"), "danger", () => anSetActive(a, false));
-  else btn(t("an.on"), "", () => anSetActive(a, true));
+  if (a.active) modGate(btn(t("an.off"), "danger", () => anSetActive(a, false)), "ann.act");
+  else modGate(btn(t("an.on"), "", () => anSetActive(a, true)), "ann.act");
   c.appendChild(acts);
   return c;
 }
