@@ -121,6 +121,7 @@ function renderAdmin() {
     bm.addEventListener("click", () => { amd.started = false; location.hash = "#" + HASH_OF.adminmod; });
     nav.appendChild(bm);
   }
+  if (typeof asgNavButton === "function") { const bs = asgNavButton(); if (bs) nav.appendChild(bs); }   // étape 84 : signalements (compteur)
   root.appendChild(nav);
   if (!Mod.can("dash.see")) return;   // étape 66 : tableau de bord = case « dash.see »
   if (!dash.started) { dashReload(); return; }

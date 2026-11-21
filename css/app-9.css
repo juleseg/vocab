@@ -284,3 +284,38 @@ html[lang="ko"] .cln-note, html[lang="ko"] .pvw-list li, html[lang="ko"] .amj-sh
 .cjq .cjq-tn{color:var(--muted);font-weight:500}
 .qz-main.cjq{font-size:clamp(20px,6vw,26px)}
 html[lang="ko"] .cjq{word-break:keep-all}
+
+/* === SIGNALER UNE CARTE (ÉTAPE 84) === */
+/* 🚩 discret : petit visuel, zone tactile de 44 px (marges négatives : la ligne ne grandit pas). */
+.sgl-flag{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:-13px -14px -13px 0;padding:0;border:0;background:none;color:inherit;cursor:pointer;vertical-align:middle;opacity:.42;filter:grayscale(.7);-webkit-tap-highlight-color:transparent}
+.sgl-flag .sgl-ico{font-size:12px;line-height:1}
+.sgl-flag:hover,.sgl-flag:focus-visible,.sgl-flag:active{opacity:1;filter:none}
+.sgl-flag:focus-visible{outline:2px solid var(--accent);outline-offset:-8px;border-radius:50%}
+.sgl-host{position:relative}
+.sgl-flag.sgl-corner{position:absolute;top:0;left:0;margin:0}
+.sgl-flag.sgl-labeled{width:auto;min-width:44px;margin:6px 0 -6px auto;gap:6px;display:flex;font-size:13px;color:var(--muted)}
+.sgl-flag.sgl-labeled .sgl-txt{text-decoration:underline}
+.sgl-list{display:flex;flex-direction:column;gap:8px}
+.sgl-list .hint{margin:0 0 2px}
+.sgl-reason{display:flex;align-items:center;gap:10px;min-height:48px;width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--text);font-size:15px;text-align:start;cursor:pointer}
+.sgl-reason:disabled{opacity:.55;cursor:default}
+.sgl-ri{width:24px;text-align:center;flex:none}
+.sgl-rt{flex:1}
+.sgl-rk{font-size:12px;color:var(--muted);white-space:nowrap}
+.sgl-pill{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom));transform:translate(-50%,12px);min-height:44px;padding:8px 16px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text);font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:55;opacity:0;transition:opacity .25s,transform .25s;cursor:pointer}
+.sgl-pill.show{opacity:1;transform:translate(-50%,0)}
+/* Écran Administration → Signalements */
+.asg-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:8px}
+.asg-filters .field{margin:0}
+.asg-row{display:flex;flex-direction:column;gap:4px}
+.asg-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.asg-words{font-size:16px;overflow-wrap:anywhere}
+.asg-sub{font-size:13px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.asg-sub .link-btn{min-height:32px;padding:0;font-size:13px}
+.asg-st-open{background:var(--accent);color:var(--accent-text)}
+.asg-st-ignored{opacity:.7}
+.asg-btns{margin-top:6px}
+.asg-kv{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}
+.asg-k{flex:none;min-width:88px;color:var(--muted);font-size:13px}
+.asg-v{flex:1;overflow-wrap:anywhere}
+@media (max-width:420px){.asg-filters{grid-template-columns:1fr 1fr}}

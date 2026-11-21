@@ -16,10 +16,10 @@ function applyTheme() {
 }
 
 // === NAVIGATION ===
-const SCREENS = ["home", "review", "lists", "stats", "pending", "friends", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "about", "stories", "rhythm", "ideas", "adminidea", "messages", "adminmsg", "team", "adminteam", "auditory", "sentences", "adminmod"];
-const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", friends: "amis", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles", adminpush: "admin-notifications", admindict: "admin-dictionnaire", adminerr: "admin-erreurs", adminbk: "admin-sauvegardes", about: "a-propos", stories: "histoires", rhythm: "rythme", ideas: "idees", adminidea: "admin-idees", messages: "messages", adminmsg: "admin-messages", team: "equipe", adminteam: "admin-equipes", auditory: "auditif", sentences: "phrases", adminmod: "admin-moderateurs" }; // "settings" est réservé dans l'URL
-const ADMIN_SCREENS = ["admin", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "adminidea", "adminmsg", "adminteam", "adminmod"];
-const ADMIN_SB_SCREENS = ["adminreq", "adminlog", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "adminidea", "adminmsg", "adminteam", "adminmod"];   // mode Supabase seulement
+const SCREENS = ["home", "review", "lists", "stats", "pending", "friends", "settings", "admin", "requests", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "about", "stories", "rhythm", "ideas", "adminidea", "messages", "adminmsg", "team", "adminteam", "auditory", "sentences", "adminmod", "adminsig"];
+const HASH_OF = { home: "home", review: "review", lists: "lists", stats: "stats", pending: "a-valider", friends: "amis", settings: "reglages", admin: "admin", requests: "demandes", adminreq: "admin-demandes", adminlog: "admin-journal", adminacc: "admin-comptes", adminfiche: "admin-fiche", adminann: "admin-annonces", admintpl: "admin-modeles", adminpush: "admin-notifications", admindict: "admin-dictionnaire", adminerr: "admin-erreurs", adminbk: "admin-sauvegardes", about: "a-propos", stories: "histoires", rhythm: "rythme", ideas: "idees", adminidea: "admin-idees", messages: "messages", adminmsg: "admin-messages", team: "equipe", adminteam: "admin-equipes", auditory: "auditif", sentences: "phrases", adminmod: "admin-moderateurs", adminsig: "admin-signalements" }; // "settings" est réservé dans l'URL
+const ADMIN_SCREENS = ["admin", "adminreq", "adminlog", "adminacc", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "adminidea", "adminmsg", "adminteam", "adminmod", "adminsig"];
+const ADMIN_SB_SCREENS = ["adminreq", "adminlog", "adminfiche", "adminann", "admintpl", "adminpush", "admindict", "adminerr", "adminbk", "adminidea", "adminmsg", "adminteam", "adminmod", "adminsig"];   // mode Supabase seulement
 let currentScreen = "home";
 
 function screenFromHash() {
@@ -189,6 +189,7 @@ function renderScreen() {
   else if (currentScreen === "team") renderTeam();   // équipe (étape 54)
   else if (currentScreen === "adminteam") renderAdminTeams();   // équipes (admin, étape 54)
   else if (currentScreen === "adminmod") renderAdminMods();   // modérateurs (étape 66, js/screens/admin-moderateurs.js)
+  else if (currentScreen === "adminsig") renderAdminReports();   // signalements de cartes (étape 84, js/screens/admin-signalements.js)
   renderPendingBadge();
   Friends.renderBadge();   // demandes d'amis reçues (étape 29)
   Streak.showNotices();   // messages de série en attente (pas pendant une session de révision)

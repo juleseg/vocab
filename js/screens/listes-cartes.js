@@ -95,6 +95,7 @@ function openCardEditor(cardId, listId) {
     if (r.img) afterDict.then(() => ((r.added && r.added.length) ? r.added : (c ? [c.id] : [])).forEach(id => Images.propose(id)));
     if (r.msg) toast(r.msg);
   };
+  if (c && typeof Sgl !== "undefined") Sgl.flag(wrap, c, "card", { label: true });   // étape 84 : 🚩 signaler la carte
   openModal(t(c ? "card.editTitle" : "card.newTitle"), wrap, c
     ? [ { label: t("save"), kind: "primary", onClick: save },
         { label: t("card.delete"), kind: "danger", onClick: () => { confirmDeleteCard(c.id); } },

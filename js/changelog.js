@@ -9,6 +9,14 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "84", date: "2026-11-22",
+    points: {
+      ko: ["🚩로 카드를 신고할 수 있어요. 번역, 성, 예문, 소리가 틀리면 눌러 주세요."],
+      fr: ["Tu peux signaler une carte avec 🚩 : traduction, genre, exemple ou son qui ne va pas."],
+      en: ["You can report a card with 🚩: a wrong translation, gender, example or sound."]
+    }
+  },
+  {
     version: "83", date: "2026-11-21",
     points: {
       ko: ["활용 문제의 안내가 더 분명해졌어요. 어떤 동사를 어떤 인칭과 시제로 바꿔야 하는지 바로 보여요."],

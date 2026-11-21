@@ -58,6 +58,7 @@ function mcqQuestion(root, g, it, next, opts) {
   const c = sessionCard(it.id);
   const L = it.lang, lg = gameLg(c, L);
   const q = el("div", "card gm-q");
+  if (typeof Sgl !== "undefined") Sgl.flag(q, c, "game", { corner: true });   // étape 84 : 🚩 signaler la carte
   const qImg = Images.place(c, it.dir, "q", "ci-mid");   // image côté question (étape 49), sous la langue
   if (it.dir === "fromT") {                                  // question = mot de la langue étudiée
     q.appendChild(el("div", "sw-lang", langName(L)));

@@ -20,6 +20,7 @@ function renderQuizSession(root) {
   const meta = el("div", "meta-row");
   meta.append(el("span", null, t("cards.left", { n: s.queue.length })), el("span", null, t("cat." + Leitner.category(c))));
   root.appendChild(meta);
+  if (typeof Sgl !== "undefined") Sgl.flag(meta.lastChild, c, "review");   // étape 84 : 🚩 signaler la carte
   HardUI.sessionExtras(root, c, item);   // badge « Mot difficile » et « Mon astuce » (étape 57)
 
   // Question (en grand)

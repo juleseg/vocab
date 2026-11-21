@@ -132,6 +132,7 @@ function lisMeta(root, s, c, it) {
   const meta = el("div", "meta-row");
   meta.append(el("span", null, t("cards.left", { n: s.queue.length })), el("span", null, t("cat." + Leitner.category(c, it.L))));
   root.appendChild(meta);
+  if (typeof Sgl !== "undefined") Sgl.flag(meta.lastChild, c, "review");   // étape 84 : 🚩 signaler la carte
   HardUI.sessionExtras(root, c, { lang: it.L }, { noTip: true });   // badge « Mot difficile » (étape 57)
 }
 

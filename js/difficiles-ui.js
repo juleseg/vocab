@@ -114,6 +114,7 @@ const HardUI = (() => {
     if (opts && opts.readOnly) wrap.appendChild(el("p", "hint", t("hd.tip.readOnly")));
     const ta = pickTipInput(c);
     wrap.appendChild(formField(t("hd.tip.label"), ta, false, t("hd.tip.hint")));
+    if (typeof Sgl !== "undefined") Sgl.flag(wrap, c, "card", { label: true });   // étape 84 : 🚩 signaler la carte
     openModal(t("hd.tip.title"), wrap, [
       { label: t("cancel") },
       { label: t("save"), kind: "primary", onClick: () => {

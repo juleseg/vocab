@@ -108,6 +108,7 @@ function renderWriteSession(root) {
   const meta = el("div", "meta-row");
   meta.append(el("span", null, t("cards.left", { n: s.queue.length })), el("span", null, t("cat." + Leitner.category(c))));
   root.appendChild(meta);
+  if (typeof Sgl !== "undefined") Sgl.flag(meta.lastChild, c, "review");   // étape 84 : 🚩 signaler la carte
   HardUI.sessionExtras(root, c, item, { noTip: !w.res });   // badge ; astuce seulement après la réponse (étape 57)
 
   // Question (nature affichée seulement après la réponse)

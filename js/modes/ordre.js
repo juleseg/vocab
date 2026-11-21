@@ -95,6 +95,7 @@ function orderQuestion(root, g, it, next) {
 
   // Consigne + indice de sens : traductions du mot, ou traduction de la phrase d'exemple
   const q = el("div", "card gm-q");
+  if (typeof Sgl !== "undefined") Sgl.flag(q, c, "game", { corner: true });   // étape 84 : 🚩 signaler la carte
   q.appendChild(el("div", "gm-ask", t(it.kind === "sent" ? "gm.order.sent" : "gm.order.word", { lang: langName(L) })));
   if (it.kind === "word") {
     const sup = supportTerms(c, lg);

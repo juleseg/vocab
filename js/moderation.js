@@ -24,7 +24,8 @@ const MOD_GROUPS = [
   ["errors", ["errors.see", "errors.act"]],
   ["log", ["log.see"]],
   ["teams", ["teams.see", "teams.act"]],
-  ["backups", ["backups.see", "backups.act"]]
+  ["backups", ["backups.see", "backups.act"]],
+  ["reports", ["reports.see", "reports.act"]]   // étape 84 : signalements de cartes (décochée par défaut)
 ];
 // Cases sensibles : jamais cochées d'office (données personnelles, suppression de compte, sauvegardes et restauration).
 const MOD_SENSITIVE = ["accounts.data", "accounts.import", "accounts.copy", "accounts.delete", "backups.see", "backups.act"];
@@ -32,7 +33,8 @@ const MOD_SENSITIVE = ["accounts.data", "accounts.import", "accounts.copy", "acc
 const MOD_SCREEN = {
   admin: "", adminacc: "accounts.see", adminfiche: "accounts.see", adminreq: "claude.see", adminlog: "log.see",
   adminann: "ann.see", admintpl: "accounts.copy", adminpush: "notif.see", admindict: "dict.see", adminerr: "errors.see",
-  adminbk: "backups.see", adminidea: "ideas.see", adminmsg: "msg.see", adminteam: "teams.see", adminmod: "mods.manage"
+  adminbk: "backups.see", adminidea: "ideas.see", adminmsg: "msg.see", adminteam: "teams.see", adminmod: "mods.manage",
+  adminsig: "reports.see"   // étape 84
 };
 // Alertes de modération (send-push version 44) : sorte → case nécessaire.
 const MOD_ALERTS = [["dict_conflicts", "dict.see"], ["dict_props", "dict.decide"], ["ideas", "ideas.see"],
