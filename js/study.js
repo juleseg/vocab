@@ -28,7 +28,10 @@ function studyVocabCards(lists, L) {
   return state.cards.filter(c => ids.has(c.listId) && isVocab(c));
 }
 // Cartes avec des cases à compléter dans la langue L (listes modifiables seulement, comme les badges).
-function studyGapCount(cards, L) { return cards.filter(c => canEditList(c.listId) && studyGapFields(c, L).length).length; }
+function studyGapCount(cards, L) {   // étape 80 : sans les cartes prises en charge par la mise à jour automatique
+  const auto = typeof AutoMaj !== "undefined" && AutoMaj.active();
+  return cards.filter(c => canEditList(c.listId) && studyGapFields(c, L).length && !(auto && AutoMaj.handled(c))).length;
+}
 
 // Ligne des langues étudiées d'une liste (écran Listes) : « KO · 12 à réviser », « IT · 40 à réviser · 25 à compléter ».
 // null si la liste n'a qu'une langue (affichage d'avant l'étape 37).

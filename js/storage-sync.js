@@ -106,6 +106,8 @@ const Storage = (() => {
   let lastErr = "";            // étape 33b : dernière erreur de synchro (message court, affiché en touchant l'indicateur)
   let paused = false;          // étape 48 : mise à jour nécessaire (js/release.js) → aucun envoi, données gardées sur l'appareil
   let guardOpen = false;       // étape 77 : envoi refusé par le garde-fou, fenêtre ouverte → aucun envoi jusqu'au choix
+  let unsent = false;          // étape 79 : enregistré sur l'appareil, pas encore confirmé en ligne (indicateur « En attente »)
+  let lastOkAt = 0;            // étape 79 : dernière lecture ou dernier envoi en ligne réussi (heure de cet appareil)
   const listeners = [];
 
   function setMode(m) {
@@ -113,6 +115,14 @@ const Storage = (() => {
     mode = m; listeners.forEach(fn => { try { fn(m); } catch (e) {} });
   }
   function onMode(fn) { listeners.push(fn); fn(mode); }
+  // Étape 79 (indicateur de synchro, js/synchro-ui.js) : état lu sans rien changer ; ping = l'état a changé sans changer de mode.
+  function ping() { listeners.forEach(fn => { try { fn(mode); } catch (e) {} }); }
+  function okKey() { return CONFIG.LS_USER_PREFIX + "sync:ok:" + userId; }
+  function okNow() { lastOkAt = Date.now(); if (userId) { try { localStorage.setItem(okKey(), String(lastOkAt)); } catch (e) {} } }
+  function setUnsent(v) { v = !!v && !!remote; if (v !== unsent) { unsent = v; ping(); } }
+  function syncInfo() {
+    return { remote: !!remote, unsent: !!remote && unsent, lastOkAt, remoteOk, paused, guard: guardOpen, conflict: conflictOpen, held };
+  }
   function getMode() { return mode; }
   function isCloud() { return !!backend || !!sb; }
   function isSupabase() { return !!sb; }
@@ -158,6 +168,7 @@ const Storage = (() => {
     const { pieces, index } = split(data), known = remoteSaved;
     remoteSaved = new Map(Array.from(pieces).filter(([k]) => known.has(k))); remoteSaved.set(pre() + "index", index);
     setSynced(data.updatedAt);
+    unsent = false;                                          // étape 79 : l'appareil et le serveur sont identiques
     if (typeof Guard !== "undefined") Guard.setBase(data);   // étape 77 : état connu de l'appareil ET du serveur
     if (typeof Fusion !== "undefined") Fusion.synced();      // étape 78 : plus aucune modification locale en attente
   }
@@ -185,6 +196,7 @@ const Storage = (() => {
     if (!userId || !remote || paused) return;
     if (!remoteOk) { if (onRetryInitFn) { try { onRetryInitFn(); } catch (e) {} } }
     else if (lastData) flush();
+    else if (mode === "offline" && navigator.onLine !== false) setMode("cloud");   // étape 79 : connexion revenue, rien à envoyer
   }
   // Étape 77 : bouton « Réessayer » de l'écran de première connexion.
   function retryInit() { if (!remoteOk) retryNow(); }
@@ -394,6 +406,8 @@ const Storage = (() => {
     clearTimeout(retryTimer); retryTimer = null; failWarned = false; conflictOpen = false; remoteOk = false; lastErr = ""; guardOpen = false;
     localSaved = new Map(); remoteSaved = new Map(); localFullWarned = false;
     userId = id || null;
+    unsent = false; lastOkAt = 0;
+    if (userId) { try { lastOkAt = num(Number(localStorage.getItem(okKey())), 0); } catch (e) {} }   // étape 79
     if (!userId) remote = null;
     else if (sb) remote = sbUid ? supabaseBackend(sb, sbUid, "user:" + userId + ":") : null;
     else remote = backend || null;
@@ -514,7 +528,7 @@ const Storage = (() => {
         try { if (typeof Release !== "undefined") Release.dataOk(); } catch (e) {}
         if (missing) throw new Error("incomplete (" + lost.slice(0, 3).join(", ") + ")");
         remoteSaved = new Map(Array.from(got).filter(([k]) => k === P + "index" || keys.includes(k)));
-        remoteOk = true;
+        remoteOk = true; okNow();
         setMode("cloud");
         return { data, old: false, keys: Array.from(got.keys()) };
       }
@@ -522,7 +536,7 @@ const Storage = (() => {
         const data = assembleNoIndex(got);
         if (tooNew(data.version)) { remoteOk = false; setMode("paused"); return null; }
         remoteSaved = new Map(Array.from(got.keys(), k => [k, null]));   // tout est renvoyé, index compris
-        remoteOk = true;
+        remoteOk = true; okNow();
         setMode("cloud");
         return { data, old: false, keys: Array.from(got.keys()), partial: true };
       }
@@ -532,7 +546,7 @@ const Storage = (() => {
       if (!looksLikeAppData(old) && remote.sessionOk && !(await remote.sessionOk())) throw new Error("session");
       if (userId !== id) return null;
       remoteSaved = new Map();
-      remoteOk = true;
+      remoteOk = true; okNow();
       setMode("cloud");
       return looksLikeAppData(old) ? { data: old, old: true, keys: [] } : undefined;
     } catch (e) {
@@ -574,7 +588,11 @@ const Storage = (() => {
     pieces.forEach((json, k) => { if (remoteSaved.get(k) !== json) todo.push([k, json]); });
     const idxChanged = remoteSaved.get(P + "index") !== index;
     const gone = Array.from(remoteSaved.keys()).filter(k => k !== P + "index" && !pieces.has(k));
-    if (!todo.length && !idxChanged && !gone.length) { if (mode !== "cloud") setMode("cloud"); return true; }
+    if (!todo.length && !idxChanged && !gone.length) {   // étape 79 : plus rien en attente (l'indicateur repasse au vert)
+      const was = unsent; unsent = false;
+      if (mode !== "cloud") setMode("cloud"); else if (was) ping();
+      return true;
+    }
     if (todo.some(([, json]) => byteLen(json) > CONFIG.MAX_DOC_BYTES)) { setErr("envoi", "too big"); setMode("error"); toast(t("save.tooBig")); syncErr("too big"); return false; }
     try {
       setMode("syncing");
@@ -630,6 +648,8 @@ const Storage = (() => {
       if (typeof Guard !== "undefined") Guard.written(sum0, at0);   // étape 77 : nouvelle base = ce qui vient d'être écrit
       if (typeof Fusion !== "undefined") Fusion.pushed(fl0, lastData);   // étape 78 : ce qui est parti n'est plus « modifié ici »
       failWarned = false;
+      okNow();                                                // étape 79 : envoi réussi
+      if (lastData && lastData.updatedAt === at0) unsent = false;   // rien n'a été modifié pendant l'envoi
       setMode("cloud");
       return true;
     } catch (e) {
@@ -661,6 +681,7 @@ const Storage = (() => {
     if (!userId) return false;
     beforeSave(data);
     lastData = data;
+    setUnsent(true);                                          // étape 79
     if (held) return true;
     const ok = writeLocal(data);
     if (!ok) { setErr("appareil", "localStorage full"); setMode("error"); if (!localFullWarned) { localFullWarned = true; toast(t("save.localFull")); } }
@@ -676,6 +697,7 @@ const Storage = (() => {
     if (!userId) return { local: false, remote: false };
     beforeSave(data);
     lastData = data;
+    setUnsent(true);                                          // étape 79
     clearTimeout(timer); timer = null;
     const local = writeLocal(data);
     if (!local) { setErr("appareil", "localStorage full"); setMode("error"); return { local: false, remote: false }; }
@@ -703,7 +725,8 @@ const Storage = (() => {
     getSynced, markSynced, forceFullPush, onConflict, onRetryInit, onSyncError, setConflictOpen, packRows, unpackRows, onBeforeSave, getLastError,
     pause, isPaused,   // étape 48
     hasRemote, retryInit, peekRemote, guardReset,   // étape 77
-    mergedOn                                        // étape 78
+    mergedOn,                                       // étape 78
+    syncInfo, retry: retryNow                       // étape 79 (js/synchro-ui.js) : lecture de l'état, « Réessayer »
   };
 })();
 

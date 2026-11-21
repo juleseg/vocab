@@ -619,7 +619,7 @@ async function runBulkImport(opts, r, nReplace, lg) {
   }
   if (stop) {
     openModal(t("bulk.stopTitle"), el("p", null, t(stop.key, { n: added + replaced, line: stop.line })), [{ label: t("close"), kind: "primary" }]);
-    Dict.afterAdd(addedIds);                    // dictionnaire commun (étape 36) : cartes déjà importées
+    Dict.afterAdd(addedIds).then(() => { try { if (typeof AutoMaj !== "undefined") AutoMaj.kick("import"); } catch (e) {} });   // dictionnaire commun (étape 36) : cartes déjà importées ; étape 80 : cases vides complétées toutes seules
     return;
   }
   toast(t("bulk.done", { n: added, m: replaced }));

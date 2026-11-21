@@ -1,0 +1,43 @@
+"use strict";
+
+// === I18N : CLAUDE REMPLIT ET MET À JOUR TOUT SEUL (ÉTAPE 80) — 한국어 (ko) ===
+// Chargé après synchro-ko.js. Mêmes clés que auto-fr.js.
+Object.assign(I18N.ko, {
+  "amj.tag": "Claude가 채우는 중",
+  "amj.busy": "Claude가 카드 {n}장을 채우고 있어요",
+  "amj.busy1": "Claude가 카드 1장을 채우고 있어요",
+  "amj.sheet": "Claude가 카드를 알아서 채워 줘요. 따로 요청할 필요가 없어요.",
+  "cln.tag": "Claude가 추가함",
+  "cln.note": "Claude가 추가한 카드 {n}장",
+  "cln.note1": "Claude가 추가한 카드 1장",
+  "cln.dot": "Claude가 추가한 카드 {n}장",
+  "cln.dot1": "Claude가 추가한 카드 1장",
+  "cln.msg": "Claude가 '{list}'에 카드 {n}장을 추가했어요.",
+  "cln.msg1": "Claude가 '{list}'에 카드 1장을 추가했어요.",
+  "cln.msgN": "Claude가 목록 {l}개에 카드 {n}장을 추가했어요.",
+  "cln.see": "보기",
+  "pvw.title": "건너뛴 항목",
+  "pvw.bad": "{n}개 수정 필요: 단어나 필수 칸이 비어 있어요 (항목은 남아 있어요)",
+  "pvw.value": "{n}개: 값이 올바르지 않아요 (항목은 남아 있어요)",
+  "pvw.dup": "{n}개: 이미 목록에 있어요 (항목 삭제됨)",
+  "pvw.stale": "{n}개: 그사이 칸이 채워졌거나 바뀌었어요 (항목 삭제됨)",
+  "pvw.gone": "{n}개: 목록이 더 이상 없어요 (항목 삭제됨)",
+  "pvw.hint": "남아 있는 항목은 선택한 뒤 '수정'을 눌러 고치고 '수락'을 누르세요. 아니면 '거절'을 누르세요.",
+  "pvw.genPending": "'검토'에 수정이 필요한 카드 묶음이 {n}개 있어요.",
+  "pvw.genPending1": "'검토'에 수정이 필요한 카드 묶음이 1개 있어요.",
+  "gen.help": "Claude가 번역, 품사, 예문까지 채운 카드를 만들어 목록에 바로 넣어요. 나중에 고칠 수 있어요.",
+  "tuto.pending.text": "'검토'는 오른쪽 아래 '더보기'와 홈 바로가기에 있어요. '더보기'에는 통계, 설정, '로그아웃'도 있어요. Claude가 카드를 알아서 채워 줘요(번역, 품사, 예문). 목록을 열고 '🤖 Claude'를 누른 다음 '업데이트'를 눌러도 돼요.",
+  "amj.ad.h": "자동 업데이트",
+  "amj.ad.help": "카드에 빈칸이 생기면(추가, 가져오기, 생성 후, 그리고 앱을 열 때) 앱이 알아서 Claude에게 요청을 보내요. 답변은 바로 적용되고, 사용자가 직접 쓴 내용은 절대 덮어쓰지 않아요. '업데이트' 버튼은 그대로 쓸 수 있어요.",
+  "amj.ad.on": "모든 계정에 자동 업데이트 켜기",
+  "amj.ad.max": "계정당 하루 최대 카드 수",
+  "amj.ad.unit": "장 (계정당 하루)",
+  "amj.ad.prevOn": "켜짐: 계정당 하루 최대 {n}장. 넘으면 오류 없이 다음 날까지 기다려요.",
+  "amj.ad.prevOff": "꺼짐: 자동으로는 아무것도 하지 않아요 (직접 요청은 계속 가능).",
+  "amj.ad.default": "(기본값, 아직 저장 안 됨)",
+  "amj.ad.invalid": "{a}에서 {b} 사이의 정수를 입력하세요.",
+  "amj.ad.saved": "설정을 저장했어요",
+  "amj.ad.missing": "80단계 SQL 스크립트(supabase-etape80.sql)를 실행하세요. 없으면 자동으로 아무것도 하지 않아요.",
+  "amj.ad.used": "오늘 내 계정: Claude에게 카드 {n}장 요청.",
+  "amj.ad.adminOnly": "관리자만 이 설정을 바꿀 수 있어요."
+});

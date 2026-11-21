@@ -157,12 +157,13 @@ function renderAdminReq() {
   const top = el("div", "adm-top");
   top.appendChild(el("h2", null, t("aq.title")));
   const ref = el("button", "link-btn", t("admin.refresh"));
-  ref.addEventListener("click", aqReload);
+  ref.addEventListener("click", () => { aqReload(); if (typeof amjAdLoad === "function") amjAdLoad(); });   // étape 80 : + réglage de la mise à jour automatique
   top.appendChild(ref);
   root.appendChild(top);
   root.appendChild(el("p", "q-note", t("aq.help")));
   root.appendChild(ClaudeRun.adminCard());          // étape 66 : dernier passage de Claude (alerte au-delà de 3 fois la fréquence)
   aqCadCard(root);                                   // étape 59 : fréquence de passage de Claude
+  if (typeof amjAdCard === "function") amjAdCard(root);   // étape 80 : mise à jour automatique (interrupteur, cartes par jour) — js/screens/admin-auto.js
   if (!aq.stats && !aq.statsLoading && !aq.statsErr) { aqReload(); return; }
 
   // Compteurs par compte

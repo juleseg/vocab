@@ -344,10 +344,15 @@ function pvNewInputs(box, ds, fields, lg) {
   });
   box.appendChild(w);
 }
-// Crée les cartes d'une proposition dans sa liste. Renvoie { added, dupOnly }.
+// Crée les cartes d'une proposition dans sa liste. Renvoie { added, dupOnly, ids, why }.
+// why (étape 80) = raison quand rien n'est créé : "gone" (liste supprimée), "dup" (déjà dans la liste), "bad" (carte non valide).
+// Étape 80 (bug « 0 acceptées, N ignorées » sur une liste sans carte) : une carte de vocabulaire qui a son mot dans la langue
+// apprise est créée même SANS traduction dans les langues affichées de la liste (liste sans langue d'aide, langue de l'appli
+// changée depuis la demande, réponse incomplète de Claude). Avant, elle était « non valide » : la ligne restait dans
+// « À valider » sans pouvoir être acceptée. Elle est créée « à compléter » (complétée ensuite : js/auto-maj.js).
 function pvAcceptNew(p, edited) {
   const listId = p.listId;
-  if (!getList(listId)) return { added: 0, dupOnly: true, ids: [] };
+  if (!getList(listId)) return { added: 0, dupOnly: true, ids: [], why: "gone" };
   const lg = listLangs(listId);
   const ds = edited || p.cards;
   const have = new Set(cardsOf(listId).map(c => isVocab(c) ? "vocab|" + dupKey(c.terms, lg) : typedKey(c.type, c)));
@@ -361,7 +366,7 @@ function pvAcceptNew(p, edited) {
     } else c = newTypedCard(listId, d.type, Object.assign({}, d.fields, { lang: d.fields.lang || lg.target }));
     const k = isVocab(c) ? "vocab|" + dupKey(c.terms, lg) : typedKey(c.type, c);
     if (have.has(k)) { dups++; return; }
-    if (!cardUsable(c, lg)) { bad++; return; }
+    if (isVocab(c) ? !targetTerm(c, lg).trim() : !cardUsable(c, lg)) { bad++; return; }
     if (d.ruleRef) {
       const r = state.cards.concat(fresh).find(x => x.listId === listId && cardType(x) === "rule" && normText(x.title) === normText(d.ruleRef));
       if (r) c.ruleId = r.id;
@@ -369,10 +374,10 @@ function pvAcceptNew(p, edited) {
     have.add(k);
     fresh.push(c);
   });
-  if (bad) return { added: 0, dupOnly: false, ids: [] };   // une case non valide : rien n'est créé, la ligne reste (à modifier)
+  if (bad) return { added: 0, dupOnly: false, ids: [], why: "bad" };   // une case non valide : rien n'est créé, la ligne reste (à modifier)
   state.cards.push(...fresh);
   fresh.forEach(c => { if (isVocab(c)) { state.checkedSig[c.id] = cardSig(c); pvNewIds.push(c.id); } });
-  return { added: fresh.length, dupOnly: !fresh.length && dups > 0, ids: fresh.map(c => c.id) };   // ids : étape 73 (Générer)
+  return { added: fresh.length, dupOnly: !fresh.length && dups > 0, ids: fresh.map(c => c.id), why: fresh.length ? "" : "dup" };   // ids : étape 73 (Générer)
 }
 
 function pvSelected() { return liveProposals().filter(p => pv.sel.has(p.id)); }
@@ -424,6 +429,7 @@ async function pvRun(kind, ids, edits, snap) {
   let rest = ids.slice();
   const total = rest.length;
   let ok = 0, skipped = 0, n = 0, prog = null;
+  const why = {}, newIds = [];                                // étape 80 : raisons des lignes ignorées, cartes créées
   pvJobStore({ kind, ids: rest, edits, total });
   renderResumeBars();
   Wake.on();
@@ -437,6 +443,8 @@ async function pvRun(kind, ids, edits, snap) {
       const part = rest.slice(0, CONFIG.PV_CHUNK);
       const r = kind === "accept" ? pvAcceptPart(part, edits) : pvRejectPart(part);
       ok += r.ok; skipped += r.skipped;
+      Object.keys(r.why || {}).forEach(k => { why[k] = (why[k] || 0) + r.why[k]; });
+      newIds.push(...arr(r.made));
       rest = rest.slice(part.length);
       n += part.length;
       state.updatedAt = Date.now();
@@ -454,15 +462,38 @@ async function pvRun(kind, ids, edits, snap) {
   }
   if (state !== st || Storage.getUser() !== who) return;
   if (pvNewIds.length) { const ids = pvNewIds; pvNewIds = []; Dict.afterAdd(ids); }   // dictionnaire commun (étape 36)
-  if (ok || skipped) Activity.log("validate", { action: kind, n: ok, skipped });   // journal : une action groupée = un événement
+  // Journal : une action groupée = un événement. Étape 80 : raisons des lignes ignorées (« bad:5,dup:2 ») ; rien d'accepté
+  // alors que des lignes étaient choisies = anomalie notée aussi dans le journal des erreurs.
+  const whyText = pvWhyKeys(why).map(k => k + ":" + why[k]).join(",");
+  if (ok || skipped) Activity.log("validate", whyText ? { action: kind, n: ok, skipped, why: whyText } : { action: kind, n: ok, skipped });
+  if (kind === "accept" && !ok && skipped) { try { if (typeof ErrLog !== "undefined") ErrLog.sync("à valider : 0 acceptée, " + skipped + " ignorées (" + whyText + ")"); } catch (e) {} }
+  if (newIds.length && typeof AutoMaj !== "undefined") AutoMaj.kick("accept");   // cartes créées avec des cases vides : complétées toutes seules
   UserStatus.publish();   // « À valider » en attente : résumé pour les notifications (étape 32)
   Storage.flushNow();
   pvClearSel();
   render();
   const msg = (kind === "accept" ? t("pv.accepted", { n: ok }) + (skipped ? t("pv.skipped", { n: skipped }) : "") : t("pv.rejected", { n: ok }));
-  if (rest.length) toast(msg);                // arrêté : bandeau « Reprendre / Abandonner »
-  else if (snap) showUndo(msg, snap);
-  else toast(msg);
+  const tell = () => {
+    if (rest.length) toast(msg);              // arrêté : bandeau « Reprendre / Abandonner »
+    else if (snap) showUndo(msg, snap);
+    else toast(msg);
+  };
+  // Étape 80 : des lignes ignorées → fenêtre avec les raisons d'abord ; la barre « Annuler » vient à sa fermeture.
+  if (kind === "accept" && skipped) pvWhyShow(ok, skipped, why, tell);
+  else tell();
+}
+// Étape 80 : raisons des lignes ignorées par « Accepter », dans un ordre fixe.
+//   bad = carte non valide (la ligne reste : « Modifier » ou « Refuser ») ; value = valeur non valide (la ligne reste) ;
+//   dup = déjà dans la liste ; stale = case remplie ou modifiée entre-temps ; gone = liste supprimée (lignes retirées).
+function pvWhyKeys(why) { return ["bad", "value", "dup", "stale", "gone"].filter(k => why[k] > 0).concat(Object.keys(why).filter(k => !["bad", "value", "dup", "stale", "gone"].includes(k) && why[k] > 0)); }
+function pvWhyShow(ok, skipped, why, after) {
+  const wrap = el("div", "pvw");
+  wrap.appendChild(el("p", null, t("pv.accepted", { n: ok }) + t("pv.skipped", { n: skipped })));
+  const ul = el("ul", "pvw-list");
+  pvWhyKeys(why).forEach(k => ul.appendChild(el("li", null, t("pvw." + k, { n: why[k] }))));
+  wrap.appendChild(ul);
+  if (why.bad || why.value) wrap.appendChild(el("p", "muted", t("pvw.hint")));
+  openModal(t("pvw.title"), wrap, [{ label: t("close"), kind: "primary", onClick: () => { if (after) after(); } }], { locked: true });
 }
 
 // Un paquet d'acceptations (même règles qu'avant). Renvoie { ok, skipped }.
@@ -472,12 +503,14 @@ function pvAcceptPart(ids, edits) {
   const order = new Map(ids.map((id, i) => [id, i]));
   sel.sort((a, b) => order.get(a.id) - order.get(b.id));
   let ok = 0, skipped = 0;
+  const why = {}, made = [];                             // étape 80 : raison de chaque ligne ignorée, cartes créées
+  const no = k => { skipped++; why[k] = (why[k] || 0) + 1; };
   const done = new Set(), removed = new Set();
   sel.filter(p => p.field === "new").forEach(p => {
     const r = pvAcceptNew(p, edits[p.id] != null ? edits[p.id] : null);
-    if (r.added) { ok++; done.add(p.id); QStats.decide(p, "accepted"); }
-    else if (r.dupOnly) { skipped++; done.add(p.id); }   // déjà dans la liste : la proposition disparaît
-    else skipped++;                                      // non valide : la ligne reste
+    if (r.added) { ok++; done.add(p.id); made.push(...r.ids); QStats.decide(p, "accepted"); }
+    else if (r.dupOnly) { no(r.why || "dup"); done.add(p.id); }   // déjà dans la liste (ou liste supprimée) : la proposition disparaît
+    else no("bad");                                      // non valide : la ligne reste
   });
   const cards = new Map(state.cards.map(c => [c.id, c]));
   sel.filter(p => p.field !== "new").forEach(p => {
@@ -494,10 +527,10 @@ function pvAcceptPart(ids, edits) {
     if (isPosField(p.field)) nv = parsePos(nv, p.field.slice(4)); // nature non valide : la ligne reste
     const cur = fieldVal(c, p.field);
     const stale = p.type === "completion" ? !!cur.trim() : cur !== p.oldValue; // champ modifié entre-temps : jamais écrasé
-    if (stale) { done.add(p.id); skipped++; return; }
+    if (stale) { done.add(p.id); no("stale"); return; }
     const next = Object.assign({}, c, { terms: Object.assign({}, c.terms), pos: Object.assign({}, c.pos) });   // setFieldVal ne modifie pas examples en place
     setFieldVal(next, p.field, nv);
-    if (!nv || !cardUsable(next)) { skipped++; return; } // valeur non valide : la ligne reste
+    if (!nv || (!cardUsable(next) && cardUsable(c))) { no("value"); return; } // valeur non valide (ou qui rendrait la carte inutilisable) : la ligne reste
     const snap = Dict.track(c);                          // dictionnaire commun (étape 36)
     setFieldVal(c, p.field, nv);
     Dict.changed(c, snap);                               // case vide du commun → remplie ; déjà remplie → proposition
@@ -510,7 +543,12 @@ function pvAcceptPart(ids, edits) {
   const cardIds = new Set(state.cards.map(c => c.id));
   const listIds = new Set(state.lists.map(l => l.id));
   state.proposals = state.proposals.filter(p => !done.has(p.id) && (p.field === "new" ? listIds.has(p.listId) : cardIds.has(p.cardId)));
-  return { ok, skipped };
+  if (made.length && typeof ClNew !== "undefined") {     // étape 80 : cartes de Claude acceptées ici = « ajoutées par Claude » dans leur liste
+    const byList = {};
+    made.forEach(id => { const c = state.cards.find(x => x.id === id); if (c) (byList[c.listId] = byList[c.listId] || []).push(id); });
+    Object.keys(byList).forEach(l => ClNew.add(l, byList[l], false));
+  }
+  return { ok, skipped, why, made };
 }
 
 // Un paquet de refus. Renvoie { ok, skipped }.

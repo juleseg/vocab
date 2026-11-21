@@ -26,7 +26,7 @@ function lmFrom(sel, ic, o) {
   const m = /^(\p{Extended_Pictographic}️?)\s*/u.exec(label);
   if (m) { ic = m[1]; label = label.slice(m[0].length); }
   label = label.replace(/^\+\s*/, "");   // « + Nouveau dossier » : l'icône suffit
-  return Object.assign({ ic, label, act: () => b.click() }, o || {});
+  return Object.assign({ ic, label, act: () => b.click(), from: sel }, o || {});   // from (étape 79) : bouton d'origine, repère des entrées grisées hors connexion (js/synchro-ui.js)
 }
 // Groupe d'entrées : absent s'il est vide, l'entrée elle-même s'il n'y en a qu'une, sinon une sous-feuille.
 function lmGroup(ic, label, subs) {
@@ -49,6 +49,7 @@ function lmSheet(title, items, back, info) {
     m.appendChild(el("div", "t1", it.label));
     if (it.sub) m.appendChild(el("div", "t2", it.sub));
     b.append(ic, m);
+    if (it.from) b.dataset.from = it.from;
     if (it.n) b.appendChild(el("span", "ecr-more-n lm-n", String(it.n)));
     if (it.more) b.appendChild(el("span", "chev", "›"));
     b.addEventListener("click", () => {
@@ -97,7 +98,14 @@ function lmClaudeItems(all) {
 }
 function lmClaudeMenu() {
   if (!lv.listId || !getList(lv.listId)) return;
-  lmSheet("🤖 Claude", lmClaudeItems(false));
+  // Étape 80 : mise à jour automatique active → une ligne le dit (« Mettre à jour » reste en secours).
+  let info = null;
+  if (typeof AutoMaj !== "undefined" && AutoMaj.active() && canEditList(lv.listId)) {
+    const n = listAutoCount(getList(lv.listId));
+    info = el("div", "lm-info");
+    info.appendChild(el("p", "muted amj-sheet", t("amj.sheet") + (n ? " " + t(n === 1 ? "amj.busy1" : "amj.busy", { n }) + "." : "")));
+  }
+  lmSheet("🤖 Claude", lmClaudeItems(false), null, info);
 }
 // --- Vue d'ensemble : « ⋯ Plus » ---
 function lmOverviewMenu() {

@@ -18,6 +18,7 @@
 //   }],
 //   req               // generate : demande figée (genRequest), listId = liste de destination
 //   story             // story (étape 45) : demande d'histoire figée (storyRequest : liste, langue, niveau, longueur, mots)
+//   auto              // complete (étape 80) : 1 = demande déposée toute seule par l'appli (js/auto-maj.js) ; réponse appliquée en silence
 // }
 // Réponse d'un lot (ligne claude_proposals, colonne result) : la valeur JSON demandée par le prompt du lot
 //   complete : [{ "id": "k0", "<champ>": "valeur", … }]   verify : [{ "id", "field", "value", "reason" }]
@@ -133,8 +134,19 @@ const Queue = (() => {
     const kept0 = ClAuto.kept();
     const r = queueApply(resp);
     const kept = ClAuto.kept() - kept0;   // étape 73 : cases de l'utilisateur gardées
-    if (r.added) { commitQuiet(); if (!quiet) toast(queueGotText(r.added) + (kept ? " " + t("cl.kept", { n: kept }) : "")); }
-    else if (kept && !quiet) toast(t("queue.nothingNew") + " " + t("cl.kept", { n: kept }));
+    // Étape 80 : les complétions automatiques (r.auto) sont appliquées en silence ; les cartes créées par Claude (r.gen)
+    // sont annoncées par « Claude a ajouté N cartes à … » (ClNew.flush) et non par ce message.
+    const shown = r.added - num(r.auto, 0) - num(r.gen, 0);
+    if (r.added) {
+      commitQuiet();
+      if (r.autoSeen || r.gen) Storage.flushNow();   // étape 80 : envoyé tout de suite (un autre appareil du compte relit ces données avant de redemander)
+      if (!quiet && shown > 0) toast(queueGotText(shown) + (kept ? " " + t("cl.kept", { n: kept }) : ""));
+    }
+    else if (kept && !quiet && !r.autoSeen) toast(t("queue.nothingNew") + " " + t("cl.kept", { n: kept }));
+    if (r.pending && !quiet) toast(t(r.pending === 1 ? "pvw.genPending1" : "pvw.genPending", { n: r.pending }));   // cartes générées à corriger (« À valider »)
+    if (r.gen && typeof ClNew !== "undefined") { try { ClNew.flush(); } catch (e) {} if (currentScreen === "lists" && !document.querySelector(".modal-bg")) renderScreen(); }
+    if (arr(r.lost).length && typeof AutoMaj !== "undefined") AutoMaj.lost(r.lost);   // réponse pour des cartes créées sur un autre appareil : relue une fois après synchro
+    if ((r.autoSeen || r.gen) && typeof AutoMaj !== "undefined") AutoMaj.kick("claim", arr(r.lost).length ? AMJ_PEER_MS : AMJ_SOON_MS);   // cases encore vides : 2e essai ; cartes créées incomplètes : complétées
     if (r.stories) {                                               // histoires (étape 45)
       commitQuiet();
       toast(t(r.stories === 1 ? "st.got1" : "st.got", { n: r.stories }));
@@ -165,12 +177,14 @@ const Queue = (() => {
       } finally {
         busy = null;
         schedule();
+        if (typeof AutoMaj !== "undefined") AutoMaj.tick();   // étape 80 : demande automatique finie par un autre appareil du compte
         if (currentScreen === "requests") renderRequests();
         else if (currentScreen === "settings") renderAiCard();
         else if (currentScreen === "pending" && !(res && res.added)) renderPending();   // bandeau à jour
       }
-      if (opts.report && res && res.added) {
-        openModal(t("ai.doneTitle"), el("p", null, queueGotText(res.added)), [
+      const rep = res ? res.added - num(res.gen, 0) : 0;      // étape 80 : cartes créées annoncées à part (ClNew)
+      if (opts.report && rep > 0) {
+        openModal(t("ai.doneTitle"), el("p", null, queueGotText(rep)), [
           { label: t("close") }, { label: t("ai.see"), kind: "primary", onClick: () => { goPending(); } }]);
       }
       return res;
@@ -421,7 +435,7 @@ function queueApply(resp) {
   const byId = new Map(state.cards.map(c => [c.id, c]));
   const genReqs = new Map();      // une nouvelle liste recréée une seule fois par demande
   const madeFor = new Map();      // étape 77 : liste d'origine absente → UNE seule liste recréée pour toutes les demandes qui la visaient
-  const out = { added: 0, cards: 0, bad: 0, stories: 0, sentences: 0 };
+  const out = { added: 0, cards: 0, bad: 0, stories: 0, sentences: 0, auto: 0, autoSeen: 0, gen: 0, pending: 0, lost: [] };   // étape 80 : auto, autoSeen, gen, pending, lost
   const got = {};                 // demande → propositions ajoutées dans « À valider » (compteur « reçues »)
   const done = {};                // étape 73 : cases écrites directement (comptées reçues ET acceptées)
   arr(resp.proposals).forEach(p => {
@@ -467,9 +481,10 @@ function queueApply(resp) {
         const res = p.result;
         const lines = Array.isArray(res) ? res : res && Array.isArray(res.lines) ? res.lines : [];
         const pr = parseGenReply(lines.map(String).join("\n"), req);
-        const a = addGenProposals(pr.drafts, req);
+        const a = addGenProposals(pr.drafts, req, { queue: true });   // étape 80 : marque « ajoutée par Claude » + message au retour
         if (orig && req.createdId) madeFor.set(orig, req.createdId);
         out.added += a.added; out.cards += a.cards;
+        out.gen += a.added - num(a.pending, 0); out.pending += num(a.pending, 0);
         return;
       }
       const ids = arr(b.ids);
@@ -480,6 +495,11 @@ function queueApply(resp) {
         const want = c => { const i = ids.indexOf(c.id); return i >= 0 && Array.isArray(miss[i]) ? miss[i] : fillFields(c); };
         const n = applyAiResult("complete", batch, items, want);
         out.added += n; out.cards += n;
+        if (pl.auto) {                                           // étape 80 : demande automatique (js/auto-maj.js) : silencieuse
+          out.auto += n; out.autoSeen++;
+          if (typeof AutoMaj !== "undefined") AutoMaj.answered(String(r.id), ids);
+          if (batch.some(c => !c) && !out.lost.includes(String(r.id))) out.lost.push(String(r.id));   // cartes pas (encore) sur cet appareil
+        }
       } else if (r.kind === "verify") {
         const n = applyAiResult("verify", batch, items);
         out.added += n; out.cards += n;

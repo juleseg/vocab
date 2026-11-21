@@ -452,6 +452,7 @@ async function startUserRun(id, preset, target, sbUid) {
   auth.loginVia = null;
   autoWeeklyCheck(id);
   Queue.start(); // file d'attente Claude (mode Supabase) : réponses arrivées pendant l'absence
+  if (typeof AutoMaj !== "undefined") AutoMaj.start();   // étape 80 : mise à jour automatique (cases vides demandées à Claude toutes seules)
   Dict.start();  // dictionnaire commun (étape 36) : envois en attente, liaison des cartes, sens modifiés
   Images.start();   // images (étape 49) : images des sens, place utilisée, ménage (30 s après le lancement)
   if (auth.mode !== "supabase") WhatsNew.check().finally(() => Tutorial.check());   // étapes 39 et 40 (en mode Supabase : après annonces et invitation, enterSupabase)
@@ -659,6 +660,8 @@ async function logout() {
   await Push.end();       // notifications : cet appareil ne reçoit plus celles de ce compte (étape 32)
   await Storage.flushWait();
   Queue.reset();
+  if (typeof AutoMaj !== "undefined") AutoMaj.reset();   // étape 80
+  if (typeof ClNew !== "undefined") ClNew.reset();       // étape 80
   Dict.reset();   // dictionnaire commun (étape 36)
   Ann.reset();
   NotifInvite.reset();   // étape 38

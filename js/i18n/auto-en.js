@@ -1,0 +1,43 @@
+"use strict";
+
+// === I18N : CLAUDE REMPLIT ET MET À JOUR TOUT SEUL (ÉTAPE 80) — ENGLISH (en) ===
+// Chargé après synchro-en.js. Mêmes clés que auto-fr.js.
+Object.assign(I18N.en, {
+  "amj.tag": "Claude is filling in",
+  "amj.busy": "Claude is filling in {n} cards",
+  "amj.busy1": "Claude is filling in 1 card",
+  "amj.sheet": "Claude fills in your cards on its own: nothing to ask.",
+  "cln.tag": "Added by Claude",
+  "cln.note": "{n} cards added by Claude",
+  "cln.note1": "1 card added by Claude",
+  "cln.dot": "{n} cards added by Claude",
+  "cln.dot1": "1 card added by Claude",
+  "cln.msg": "Claude added {n} cards to “{list}”.",
+  "cln.msg1": "Claude added 1 card to “{list}”.",
+  "cln.msgN": "Claude added {n} cards to {l} lists.",
+  "cln.see": "View",
+  "pvw.title": "Skipped lines",
+  "pvw.bad": "{n} to fix: the word or a required field is missing (the line stays)",
+  "pvw.value": "{n}: invalid value (the line stays)",
+  "pvw.dup": "{n}: already in the list (line removed)",
+  "pvw.stale": "{n}: field already filled in or changed meanwhile (line removed)",
+  "pvw.gone": "{n}: the list no longer exists (line removed)",
+  "pvw.hint": "For a line that stays: tick it, tap “Edit”, fix it, then “Accept” — or “Reject”.",
+  "pvw.genPending": "{n} groups of cards need fixing in “Pending”.",
+  "pvw.genPending1": "1 group of cards needs fixing in “Pending”.",
+  "gen.help": "Claude creates complete cards (translations, part of speech, example) and adds them straight to the list. You can edit them afterwards.",
+  "tuto.pending.text": "“Pending” is under “More”, bottom right, and as a shortcut on Home. “More” also holds Stats, Settings and “Sign out”. Claude fills in your cards on its own (translations, part of speech, example); you can also open a list and tap “🤖 Claude” then “Update”.",
+  "amj.ad.h": "Automatic update",
+  "amj.ad.help": "The app sends Claude a request on its own whenever cards have empty fields (after adding, importing or generating cards, and at launch). Answers are applied directly, never overwriting what the user wrote. The “Update” button stays available.",
+  "amj.ad.on": "Turn on automatic update for all accounts",
+  "amj.ad.max": "Maximum number of cards per day and per account",
+  "amj.ad.unit": "cards per day and per account",
+  "amj.ad.prevOn": "On: at most {n} cards per day and per account. Beyond that, cards wait until the next day, with no error.",
+  "amj.ad.prevOff": "Off: nothing automatic any more (manual requests still work).",
+  "amj.ad.default": "(default value, not saved yet)",
+  "amj.ad.invalid": "Whole number between {a} and {b}.",
+  "amj.ad.saved": "Setting saved",
+  "amj.ad.missing": "Run the step 80 SQL script (supabase-etape80.sql). Without it, nothing is automatic.",
+  "amj.ad.used": "My account today: {n} cards requested from Claude.",
+  "amj.ad.adminOnly": "Only the administrator can change this setting."
+});

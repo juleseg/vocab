@@ -126,7 +126,9 @@ const Images = (() => {
     if (!c || !blob) return;
     try { await c.put(cacheKey(path), new Response(blob, { headers: { "Content-Type": blob.type || "image/webp" } })); } catch (e) { return; }
     lruTouch(path);
-    const L = lruLoad(), keys = Object.keys(L);
+    // Étape 79 : les images des listes gardées hors ligne (js/hors-ligne.js) ne comptent pas et ne sont jamais retirées.
+    const pin = k => { try { return typeof Offline !== "undefined" && Offline.pinned(k); } catch (e) { return false; } };
+    const L = lruLoad(), keys = Object.keys(L).filter(k => !pin(k));
     if (keys.length > IMG_CACHE_MAX) {
       const old = keys.sort((a, b) => L[a] - L[b]).slice(0, keys.length - IMG_CACHE_MAX);
       for (const k of old) { delete L[k]; try { await c.delete(cacheKey(k)); } catch (e) {} }
@@ -170,19 +172,20 @@ const Images = (() => {
     batch.forEach(([p, rs]) => rs.forEach(f => f(urls[p] || null)));
   }
   // Adresse affichable d'une image (cache de l'appareil, sinon téléchargement par lien signé) ; null si impossible.
-  function url(path) {
+  // force (étape 79, téléchargement hors ligne) : nouvel essai tout de suite, même après un échec récent (réseau coupé).
+  function url(path, force) {
     if (!path) return Promise.resolve(null);
     if (mem.has(path)) { lruTouch(path); return Promise.resolve(mem.get(path)); }
     if (inflight.has(path)) return inflight.get(path);
     const p = (async () => {
       let blob = await cacheGet(path);
-      if (!blob && on() && online() && !(failed.has(path) && Date.now() - failed.get(path) < 300000)) {
+      if (!blob && on() && online() && !(!force && failed.has(path) && Date.now() - failed.get(path) < 300000)) {
         const u = await sign(path);
         if (u) {
           try { const r = await withTimeout(fetch(u), 20000); if (r.ok) { blob = await r.blob(); if (blob && blob.size) await cachePut(path, blob); else blob = null; } }
           catch (e) { blob = null; }
         }
-        if (!blob) failed.set(path, Date.now());
+        if (!blob) failed.set(path, Date.now()); else failed.delete(path);
       }
       if (!blob) return null;
       const u = URL.createObjectURL(blob);
@@ -226,6 +229,34 @@ const Images = (() => {
     } catch (e) { if (isMissing(e)) status = "missing"; }
     if (senseQ.size) senseTimer = setTimeout(senseFlush, 300);
     if (found && typeof currentScreen !== "undefined" && currentScreen === "lists") { try { renderLists(); } catch (e) {} }
+  }
+
+  // Étape 79 (stockage hors ligne) : images des sens demandées TOUT DE SUITE (attend la réponse) ; false si impossible.
+  async function sensesNow(ids) {
+    const S = senseLoad(), now = Date.now();
+    const todo = [...new Set(ids)].filter(id => { const x = S[id]; return !x || now - num(x.t, 0) > 86400000; });
+    if (!todo.length) return true;
+    if (!on() || !online() || status === "missing") return false;
+    try {
+      for (let i = 0; i < todo.length; i += 500) {
+        const part = todo.slice(i, i + 500);
+        const rows = arr(await rpc("dict_images_get", { p_ids: part }));
+        part.forEach(id => { S[id] = { n: 1, t: now }; });
+        rows.forEach(r => {
+          const im = normCardImage({ path: r.path, src: "wikimedia", author: r.author, license: r.license, page: r.page, size: r.size });
+          if (r && r.sense_id && im) S[r.sense_id] = Object.assign(im, { t: now });
+        });
+      }
+      senseSave(); status = "ok";
+      return true;
+    } catch (e) { if (isMissing(e)) status = "missing"; senseSave(); return false; }
+  }
+  // Image connue d'une carte, sans rien demander au serveur (carte, sinon sens déjà connu) ; null sinon.
+  function known1(c) {
+    if (!c || !isVocab(c)) return null;
+    if (c.image && c.image.path) return c.image;
+    const x = c.senseId ? senseLoad()[c.senseId] : null;
+    return x && x.path ? x : null;
   }
 
   // --- Image à afficher pour une carte ---
@@ -616,7 +647,8 @@ const Images = (() => {
   return {
     on, me, mine, status: () => status, setStatus: s => { status = s; }, info, side, place, node, zoom, url,
     process, upload, remove, errText, quota, quotaText, renderQuota, wmSearch, wmBlob, propose, adopt, purgeUser,
-    start, onSave, releaseCheck, gc, senseWant, bucket, rpc, cacheDel, uploads
+    start, onSave, releaseCheck, gc, senseWant, bucket, rpc, cacheDel, uploads,
+    sensesNow, knownImage: known1, cacheKey   // étape 79 (js/hors-ligne.js)
   };
 })();
 window.App.Images = Images;

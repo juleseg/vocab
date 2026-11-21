@@ -54,10 +54,11 @@ function initNav() {
 }
 
 // === SYNC STATUS ===
+// Étape 79 : le voyant toujours visible (couleur, mot, détail au toucher, hors ligne grisé) est dessiné par js/synchro-ui.js.
 function renderSyncStatus(mode) {
   const el = $("#syncStatus");
   el.dataset.mode = mode;
-  $("#syncLabel").textContent = t("storage." + mode);
+  if (typeof SyncUi !== "undefined") SyncUi.paint(); else $("#syncLabel").textContent = t("storage." + mode);
   const infoKey = mode === "error" ? "storage.info.error" : mode === "offline" ? "storage.info.offline" : mode === "paused" ? "storage.info.paused"   // étape 48
     : (mode === "local" ? "storage.info.local" : "storage.info.cloud");
   $("#storageInfo").textContent = t(infoKey);
@@ -72,6 +73,7 @@ function initSyncStatus() {
   });
   const el = $("#syncStatus");
   el.addEventListener("click", () => {
+    if (typeof SyncUi !== "undefined") { SyncUi.open(); return; }   // étape 79 : détail de la synchro
     const m = Storage.getMode();
     if (m !== "error" && m !== "offline") return;
     toast(t("storage.errDetail", { msg: Storage.getLastError() || "—" }));

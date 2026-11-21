@@ -789,12 +789,16 @@ const Dict = (() => {
   }
 
   // --- Éditeur : recherche d'un mot (null si indisponible) ---
+  // Étape 79 : sans connexion, la copie du dictionnaire gardée sur l'appareil répond à la place du serveur (Offline.dictSearch,
+  // js/hors-ligne.js ; null s'il n'y a pas de copie : comme avant, la liaison se fait à l'enregistrement).
   async function search(L, w) {
     if (!on() || !isLang(L) || !dictClean(w)) return null;
+    const local = async () => { try { return typeof Offline !== "undefined" ? await Offline.dictSearch(L, dictClean(w)) : null; } catch (e) { return null; } };
+    if (navigator.onLine === false) return await local();
     try {
       const res = arr(await rpc("dict_search", { p_lang: L, p_words: [dictClean(w)], p_limit: 6 }));
       return res.length ? arr(res[0].senses) : [];
-    } catch (e) { return null; }
+    } catch (e) { return errKind(e) === "net" ? await local() : null; }
   }
 
   return { on, usable, start, reset, track, changed, afterAdd, fillFromCommon, migrate, resumeBar, search, flush,

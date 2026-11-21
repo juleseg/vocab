@@ -261,7 +261,7 @@ function aiErrorText(e) {
 }
 
 // Traitement par lots de CONFIG.AI_BATCH cartes, un lot après l'autre (jamais en parallèle ni en boucle de réessai).
-// opts : { silent (vérification automatique), extra (propositions déjà ajoutées, ex. doublons),
+// opts : { silent (vérification automatique ; quiet en plus : aucun message, étape 80), extra (propositions déjà ajoutées, ex. doublons),
 //          want (champs demandés par carte, complétion), noEndModal (pas de fenêtre de fin : l'appelant l'affiche),
 //          resumeCats (complétion lancée par « Mettre à jour » : catégories gardées pour la reprise) }
 // Complétion : cartes restantes enregistrées avant le 1er lot, après chaque lot et dès que l'appli passe en arrière-plan
@@ -338,7 +338,7 @@ async function runAiJob(kind, cards, opts) {
   if (state !== st || Storage.getUser() !== who) return null;
   const interrupted = job.interrupted && stopped;
   const result = { added, error, stopped, interrupted };
-  if (opts.silent) { if (added) toast(t("ai.autoDone", { n: added })); return result; }
+  if (opts.silent) { if (added && !opts.quiet) toast(t("ai.autoDone", { n: added })); return result; }   // quiet (étape 80) : sans message
   if (opts.noEndModal) return result;
   if (interrupted) return result;   // bandeau « Reprendre / Abandonner » (renderResumeBars)
   let msg = error ? aiErrorText(error) : stopped ? t(isComplete ? "ai.paused" : "ai.stopped", { n: added }) : added ? t("ai.done", { n: added }) : t("ai.doneNone");
@@ -359,10 +359,13 @@ function goPending() {
 }
 
 // Après l'ajout de cartes (manuel ou import) : proposer de compléter les trous.
+// Étape 80 : avec la mise à jour automatique (file d'attente, js/auto-maj.js), rien n'est demandé : l'appli dépose toute
+// seule une demande regroupée pour les cartes qui ont des trous.
 function offerCompletion(cardIds) {
   const ids = new Set(cardIds || []);
   const cards = state.cards.filter(c => ids.has(c.id) && missingFields(c).length);
   if (!cards.length) return;
+  if (typeof AutoMaj !== "undefined" && AutoMaj.takes(cards.map(c => c.id))) return;
   openModal(t("ai.offerTitle"), el("p", null, t("ai.offer", { n: cards.length })), [
     { label: t("ai.offerNo") },
     { label: t("ai.offerYes"), kind: "primary", onClick: () => { startCompletion(cards.map(c => c.id)); } }

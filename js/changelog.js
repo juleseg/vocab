@@ -9,6 +9,22 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "80", date: "2026-11-21",
+    points: {
+      ko: ["Claude가 카드를 알아서 채워 줘요. 번역, 품사, 예문이 비어 있으면 따로 요청하지 않아도 돼요.", "Claude가 만든 카드는 다 채워진 채로 목록에 바로 들어가요. 목록에 작은 숫자가 뜨고, 앱에 돌아오면 알려 줘요."],
+      fr: ["Claude complète tes cartes tout seul : plus besoin de demander quand il manque une traduction, la nature ou un exemple.", "Les cartes créées par Claude arrivent complètes, directement dans ta liste : un petit chiffre sur la liste et un message te préviennent."],
+      en: ["Claude fills in your cards on its own: no need to ask when a translation, part of speech or example is missing.", "Cards created by Claude arrive complete, straight into your list: a small number on the list and a message let you know."]
+    }
+  },
+  {
+    version: "79", date: "2026-11-21",
+    points: {
+      ko: ["화면 위쪽 표시등이 동기화 상태를 항상 보여 줘요: 초록, 주황, 빨강. 누르면 자세히 볼 수 있어요.", "설정이 5개 섹션으로 정리됐고, '로그아웃'은 '더보기'에 바로 있어요.", "오프라인 저장: 인터넷 없이 쓸 목록, 이미지, 사전을 직접 고르고, 필요하면 공간을 비울 수 있어요."],
+      fr: ["Un voyant en haut de l'écran montre toujours si tes cartes sont synchronisées : vert, orange ou rouge. Touche-le pour le détail.", "Réglages rangés en 5 sections, et « Se déconnecter » directement dans « Plus ».", "Stockage hors ligne : choisis les listes, les images et le dictionnaire à garder sans Internet, et libère de la place quand tu veux."],
+      en: ["A light at the top of the screen always shows whether your cards are synced: green, orange or red. Tap it for details.", "Settings are now in 5 sections, and “Sign out” is right in “More”.", "Offline storage: choose the lists, images and dictionary to keep without the Internet, and free up space any time."]
+    }
+  },
+  {
     version: "78", date: "2026-11-21",
     points: {
       ko: ["두 기기에서 따로 만든 목록과 카드가 이제 하나로 합쳐져요. 오프라인에서 만든 것도 지워지지 않아요.", "같은 카드를 두 기기에서 고치면 최신 버전을 남기고 알려 줘요. 다른 버전도 되돌릴 수 있어요."],

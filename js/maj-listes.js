@@ -13,14 +13,27 @@
 // Catégories : "tr:<code>" (traduction manquante), "pos" (nature manquante + noms sans genre), "example",
 //   "pending" (propositions en attente ou champs « auto »), "verify" (cartes jamais vérifiées ou modifiées depuis),
 //   "dup" (doublons), "legacy" (cartes à l'ancien format, normalement aucune : migration au lancement).
-// Badge « N à compléter » (listes et dossiers) = cartes avec un champ vide ou un nom sans genre, recalculé à chaque affichage.
+// Badge « N à compléter » (listes et dossiers) = cartes avec un champ vide ou un nom sans genre, recalculé à chaque affichage
+// (étape 80 : sans les cartes que la mise à jour automatique prend en charge).
 
 // Trous d'une carte : champs vides (langues d'appui, exemple, natures) + noms sans genre.
 function gapFields(c, lg) {
   lg = lg || cardLangs(c);
   return fillFields(c, lg).filter(f => !fieldVal(c, f, lg).trim()).concat(genderFields(c, lg));
 }
-function listGapCount(l) { if (!canEditList(l)) return 0; const lg = listLangs(l); return cardsOf(l.id).filter(c => gapFields(c, lg).length).length; }
+// Étape 80 : une carte prise en charge par la mise à jour automatique (demande en cours ou à déposer, js/auto-maj.js) ne
+// compte pas : le badge ne montre que ce que Claude n'a pas pu compléter (ou tout, si l'automatisme est coupé).
+function listGapCount(l) {
+  if (!canEditList(l)) return 0;
+  const lg = listLangs(l), auto = typeof AutoMaj !== "undefined" && AutoMaj.active();
+  return cardsOf(l.id).filter(c => { const g = gapFields(c, lg); return g.length && !(auto && AutoMaj.handled(c, g)); }).length;
+}
+// Cartes d'une liste que Claude est en train de compléter tout seul (étape 80).
+function listAutoCount(l) {
+  if (!canEditList(l) || typeof AutoMaj === "undefined" || !AutoMaj.active()) return 0;
+  const lg = listLangs(l);
+  return cardsOf(l.id).filter(c => { const g = gapFields(c, lg); return g.length && AutoMaj.handled(c, g); }).length;
+}
 function folderGapCount(f) { return listsIn(f.id).reduce((n, l) => n + listGapCount(l), 0); }
 function updBadge(n) { return n ? el("span", "upd-badge", t("upd.badge", { n })) : null; }
 function updDate(ts) {

@@ -18,8 +18,15 @@
 //   regle;titre;texte;exemple1|exemple2|…;traduction
 // Étape 76 : vocabulaire avec une liste de mots (mots déjà connus copiés avant l'envoi) et cartes proches pour les autres
 // demandes (« reprendre;nX ») : js/generer-connus.js (GenKnown).
-// Rien n'est écrit dans les listes : chaque carte (ou tableau de conjugaison) devient une proposition
+// Étape 73 : les cartes sont créées directement dans la liste ; seul un groupe non valide devient une proposition
 // « Nouvelle carte » dans « À valider » : { id, cardId: "", listId, field: "new", type: "newcard", cards: [{ type, fields, ruleRef }], key, reason, createdAt }.
+// Étape 80 : génération COMPLÈTE. Le prompt de vocabulaire demande toutes les cases de chaque carte (traductions de toutes les
+// langues d'appui, exemple et ses traductions, nature du mot ET de chaque traduction, genre des noms des langues à genre) :
+//   vocab;<langue apprise>;<langues d'appui…>;exemple;<traductions de l'exemple…>;nature;<natures des traductions…>
+// (les natures des traductions sont en fin de ligne : une version plus ancienne de l'appli les ignore sans erreur).
+// Après la création, les cases encore vides sont complétées en silence (genAfter : file d'attente → AutoMaj ; accès direct →
+// complétion silencieuse) : jamais de badge « à compléter » juste après une génération. Les cartes créées sont marquées
+// « ajoutées par Claude » jusqu'à l'ouverture de la liste (js/claude-nouveau.js).
 const GEN_TYPES = ["vocab", "conj", "cloze", "fix", "rule"];
 const GEN_MAX = 30;          // cartes max par demande (sujet libre)
 const GEN_VERBS_PER_CALL = 5; // conjugaison : verbes par appel à Claude
@@ -94,6 +101,7 @@ function openGenerate(listId, lang) {
   } else o.lang = "";
   const lg = genLangs(o), L = lg.target;
   wrap.appendChild(el("div", "gen-info", pairLabel(lg)));
+  if (!lg.support.length) wrap.appendChild(el("div", "hint", t("prof.noSupportWarn")));   // étape 80 : liste sans langue d'aide (cartes créées, mais sans traduction)
 
   // Type de carte (autre langue étudiée : pas de vocabulaire, les mots de la liste servent déjà dans cette langue)
   const ts = el("select", "input");
@@ -261,9 +269,17 @@ function genPrompt(req, verbs) {
       if (req.topic) body.push("Contexte donné par l'apprenant : " + req.topic + ".");
     } else body.push("Crée " + req.count + " cartes de vocabulaire" + (req.topic ? " sur le thème : " + req.topic : "") + ".");
     const sn = req.lg.support.map(c => LANGUAGES[c].names.fr.toLowerCase());
-    body.push("Format : vocab;mot en " + Ln + ";" + sn.map(x => "traduction en " + x).join(";") + (sn.length ? ";" : "") + "exemple;" + sn.map(x => "traduction de l'exemple en " + x).join(";") + (sn.length ? ";" : "") + "nature");
-    body.push("- exemple = une phrase courte en " + Ln + " qui utilise le mot" + (sn.length ? ", suivie de sa traduction dans chaque langue (" + sn.join(", ") + ")" : "") + " ; nature = un code : nm, nf, nmf, nmpl, nfpl, n (nom sans genre), v, vpr, adj, adv, prep, conj, pron, interj, expr.");
-    if (LANGUAGES[L].gender) body.push("- en " + Ln + ", un nom a toujours son genre (nm, nf…) ; le mot sans article (ex. « étagère »).");
+    // Étape 80 : toutes les cases de la carte (nature du mot ET de chaque traduction, en fin de ligne).
+    body.push("Format : vocab;mot en " + Ln + ";" + sn.map(x => "traduction en " + x).join(";") + (sn.length ? ";" : "") + "exemple;" + sn.map(x => "traduction de l'exemple en " + x).join(";") + (sn.length ? ";" : "") + "nature du mot"
+      + sn.map(x => ";nature de la traduction en " + x).join(""));
+    body.push("- Remplis TOUTES les colonnes de chaque ligne, aucune colonne vide : " + (sn.length ? "chaque traduction, " : "") + "l'exemple, " + (sn.length ? "chaque traduction de l'exemple, " : "") + "chaque nature.");
+    body.push("- exemple = une phrase courte et simple en " + Ln + " qui utilise le mot" + (sn.length ? ", suivie de sa traduction dans chaque langue (" + sn.join(", ") + ")" : "") + ".");
+    body.push("- nature = un code : nm, nf, nmf, nmpl, nfpl, n (nom, langue sans genre), v, vpr, adj, adv, prep, conj, pron, interj, expr" + (sn.length ? " ; la nature d'une traduction est celle du mot traduit dans sa langue" : "") + ".");
+    { const all = [L].concat(req.lg.support), g = all.filter(c => LANGUAGES[c].gender), ng = all.filter(c => !LANGUAGES[c].gender);
+      const nm = cs => cs.map(c => LANGUAGES[c].names.fr.toLowerCase()).join(", ");
+      if (g.length) body.push("- Langues avec genre (" + nm(g) + ") : un nom a TOUJOURS son genre (nm, nf, nmf, nmpl ou nfpl), jamais n.");
+      if (ng.length) body.push("- Langues sans genre (" + nm(ng) + ") : n pour un nom."); }
+    if (LANGUAGES[L].gender) body.push("- en " + Ln + ", le mot sans article (ex. « étagère »).");
   } else if (req.type === "cloze") {
     body.push("Crée " + req.count + " textes à trous en " + Ln + " sur : " + req.topic + ".");
     body.push("Format : trou;phrase avec ___ à la place du trou;réponse;indice;explication;traduction;titre de la règle");
@@ -321,9 +337,13 @@ function parseGenReply(text, req) {
       sup.forEach((c, i) => { if (cols[2 + i]) terms[c] = cols[2 + i]; });
       const example = cols[2 + sup.length] || "", withTr = cols.length >= 4 + 2 * sup.length, exTr = {};
       if (withTr) sup.forEach((c, i) => { if (cols[3 + sup.length + i]) exTr[c] = cols[3 + sup.length + i]; });
-      const pv = parsePos(cols[(withTr ? 3 + 2 * sup.length : 3 + sup.length)] || "", L);
-      if (!terms[L] || (sup.length && !sup.some(c => terms[c]))) { out.errors.push(line); return; }
-      out.drafts.push({ type: "vocab", fields: { terms, example, exTr, pos: pv ? { [L]: pv } : {} } });
+      const p0 = withTr ? 3 + 2 * sup.length : 3 + sup.length;
+      const pv = parsePos(cols[p0] || "", L);
+      // Étape 80 : mot sans aucune traduction → carte créée quand même (liste sans langue d'aide, réponse incomplète) : complétée ensuite.
+      if (!terms[L]) { out.errors.push(line); return; }
+      const pos = pv ? { [L]: pv } : {};
+      sup.forEach((c, i) => { const x = terms[c] ? parsePos(cols[p0 + 1 + i] || "", c) : ""; if (x) pos[c] = x; });   // étape 80 : nature de chaque traduction
+      out.drafts.push({ type: "vocab", fields: { terms, example, exTr, pos } });
       return;
     }
     const r = parseTypedLine(kind, cols, L);
@@ -348,12 +368,15 @@ function draftGroups(drafts) {
 }
 // Ajoute les propositions « Nouvelle carte ». Cartes déjà dans la liste, déjà proposées ou refusées : ignorées.
 // Renvoie { added (propositions), cards (cartes), skipped }.
-function addGenProposals(drafts, req) {
-  const res = { added: 0, cards: 0, skipped: 0 };
+// opts.queue (étape 80) : cartes arrivées par la file d'attente → message « Claude a ajouté N cartes à … » au retour.
+// Étape 80 : res.ids = cartes créées ; elles sont marquées « ajoutées par Claude » (ClNew) et, s'il leur manque des cases,
+// complétées en silence par la file d'attente (genAfter).
+function addGenProposals(drafts, req, opts) {
+  const res = { added: 0, cards: 0, skipped: 0, ids: [] };
   // Étape 76 : « reprendre;nX » = carte proche copiée dans la liste (js/generer-connus.js), comptée comme une carte de Claude.
   const reuse = drafts.filter(d => d.type === "reuse");
   drafts = drafts.filter(d => d.type !== "reuse");
-  if (reuse.length) { const n = GenKnown.reuse(reuse, req); if (n) { genCreated += n; res.added++; res.cards += n; } }
+  if (reuse.length) { const n = GenKnown.reuse(reuse, req); if (n) { genCreated += n; res.added++; res.cards += n; try { if (typeof AutoMaj !== "undefined") AutoMaj.kick("gen", AMJ_SOON_MS); } catch (e) {} } }
   if (!drafts.length) { if (pvNewIds.length) { const ids = pvNewIds; pvNewIds = []; Dict.afterAdd(ids); } return res; }
   const listId = genListId(req);
   const lg = listLangs(listId);
@@ -375,14 +398,22 @@ function addGenProposals(drafts, req) {
     if (r.added) {
       r.ids.forEach(id => ClAuto.markCard(state.cards.find(c => c.id === id)));
       genCreated += r.added;
-      res.added++; res.cards += r.added;
+      res.added++; res.cards += r.added; res.ids.push(...r.ids);
     } else if (!r.dupOnly) {
       state.proposals.push(prop);
       res.added++; res.cards += fresh.length; res.pending = (res.pending || 0) + 1;
     }
   });
   if (pvNewIds.length) { const ids = pvNewIds; pvNewIds = []; Dict.afterAdd(ids); }   // dictionnaire commun (étape 36)
+  genAfter(listId, res.ids, opts);
   return res;
+}
+// Étape 80 : après la création de cartes par Claude — marque « ajoutée par Claude » (pastille de la liste, message au retour si
+// elles arrivent par la file d'attente) et cases encore vides confiées à la mise à jour automatique (silencieuse).
+function genAfter(listId, ids, opts) {
+  if (!ids || !ids.length) return;
+  try { if (typeof ClNew !== "undefined") ClNew.add(listId, ids, !!(opts && opts.queue)); } catch (e) {}
+  try { if (typeof AutoMaj !== "undefined") AutoMaj.kick("gen", AMJ_SOON_MS); } catch (e) {}
 }
 let genCreated = 0;   // étape 73 : cartes créées directement par « Générer » depuis le lancement (compteur de la file d'attente)
 
@@ -397,6 +428,7 @@ async function runGenerate(req) {
     { label: t("ai.stop"), onClick: () => { stopped = true; try { ctrl.abort(); } catch (e) {} return false; } }
   ]);
   const tot = { added: 0, cards: 0, skipped: 0, errors: [] };
+  const made = [];                                                      // étape 80 : cartes créées (complétude contrôlée à la fin)
   let error = null;
   try {
     for (let i = 0; i < parts.length && !stopped; i++) {
@@ -408,16 +440,23 @@ async function runGenerate(req) {
       const r = parseGenReply(lines.map(String).join("\n"), req);
       const a = addGenProposals(r.drafts, req);
       tot.added += a.added; tot.cards += a.cards; tot.skipped += a.skipped; tot.errors.push(...r.errors);
+      tot.pending = (tot.pending || 0) + (a.pending || 0); made.push(...a.ids);
       if (a.added) commitQuiet();
     }
   } finally { aiJob = null; pg.close(); }
   if (tot.added) commit();
+  // Étape 80 : accès direct à Claude — cases restées vides sur les cartes créées : complétées tout de suite, en silence.
+  if (made.length && !error && !stopped && AI.isOn() && !(typeof AutoMaj !== "undefined" && AutoMaj.active())) {
+    const set = new Set(made), gaps = state.cards.filter(c => set.has(c.id) && isVocab(c) && missingFields(c).length);
+    if (gaps.length) { try { await runAiJob("complete", gaps, { silent: true, quiet: true }); } catch (e) {} }
+  }
   genDone(tot, req, error);
 }
 function genDone(tot, req, error) {
   const wrap = el("div");
   if (error) wrap.appendChild(el("p", "muted", t("gen.error", { m: (error && (error.message || error.code)) || "?" })));
   wrap.appendChild(el("p", null, tot.cards ? t("gen.done", { n: tot.cards, p: tot.added }) : t("gen.none")));
+  if (tot.pending) wrap.appendChild(el("p", "muted", t(tot.pending === 1 ? "pvw.genPending1" : "pvw.genPending", { n: tot.pending })));   // étape 80
   if (tot.skipped) wrap.appendChild(el("p", "muted", t("gen.skipped", { n: tot.skipped })));
   if (tot.errors.length) {
     wrap.appendChild(el("p", "muted", t("gen.badLines", { n: tot.errors.length })));
@@ -469,7 +508,7 @@ function openGenReply(req) {
       if (!r.drafts.length) { toast(r.errors.length ? t("gen.badLines", { n: r.errors.length }) : t("reply.none")); return false; }
       const a = addGenProposals(r.drafts, req);
       if (a.added) commit();
-      genDone({ added: a.added, cards: a.cards, skipped: a.skipped, errors: r.errors }, req, null);
+      genDone({ added: a.added, cards: a.cards, skipped: a.skipped, errors: r.errors, pending: a.pending || 0 }, req, null);
     } }
   ]);
   setTimeout(() => { try { ta.focus(); } catch (e) {} }, 50);

@@ -99,6 +99,8 @@ function renderLists() {
   const box = $("#lvContent");
   box.textContent = "";
   const q = normText(lv.query);
+  // Étape 80 : liste ouverte = ses cartes « ajoutées par Claude » sont vues (la pastille part, l'étiquette reste pendant la visite).
+  if (typeof ClNew !== "undefined" && currentScreen === "lists") ClNew.view(list ? list.id : null);
 
   // Vue d'ensemble : dossiers puis listes sans dossier
   if (!list && !q) {
@@ -127,6 +129,12 @@ function renderLists() {
   let cards = list ? cardsOf(list.id) : state.cards;
   if (q) cards = cards.filter(c => cardMatches(c, q));
   if (!cards.length) { box.appendChild(el("div", "empty", t(q ? "lists.noResults" : "lists.noCards"))); return; }
+  if (list && !q) {                                    // étape 80 : « 🤖 12 cartes ajoutées par Claude », « 🤖 Claude complète 3 cartes »
+    const nn = typeof ClNew !== "undefined" ? ClNew.note(list.id) : null;
+    if (nn) box.appendChild(nn);
+    const na = typeof listAutoCount === "function" ? listAutoCount(list) : 0;
+    if (na) box.appendChild(el("div", "cln-note amj-note", "🤖 " + t(na === 1 ? "amj.busy1" : "amj.busy", { n: na })));
+  }
   const wrap = el("div", "items");
   cards.forEach(c => wrap.appendChild(cardItem(c, !list)));
   box.appendChild(wrap);
@@ -146,6 +154,7 @@ function folderSection(f, idx, total, isCollapsed, now) {
   if (isSharedFolder(f)) nm.append(document.createTextNode(" "), el("span", "sh-mark", "👥"));
   const fb = updBadge(folderGapCount(f));
   if (fb) nm.append(document.createTextNode(" "), fb);
+  { const fd = typeof ClNew !== "undefined" ? ClNew.dot(ClNew.folderCount(f)) : null; if (fd) nm.append(document.createTextNode(" "), fd); }   // étape 80 : cartes ajoutées par Claude
   const meta = el("div", "fd-meta", t("folders.meta", { l: lists.length, c: cards.length, d: dueCount(cards, now) }) + " · " + pairLabel(folderLangs(f)) + studyFolderExtra(f)
     + (isSharedFolder(f) ? " · " + shTag(f) : ""));
   tg.append(nm, meta);
@@ -175,6 +184,7 @@ function listItems(lists, now) {
     const t1 = el("div", "t1", l.name);
     const lb = updBadge(listGapCount(l));
     if (lb) t1.append(document.createTextNode(" "), lb);
+    { const ld = typeof ClNew !== "undefined" ? ClNew.dot(ClNew.count(l.id)) : null; if (ld) t1.append(document.createTextNode(" "), ld); }   // étape 80 : pastille « ajoutées par Claude »
     const fl = isSharedList(l) ? Shared.flagCount(l.id) : 0;
     if (fl) t1.append(document.createTextNode(" "), el("span", "sh-flag", "✎ " + fl));
     m.append(t1,
@@ -279,9 +289,13 @@ function cardItem(c, showList) {
   const extra = el("div");
   if (showList) { const l = getList(c.listId); if (l) extra.appendChild(el("span", "tag", "▸ " + l.name)); }
   const miss = missingSupport(c, lg).concat(stMiss);  // traduction manquante dans une langue d'appui (étape 31) ou étudiée (étape 37)
-  if (miss.length) extra.appendChild(el("span", "tag warn", t("card.toFill", { langs: miss.map(x => langName(x)).join(", ") })));
+  if (typeof ClNew !== "undefined") ClNew.tag(c, extra);   // étape 80 : « 🤖 Ajoutée par Claude » (jusqu'à la fermeture de la liste)
+  // Étape 80 : carte que Claude complète tout seul (demande en cours ou à déposer) : pas d'étiquette « À compléter ».
+  const autoCl = typeof AutoMaj !== "undefined" && AutoMaj.handled(c);
+  if (autoCl) extra.appendChild(el("span", "tag amj-tag", "🤖 " + t("amj.tag")));
+  else if (miss.length) extra.appendChild(el("span", "tag warn", t("card.toFill", { langs: miss.map(x => langName(x)).join(", ") })));
   shFlagTag(c, extra);
-  { const gm = genderMissingTag(c); if (gm && canEditList(c.listId)) extra.appendChild(gm); }   // « Genre manquant » (étape 60)
+  { const gm = autoCl ? null : genderMissingTag(c); if (gm && canEditList(c.listId)) extra.appendChild(gm); }   // « Genre manquant » (étape 60)
   DictConf.tag(c, extra);   // « Ce mot existe déjà dans le dictionnaire autrement » (faux doublon, étape 63)
   HardUI.tags(c, extra);   // « Mot difficile » / « En pause » (étape 57)
   c.tags.forEach(tg => extra.appendChild(el("span", "tag", "#" + tg)));
@@ -310,6 +324,7 @@ function typedCardItem(c, showList) {
   const extra = el("div");
   if (showList) { const l = getList(c.listId); if (l) extra.appendChild(el("span", "tag", "▸ " + l.name)); }
   if (!typedUsable(c)) extra.appendChild(el("span", "tag warn", t("type.incomplete")));
+  if (typeof ClNew !== "undefined") ClNew.tag(c, extra);   // étape 80
   shFlagTag(c, extra);
   HardUI.tags(c, extra);   // « Mot difficile » / « En pause » (étape 57)
   c.tags.forEach(tg => extra.appendChild(el("span", "tag", "#" + tg)));

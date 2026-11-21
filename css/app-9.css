@@ -130,3 +130,127 @@ html[lang="ko"] .rc-side-t,html[lang="ko"] .rc-side-d,html[lang="ko"] .rc-mode-t
 .fu-row-t .muted { font-size: 13px; }
 .fu-take { margin-top: 8px; width: 100%; min-height: 44px; }
 .fu-open { display: block; width: 100%; margin-top: 8px; min-height: 44px; text-align: left; overflow-wrap: anywhere; }
+
+/* === INDICATEUR DE SYNCHRO TOUJOURS VISIBLE, DÉTAIL, HORS LIGNE GRISÉ (ÉTAPE 79) === */
+/* En-tête fixé en haut (le voyant ne quitte jamais l'écran) ; --syn-top = sa hauteur, pour ce qui se cale dessous. */
+:root { --syn-top: calc(60px + env(safe-area-inset-top)); }
+html { scroll-padding-top: var(--syn-top); }
+header.top { position: sticky; top: 0; z-index: 30; background: var(--bg); min-height: var(--syn-top);
+  padding: calc(8px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) 8px calc(18px + env(safe-area-inset-left)); }
+header.top h1 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+header.top .top-right { flex: 0 0 auto; gap: 2px; }
+.pv-sticky, .cem-bar { top: var(--syn-top); }
+.syn-pill { position: relative; appearance: none; -webkit-appearance: none; min-height: 40px; max-width: 52vw; padding: 6px 12px 6px 10px;
+  border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text);
+  font-size: 13px; font-weight: 600; line-height: 1.2; cursor: pointer; }
+.syn-pill[hidden] { display: none; }
+.syn-pill::after { content: ""; position: absolute; inset: -4px -2px; }   /* zone tactile de 48 px */
+.syn-pill #syncLabel { overflow: hidden; text-overflow: ellipsis; }
+.syn-pill .dot, .syn-pill[data-mode] .dot { flex: 0 0 auto; width: 12px; height: 12px; border: 0; border-radius: 50%; background: var(--muted); }
+.syn-pill[data-syn="ok"] .dot { background: var(--ok); }
+.syn-pill[data-syn="warn"] .dot { background: var(--warn); }
+.syn-pill[data-syn="bad"] .dot { background: var(--bad); }
+.syn-pill[data-syn="bad"] { border-color: var(--bad); }
+.syn-pill[data-kind="syncing"] .dot { animation: synPulse 1s ease-in-out infinite; }
+.syn-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@keyframes synPulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .syn-pill[data-kind="syncing"] .dot { animation: none; } }
+/* Détail (fenêtre) */
+.syn-head { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--surface2); margin-bottom: 12px; }
+.syn-big { flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%; background: var(--muted); }
+.syn-head[data-syn="ok"] .syn-big { background: var(--ok); }
+.syn-head[data-syn="warn"] .syn-big { background: var(--warn); }
+.syn-head[data-syn="bad"] .syn-big { background: var(--bad); }
+.syn-head-tx { min-width: 0; }
+.syn-head-t { font-weight: 700; }
+.syn-head-d { font-size: 14px; color: var(--muted); line-height: 1.4; overflow-wrap: anywhere; }
+.syn-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 2px; font-size: 15px; }
+.syn-k { color: var(--muted); }
+.syn-v { font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+.syn-box { padding: 10px 2px 2px; border-top: 1px solid var(--border); }
+.syn-h { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.modal .syn-none { margin: 0 0 8px; }
+.syn-list { margin: 0 0 8px; padding-left: 20px; font-size: 15px; line-height: 1.45; }
+.modal .syn-err, .syn-err { margin: 0 0 10px; padding: 8px 10px; border-radius: 10px; background: var(--surface2); color: var(--bad);
+  font-family: ui-monospace, Menlo, monospace; font-size: 13px; overflow-wrap: anywhere; user-select: text; -webkit-user-select: text; }
+.syn-retry { margin: 6px 0 4px; }
+.syn-links { margin: 8px -8px 0; border-top: 1px solid var(--border); }
+.syn-links .item:last-child { border-bottom: 0; }
+/* Hors connexion : ce qui ne peut pas marcher est grisé ; bandeau des écrans qui ont besoin d'Internet */
+.syn-off { opacity: .45; filter: grayscale(1); cursor: not-allowed; }
+.syn-bar { margin: 0 0 12px; padding: 10px 14px; border: 1px solid var(--bad); border-radius: 12px; background: var(--surface);
+  color: var(--text); font-size: 14px; line-height: 1.4; }
+.syn-bar[hidden] { display: none; }
+
+/* === « PLUS » : LISTE QUI DÉFILE, « SE DÉCONNECTER » TOUJOURS VISIBLE (ÉTAPE 79) === */
+.ecr-more-wrap .ecr-more { max-height: max(176px, calc(100vh - 330px)); max-height: max(176px, calc(100dvh - 330px)); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.ecr-logout { width: calc(100% + 16px); margin: 0 -8px; border-top: 1px solid var(--border); border-bottom: 0; }
+.ecr-logout .t1 { color: var(--bad); }
+.ecr-logout .t2 { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+
+/* === STOCKAGE HORS LIGNE (ÉTAPE 79) === */
+.hl-card .hint, .hl-intro { margin: 0 0 12px; }
+.hl-use { padding: 12px 14px; border-radius: 14px; background: var(--surface2); margin-bottom: 14px; }
+.hl-use p { margin: 0; }
+.hl-use-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; font-weight: 700; margin-bottom: 8px; }
+.hl-use-free { color: var(--muted); font-weight: 600; }
+.hl-bar { margin-bottom: 10px; background: var(--surface); }
+.hl-use-list { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+.hl-use-list li { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+.hl-use-list li span { color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
+.hl-use-list li b { flex: 0 0 auto; font-weight: 600; }
+.card h3.hl-h { margin: 18px 0 8px; font-size: 16px; }
+.hl-row { align-items: flex-start; margin-bottom: 4px; padding: 8px 0; min-height: 48px; border-top: 1px solid var(--border); }
+.hl-row input { margin-top: 2px; }
+.hl-row-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.hl-row-t { font-weight: 600; overflow-wrap: anywhere; }
+.hl-row-s { font-size: 13px; color: var(--muted); line-height: 1.4; overflow-wrap: anywhere; }
+.hl-badge { flex: 0 0 auto; align-self: center; padding: 3px 8px; border-radius: 999px; background: var(--surface2); color: var(--warn); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.hl-badge.ok { color: var(--ok); }
+.hl-dref { flex: 0 0 auto; align-self: center; padding: 6px 4px; font-size: 14px; }
+.hl-snd { padding: 10px 0 4px; border-top: 1px solid var(--border); }
+.hl-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.hl-chip { padding: 4px 10px; border-radius: 999px; background: var(--surface2); font-size: 13px; font-weight: 600; }
+.hl-chip.ok { color: var(--ok); }
+.hl-chip.net { color: var(--warn); }
+.hl-chip.no { color: var(--muted); }
+.hl-all { display: flex; gap: 16px; margin: -4px 0 4px; }
+.hl-group { margin-bottom: 8px; }
+.hl-group-t { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; margin: 8px 0 4px; }
+.hl-act { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); display: grid; gap: 10px; }
+.hl-act p { margin: 0; }
+.hl-prog .progress-text { margin-top: 8px; }
+.hl-ok { color: var(--ok); font-weight: 600; }
+.hl-warn { color: var(--warn); font-weight: 600; overflow-wrap: anywhere; }
+.hl-note { font-size: 14px; }
+.modal .hl-safe { font-weight: 700; }
+html[lang="ko"] .hl-row-t, html[lang="ko"] .hl-row-s, html[lang="ko"] .syn-head-d { word-break: keep-all; overflow-wrap: anywhere; }
+
+/* === CLAUDE REMPLIT ET MET À JOUR TOUT SEUL : PASTILLE, ÉTIQUETTES, MESSAGE, LIGNES IGNORÉES, RÉGLAGE ADMIN (ÉTAPE 80) === */
+/* Pastille « cartes ajoutées par Claude » sur une liste ou un dossier (js/claude-nouveau.js). */
+.cln-dot { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-size: 12px; font-weight: 700; line-height: 1; vertical-align: middle; }
+.cln-dot::before { content: "🤖"; font-size: 10px; margin-right: 3px; }
+.tag.cln-tag { color: var(--accent); border: 1px solid var(--accent); background: transparent; }
+.tag.amj-tag { color: var(--muted); }
+.cln-note { margin: 0 0 10px; padding: 8px 12px; border-radius: 10px; background: var(--surface2); color: var(--text); font-size: 14px; font-weight: 600; }
+.cln-note.amj-note { font-weight: 400; color: var(--muted); }
+/* Message « Claude a ajouté N cartes à … » : même barre que « Annuler », un peu plus haut pour ne pas la recouvrir. */
+.undo-bar.cln-bar { bottom: calc(132px + env(safe-area-inset-bottom)); width: max-content; max-width: min(92vw, 520px); box-sizing: border-box; }
+.undo-bar.cln-bar span { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.undo-bar.cln-bar button { flex: 0 0 auto; white-space: nowrap; }
+/* « À valider » : la barre de sélection ne déborde plus sur un petit écran (« Copier » passe à la ligne au besoin). */
+.pv-bar { flex-wrap: wrap; }
+.pv-bar .pv-selmenu { min-width: 120px; flex: 0 1 150px; }
+.pv-bar .pv-count { flex: 1 1 60px; min-width: 0; }
+/* « À valider » : raisons des lignes ignorées. */
+.pvw p { margin: 0 0 8px; }
+.pvw-list { margin: 0 0 10px; padding-left: 20px; }
+.pvw-list li { margin: 4px 0; overflow-wrap: anywhere; }
+/* Feuille « 🤖 Claude » d'une liste : ligne « Claude complète tes cartes tout seul ». */
+.amj-sheet { margin: 0 0 8px; font-size: 14px; }
+/* Administration → Demandes à Claude → « Mise à jour automatique ». */
+.amj-ad-on { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: 4px 0 8px; }
+.amj-ad-on input { width: 22px; height: 22px; flex: 0 0 auto; }
+.amj-ad-unit { align-self: center; color: var(--muted); font-size: 14px; }
+.amj-ad-used { margin: 10px 0 0; }
+html[lang="ko"] .cln-note, html[lang="ko"] .pvw-list li, html[lang="ko"] .amj-sheet { word-break: keep-all; overflow-wrap: anywhere; }

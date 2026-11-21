@@ -15,15 +15,16 @@
 //   2 au plus, hors barre du bas. Les anciennes clés retenues (home.learned, home.xp, home.ch, stats.<bloc>) sont ignorées.
 // - Barre du bas : ECR_BAR + « Plus » (#navMore, fenêtre avec ECR_MORE) ; les autres boutons restent dans la page (cachés)
 //   pour les pastilles et le tutoriel. « Plus » est allumé quand l'écran ouvert dépend d'un bouton caché.
+// Étape 79 : Réglages = 5 grandes sections (Mon compte, Réviser, Apparence, Notifications, Données et stockage) ; « Se déconnecter »
+//   aussi dans « Plus », toujours visible, avec une confirmation courte (logoutAsk) ; recherche mise à jour (ECR_FIND).
+// Étape 79 : 5 grandes sections, ni plus ni moins (les 8 sections de l'étape 67 y sont rangées ; table : claude/carte/etape-79.md).
+// old = anciens noms de sections (openSec) et anciennes adresses « plein écran » (#reglages-<slug>) qui mènent ici.
 const ECR_SECS = [
-  { id: "privacy", slug: "confidentialite", ic: "🔒", full: true },
-  { id: "notif", slug: "notifications", ic: "🔔", full: true },
-  { id: "learn", slug: "apprentissage", ic: "🎯", full: true },
-  { id: "account", slug: "compte", ic: "👤" },
-  { id: "langs", slug: "langues", ic: "🌐", full: true },
+  { id: "account", slug: "compte", ic: "👤", full: true, old: ["privacy", "langs", "help", "admin", "confidentialite", "langues", "aide", "administration"] },
+  { id: "learn", slug: "reviser", ic: "🎯", full: true, old: ["apprentissage"] },
   { id: "look", slug: "apparence", ic: "🎨" },
-  { id: "help", slug: "aide", ic: "💬" },
-  { id: "admin", slug: "administration", ic: "🛠️" }
+  { id: "notif", slug: "notifications", ic: "🔔", full: true },
+  { id: "data", slug: "donnees", ic: "💾", full: true }
 ];
 // Onglets gardés dans la barre du bas (proposition de l'étape 67, à valider par Jules) ; le reste passe dans « Plus ».
 const ECR_BAR = ["home", "review", "lists", "friends"];
@@ -39,6 +40,7 @@ const ECR_MORE = [
   { s: "about", ic: "ⓘ", k: "about.title" },
   { s: "admin", ic: "🛠️", k: "admin.title", ok: () => auth.mode === "supabase" && Mod.any() }
 ];
+// Étape 79 : « Se déconnecter » est en plus un bouton toujours visible en bas de la fenêtre « Plus » (openMore, logoutAsk).
 // Raccourcis possibles de l'accueil (ordre = ordre par défaut, avant que l'usage ne soit connu).
 const ECR_SHORT = [
   { s: "review", ic: "📖", k: "nav.review" },
@@ -54,10 +56,19 @@ const ECR_SHORT_N = 2;   // étape 75 : 2 raccourcis au plus, et seulement des f
 // Recherche : réglage (sec + el : section à ouvrir, élément à montrer) ou fonction (screen, ou fn).
 // Textes cherchés : t(k) et t("ecr.kw.<id>") (mots-clés), dans les 3 langues.
 const ECR_FIND = [
-  { id: "privacy", k: "ecr.sec.privacy", sec: "privacy", el: "#friendsPrivCard" },
-  { id: "notif", k: "np.title", sec: "notif", el: "#pushCard" },
-  { id: "quiet", k: "np.quiet", sec: "notif", el: "#pushCard .np-times" },
-  { id: "morning", k: "mom.set.title", sec: "notif", el: "#momentsCard" },
+  // Mon compte
+  { id: "account", k: "ecr.sec.account", sec: "account", el: "#sec-account" },
+  { id: "pin", k: "account.changePin", sec: "account", el: "#btnChangePin" },
+  { id: "logout", k: "account.logout", sec: "account", el: "#btnLogout" },
+  { id: "langs", k: "prof.title", sec: "account", el: "#langCard" },
+  { id: "applang", k: "lx.app", sec: "account", el: "#langCard" },
+  { id: "privacy", k: "ecr.sec.privacy", sec: "account", el: "#friendsPrivCard" },
+  { id: "idea", k: "ix.propose", sec: "account", el: "#ideaCard" },
+  { id: "write", k: "mg.teamTitle", sec: "account", el: "#msgTeamCard" },
+  { id: "about", k: "about.title", sec: "account", el: "#btnAboutSet" },
+  { id: "tuto", k: "tuto.replay", sec: "account", el: "#btnTutoSet" },
+  { id: "admin", k: "admin.title", sec: "account", el: "#adminCard" },
+  // Réviser
   { id: "learn", k: "ecr.sec.learn", sec: "learn", el: "#sec-learn" },
   { id: "goal", k: "settings.dailyGoal", sec: "learn", el: "#setDailyGoal" },
   { id: "size", k: "settings.sessionSize", sec: "learn", el: "#setSessionSize" },
@@ -67,21 +78,23 @@ const ECR_FIND = [
   { id: "sentence", k: "sn.setTitle", sec: "learn", el: "#sentCard" },
   { id: "gender", k: "gd.set.title", sec: "learn", el: "#genderCard" },
   { id: "claude", k: "ai.title", sec: "learn", el: "#aiCard" },
-  { id: "account", k: "ecr.sec.account", sec: "account", el: "#sec-account" },
-  { id: "pin", k: "account.changePin", sec: "account", el: "#btnChangePin" },
-  { id: "logout", k: "account.logout", sec: "account", el: "#btnLogout" },
-  { id: "export", k: "export", sec: "account", el: "#btnExport" },
-  { id: "import", k: "import", sec: "account", el: "#btnImport" },
-  { id: "data", k: "settings.data", sec: "account", el: "#storageInfo" },
-  { id: "langs", k: "prof.title", sec: "langs", el: "#langCard" },
-  { id: "applang", k: "lx.app", sec: "langs", el: "#langCard" },
+  // Apparence
   { id: "theme", k: "settings.theme", sec: "look", el: "#setTheme" },
   { id: "short", k: "ecr.short.title", sec: "look", el: "#ecrShortCard" },
-  { id: "idea", k: "ix.propose", sec: "help", el: "#ideaCard" },
-  { id: "write", k: "mg.teamTitle", sec: "help", el: "#msgTeamCard" },
-  { id: "about", k: "about.title", sec: "help", el: "#btnAboutSet" },
-  { id: "tuto", k: "tuto.replay", sec: "help", el: "#btnTutoSet" },
-  { id: "admin", k: "admin.title", sec: "admin", el: "#adminCard" },
+  // Notifications
+  { id: "notif", k: "np.title", sec: "notif", el: "#pushCard" },
+  { id: "quiet", k: "np.quiet", sec: "notif", el: "#pushCard .np-times" },
+  { id: "morning", k: "mom.set.title", sec: "notif", el: "#momentsCard" },
+  // Données et stockage
+  { id: "data", k: "settings.data", sec: "data", el: "#storageInfo" },
+  { id: "export", k: "export", sec: "data", el: "#btnExport" },
+  { id: "import", k: "import", sec: "data", el: "#btnImport" },
+  { id: "copies", k: "gf.copies", sec: "data", el: "#btnGfCopies" },
+  { id: "fusions", k: "fu.listBtn", sec: "data", el: "#btnFuList" },
+  { id: "offline", k: "hl.title", sec: "data", el: "#stockCard" },
+  { id: "freeup", k: "hl.free", sec: "data", el: "#hlFree" },
+  // Fonctions de l'appli
+  { id: "sync", k: "syn.title", fn: () => SyncUi.open(), ok: () => typeof SyncUi !== "undefined" },
   { id: "s_home", k: "nav.home", screen: "home" },
   { id: "s_review", k: "nav.review", screen: "review" },
   { id: "s_lists", k: "nav.lists", screen: "lists" },
@@ -110,9 +123,10 @@ const Ecr = (() => {
 
   // --- Réglages : sections repliées ---
   function secOf(id) { return ECR_SECS.find(s => s.id === id) || null; }
+  function secAlias(id) { const s = ECR_SECS.find(x => x.id === id || arr(x.old).includes(id)); return s ? s.id : id; }   // étape 79 : ancien nom de section
   function fullSec(h) {
     const m = /^reglages-([a-z]+)$/.exec(h == null ? (location.hash || "").replace("#", "") : h);
-    const s = m && ECR_SECS.find(x => x.slug === m[1] && x.full);
+    const s = m && ECR_SECS.find(x => (x.slug === m[1] || arr(x.old).includes(m[1])) && x.full);
     return s ? s.id : null;
   }
   function isFullHash(h) { return !!fullSec(h); }
@@ -121,6 +135,7 @@ const Ecr = (() => {
   function setOpen(id) { temp = null; lsSet("sec", id || ""); }
   // Ouvre une section (recherche) : la seule ouverte, retenue sur l'appareil ; passing = true (tutoriel) : sans la retenir.
   function openSec(id, passing) {
+    id = secAlias(id);
     if (!secOf(id)) return;
     if (passing) temp = id; else setOpen(id);
     settings();
@@ -173,10 +188,6 @@ const Ecr = (() => {
   }
   function secSummary(id) {
     return safe(() => {
-      if (id === "privacy") {
-        const pv = normPrivacy(state.settings.privacy), ks = PRIVACY_ORDER.filter(k => k in pv);
-        return t("ecr.sum.privacy", { n: ks.filter(k => pv[k]).length, m: ks.length });
-      }
       if (id === "notif") {
         if (!Push.on()) return "";
         const st = Push.state().st;
@@ -184,10 +195,12 @@ const Ecr = (() => {
         return t("np.thisDevice") + " : " + t(st.registered && Push.permission() === "granted" ? "np.dev.on" : "np.dev.off");
       }
       if (id === "learn") return t("ecr.sum.learn", { g: Streak.goal(), r: rhyLabel(rhyCur()) });
-      if (id === "account") return Storage.getUser() || "";
-      if (id === "langs") return learningOf().map(x => langName(x.lang)).join(", ");
+      if (id === "account") return [Storage.getUser() || "", learningOf().map(x => langName(x.lang)).join(", ")].filter(Boolean).join(" · ");
       if (id === "look") return t("theme." + state.settings.theme);
-      if (id === "help") return t("settings.version", { v: APP_VERSION });
+      if (id === "data") {   // étape 79 : listes gardées hors ligne, sinon l'état de la synchro
+        const n = typeof Offline !== "undefined" ? Offline.keptCount() : 0;
+        return n ? t("hl.sum", { n }) : (typeof SyncUi !== "undefined" ? SyncUi.label() : "");
+      }
       return "";
     }, "");
   }
@@ -293,7 +306,8 @@ const Ecr = (() => {
     const n = findTarget(x);
     if (!n) return;
     requestAnimationFrame(() => {
-      try { n.scrollIntoView({ block: "center" }); } catch (e) {}
+      const big = n.getBoundingClientRect().height > window.innerHeight * 0.6;   // étape 79 : grande carte → son début (sous l'en-tête fixe)
+      try { n.scrollIntoView({ block: big ? "start" : "center" }); } catch (e) {}
       const card = n.classList.contains("card") ? n : (n.closest(".card") || n);
       card.classList.remove("ecr-flash");
       void card.offsetWidth;
@@ -482,12 +496,15 @@ const Ecr = (() => {
     const mb = $("#moreBadge");
     if (mb) { mb.hidden = !n; mb.textContent = n > 99 ? "99+" : String(n); }
   }
+  // Étape 79 : la liste défile si elle est longue ; « Se déconnecter » reste toujours visible dessous (avec confirmation).
   function openMore() {
-    const wrapEl = el("div", "ecr-more");
+    const wrapEl = el("div", "ecr-more-wrap");
+    const list = el("div", "ecr-more");
     let close = null;
     ECR_MORE.filter(avail).forEach(x => {
       const b = el("button", "item ecr-more-it" + (x.s === currentScreen ? " on" : ""));
       b.type = "button";
+      b.dataset.screen = x.s;
       const ic = el("span", "ecr-more-ic", x.ic);
       ic.setAttribute("aria-hidden", "true");
       const m = el("div", "main");
@@ -499,11 +516,34 @@ const Ecr = (() => {
       }
       b.appendChild(el("span", "chev", "›"));
       b.addEventListener("click", () => { if (close) close(); go(x.s); });
-      wrapEl.appendChild(b);
+      list.appendChild(b);
     });
+    const out = el("button", "item ecr-more-it ecr-logout");
+    out.type = "button";
+    out.id = "moreLogout";
+    const oi = el("span", "ecr-more-ic", "🚪");
+    oi.setAttribute("aria-hidden", "true");
+    const om = el("div", "main");
+    om.appendChild(el("div", "t1", t("account.logout")));
+    om.appendChild(el("div", "t2", Storage.getUser() || ""));
+    out.append(oi, om);
+    out.addEventListener("click", () => { if (close) close(); logoutAsk(); });
+    wrapEl.append(list, out);
     close = openModal(t("ecr.more"), wrapEl, [{ label: t("close") }]);
     const bg = document.querySelectorAll(".modal-bg");
     if (bg.length) bg[bg.length - 1].classList.add("ecr-sheet");
+  }
+  // Confirmation courte avant de se déconnecter depuis « Plus ». Des modifications pas encore envoyées restent sur l'appareil
+  // (elles partent à la prochaine connexion de ce compte ici) : la fenêtre le dit.
+  function logoutAsk() {
+    const body = el("div");
+    body.appendChild(el("p", null, t("ecr.logout.text", { id: Storage.getUser() || "" })));
+    const unsent = safe(() => { const i = Storage.syncInfo(); return i.remote && (i.unsent || Fusion.dirty()); }, false);
+    if (unsent) body.appendChild(el("p", "muted", t("ecr.logout.unsent")));
+    openModal(t("ecr.logout.title"), body, [
+      { label: t("cancel") },
+      { label: t("account.logout"), kind: "danger", onClick: () => { logout(); } }
+    ]);
   }
 
   // --- Branchements (le DOM existe : scripts en fin de <body>) ---
@@ -520,6 +560,6 @@ const Ecr = (() => {
   }
   try { bind(); } catch (e) {}
 
-  return { settings, home, folds, paintNav, onShow, openSec, isFullHash, fullSec, search, goFind, openMore, shortList };
+  return { settings, home, folds, paintNav, onShow, openSec, isFullHash, fullSec, search, goFind, openMore, shortList, logoutAsk };
 })();
 window.App.Ecr = Ecr;

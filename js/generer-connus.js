@@ -104,7 +104,20 @@ const GenKnown = (() => {
   async function dictLookup(items, L, lg) {
     const out = new Map();
     if (!items.length) return out;
-    if (typeof Dict === "undefined" || !Dict.on() || navigator.onLine === false || !Supa.client()) return null;
+    if (typeof Dict === "undefined" || !Dict.on() || !Supa.client()) return null;
+    // Étape 79 : hors connexion, la copie du dictionnaire gardée sur l'appareil (js/hors-ligne.js) ; sans copie : sauté comme avant.
+    if (navigator.onLine === false) {
+      if (typeof Offline === "undefined") return null;
+      try {
+        for (const x of items) {
+          const senses = await Offline.dictSearch(L, dictClean(x.w));
+          if (senses === null) return null;
+          const s = senses.find(s => s && s.vals && s.vals[L] && gndAlts(s.vals[L].w).includes(x.k) && cardUsable(fromSense(s, "", lg), lg));
+          if (s && !out.has(x.k)) out.set(x.k, s);
+        }
+      } catch (e) { return null; }
+      return out;
+    }
     try {
       for (let i = 0; i < items.length; i += GND_DICT_N) {
         const part = items.slice(i, i + GND_DICT_N);
@@ -165,6 +178,7 @@ const GenKnown = (() => {
     fresh.forEach(c => { try { state.checkedSig[c.id] = cardSig(c); } catch (e) {} });
     commit();
     Dict.afterAdd(fresh.map(c => c.id));       // cartes reliées : valeurs du commun relues ; les autres reliées comme un ajout
+    try { if (typeof AutoMaj !== "undefined") AutoMaj.kick("copy"); } catch (e) {}   // étape 80 : cases vides des copies complétées toutes seules
     return fresh.length;
   }
   // Bilan avant l'envoi. ok() = copier puis envoyer le reste (ou rien).

@@ -64,7 +64,7 @@ const Tutorial = (() => {
   // show() : va sur le bon écran (sans rien modifier) ; target() : élément (ou éléments) à mettre en évidence ;
   // ok() : le point existe ici (sinon sauté) ; tryIt() : action « Essayer » (ouvre une fenêtre).
   const STEPS = [
-    { id: "langs", show: () => goSec("langs"), target: () => $("#langCard") },   // étape 67 : section « Langues »
+    { id: "langs", show: () => goSec("account"), target: () => $("#langCard") },   // étape 67 : section « Langues » ; étape 79 : dans « Mon compte »
     { id: "lists", show: () => { lv.listId = null; lv.query = ""; lv.reorder = false; go("lists"); renderLists(); },
       target: () => {
         const d = demoList();
@@ -81,12 +81,13 @@ const Tutorial = (() => {
       target: () => (reviewFree() ? [$("#rcStart"), $("#rcOptsBtn")] : null) },   // étape 75 : « Commencer » et « Plus d'options » (js/reviser-choix.js)
     { id: "modes", ok: reviewFree, show: () => go("review"),
       target: () => (reviewFree() ? $("#rcTop") : null) },   // étape 75 : « Apprendre » / « Jouer » et leurs modes (étape 70 : le Mix)
-    { id: "pending", show: () => go("pending"), target: () => navOrMore("pending") },   // étape 67 : dans « Plus »
+    { id: "pending", show: () => go("pending"), target: () => navOrMore("pending") },   // étape 67 : dans « Plus » (étape 79 : « Se déconnecter » y est aussi)
     { id: "streak", show: () => go("home"), target: () => [$("#homeDueCard"), $("#homeDay")] },   // étape 75 : « Réviser maintenant », puis série + objectif du jour dans une seule carte
     { id: "short", show: () => go("home"), target: () => $("#homeShort") },   // raccourcis de l'accueil (étape 67)
     { id: "xp", show: () => go("home"), target: () => foldOf($("#homeProg")) },   // XP et défis du jour (étape 43) ; étape 75 : une seule carte repliable « Mes progrès »
     { id: "friends", show: () => go("friends"), target: () => navBtn("friends") },
-    { id: "settings", show: () => { goSec(""); window.scrollTo(0, 0); }, target: () => [$("#setSearchBox"), $("#setSecs")] },   // étape 67 : recherche et sections repliées
+    { id: "settings", show: () => { goSec(""); window.scrollTo(0, 0); }, target: () => [$("#setSearchBox"), $("#setSecs")] },   // étape 67 : recherche et sections repliées (étape 79 : 5 sections)
+    { id: "sync", ok: () => { const b = $("#syncStatus"); return !!b && !b.hidden; }, show: () => { go("home"); window.scrollTo(0, 0); }, target: () => $("#syncStatus") },   // étape 79 : voyant de synchro, dans l'en-tête
     { id: "about", show: () => { go("settings"); window.scrollTo(0, 0); }, target: () => $("#btnAbout") }   // ⓘ À propos, dans l'en-tête, remonté en haut de page (étape 51)
   ];
   function targets(s) {

@@ -23,6 +23,7 @@ function renderSettings() {
   Images.renderQuota();      // Réglages → Données : « Images : X Mo sur 50 Mo » (étape 49)
   Ideas.renderCard();        // Réglages → « 💡 Proposer une idée » / « Mes idées » (étape 52, mode Supabase)
   Messages.renderTeamCard(); // Réglages → « ✉️ Écrire à l'équipe » (étape 53, mode Supabase)
+  if (typeof renderStockCard === "function") renderStockCard();   // Réglages → Données et stockage → Stockage hors ligne (étape 79, js/screens/stockage.js)
   if (typeof Ecr !== "undefined") Ecr.settings();   // étape 67 : sections repliées, plein écran, recherche, raccourcis (js/ecrans.js)
 }
 // Carte « Rythme de révision » (étape 47, complément) : affiche le réglage actuel (ex. « Équilibré · 90 % ») et ouvre
