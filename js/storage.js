@@ -1,7 +1,7 @@
 "use strict";
 
 // ====================================================================================================
-// js/storage.js — DATA MODEL (DATA_VERSION, normalizeData, migrations, morceaux hard / tips / progres)
+// js/storage.js — DATA MODEL (DATA_VERSION, normalizeData, migrations, morceaux hard / tips / progres / tombs)
 // Modèle de données et normalisation ; règles des mots difficiles (57), de l'apprentissage auditif (55), des bons moments (61)
 // et des progrès visibles (64). Étape 65 : la couche STORAGE est dans js/storage-sync.js, SUPABASE et EXPORT / IMPORT
 // dans js/storage-supabase.js (chargés juste après, dans cet ordre).
@@ -18,7 +18,11 @@
 //   cards[].progress[langue].lr, réglage settings.privacy.learned. Migration 7 → 8 sans rien changer d'autre (morceau vide,
 //   réglage activé par défaut) ; export JSON de sécurité avant (syncWithRemote). Un appareil en version 63 voit alors des
 //   données « trop récentes » (Release.dataTooNew) et n'écrit plus rien tant qu'il n'est pas mis à jour.
-const DATA_VERSION = 8;
+// Version 9 : fusion des appareils — étape 78 (js/fusion.js) : date de dernière modification du contenu `m` (facultative) sur
+//   chaque carte, liste, dossier et sur settings ; morceau « tombs » (pierres tombales des cartes, listes et dossiers
+//   supprimés : { c | l | f: { id: [date, m de l'élément supprimé] } }). Migration 8 → 9 : rien n'est touché (tombs vide,
+//   aucun `m`) ; copie de sécurité et export JSON avant (syncWithRemote). Un appareil en version 77 ou moins est bloqué.
+const DATA_VERSION = 9;
 const PRIVACY_KEYS = ["streak", "today", "week", "success", "badges", "ranking", "shared", "xp", "learned"];   // ce que mes amis voient (étape 29 ; shared : étape 30 ; xp : étape 43 ; learned : mots appris de la semaine, étape 64)
 function defaultPrivacy() { const o = {}; PRIVACY_KEYS.forEach(k => { o[k] = true; }); return o; }
 function normPrivacy(p) { const o = defaultPrivacy(); if (p && typeof p === "object") PRIVACY_KEYS.forEach(k => { if (p[k] === false) o[k] = false; }); return o; }
@@ -77,6 +81,7 @@ function emptyData(target, support) {
     hard: normHard(null),   // mots difficiles : compteurs, pause, paires (étape 57, js/difficiles.js)
     tips: {},               // « Mon astuce » privée par carte (étape 57)
     progres: normProgres(null),   // mots appris de la semaine, bilan d'oubli (étape 64, js/progres.js)
+    tombs: normTombs(null),       // pierres tombales : cartes, listes, dossiers supprimés (étape 78, js/fusion.js)
     proposals: [],   // propositions « À valider » : { id, cardId, field (code de langue | example | extr:<code> | pos:<code> | dup), type, oldValue, newValue, reason, createdAt }
     rejected: [],    // clés des propositions refusées (carte|champ|empreinte de la valeur) : jamais reproposées
     lastCheckAt: 0,  // dernière vérification automatique (0 = pas encore démarrée)
@@ -156,6 +161,7 @@ function normalizeCard(c) {
   };
   const pg = normProgress(c.progress);                                               // étape 37 : progression par langue
   if (Object.keys(pg).length) out.progress = pg;
+  if (num(c.m, 0) > 0) out.m = num(c.m, 0);                                          // étape 78 : dernière modification du contenu
   if (type === "vocab") {
     out.examples = normExamples(c.examples);                                         // étape 35 (fiche de règle : examples = liste)
     // Dictionnaire commun (étape 36) : sens relié et cases « version perso » ; absents si la carte n'est pas reliée.
@@ -347,6 +353,31 @@ function normTargets(t) { const out = []; arr(t).forEach(x => { if (isLang(x) &&
 // Date de la dernière « Mise à jour » d'une liste ou d'un dossier (absente si jamais faite).
 function lastUpdateOf(o) { const v = num(o && o.lastUpdate, 0); return v > 0 ? { lastUpdate: v } : {}; }
 
+// Étape 78 : date de dernière modification du contenu d'une liste / d'un dossier (absente si jamais modifié depuis la version 78).
+function modAtOf(o) { const v = num(o && o.m, 0); return v > 0 ? { m: v } : {}; }
+// Étape 78 : pierres tombales { c, l, f: { id: [date de suppression, m de l'élément supprimé] } }. Un élément qui existe
+// (live.c / live.l / live.f : ensembles d'identifiants) n'a jamais de pierre tombale ; gardées TOMB_KEEP_DAYS jours, TOMB_MAX au plus.
+const TOMB_KEEP_DAYS = 365;
+const TOMB_MAX = 10000;
+function normTombs(raw, live) {
+  const out = { c: {}, l: {}, f: {} };
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;
+  const from = Date.now() - TOMB_KEEP_DAYS * 86400000;
+  ["c", "l", "f"].forEach(k => {
+    const src = raw[k] && typeof raw[k] === "object" && !Array.isArray(raw[k]) ? raw[k] : {};
+    let ent = [];
+    Object.keys(src).forEach(id => {
+      const v = src[id], at = num(Array.isArray(v) ? v[0] : v, 0);
+      if (!id || id.length > 80 || !(at > from) || (live && live[k] && live[k].has(id))) return;
+      ent.push([id, at, Array.isArray(v) ? num(v[1], 0) : 0]);
+    });
+    if (ent.length > TOMB_MAX) ent = ent.sort((a, b) => b[1] - a[1]).slice(0, TOMB_MAX);
+    ent.forEach(e => { out[k][e[0]] = [e[1], e[2]]; });
+  });
+  return out;
+}
+function tombsHas(t) { return !!t && ["c", "l", "f"].some(k => t[k] && Object.keys(t[k]).length > 0); }
+
 function dataVersion(raw) { return (raw && typeof raw === "object") ? num(raw.version, 1) : DATA_VERSION; }
 
 // Rend n'importe quel objet (stockage, import, version 1 ou 2) conforme au modèle version 3, sans planter.
@@ -408,7 +439,7 @@ function normalizeData(raw) {
       morning: normMorning(s.morning)   // bons moments pour réviser (étape 61) : rappel du matin, heure du soir, notification
     },
     folders: arr(d.folders).filter(f => f && f.id).map((f, i) => Object.assign(
-      { id: String(f.id), name: String(f.name || ""), order: num(f.order, i) }, normLangPair(f), lastUpdateOf(f), normSharedMark(f))),
+      { id: String(f.id), name: String(f.name || ""), order: num(f.order, i) }, normLangPair(f), lastUpdateOf(f), normSharedMark(f), modAtOf(f))),
     lists: [],
     cards: arr(d.cards).filter(c => c && c.id).map(normalizeCard).filter(cardHasContent),
     history: arr(d.history)
@@ -426,6 +457,7 @@ function normalizeData(raw) {
     aiResume: null,
     sharedProgress: normSharedProgress(d.sharedProgress)   // étape 30 : progression sur les listes communes
   };
+  if (num(s.m, 0) > 0) out.settings.m = num(s.m, 0);   // étape 78 : dernière modification des réglages
   out.streak = normStreak(d.streak, out.history);
   // Étape 43 : XP, défis, badges (morceau xp). Absent → XP de départ calculé depuis history (migration douce, rien supprimé).
   out.xp = normXp(d.xp, out.history, out.streak, out.settings);
@@ -434,7 +466,7 @@ function normalizeData(raw) {
     id: String(l.id), name: String(l.name || ""),
     folderId: l.folderId && folderIds.has(String(l.folderId)) ? String(l.folderId) : null,
     order: num(l.order, i), createdAt: num(l.createdAt, Date.now())
-  }, normLangPair(l), normTargets(l.targets), lastUpdateOf(l), normSharedMark(l), normImgSide(l), normListAudLearn(l)));   // audioLearn : étape 55
+  }, normLangPair(l), normTargets(l.targets), lastUpdateOf(l), normSharedMark(l), normImgSide(l), normListAudLearn(l), modAtOf(l)));   // audioLearn : étape 55 ; m : étape 78
   // Ordres renumérotés 0, 1, 2… (dossiers, puis listes de chaque dossier)
   const renum = items => items.map((x, i) => [x, i]).sort((a, b) => a[0].order - b[0].order || a[1] - b[1]).forEach(([x], i) => { x.order = i; });
   renum(out.folders);
@@ -465,6 +497,8 @@ function normalizeData(raw) {
     out.lists.push(l);
     orphans.forEach(c => { c.listId = l.id; });
   }
+  // Étape 78 : pierres tombales (jamais pour un élément qui existe).
+  out.tombs = normTombs(d.tombs, { c: new Set(out.cards.map(c => c.id)), l: new Set(out.lists.map(l => l.id)), f: folderIds });
   // Profil de langues (étape 35) : absent (données v4 et moins) → déduit des dossiers / listes.
   if (!out.settings.learning.length) out.settings.learning = migrateLearning(out, s);
   out.settings.defaultTarget = accountTarget(out.settings);   // ancien champ, gardé pour les anciennes versions

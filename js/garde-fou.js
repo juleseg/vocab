@@ -14,11 +14,14 @@
 // 3) Copies de sécurité locales (IndexedDB « vocab-copies », GF_COPIES_MAX par compte) avant toute conversion de format,
 //    tout remplacement du compte et tout import ; visibles dans Réglages → Compte et données → « Copies de sécurité ».
 // Les listes communes (étape 30) ne comptent pas : leurs cartes sont dans shared_cards, jamais dans user_data.
+// Étape 78 : la fusion (js/fusion.js) passe AVANT le garde-fou : quand le serveur a changé, l'appareil fusionne d'abord, puis
+// l'envoi est vérifié ici comme avant. Les versions perdantes d'une fusion sont gardées ici (type « fusion », GF_FUSION_MAX).
 // ====================================================================================================
 
 const GF_DROP_MIN = 30;        // baisse de cartes refusée : au moins 30 cartes…
 const GF_DROP_RATIO = 0.5;     // … ET plus de la moitié des cartes des listes connues
 const GF_COPIES_MAX = 5;       // copies de sécurité gardées par compte sur l'appareil
+const GF_FUSION_MAX = 20;      // étape 78 : fusions gardées par compte (versions perdantes des collisions), comptées à part
 const GF_DB = "vocab-copies", GF_STORE = "copies";
 
 const Guard = (() => {
@@ -138,26 +141,37 @@ const Guard = (() => {
       return rows.sort((a, b) => b.at - a.at);
     } finally { d.close(); }
   }
-  // kind : "refus" | "remplacement" | "enligne" | "conversion" | "import". Renvoie true si la copie est gardée.
-  // note : précision affichée (ex. compte importé par l'administration).
-  async function backupNow(kind, data, acc, note) {
+  // kind : "refus" | "remplacement" | "enligne" | "conversion" | "import" | "fusion" (étape 78 : versions perdantes d'une
+  // fusion, js/fusion.js). Renvoie l'identifiant de la copie gardée (nombre > 0), sinon false.
+  // note : précision affichée (ex. compte importé par l'administration). cnt (fusion) : { lists, cards } à afficher.
+  async function backupNow(kind, data, acc, note, cnt) {
     const who = acc || Storage.getUser();
     if (!who || !data || typeof data !== "object") return false;
-    const json = JSON.stringify(data);
+    const json = JSON.stringify(data), fu = kind === "fusion";
     const rec = { acc: who, kind: String(kind || "copie"), at: Date.now(), v: num(Number(data.version), 0),
-      lists: arr(data.lists).length, cards: arr(data.cards).length, note: String(note || "").slice(0, 40), json };
+      lists: cnt ? num(cnt.lists, 0) : arr(data.lists).length, cards: cnt ? num(cnt.cards, 0) : arr(data.cards).length, note: String(note || "").slice(0, 40), json };
     const d = await db();
     try {
-      await tx(d, "readwrite", st => { st.add(rec); });
+      let id = 0;
+      await tx(d, "readwrite", st => { const rq = st.add(rec); rq.onsuccess = () => { id = rq.result; }; });
       const rows = [];
       await tx(d, "readonly", st => { const rq = st.index("acc").getAll(who); rq.onsuccess = () => { rows.push(...arr(rq.result)); }; });
-      const old = rows.sort((a, b) => b.at - a.at).slice(GF_COPIES_MAX);
+      // Étape 78 : les fusions ont leur propre limite (elles ne chassent jamais une copie de sécurité, et inversement).
+      const old = rows.filter(r => (r.kind === "fusion") === fu).sort((a, b) => b.at - a.at).slice(fu ? GF_FUSION_MAX : GF_COPIES_MAX);
       if (old.length) await tx(d, "readwrite", st => { old.forEach(r => st.delete(r.id)); });
-      return true;
+      return id || true;
     } finally { d.close(); }
   }
-  async function backup(kind, data, acc, note) {
-    try { return !!(await withTimeout(backupNow(kind, data, acc, note), 8000)); }
+  // Étape 78 : copies d'un type (les plus récentes d'abord) ; réécriture du contenu d'une copie (élément repris d'une fusion).
+  async function copies(kind) { return (await listRaw(Storage.getUser())).filter(r => r.kind === kind); }
+  async function copyPut(id, data) {
+    const d = await db();
+    try {
+      await tx(d, "readwrite", st => { const rq = st.get(id); rq.onsuccess = () => { const r = rq.result; if (r) { r.json = JSON.stringify(data); st.put(r); } }; });
+    } finally { d.close(); }
+  }
+  async function backup(kind, data, acc, note, cnt) {
+    try { return (await withTimeout(backupNow(kind, data, acc, note, cnt), 8000)) || false; }
     catch (e) { try { if (typeof ErrLog !== "undefined") ErrLog.sync("copie : " + String((e && e.message) || e).slice(0, 80), e); } catch (x) {} return false; }
   }
   // Données avec du contenu (au moins une liste personnelle ou une carte) : seules celles-là valent une copie.
@@ -184,6 +198,7 @@ const Guard = (() => {
   function userChanged() {
     const fns = readyFns; readyFns = [];
     waitId = null; waitTarget = null; waitErr = false; allowWhy = null; refusing = false;
+    try { if (typeof Fusion !== "undefined") Fusion.userChanged(); } catch (e) {}   // étape 78
     paintWait();
     fns.forEach(f => { try { f(false); } catch (e) {} });
   }
@@ -265,6 +280,8 @@ const Guard = (() => {
     if (!peek) { stop("gf.readErr"); return; }
     if (peek.data && hasContent(peek.data) && !(await backup("enligne", peek.data, who))) { stop("gf.copyErr"); return; }
     if (Storage.getUser() !== who) return;
+    // Étape 78 : ce que la version en ligne a et que cet appareil n'a pas reçoit une pierre tombale (les autres appareils suivent).
+    if (typeof Fusion !== "undefined" && peek.data) Fusion.replaced(peek.data, state, false);
     Storage.forceFullPush(peek.keys, peek.updatedAt);
     allow("keep");
     stop(null);
@@ -282,8 +299,9 @@ const Guard = (() => {
     try { rows = await withTimeout(listRaw(who), 8000); } catch (e) { rows = null; }
     const wrap = el("div", "gf-copies");
     wrap.appendChild(el("p", "muted", t("gf.copiesHint", { n: GF_COPIES_MAX })));
-    if (!rows || !rows.length) wrap.appendChild(el("p", null, t("gf.copiesNone")));
     let close = null;
+    rows = rows ? rows.filter(r => r.kind !== "fusion") : rows;   // étape 78 : les fusions ont leur écran (Fusion.openList)
+    if (!rows || !rows.length) wrap.appendChild(el("p", null, t("gf.copiesNone")));
     arr(rows).forEach(r => {
       const line = el("div", "gf-copy");
       const txt = el("div", "gf-copy-t");
@@ -310,6 +328,7 @@ const Guard = (() => {
 
   return {
     summary, base, setBase, check, allow, allowed, written, noteDeleted, isOpen, refuse,
-    backup, hasContent, wait, waiting, target, waitFailed, done, ready, userChanged, paintWait, openCopies
+    backup, hasContent, wait, waiting, target, waitFailed, done, ready, userChanged, paintWait, openCopies,
+    copies, copyPut   // étape 78
   };
 })();

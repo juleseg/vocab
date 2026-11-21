@@ -92,6 +92,8 @@ function initSettings() {
   $("#importFile").addEventListener("change", onImportFile);
   const gfc = $("#btnGfCopies");   // étape 77 : copies de sécurité de cet appareil (js/garde-fou.js)
   if (gfc) gfc.addEventListener("click", () => { Guard.openCopies(); });
+  const ful = $("#btnFuList");   // étape 78 : fusions récentes de cet appareil (js/fusion.js)
+  if (ful) ful.addEventListener("click", () => { Fusion.openList(); });
 }
 
 // === ÉCRAN : RYTHME DE RÉVISION (ÉTAPE 47, COMPLÉMENT) ===

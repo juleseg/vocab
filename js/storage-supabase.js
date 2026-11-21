@@ -237,6 +237,7 @@ function importFromText(text) {
 // Étape 77 : l'import remplace TOUT le compte → confirmation forte (listes et cartes avant / après, case « J'ai compris »),
 // puis copie de sécurité OBLIGATOIRE de ce qui est remplacé (copie locale, sinon fichier téléchargé) ; sans copie : rien n'est importé.
 // tg (administration) : { id, read() → données actuelles du compte, apply(data) }.
+// Étape 78 : Fusion.replaced (pierres tombales de ce qui est retiré, contenu importé daté) avant d'appliquer.
 async function importConfirm(data, tg) {
   let cur = state;
   if (tg) {
@@ -270,10 +271,13 @@ async function importConfirm(data, tg) {
         }
         if (!kept || Storage.getUser() !== who) { busy = false; toast(t("gf.copyErr")); return; }
         close();
+        // Étape 78 : tout le compte est remplacé → ce qui est retiré reçoit une pierre tombale et ce qui est importé est daté
+        // « maintenant » (les autres appareils suivent au lieu de faire revenir l'ancien contenu).
+        Fusion.replaced(cur, data, true);
         if (tg) { tg.apply(data).then(() => toast(t("admin.importDone", { id: tg.id })), () => toast(t("admin.err"))); return; }
         Guard.allow("import");   // le garde-fou laisse passer cet envoi (choix explicite, copie faite)
         Activity.log("import_json", { local: arr(cur && cur.cards).length, cards: data.cards.length });
-        state = data; Shared.attach(state); applyTheme(); commit(); toast(t("import.done"));
+        state = data; Fusion.track(state); Shared.attach(state); applyTheme(); commit(); toast(t("import.done"));
       })();
       return false;
     } }

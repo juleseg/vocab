@@ -17,6 +17,7 @@
 //   user:<id>:hard                  mots difficiles (étape 57, js/difficiles.js) : { v, w: { idCarte: { langue: compteurs } }, c: [paires] }
 //   user:<id>:tips                  « Mon astuce » (étape 57) : { idCarte: texte (150 caractères) } — privée, jamais dans les cartes communes
 //   user:<id>:progres               progrès visibles (étape 64, js/progres.js) : mots appris par semaine, bilan d'oubli (30 jours)
+//   user:<id>:tombs                 pierres tombales (étape 78, js/fusion.js) : cartes, listes et dossiers supprimés, avec leur date
 //   user:<id>:proposals:<n>         propositions « À valider » (500 max par morceau)
 //   user:<id>:cards:<listId>:<n>    { cards: [200 max], sig: { idCarte: empreinte vérifiée } }
 //   user:<id>:resume:<n>            ids des cartes restant à compléter (complétion en pause, 2000 max par morceau)
@@ -29,11 +30,14 @@
 //  - Supabase (si config.js est rempli) : table user_data, une ligne par morceau, clé primaire (user_id, key),
 //    clé sans le préfixe "user:<id>:" — adaptateur supabaseBackend, voir supabase.sql
 // Conflits : localStorage "vocabfr.synced:<id>" = updatedAt des données en ligne à la dernière synchro réussie.
-// Avant chaque envoi, l'index en ligne est relu : s'il a changé depuis (autre appareil), on demande quelles données garder.
+// Avant chaque envoi, l'index en ligne est relu : s'il a changé depuis (autre appareil), rien n'est écrit et on fusionne (étape 78).
 // Envoi raté : données gardées sur l'appareil, nouvel essai automatique (CONFIG.RETRY_MS, et au retour de la connexion).
 // Étape 77 : garde-fou avant chaque écriture (js/garde-fou.js, Guard) : l'index en ligne est TOUJOURS relu ; si le serveur
 // a changé depuis la « base » (dernier état connu de l'appareil et du serveur), ses listes et langues sont relues aussi, et
 // l'envoi est refusé s'il ferait disparaître une liste, une langue ou beaucoup de cartes que cet appareil n'a pas supprimées.
+// Étape 78 : fusion (js/fusion.js, Fusion). Avant chaque enregistrement, le contenu modifié est daté et ce qui a disparu reçoit
+// une pierre tombale (Fusion.stamp, par onBeforeSave). Pendant un envoi, si l'index en ligne n'est plus celui de la dernière
+// synchro (r ≠ S : égalité seulement, jamais de comparaison d'horloges), rien n'est écrit : syncWithRemote relit tout et FUSIONNE.
 // Ancien format (un seul bloc) : localStorage "vocabfr.user:<id>" + document "user:<id>". Migré automatiquement,
 // après un export JSON de sécurité. Le document cloud ancien n'est jamais effacé ; la clé locale ancienne
 // est retirée seulement après relecture réussie du nouveau format.
@@ -155,7 +159,11 @@ const Storage = (() => {
     remoteSaved = new Map(Array.from(pieces).filter(([k]) => known.has(k))); remoteSaved.set(pre() + "index", index);
     setSynced(data.updatedAt);
     if (typeof Guard !== "undefined") Guard.setBase(data);   // étape 77 : état connu de l'appareil ET du serveur
+    if (typeof Fusion !== "undefined") Fusion.synced();      // étape 78 : plus aucune modification locale en attente
   }
+  // Étape 78 : après une fusion (ou une conversion de format), l'appareil contient la version en ligne lue (updatedAt = at) :
+  // le prochain envoi n'est pas un conflit. Les morceaux lus (initRemote) restent connus : seuls ceux qui diffèrent partent.
+  function mergedOn(at) { setSynced(num(at, 0)); }
   // « Garder les données de cet appareil » : tout renvoyer et supprimer les morceaux en ligne en trop.
   function forceFullPush(remoteKeys, remoteUpdatedAt) {
     remoteSaved = new Map(arr(remoteKeys).map(k => [k, null]));
@@ -290,6 +298,7 @@ const Storage = (() => {
     if (hardHas(data.hard)) put("hard", data.hard);
     if (data.tips && Object.keys(data.tips).length) put("tips", data.tips);
     if (progresHas(data.progres)) put("progres", data.progres);   // étape 64 : nouveau morceau, toujours avant l'index (règle 33b)
+    if (tombsHas(data.tombs)) put("tombs", data.tombs);           // étape 78 : pierres tombales, avant l'index (règle 33b) ; absent = aucune
     // Étape 45 : histoires, un morceau par liste (listes existantes seulement : une liste supprimée emporte ses histoires).
     // Nouveaux morceaux, toujours envoyés avant l'index (règle 33b). Liste sans histoire : pas de morceau.
     if (arr(data.sentences).length) put("sentences", data.sentences);   // étape 58 : « Ma phrase », un seul morceau, avant l'index (règle 33b)
@@ -351,6 +360,7 @@ const Storage = (() => {
       hard: getPiece(P + "hard"),       // étape 57 : absent (version 56 et moins) = aucun mot difficile
       tips: getPiece(P + "tips"),       // étape 57 : absent = aucune astuce
       progres: getPiece(P + "progres"), // étape 64 : absent (version 63 et moins) = rien de compté encore
+      tombs: getPiece(P + "tombs"),     // étape 78 : absent (version 77 et moins) = aucune pierre tombale
       cards: [], proposals: [], checkedSig: {}, aiResume: null, sharedProgress: {}, stories: {}, sentences: []
     };
     const ids = [];
@@ -361,7 +371,8 @@ const Storage = (() => {
       // « streak » absent (étape 33b) : pas bloquant, la série est recalculée depuis history (comme en v3) puis renvoyée.
       // « xp » absent (étape 43) : pas bloquant non plus, l'XP de départ est recalculé depuis history puis renvoyé.
       // « hard » et « tips » absents (étape 57) : pas bloquant non plus (données vides). « progres » (étape 64) : pareil.
-      if (v === undefined) { if (k !== P + "streak" && k !== P + "xp" && k !== P + "hard" && k !== P + "tips" && k !== P + "progres") { missing++; lost.push(k.slice(P.length)); } return; }
+      // « tombs » absent (étape 78) : pas bloquant (au pire un élément supprimé revient, rien n'est perdu).
+      if (v === undefined) { if (k !== P + "streak" && k !== P + "xp" && k !== P + "hard" && k !== P + "tips" && k !== P + "progres" && k !== P + "tombs") { missing++; lost.push(k.slice(P.length)); } return; }
       if (k.startsWith(P + "cards:")) { out.cards.push(...arr(v.cards)); Object.assign(out.checkedSig, v.sig || {}); }
       else if (k.startsWith(P + "proposals:")) out.proposals.push(...arr(v));
       else if (k.startsWith(P + "resume:")) ids.push(...arr(v));
@@ -549,7 +560,7 @@ const Storage = (() => {
   }
 
   // Envoi cloud des morceaux modifiés, puis de l'index, puis suppression des morceaux disparus. Renvoie true si tout est à jour.
-  // Avant d'écrire : relecture de l'index en ligne ; s'il a changé depuis la dernière synchro → conflit (on n'écrit rien).
+  // Avant d'écrire : relecture de l'index en ligne ; s'il a changé depuis la dernière synchro → rien n'est écrit, fusion (étape 78).
   async function doFlush() {
     if (paused && remote) { if (mode !== "paused") setMode("paused"); return false; }   // étape 48 : mise à jour nécessaire
     if (!remote || !remoteOk || !lastData || !userId || conflictOpen || guardOpen) return !remote;
@@ -558,6 +569,7 @@ const Storage = (() => {
     const { pieces, index } = split(lastData);
     const at0 = lastData.updatedAt;                         // updatedAt écrit dans cet index
     const sum0 = typeof Guard !== "undefined" ? Guard.summary(lastData) : null;   // étape 77 : ce qui est envoyé
+    const fl0 = typeof Fusion !== "undefined" ? Fusion.flushStart(lastData) : null;   // étape 78 : modifications locales parties avec cet envoi
     const todo = [];
     pieces.forEach((json, k) => { if (remoteSaved.get(k) !== json) todo.push([k, json]); });
     const idxChanged = remoteSaved.get(P + "index") !== index;
@@ -572,20 +584,18 @@ const Storage = (() => {
       if (userId !== id) return false;
       const rI = rIdx ? JSON.parse(rIdx) : null;
       const r = rI ? num(rI.updatedAt, 0) : 0;
-      if (S !== null) {
-        if (r > S && r !== lastData.updatedAt) {            // modifié ailleurs depuis la dernière synchro
-          // Étape 48 : écrit par une version plus récente (format des données) → blocage, jamais « garder cet appareil ».
-          try {
-            const rs = await remote.get(P + "settings");
-            if (userId !== id) return false;
-            if (rs && tooNew(JSON.parse(rs).version)) { remoteOk = false; setMode("paused"); return false; }
-          } catch (e) {}
-          conflictOpen = true;
-          setErr("envoi", "conflict");
-          setMode("error");
-          if (onConflictFn) setTimeout(() => { try { onConflictFn(); } catch (e) {} }, 0);
-          return false;
-        }
+      // Étape 78 : « modifié ailleurs » = l'index en ligne n'est plus celui de la dernière synchro (égalité seulement : plus
+      // de comparaison entre les horloges de deux appareils). Rien n'est écrit : syncWithRemote relit tout et fusionne.
+      if (rI && r !== at0 && (S === null || r !== S)) {
+        // Étape 48 : écrit par une version plus récente (format des données) → blocage, aucune écriture.
+        try {
+          const rs = await remote.get(P + "settings");
+          if (userId !== id) return false;
+          if (rs && tooNew(JSON.parse(rs).version)) { remoteOk = false; setMode("paused"); return false; }
+        } catch (e) {}
+        conflictOpen = true;
+        if (onConflictFn) setTimeout(() => { try { onConflictFn(); } catch (e) {} }, 0);
+        return false;
       }
       // Étape 77 : garde-fou. Serveur changé depuis la base (ou sans index : premier envoi) → ses listes, dossiers et réglages
       // sont relus ; l'envoi est refusé s'il ferait disparaître une liste, une langue, ou beaucoup de cartes.
@@ -615,9 +625,10 @@ const Storage = (() => {
       }
       await remote.set(P + "index", index, lastData.updatedAt);
       remoteSaved.set(P + "index", index);
-      setSynced(lastData.updatedAt);
+      setSynced(at0);                                         // étape 78 : la date écrite dans l'index (pas celle d'une modification faite pendant l'envoi)
       for (const k of gone) { await remote.del(k); remoteSaved.delete(k); }
       if (typeof Guard !== "undefined") Guard.written(sum0, at0);   // étape 77 : nouvelle base = ce qui vient d'être écrit
+      if (typeof Fusion !== "undefined") Fusion.pushed(fl0, lastData);   // étape 78 : ce qui est parti n'est plus « modifié ici »
       failWarned = false;
       setMode("cloud");
       return true;
@@ -691,7 +702,8 @@ const Storage = (() => {
     setUser, getUser, hold, release, readLocal, writeLocal, dropOldLocal, initRemote, save, saveNow, flushNow, flushWait,
     getSynced, markSynced, forceFullPush, onConflict, onRetryInit, onSyncError, setConflictOpen, packRows, unpackRows, onBeforeSave, getLastError,
     pause, isPaused,   // étape 48
-    hasRemote, retryInit, peekRemote, guardReset   // étape 77
+    hasRemote, retryInit, peekRemote, guardReset,   // étape 77
+    mergedOn                                        // étape 78
   };
 })();
 

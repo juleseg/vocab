@@ -120,13 +120,16 @@ const Queue = (() => {
   // Récupère les réponses arrivées et les range dans « À valider ». Renvoie le résultat de queueApply (ou null).
   async function claim(quiet) {
     if (!usable()) return null;
-    const who = Storage.getUser(), st = state;
+    const who = Storage.getUser();
     let resp;
     try { resp = ok(await withTimeout(client().rpc("claude_claim_proposals"), T * 2)); }
     catch (e) { noteError(e); return null; }
     status = "ok";
     if (!resp || !arr(resp.proposals).length) return { added: 0, cards: 0, bad: 0, stories: 0, sentences: 0 };
-    if (Storage.getUser() !== who || state !== st) return null;   // compte changé : « Récupérer à nouveau » plus tard
+    // Étape 78 : les réponses sont déjà marquées « récupérées » sur le serveur : elles ne sont abandonnées que si le COMPTE a
+    // changé. Si seul l'objet state a été remplacé pendant l'appel (version en ligne prise, fusion), elles sont appliquées
+    // au nouvel état (avant : abandonnées en silence, à redemander par « Récupérer à nouveau »).
+    if (Storage.getUser() !== who) return null;
     const kept0 = ClAuto.kept();
     const r = queueApply(resp);
     const kept = ClAuto.kept() - kept0;   // étape 73 : cases de l'utilisateur gardées

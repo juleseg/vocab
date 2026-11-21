@@ -9,6 +9,14 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "78", date: "2026-11-21",
+    points: {
+      ko: ["두 기기에서 따로 만든 목록과 카드가 이제 하나로 합쳐져요. 오프라인에서 만든 것도 지워지지 않아요.", "같은 카드를 두 기기에서 고치면 최신 버전을 남기고 알려 줘요. 다른 버전도 되돌릴 수 있어요."],
+      fr: ["Tes listes et tes cartes créées sur deux appareils se fusionnent, même faites hors connexion : plus rien n'est écrasé.", "Une même carte modifiée sur deux appareils : la plus récente est gardée, tu es prévenu et tu peux reprendre l'autre version."],
+      en: ["Lists and cards created on two devices are now merged, even when made offline: nothing gets overwritten.", "Same card edited on two devices: the newest is kept, you're told, and you can take the other version back."]
+    }
+  },
+  {
     version: "77", date: "2026-11-21",
     points: {
       ko: ["새 기기에서 로그인할 때 데이터를 더 안전하게 지켜요."],

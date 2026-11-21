@@ -128,7 +128,7 @@ async function admRead(a) {
   return raw ? normalizeData(raw) : null;
 }
 async function admWrite(a, data) {
-  if (a.user_id === auth.sbUid) { state = data; Shared.attach(state); applyTheme(); commit(); return; }
+  if (a.user_id === auth.sbUid) { state = data; Fusion.track(state); Shared.attach(state); applyTheme(); commit(); return; }   // Fusion.track : étape 78
   data.updatedAt = Date.now();
   await Supa.writeRows(a.user_id, Storage.packRows(data, a.identifiant));
 }

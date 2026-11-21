@@ -120,3 +120,13 @@ html[lang="ko"] .rc-side-t,html[lang="ko"] .rc-side-d,html[lang="ko"] .rc-mode-t
 .gf-copy { padding: 10px 0; border-top: 1px solid var(--border); }
 .gf-copy-t { overflow-wrap: anywhere; }
 .gf-copy .btns { margin-top: 8px; }
+
+/* === FUSION DES APPAREILS (ÉTAPE 78) === */
+.fu-box { max-height: 62vh; overflow-y: auto; }
+.fu-main { font-weight: 600; margin: 0 0 6px; overflow-wrap: anywhere; }
+.fu-list { margin-top: 10px; }
+.fu-row { padding: 10px 0; border-top: 1px solid var(--border); }
+.fu-row-t { overflow-wrap: anywhere; }
+.fu-row-t .muted { font-size: 13px; }
+.fu-take { margin-top: 8px; width: 100%; min-height: 44px; }
+.fu-open { display: block; width: 100%; margin-top: 8px; min-height: 44px; text-align: left; overflow-wrap: anywhere; }

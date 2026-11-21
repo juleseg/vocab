@@ -493,19 +493,22 @@ async function startUserData(id, preset, target, sbUid) {
     }
     else state = demoData(target);   // sans données en ligne possibles (navigateur seul) : liste « Démo » comme avant
   }
+  Fusion.track(state);   // étape 78 : état de départ suivi tout de suite (une modification faite avant la lecture en ligne est vue)
   Shared.reset();
   Shared.attach(state);   // cartes des listes communes (cache de l'appareil, étape 30)
   document.body.classList.remove("auth");
   render();
   showScreen(screenFromHash());
-  await syncWithRemote(id, ctx, true);
+  // Étape 78 : si la comparaison échoue sur une erreur imprévue, les enregistrements ne restent jamais retenus en mémoire
+  // (Storage.hold) : ils reprennent sur l'appareil ; l'erreur remonte comme avant.
+  try { await syncWithRemote(id, ctx, true); }
+  catch (e) { Storage.release(); throw e; }
 }
 
 // Comparaison avec les données en ligne : au lancement (first = true : migrations puis Storage.release),
 // au retour de la connexion, et en cas de conflit détecté pendant un envoi (ctx.conflict).
-// Règles : identiques → rien ; en ligne plus récentes et pas de modification locale non envoyée → on les prend ;
-// en ligne plus récentes ET modifications locales non envoyées (ou conflit) → on demande lesquelles garder ;
-// locales plus récentes → envoi.
+// Règles (étape 78) : identiques → rien ; l'appareil n'a rien à envoyer → version en ligne ; le serveur n'a pas changé depuis
+// la dernière synchro → envoi ; les deux ont changé (ou conflit vu pendant un envoi) → fusion.
 // Ancien format (un seul bloc) ou modèle plus ancien que DATA_VERSION (v1, v2) : export JSON de sécurité, puis enregistrement
 // découpé dans la version actuelle (v3 : toutes les cartes existantes en type "vocab").
 // Étape 77 : nouvel appareil (Guard.waiting) : le serveur est TOUJOURS lu d'abord et ses données gagnent ; lecture ratée →
@@ -513,9 +516,22 @@ async function startUserData(id, preset, target, sbUid) {
 // qui a déjà les données : elles restent affichées, mais ne sont plus datées « maintenant » (elles ne passent plus devant le serveur).
 // ctx.guard = "remote" : « Utiliser la version en ligne » (garde-fou). Copie de sécurité locale avant tout remplacement de données
 // de l'appareil pas encore envoyées, et avant toute conversion de format.
+// Étape 78 : plus de fenêtre « quelles données garder ». Le serveur a changé depuis la dernière synchro (égalité des dates
+// d'index seulement, jamais de comparaison d'horloges) ET l'appareil a des modifications non envoyées (suivi de js/fusion.js)
+// → FUSION par liste et par carte (Fusion.merge) ; versions perdantes gardées avant (Fusion.keep, sinon rien n'est fait) ;
+// message à l'utilisateur (Fusion.notify). Appareil sans modification : il prend le serveur. Serveur inchangé : l'appareil envoie.
+// Pendant une session de révision : la comparaison attend la fin de la session (Fusion.later), rien n'est envoyé entre-temps.
 let syncBusy = false;
 async function syncWithRemote(id, ctx, first) {
-  if (syncBusy && !first) return;
+  if (syncBusy && !first) {
+    // Étape 78 : un conflit vu pendant un envoi n'est jamais oublié (les envois restent arrêtés tant qu'il n'est pas traité).
+    if (ctx && ctx.conflict) setTimeout(() => { if (Storage.getUser() === id) syncWithRemote(id, ctx, false); }, 1500);
+    return;
+  }
+  if (!first && !(ctx && ctx.guard) && Fusion.inSession()) {   // étape 78
+    Fusion.later(() => { if (Storage.getUser() === id) syncWithRemote(id, ctx, false); });
+    return;
+  }
   syncBusy = true;
   try {
     ctx = ctx || {};
@@ -527,50 +543,80 @@ async function syncWithRemote(id, ctx, first) {
     if (readFailed && fresh) { Guard.waitFailed(); return; }   // rien d'affiché, rien d'envoyé ; nouvel essai toutes les 20 s
     if (remote === undefined && fresh) {                        // compte vraiment vide en ligne : « Démo » (nouveau compte)
       state = demoData(Guard.target());
+      Fusion.synced(); Fusion.track(state); Fusion.demo(state);   // étape 78 : « Démo » pas encore touchée (une version en ligne passerait devant)
       Shared.attach(state);
       render();
     }
+    let fusion = null;                                          // étape 78 : résultat d'une fusion appliquée
     if (remote) {
       const r = normalizeData(remote.data);
       const S = Storage.getSynced(), l = num(state.updatedAt, 0);
       const legacyFmt = remote.old || dataVersion(remote.data) < 2;
-      const localDirty = !!ctx.localChanged || (l > 0 && (S === null || l > S));   // modifications de l'appareil pas encore envoyées
-      let take = null, asked = false;            // "remote" | "local" | null (identiques)
-      if (fresh || ctx.guard === "remote") take = "remote";   // étape 77 : nouvel appareil, ou choix « Utiliser la version en ligne »
+      // Étape 78 : modifications de l'appareil pas encore envoyées = suivi de js/fusion.js (sans horloge) ; appareil d'avant
+      // la version 78 (aucun suivi) : ancienne règle, dates de l'appareil.
+      const wasLegacy = Fusion.legacy();
+      const localDirty = !!ctx.localChanged || Fusion.dirty(l > 0 && (S === null || l > S));
+      const serverMoved = S === null || r.updatedAt !== S;     // le serveur a changé depuis la dernière synchro de cet appareil
+      let take = null;                           // "remote" | "local" | "merge" | null (identiques)
+      if (fresh || ctx.guard === "remote" || Fusion.demoOnly(state)) take = "remote";   // étape 77 : nouvel appareil, ou choix « Utiliser la version en ligne »
       else if (legacyFmt) take = r.updatedAt >= l ? "remote" : "local";
-      else if (r.updatedAt !== l) {
-        if (ctx.conflict || (r.updatedAt > l && localDirty)) {
-          take = await askConflict(state, r); asked = true;
-          Activity.log("conflict", { choice: take, local: state.cards.length, remote: r.cards.length });
+      else if (r.updatedAt !== l || ctx.conflict) {
+        if (!localDirty && !ctx.conflict) take = "remote";     // rien à envoyer : la version en ligne
+        else if (!serverMoved && !ctx.conflict) take = "local"; // serveur inchangé : l'appareil envoie
+        else take = "merge";                                   // les deux ont bougé : fusion
+      }
+      if (take === "merge") {
+        const res = Fusion.merge(state, r);
+        // Versions perdantes gardées AVANT d'appliquer. Copie impossible : rien n'est fait ni envoyé, nouvel essai plus tard.
+        if (!(await Fusion.keep(res, id))) {
+          if (Storage.getUser() !== id) return;
+          Storage.setConflictOpen(true);
+          toast(t("gf.copyErr"));
+          if (first) Storage.release();
+          setTimeout(() => { if (Storage.getUser() === id) syncWithRemote(id, { conflict: true }, false); }, CONFIG.RETRY_MS);
+          return;
         }
-        else take = r.updatedAt > l ? "remote" : "local";
+        if (Storage.getUser() !== id) return;
+        Activity.log("merge", { local: res.n.local, remote: res.n.remote, cards: res.n.merged, coll: res.items.length });
+        state = res.data;
+        Fusion.track(state);
+        Shared.attach(state);   // étape 30
+        Fusion.merged(res);
+        Storage.mergedOn(r.updatedAt);                         // l'appareil contient la version en ligne lue : l'envoi suivant n'est pas un conflit
+        Guard.setBase(r);                                      // garde-fou : base = version en ligne lue…
+        Guard.noteDeleted(res.goneR);                          // … moins ses cartes supprimées ici (pierres tombales) : suppressions voulues
+        state.updatedAt = Math.max(Date.now(), r.updatedAt + 1);
+        rawV1 = dataVersion(remote.data) < DATA_VERSION ? remote.data : rawV1;
+        fusion = res;
+        render();
       }
       Storage.setConflictOpen(false);
       if (Storage.getUser() !== id) return;
       if (take === "remote") {
-        if (!fresh && (localDirty || asked || ctx.guard === "remote") && Guard.hasContent(state)) {
-          await Guard.backup("remplacement", state, id);       // étape 77 : ce que l'appareil avait de plus
+        // Étape 77 : copie de ce que l'appareil avait de plus. Étape 78 : aussi, une fois, pour un appareil d'avant la version 78
+        // (son suivi des modifications n'existe pas encore).
+        if (!fresh && (localDirty || ctx.guard === "remote" || wasLegacy) && Guard.hasContent(state) && !Fusion.demoOnly(state)) {
+          await Guard.backup("remplacement", state, id);
           if (Storage.getUser() !== id) return;
         }
         if (ctx.guard === "remote") Activity.log("guard_online", { local: state.cards.length, remote: r.cards.length });
         state = r;
+        Fusion.track(state);    // étape 78
         Shared.attach(state);   // étape 30
         oldRemote = remote.old;
         rawV1 = dataVersion(remote.data) < DATA_VERSION ? remote.data : null;
         if (!oldRemote && !rawV1) Storage.markSynced(state);
+        else { Fusion.synced(); if (!oldRemote) Storage.mergedOn(r.updatedAt); }   // étape 78 : conversion de format : l'envoi qui suit n'est pas un conflit
         render();
       } else if (take === null) {
         // Identiques, mais en ligne dans un ancien modèle (ex. v4 → v5, étape 35) : rien n'est marqué « déjà en ligne »,
         // les morceaux migrés partent (index en dernier), après l'export de sécurité.
-        if (dataVersion(remote.data) < DATA_VERSION && !remote.old) rawV1 = rawV1 || remote.data;
+        if (dataVersion(remote.data) < DATA_VERSION && !remote.old) { rawV1 = rawV1 || remote.data; Fusion.synced(); Storage.mergedOn(r.updatedAt); }
         else Storage.markSynced(state);
       }
-      else if (asked) {                          // « garder cet appareil » : tout renvoyer (le garde-fou vérifie l'envoi)
-        Storage.forceFullPush(remote.keys, r.updatedAt);
-        state.updatedAt = Math.max(Date.now(), r.updatedAt + 1);
-      }
+      else if (take === "local" && legacyFmt) Storage.mergedOn(r.updatedAt);
       // Étape 77 : appareil d'avant la version 77 (pas encore de base) dont le serveur n'a pas changé depuis sa dernière synchro.
-      else if (!Guard.base() && S !== null && r.updatedAt === S) Guard.setBase(r);
+      else if (take === "local" && !Guard.base() && S !== null && r.updatedAt === S) Guard.setBase(r);
       // Série : modifications de l'admin écrites en ligne dans la clé streak (étape 28), même si les données
       // de cet appareil sont gardées. Appliquées par Streak.tick (au lancement, ou ci-dessous).
       try { streakMerge(state.streak, remote.data && remote.data.streak); } catch (e) {}
@@ -589,29 +635,14 @@ async function syncWithRemote(id, ctx, first) {
     }
     if (first || fresh) Storage.release();
     Storage.save(state);        // local tout de suite, en ligne regroupé (seulement si les données en ligne ont été lues)
-    const migKey = rawV1 ? (dataVersion(rawV1) < 2 ? "save.migratedV2" : dataVersion(rawV1) < 3 ? "save.migratedV3" : dataVersion(rawV1) < 4 ? "save.migratedV4" : dataVersion(rawV1) < 5 ? "save.migratedV5" : dataVersion(rawV1) < 6 ? "save.migratedV6" : dataVersion(rawV1) < 7 ? "save.migratedV7" : "save.migratedV8") : "save.migrated";
+    const migKey = rawV1 ? (dataVersion(rawV1) < 2 ? "save.migratedV2" : dataVersion(rawV1) < 3 ? "save.migratedV3" : dataVersion(rawV1) < 4 ? "save.migratedV4" : dataVersion(rawV1) < 5 ? "save.migratedV5" : dataVersion(rawV1) < 6 ? "save.migratedV6" : dataVersion(rawV1) < 7 ? "save.migratedV7" : dataVersion(rawV1) < 8 ? "save.migratedV8" : "save.migratedV9") : "save.migrated";
     if (ctx.oldLocal && Storage.dropOldLocal(state)) toast(t(migKey));
     else if (oldRemote || rawV1) toast(t(migKey));
     if (fresh) Guard.done(id);   // étape 77 : le reste de l'ouverture du compte peut démarrer (startUser)
     if (!first) { if (!fresh) Streak.tick(true); render(); }
+    if (fusion) Fusion.notify(fusion);   // étape 78 : « fusionné », ou la liste des cartes modifiées des deux côtés
   } finally { syncBusy = false; }
 }
-// Fenêtre de conflit (ne se ferme pas en touchant le fond). Renvoie "remote" ou "local".
-function askConflict(localData, remoteData) {
-  Storage.setConflictOpen(true);
-  const fmt = ts => { try { return ts ? new Date(ts).toLocaleString(state.settings.uiLang) : "—"; } catch (e) { return "—"; } };
-  return new Promise(res => {
-    const p = el("p", null, t("conflict.text", {
-      rdate: fmt(remoteData.updatedAt), rcards: remoteData.cards.length,
-      ldate: fmt(localData.updatedAt), lcards: localData.cards.length
-    }));
-    openModal(t("conflict.title"), p, [
-      { label: t("conflict.remote"), kind: "primary", onClick: () => res("remote") },
-      { label: t("conflict.local"), onClick: () => res("local") }
-    ], { locked: true });
-  });
-}
-
 // Vues en mémoire remises à zéro au changement de compte (aucune donnée touchée).
 function resetViews() {
   rv.phase = "config"; rv.cfg = null; rv.s = null;
