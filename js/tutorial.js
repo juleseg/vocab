@@ -75,16 +75,16 @@ const Tutorial = (() => {
       target: () => (lv.listId ? $("#lvAdd") : null),
       tryIt: () => { const d = demoList(); if (d) openCardEditor(null, d.id); } },
     { id: "study", ok: () => !!demoList(), show: () => { const d = demoList(); if (d) openList(d.id); },   // « Ajouter une langue apprise à la liste » (menu de la liste, étape 37 ; remplace « import » à l'étape 51 ; nom : étape 52)
-      target: () => $("#lvStudy"),
+      target: () => $("#lmListMenu"),   // étape 75 : le menu « ⋯ » de la liste (js/listes-menus.js) ; le lien d'origine #lvStudy est caché mais toujours branché
       tryIt: () => { const b = $("#lvStudy"); if (b) b.click(); } },
     { id: "session", ok: reviewFree, show: () => go("review"),
-      target: () => (reviewFree() ? $("#screen-review > .btn.primary") : null) },
+      target: () => (reviewFree() ? [$("#rcStart"), $("#rcOptsBtn")] : null) },   // étape 75 : « Commencer » et « Plus d'options » (js/reviser-choix.js)
     { id: "modes", ok: reviewFree, show: () => go("review"),
-      target: () => (reviewFree() ? [reviewField("mix.label"), reviewField("review.mode")] : null) },   // étape 70 : bouton « Mix » juste au-dessus du champ Mode
+      target: () => (reviewFree() ? $("#rcTop") : null) },   // étape 75 : « Apprendre » / « Jouer » et leurs modes (étape 70 : le Mix)
     { id: "pending", show: () => go("pending"), target: () => navOrMore("pending") },   // étape 67 : dans « Plus »
-    { id: "streak", show: () => go("home"), target: () => [$("#homeDueCard"), $("#homeStreakCard"), $("#homeGoal")] },
+    { id: "streak", show: () => go("home"), target: () => [$("#homeDueCard"), $("#homeDay")] },   // étape 75 : « Réviser maintenant », puis série + objectif du jour dans une seule carte
     { id: "short", show: () => go("home"), target: () => $("#homeShort") },   // raccourcis de l'accueil (étape 67)
-    { id: "xp", show: () => go("home"), target: () => [foldOf($("#homeLearned")), foldOf($("#homeXp")), foldOf($("#homeChallenges"))] },   // XP et défis du jour (étape 43) ; cartes repliables (étape 67)
+    { id: "xp", show: () => go("home"), target: () => foldOf($("#homeProg")) },   // XP et défis du jour (étape 43) ; étape 75 : une seule carte repliable « Mes progrès »
     { id: "friends", show: () => go("friends"), target: () => navBtn("friends") },
     { id: "settings", show: () => { goSec(""); window.scrollTo(0, 0); }, target: () => [$("#setSearchBox"), $("#setSecs")] },   // étape 67 : recherche et sections repliées
     { id: "about", show: () => { go("settings"); window.scrollTo(0, 0); }, target: () => $("#btnAbout") }   // ⓘ À propos, dans l'en-tête, remonté en haut de page (étape 51)

@@ -10,6 +10,9 @@
 //   Recherche (#setSearch) : réglages et fonctions (ECR_FIND), titres et mots-clés dans les 3 langues, sans accents.
 // - Accueil et Stats : un nœud avec data-fold="<clé>" devient une carte repliable (titre data-fold-t ou 1er titre, résumé
 //   data-fold-s ou calculé ici) ; repliée par défaut. Accueil : 4 raccourcis (#homeShort, ECR_SHORT).
+// Étape 75 : Accueil = une seule carte repliable « Mes progrès » (data-fold="home.prog") ; Stats = 3 groupes (stats.prog,
+//   stats.words, stats.detail) ; attribut data-fold-keep = les cartes du groupe gardent leur titre ; raccourcis de l'accueil :
+//   2 au plus, hors barre du bas. Les anciennes clés retenues (home.learned, home.xp, home.ch, stats.<bloc>) sont ignorées.
 // - Barre du bas : ECR_BAR + « Plus » (#navMore, fenêtre avec ECR_MORE) ; les autres boutons restent dans la page (cachés)
 //   pour les pastilles et le tutoriel. « Plus » est allumé quand l'écran ouvert dépend d'un bouton caché.
 const ECR_SECS = [
@@ -47,7 +50,7 @@ const ECR_SHORT = [
   { s: "messages", ic: "✉️", k: "mg.title", ok: () => Messages.on() },
   { s: "requests", ic: "🤖", k: "queue.title", ok: () => Queue.usable() }
 ];
-const ECR_SHORT_N = 4;
+const ECR_SHORT_N = 2;   // étape 75 : 2 raccourcis au plus, et seulement des fonctions qui ne sont PAS dans la barre du bas (ECR_BAR)
 // Recherche : réglage (sec + el : section à ouvrir, élément à montrer) ou fonction (screen, ou fn).
 // Textes cherchés : t(k) et t("ecr.kw.<id>") (mots-clés), dans les 3 langues.
 const ECR_FIND = [
@@ -343,7 +346,7 @@ const Ecr = (() => {
     body.hidden = !on;
     w.classList.toggle("open", on);
     hd.setAttribute("aria-expanded", String(on));
-    const head = headOf(node);
+    const head = node.hasAttribute("data-fold-keep") ? null : headOf(node);   // étape 75 : groupe de plusieurs cartes, chacune garde son titre
     if (head) head.classList.add("fold-dup");
     const h2 = node.querySelector("h2");
     hd.querySelector(".fold-t").textContent = node.dataset.foldT ? t(node.dataset.foldT) : (h2 ? h2.textContent : key);
@@ -374,8 +377,9 @@ const Ecr = (() => {
     const c = lsGet("short", {}) || {};
     return { mode: c.mode === "manual" ? "manual" : "auto", pick: arr(c.pick).filter(s => ECR_SHORT.some(x => x.s === s)) };
   }
+  function shortOk() { return ECR_SHORT.filter(x => !ECR_BAR.includes(x.s)).filter(avail); }   // étape 75 : hors barre du bas
   function shortList() {
-    const ok = ECR_SHORT.filter(avail), c = shortCfg();
+    const ok = shortOk(), c = shortCfg();
     if (c.mode === "manual") {
       const out = [];
       c.pick.forEach(s => { const x = ok.find(y => y.s === s); if (x && !out.includes(x)) out.push(x); });
@@ -412,10 +416,13 @@ const Ecr = (() => {
       });
       box.hidden = !box.childNodes.length;
     }
+    // Étape 75 : une seule carte repliable « Mes progrès » (mots appris, XP et niveau, défis du jour), avec un résumé des trois
     folds($("#screen-home"), {
-      "home.learned": safe(() => t("ecr.sum.learned", { n: Progres.weekCount() }), ""),
-      "home.xp": safe(() => { const s = XP.summary(); return t("xp.level", { n: s.level }) + " · " + t("ecr.sum.xp", { n: dashFmt(s.total) }); }, ""),
-      "home.ch": safe(() => { const c = XP.challenges(); return t("xp.ch.count", { n: c.list.filter(x => x.done).length }); }, "")
+      "home.prog": [
+        safe(() => ($("#homeLearned") && !$("#homeLearned").hidden ? t("hs.sum.words", { n: Progres.weekCount() }) : ""), ""),
+        safe(() => t("xp.level", { n: XP.summary().level }), ""),
+        safe(() => t("hs.sum.ch", { n: XP.challenges().list.filter(x => x.done).length }), "")
+      ].filter(Boolean).join(" · ")
     });
   }
   // Réglages → Apparence : « Raccourcis de l'accueil » (automatique d'après l'usage, ou choisis).
@@ -440,7 +447,7 @@ const Ecr = (() => {
     box.appendChild(seg);
     box.appendChild(el("p", "hint", t(c.mode === "manual" ? "ecr.short.manualHint" : "ecr.short.autoHint")));
     if (c.mode !== "manual") return;
-    const cur = shortList().map(x => x.s), ok = ECR_SHORT.filter(avail);
+    const cur = shortList().map(x => x.s), ok = shortOk();
     for (let i = 0; i < ECR_SHORT_N && i < ok.length; i++) {
       const sel = el("select", "input");
       ok.forEach(x => { const o = el("option", null, x.ic + " " + t(x.k)); o.value = x.s; sel.appendChild(o); });

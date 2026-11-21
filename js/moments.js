@@ -170,7 +170,7 @@ function renderMomentsHome() {
   try { m = momMorningNow(); } catch (e) {}
   if (m) btn("mom-morning", "☀️", t("mom.morning"), t(m.items.length === 1 ? "mom.morningSub1" : "mom.morningSub", { n: m.items.length }),
     () => Moments.startMorning(), "homeMorning");
-  n = momMicroCount();
+  n = m ? 0 : momMicroCount();   // étape 75 : un seul bouton rapide sur l'Accueil (le rappel du matin d'abord, sinon « 2 minutes »)
   if (n) btn("mom-micro", "⚡", t("mom.micro"), t(n === 1 ? "mom.microSub1" : "mom.microSub", { n }), () => Moments.startMicro(), "homeMicro");
   box.hidden = !box.childNodes.length;
 }

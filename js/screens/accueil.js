@@ -8,11 +8,16 @@
 //            dessinés par renderProgresHome (js/progres.js).
 // Étape 67 : en haut « À réviser » (touche = Réviser), série et objectif du jour (visibles) ; puis 4 raccourcis (#homeShort) ;
 //            « Mots appris », « XP et niveau » et « Défis du jour » en cartes repliables (data-fold, js/ecrans.js).
+// Étape 75 : Accueil simplifié (index.html) : « À réviser » avec le bouton « Réviser maintenant » ; série et objectif du jour
+//            dans une seule carte (#homeDay ; record et gels dans Stats → Mes progrès) ; un seul bouton rapide ; 2 raccourcis au
+//            plus ; « Mots appris », « XP et niveau » et « Défis du jour » dans UNE carte repliable « Mes progrès » (#homeProg).
+// Étape 74 : bandeau « 🔔 Active les notifications » (#homeNotifRappel), dessiné par NotifRappel.home (js/rappel-notifs.js).
 function computeStreak() { return Streak.data().current; }
 function renderHome() {
   const now = Date.now();
   $("#homeDue").textContent = dueCount(state.cards, now);
   renderMomentsHome();   // rappel du matin et micro-session « 2 minutes » (étape 61, js/moments.js)
+  if (typeof NotifRappel !== "undefined") NotifRappel.home();   // étape 74 : rappel d'activer les notifications
   // À réviser par langue étudiée (étape 37), s'il y en a plusieurs
   const byL = dueByLang(state.cards, now), dl = $("#homeDueLangs");
   if (dl) {

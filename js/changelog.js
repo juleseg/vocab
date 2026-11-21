@@ -9,6 +9,34 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "75", date: "2026-11-21",
+    points: {
+      ko: [
+        "복습 화면이 간단해졌어요: '배우기'나 '게임'을 고르고 '시작'만 누르면 돼요. 나머지는 '옵션 더 보기'에 있어요.",
+        "목록 메뉴가 짧아졌어요: '▶ 이 목록 복습하기', '🤖 Claude', 그리고 나머지는 '⋯'에 있어요.",
+        "홈과 통계가 더 깔끔해졌어요: 중요한 것만 먼저 보이고, 나머지는 '내 진도'를 눌러서 펼쳐요."
+      ],
+      fr: [
+        "Réviser est plus simple : choisis « Apprendre » ou « Jouer », puis touche « Commencer ». Le reste est sous « Plus d'options ».",
+        "Les menus des listes sont plus courts : « ▶ Réviser cette liste », « 🤖 Claude », et le reste sous « ⋯ ».",
+        "L'Accueil et les Stats sont plus clairs : l'essentiel d'abord, le reste se déplie dans « Mes progrès »."
+      ],
+      en: [
+        "Reviewing is simpler: pick “Learn” or “Play”, then tap “Start”. Everything else is under “More options”.",
+        "List menus are shorter: “▶ Review this list”, “🤖 Claude”, and the rest under “⋯”.",
+        "Home and Stats are clearer: the essentials first, the rest unfolds under “My progress”."
+      ]
+    }
+  },
+  {
+    version: "74", date: "2026-11-21",
+    points: {
+      ko: ["알림을 아직 켜지 않았다면 홈 화면의 작은 배너가 가끔 알려 드려요."],
+      fr: ["Si tes notifications ne sont pas activées, un petit bandeau sur l'Accueil te le rappelle de temps en temps."],
+      en: ["If your notifications are off, a small banner on Home reminds you from time to time."]
+    }
+  },
+  {
     version: "73", date: "2026-11-20",
     points: {
       ko: [

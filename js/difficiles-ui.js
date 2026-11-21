@@ -220,8 +220,11 @@ const HardUI = (() => {
   }
   // units : cartes (vues) du périmètre de Stats, chacune avec id et unitLang.
   // Filtre affiché dans la carte « Mots difficiles » de Stats (étape 73) : "missed" (souvent ratés) | "alike" (qui se ressemblent).
+  // Étape 75 : 3e filtre "top" (« Les 10 plus ratés », lignes fournies par l'écran Stats : extra.top), à la place de la carte
+  // « Mots les plus ratés ». Données de l'étape 57 inchangées.
   let statFilt = "missed";
-  function statsCards(units) {
+  function statsCards(units, extra) {
+    const topRows = extra && Array.isArray(extra.top) ? extra.top : null;
     const inScope = new Set(units.map(u => u.id + "|" + u.unitLang));
     const has = (id, L) => inScope.has(id + "|" + L);
     const frag = el("div", "hd-stats");
@@ -258,17 +261,20 @@ const HardUI = (() => {
     const body = el("div");
     const draw = () => {
       body.textContent = "";
-      const seg = el("div", "seg hd-filt");
-      [["missed", hardRows.length], ["alike", pairRows.length]].forEach(([k, n]) => {
+      const filts = [["missed", hardRows.length], ["alike", pairRows.length]];
+      if (topRows) filts.push(["top", topRows.length]);
+      if (!filts.some(f => f[0] === statFilt)) statFilt = "missed";
+      const seg = el("div", "seg hd-filt" + (topRows ? " hd-filt3" : ""));
+      filts.forEach(([k, n]) => {
         const b = el("button", null, t("hd.filt." + k) + " (" + n + ")"); b.type = "button";
         b.setAttribute("aria-pressed", String(statFilt === k));
         b.addEventListener("click", () => { statFilt = k; draw(); });
         seg.appendChild(b);
       });
       body.appendChild(seg);
-      const alike = statFilt === "alike", rows = alike ? pairRows : hardRows;
-      body.appendChild(el("div", "hint", t(alike ? "hd.stats.pairsHint" : "hd.stats.hardHint")));
-      if (!rows.length) body.appendChild(el("div", "muted", t(alike ? "hd.stats.pairsEmpty" : "hd.stats.hardEmpty")));
+      const alike = statFilt === "alike", top = statFilt === "top", rows = top ? topRows : alike ? pairRows : hardRows;
+      body.appendChild(el("div", "hint", t(top ? "hd.filt.top.hint" : alike ? "hd.stats.pairsHint" : "hd.stats.hardHint")));
+      if (!rows.length) body.appendChild(el("div", "muted", t(top ? "stats.noMissed" : alike ? "hd.stats.pairsEmpty" : "hd.stats.hardEmpty")));
       rows.slice(0, 30).forEach(n => body.appendChild(n));
     };
     draw();

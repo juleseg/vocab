@@ -24,9 +24,12 @@
 //    création (avant les annonces), guide d'installation aussi pour Android, « Activer les rappels ? », au plus 2 fenêtres
 //    automatiques par appareil ; journal avec data.fresh = true. La fenêtre de première ouverture (point 1) prend les mêmes
 //    textes. Les comptes existants gardent les règles des points 1 et 2.
+// 4. Étape 74 : rappel régulier (js/rappel-notifs.js, bandeau de l'Accueil) : il réutilise ces outils (api) et attend la fin
+//    de cette vérification (checked). Rappel actif : la fenêtre de première ouverture ne revient plus d'elle-même après la
+//    première fois (le bandeau prend le relais) ; rappel coupé par l'admin : retour tous les 7 jours comme avant.
 const NotifInvite = (() => {
   const LATER_MS = 7 * 86400000;
-  let token = 0, busy = false, missing = false;
+  let token = 0, busy = false, missing = false, checkedFor = null;   // checkedFor : étape 74 (compte dont la vérification du lancement est finie)
   function key(k) { return CONFIG.LS_USER_PREFIX + "push:invite:" + k + ":" + (Storage.getUser() || ""); }
   function readJson(k, d) { try { const v = JSON.parse(localStorage.getItem(key(k)) || "null"); return v == null ? d : v; } catch (e) { return d; } }
   function writeJson(k, v) { try { if (v == null) localStorage.removeItem(key(k)); else localStorage.setItem(key(k), JSON.stringify(v)); } catch (e) {} }
@@ -230,12 +233,16 @@ const NotifInvite = (() => {
       // « Plus tard » (ou fenêtre restée sans réponse : appli fermée) : pas avant 7 jours.
       const last = Math.max(Number(r.later) || 0, Number(r.seen) || 0);
       if (last && Date.now() - last < LATER_MS) return;
+      // Étape 74 : rappel régulier actif (js/rappel-notifs.js) : après la première fois, la fenêtre ne revient plus d'elle-même ;
+      // c'est le bandeau de l'Accueil qui rappelle (fréquence et nombre réglés par l'admin). Rappel coupé : 7 jours comme avant.
+      if (last && typeof NotifRappel !== "undefined" && NotifRappel.active()) return;
       await showFirst(sup, valid);
     } catch (e) { /* jamais d'erreur visible */ }
-    finally { busy = false; }
+    finally { busy = false; if (my === token) checkedFor = who; }
   }
-  function reset() { token++; busy = false; missing = false; }
+  function reset() { token++; busy = false; missing = false; checkedFor = null; if (typeof NotifRappel !== "undefined") NotifRappel.reset(); }
   // Étape 71 : outils prêtés à js/accueil-notifs.js (même fenêtre, même état de l'appareil, même journal).
+  // Étape 74 : aussi au bandeau de rappel (js/rappel-notifs.js), avec checked() = compte dont la vérification du lancement est finie.
   const api = { rec, setRec, ask, afterEnable, enableBtn, laterBtn, log, showDenied };
-  return { check, reset };
+  return { check, reset, api, checked: () => checkedFor };
 })();

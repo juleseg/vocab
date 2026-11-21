@@ -106,6 +106,22 @@ const AccNotif = (() => {
     return e.userChoice ? Promise.resolve(e.userChoice).catch(() => null) : null;
   }
 
+  // Guide d'installation (iPhone : Safari → Partager ; Android : menu ⋮ ou bouton « Installer » du navigateur).
+  // Étape 74 : aussi ouvert par « Activer » du bandeau de rappel (js/rappel-notifs.js) quand l'appli n'est pas installée.
+  async function guide(api) {
+    if (device().ios) {
+      await api.ask(t("ni.ios.title"), iosBody(), [{ k: "ok", label: t("ni.ok"), kind: "primary" }]);
+      return;
+    }
+    const btns = bip ? [api.laterBtn(), { k: "install", label: t("acn.and.install"), kind: "primary", now: promptInstall }]
+                     : [{ k: "ok", label: t("ni.ok"), kind: "primary" }];
+    const res = await api.ask(t("acn.and.title"), androidBody(), btns);
+    if (res.k === "install" && res.p) {
+      const c = await res.p;
+      if (c && c.outcome === "accepted") toast(t("acn.and.done"));
+    }
+  }
+
   // api : outils de NotifInvite { rec, setRec, ask, afterEnable, enableBtn, laterBtn, log, showDenied }.
   async function run(m, api, valid) {
     const r = api.rec() || {}, shows = (Number(r.shows) || 0) + 1, now = Date.now();
@@ -117,20 +133,9 @@ const AccNotif = (() => {
     if (m === "denied") { await api.showDenied(); return; }
     Push.markOffered();   // pas de bandeau après la première session (étape 32)
     if (m === "install") {
-      const d = device();
       api.setRec({ install: now, seen: now, shows });
       api.log("shown", { src: "first", fresh: true, mode: "install" });
-      if (d.ios) {
-        await api.ask(t("ni.ios.title"), iosBody(), [{ k: "ok", label: t("ni.ok"), kind: "primary" }]);
-      } else {
-        const btns = bip ? [api.laterBtn(), { k: "install", label: t("acn.and.install"), kind: "primary", now: promptInstall }]
-                         : [{ k: "ok", label: t("ni.ok"), kind: "primary" }];
-        const res = await api.ask(t("acn.and.title"), androidBody(), btns);
-        if (res.k === "install" && res.p) {
-          const c = await res.p;
-          if (c && c.outcome === "accepted") toast(t("acn.and.done"));
-        }
-      }
+      await guide(api);
       api.log("later", { src: "first", fresh: true, mode: "install" });
       return;
     }
@@ -142,5 +147,5 @@ const AccNotif = (() => {
       else { api.setRec({ later: Date.now() }); api.log("later", { src: "first", fresh: true }); }
     }
   }
-  return { markNew, mode, early, run, askBody, read };
+  return { markNew, mode, early, run, askBody, read, iosBody, androidBody, guide };   // étape 74 : guide, iosBody, androidBody exposés
 })();

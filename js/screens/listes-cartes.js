@@ -25,11 +25,16 @@ function openCardEditor(cardId, listId) {
   let type = c ? cardType(c) : lastNewType;
   const tags = textInput(c ? c.tags.join(", ") : "", t("type.tagsPh"));
   const body = el("div");
+  const wrap = el("div");
+  // Étape 75 : mot, traductions et exemple visibles ; nature, image, autres langues apprises, tags, « Mon astuce », liste et
+  // type sous « Plus de détails (N remplis) » (js/listes-menus.js, lmDetails). Mêmes champs, même enregistrement.
+  const det = typeof lmDetails === "function" ? lmDetails(wrap) : null;
   let form = null;
   const build = () => {
     body.textContent = "";
     form = type === "vocab" ? vocabForm(c, sel) : typedForm(c, sel, type);
     body.appendChild(form.node);
+    if (det) det.setExtra(form.extra, form.hasImg);   // image et autres langues apprises du formulaire → « Plus de détails »
   };
   let ts = null;
   // Types proposés selon la langue apprise de la liste : pas de conjugaison sans grammaire (étape 35).
@@ -43,20 +48,27 @@ function openCardEditor(cardId, listId) {
     return false;
   };
   sel.addEventListener("change", () => { if (!fillTypes()) form.redraw(); });
-  const wrap = el("div");
-  wrap.appendChild(formField(t("card.list"), sel));
+  const listF = formField(t("card.list"), sel);
+  let typeF = null;
+  if (!det) wrap.appendChild(listF);
   if (!c) {
     ts = el("select", "input");
     if (!typesFor(listLangs(sel.value).target).includes(type)) type = "vocab";
     fillTypes();
     ts.addEventListener("change", () => { type = lastNewType = ts.value; build(); });
-    wrap.appendChild(formField(t("type.label"), ts));
+    typeF = formField(t("type.label"), ts);
+    if (!det) wrap.appendChild(typeF);
   } else if (type !== "vocab") {
     const f = el("div", "field"); f.appendChild(typeBadge(type)); wrap.appendChild(f);
   }
   if (!form) build();
   const tipIn = HardUI.tipInput(c);   // « Mon astuce » (étape 57) : privée, 150 caractères, dans le morceau « tips » (jamais dans la carte)
-  wrap.append(body, formField(t("card.tags"), tags), formField(t("hd.tip.label"), tipIn, false, t("hd.tip.hint")));
+  const tagsF = formField(t("card.tags"), tags), tipF = formField(t("hd.tip.label"), tipIn, false, t("hd.tip.hint"));
+  if (det) {
+    wrap.append(body, det.btn, det.box);
+    [tagsF, tipF, listF, typeF].forEach(n => det.add(n));
+    det.watch([tags, tipIn]);
+  } else wrap.append(body, tagsF, tipF);
   const save = () => {
     const before = c ? { img: JSON.stringify(c.image || null), ex: JSON.stringify(c.examples || null) + "|" + (c.example || ""), tip: Hard.tip(c.id) } : null;
     const clBefore = c ? ClAuto.snap(c) : null;    // étape 73 : cases remplies par Claude avant l'enregistrement
@@ -111,7 +123,7 @@ function vocabForm(c, sel) {
   } }) : null;
   node.append(dictBox, termsBox);
   if (imgF) node.appendChild(imgF.node);
-  node.append(exBox, stBox);
+  node.append(exBox, stBox);   // étape 75 : l'éditeur déplace l'image et stBox sous « Plus de détails » (extra, plus bas)
   // --- Dictionnaire commun (étape 36) : carte pas encore reliée → recherche du mot tapé (en quittant le champ) ---
   // Un seul sens probable : cases vides remplies tout de suite (marquées « auto ») ; aucun : nouveau sens.
   // Plusieurs (faux doublon, étape 63) : aucun choix demandé ; cases vides remplies depuis le sens le plus proche s'il est
@@ -284,7 +296,7 @@ function vocabForm(c, sel) {
     }
     return o;
   };
-  return { node, redraw: draw, save };
+  return { node, redraw: draw, save, extra: [imgF ? imgF.node : null, stBox], hasImg: () => !!(imgF && imgF.get()) };
 }
 
 // Menu « Règle liée » : fiches de règle de la même langue (celles de la liste d'abord).

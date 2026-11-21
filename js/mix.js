@@ -40,6 +40,7 @@ function mixModeNames(langs) {
   if (voice && lisCanSpeak()) ms.push("speak");
   return ms.map(m => t("mode." + m)).join(", ");
 }
+// Étape 75 : le Mix est le 1er mode de « Apprendre » (js/reviser-choix.js) ; ce champ à part n'est plus affiché (fonction gardée).
 function mixField(cfg, langs) {
   const on = isMixMode(cfg.mode);
   const f = el("div", "field mix-field");

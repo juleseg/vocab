@@ -7,6 +7,9 @@
 // ====================================================================================================
 
 // === ÉCRAN : LISTES ===
+// Étape 75 : les liens d'action de cet écran (#lvRename … #lvFxInAll, #lvBulk, #lvGen) sont gardés dans la page mais cachés
+// (index.html, #lmOld) ; ils sont proposés par les feuilles « ⋯ » et « 🤖 Claude » de js/listes-menus.js, qui les activent par
+// click(). renderLists continue de régler leur texte et leur attribut hidden : c'est ce que lisent les feuilles.
 // Vue en cours : listId null = vue d'ensemble (dossiers et listes) ; query = texte de recherche ;
 // reorder = mode « Réorganiser » (boutons ↑ ↓ sur les dossiers et les listes).
 // Dossiers repliables (état gardé sur l'appareil : localStorage "vocabfr.collapsed:<identifiant>").
@@ -91,6 +94,7 @@ function renderLists() {
   search.placeholder = t("lists.search");
   if (document.activeElement !== search) search.value = lv.query;
   $("#lvAdd").textContent = t(list ? "card.add" : "lists.new");
+  if (typeof lmPaint === "function") lmPaint(list);   // étape 75 : boutons visibles (« Réviser cette liste », « 🤖 Claude », « ⋯ »), js/listes-menus.js
 
   const box = $("#lvContent");
   box.textContent = "";
@@ -514,6 +518,7 @@ function openFolderName(id, onCreated) {
   setTimeout(() => { try { inp.focus(); } catch (e) {} }, 50);
 }
 function openFolderMenu(id) {
+  if (typeof lmFolderMenu === "function") { lmFolderMenu(id); return; }   // étape 75 : feuille plus courte (js/listes-menus.js), mêmes actions et mêmes règles
   const f = getFolder(id);
   if (!f) return;
   const lists = listsIn(id);

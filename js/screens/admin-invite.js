@@ -12,6 +12,7 @@
 //   (admin_invite_stop) ; export CSV (admin_invite_export).
 // - Journal : admin_push, action invite_send / invite_stop.
 // Script SQL absent : « Lancez le script SQL de l'étape 38 » ; le reste de l'écran Notifications marche.
+// Étape 74 : en haut de l'onglet, carte « Rappel régulier » (réglages et compteurs du bandeau), js/screens/admin-rappel.js.
 const NI_PAGE = 20;
 const nvi = {
   started: false, missing: false, seg: "", users: [], filter: {}, calc: null, calcBusy: false, calcErr: "", calcKey: "",
@@ -95,6 +96,7 @@ function niTextEditor(tx) {
 function npInviteTab(root) {
   if (!nvi.started) niStart();
   root.appendChild(el("p", "hint ni-intro", t("ni.adm.intro")));
+  if (typeof nraCard === "function") nraCard(root);   // étape 74 : rappel régulier (js/screens/admin-rappel.js)
   if (nvi.missing) { root.appendChild(el("div", "card np-msg", t("ni.missing"))); return; }
   // Ciblage
   const c1 = el("div", "card");

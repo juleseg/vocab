@@ -533,6 +533,7 @@ function renderHomeXp() {
   if (!lv || !cb || !Storage.getUser()) return;
   const sum = XP.summary();
   lv.textContent = "";
+  lv.appendChild(el("h2", null, "⭐ " + t("xp.title")));   // étape 75 : titre dans la carte (elle est dans le groupe « Mes progrès »)
   lv.appendChild(xpLevelBlock(sum));
   cb.textContent = "";
   const ch = XP.challenges();
@@ -552,6 +553,12 @@ function renderHomeXp() {
     mid.appendChild(bar);
     li.appendChild(mid);
     li.appendChild(el("span", "xp-ch-v", c.done ? "+" + XP_RULES.challenge : c.v + " / " + c.n));
+    if (!c.done && typeof rcChallenge === "function") {   // étape 75 : « Faire » ouvre Réviser avec le mode du défi déjà choisi (js/reviser-choix.js)
+      const go = el("button", "xp-ch-go", t("rc.ch.do"));
+      go.type = "button";
+      go.addEventListener("click", () => rcChallenge(c));
+      li.appendChild(go);
+    }
     ul.appendChild(li);
   });
   cb.appendChild(ul);

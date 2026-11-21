@@ -91,7 +91,7 @@ function alSummary(r) {
         d.name ? "« " + d.name + " »" : "", d.segment || "", nums, d.filter || ""].filter(Boolean).join(" · ");
     }
     case "push_invite_shown": case "push_invite_enabled": case "push_invite_later": case "push_invite_denied":   // étape 38
-      return [t(d.src === "admin" ? "ni.al.admin" : "ni.al.first"), d.mode === "install" ? t("ni.st.install") : d.mode === "denied" ? t("ni.al.help") : "",
+      return [t(d.src === "admin" ? "ni.al.admin" : d.src === "reminder" ? "nrp.al.src" : "ni.al.first"),   // étape 74 : rappel régulier d.mode === "install" ? t("ni.st.install") : d.mode === "denied" ? t("ni.al.help") : "",
         n(d.n) > 1 ? "×" + n(d.n) : ""].filter(Boolean).join(" · ");
     case "admin_streak_freezes":
       return [d.target ? t("al.s.target", { id: d.target }) : "", t("al.s.freezes", { d: (n(d.value) > 0 || Number(d.value) > 0 ? "+" : "") + String(d.value), b: n(d.before) }),
