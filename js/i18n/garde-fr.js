@@ -1,0 +1,52 @@
+"use strict";
+
+// === I18N : GARDE-FOU DES DONNÉES (ÉTAPE 77) — FRANÇAIS (fr) ===
+// Première connexion d'un appareil, refus d'un envoi, copies de sécurité, import JSON (js/garde-fou.js, js/storage-supabase.js, clés gf.*).
+// Fichier à part, chargé après connus-fr.js.
+
+Object.assign(I18N.fr, {
+  "gf.loading": "Chargement de tes listes…",
+  "gf.loadingHint": "Ton compte est lu en ligne avant tout. Rien n'est modifié pendant ce temps.",
+  "gf.waitErr": "Impossible de lire tes données en ligne pour l'instant. Rien n'a été modifié ni envoyé.",
+  "gf.waitErrHint": "Nouvel essai automatique toutes les 20 secondes.",
+  "gf.retry": "Réessayer",
+  "gf.title": "Données à vérifier",
+  "gf.text": "Les données de ton compte semblent incomplètes. Rien n'a été envoyé.",
+  "gf.onlyOnline": "Seulement en ligne : {names}",
+  "gf.langsOnline": "Langues seulement en ligne : {names}",
+  "gf.drop": "Cartes : {was} avant, {now} maintenant.",
+  "gf.copyKept": "Une copie de cet appareil est gardée (Réglages → Compte et données → Copies de sécurité).",
+  "gf.useOnline": "Utiliser la version en ligne",
+  "gf.keepDevice": "Garder cet appareil",
+  "gf.confirmTitle": "Remplacer ton compte en ligne ?",
+  "gf.confirmText": "Tout ton compte en ligne sera remplacé par cet appareil ({lists} listes, {cards} cartes).",
+  "gf.confirmLost": "Supprimé en ligne : {names}.",
+  "gf.confirmCopy": "Une copie de la version en ligne sera gardée sur cet appareil.",
+  "gf.confirmGo": "Remplacer",
+  "gf.readErr": "Lecture en ligne impossible : rien n'a été modifié. Réessaie plus tard.",
+  "gf.copyErr": "Copie de sécurité impossible : rien n'a été modifié.",
+  "gf.copies": "Copies de sécurité",
+  "gf.copiesTitle": "Copies de sécurité de cet appareil",
+  "gf.copiesHint": "Gardées sur cet appareil seulement (les {n} plus récentes). Faites avant chaque remplacement, conversion ou import.",
+  "gf.copiesNone": "Aucune copie pour l'instant.",
+  "gf.copyLine": "{lists} listes · {cards} cartes",
+  "gf.k.refus": "Envoi refusé",
+  "gf.k.remplacement": "Avant la version en ligne",
+  "gf.k.enligne": "Version en ligne remplacée",
+  "gf.k.conversion": "Avant conversion",
+  "gf.k.import": "Avant import",
+  "gf.download": "Télécharger",
+  "gf.restore": "Restaurer",
+  "gf.imp.who": "Compte : {id}",
+  "gf.imp.warn": "Tout le compte sera remplacé par ce fichier. Ce qui n'est pas dans le fichier sera supprimé.",
+  "gf.imp.before": "Maintenant : {lists} listes, {cards} cartes.",
+  "gf.imp.after": "Après l'import : {lists} listes, {cards} cartes.",
+  "gf.imp.copy": "Une copie de sécurité est faite avant.",
+  "gf.imp.check": "J'ai compris : tout le compte sera remplacé.",
+  "gf.imp.go": "Tout remplacer",
+  "gf.imp.readErr": "Impossible de lire ce compte : rien n'a été importé.",
+  "al.k.guard_refused": "Garde-fou : envoi refusé",
+  "al.k.guard_online": "Garde-fou : version en ligne reprise",
+  "al.k.guard_keep": "Garde-fou : appareil gardé",
+  "al.k.import_json": "Import JSON"
+});

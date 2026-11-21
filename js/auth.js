@@ -258,7 +258,16 @@ async function sbCreate(id, pin, target) {
 
 // Supabase : profil du compte (identifiant, PIN à changer, admin), puis ouverture des données.
 // Hors connexion : dernier profil connu sur cet appareil, s'il s'agit du même compte.
-async function enterSupabase(session, target) {
+// Étape 77 : un seul passage à la fois pour un même compte (un 2e appel pendant l'ouverture attend le 1er, sans tout refaire).
+let enterRun = null;
+function enterSupabase(session, target) {
+  const u = session && session.user && session.user.id;
+  if (enterRun && enterRun.uid === u) return enterRun.p;
+  const p = enterSupabaseRun(session, target).finally(() => { if (enterRun && enterRun.p === p) enterRun = null; });
+  enterRun = { uid: u, p };
+  return p;
+}
+async function enterSupabaseRun(session, target) {
   const userUuid = session.user.id;
   let prof = null;
   try { prof = await Supa.myProfile(); }
@@ -279,7 +288,7 @@ async function enterSupabase(session, target) {
     return;
   }
   Supa.touch().catch(() => {});
-  await startUser(id, null, target, userUuid);
+  if (!(await startUser(id, null, target, userUuid))) return;   // étape 77 : compte quitté avant la lecture en ligne
   Mod.refresh(true);   // étape 66 : rôle de modérateur et cases (Réglages → Administration si au moins une case)
   // Fenêtres du lancement, l'une après l'autre (étape 38) : annonces de l'admin (étape 27), puis invitation à activer
   // les notifications (fenêtre de première ouverture ou invitation de l'admin). Migration / sauvegarde : déjà faites.
@@ -420,8 +429,19 @@ async function backupLegacy(thenCreate) {
 
 // Ouvre un compte, puis lance la vérification hebdomadaire (une fois les données en ligne arrivées).
 // sbUid : identifiant Supabase du compte (mode Supabase).
-async function startUser(id, preset, target, sbUid) {
+// Étape 77 : un seul passage à la fois pour un même compte (double exécution → doublons de listes) ; sur un nouvel appareil,
+// rien ne démarre (série, amis, listes communes, demandes à Claude, dictionnaire…) avant la première lecture en ligne
+// réussie. Renvoie false si le compte a été quitté entre-temps.
+let startRun = null;
+function startUser(id, preset, target, sbUid) {
+  if (startRun && startRun.id === id) return startRun.p;
+  const p = startUserRun(id, preset, target, sbUid).finally(() => { if (startRun && startRun.p === p) startRun = null; });
+  startRun = { id, p };
+  return p;
+}
+async function startUserRun(id, preset, target, sbUid) {
   await startUserData(id, preset, target, sbUid);
+  if (!(await Guard.ready(id))) return false;
   Streak.reset();
   Streak.tick(true);   // série : modifications de l'admin, jours manqués (gels), messages au lancement (étape 28)
   Activity.start(auth.loginVia || "resume");   // journal (mode Supabase) : login 1 par heure max, fiche appareil, envois
@@ -435,9 +455,19 @@ async function startUser(id, preset, target, sbUid) {
   Dict.start();  // dictionnaire commun (étape 36) : envois en attente, liaison des cartes, sens modifiés
   Images.start();   // images (étape 49) : images des sens, place utilisée, ménage (30 s après le lancement)
   if (auth.mode !== "supabase") WhatsNew.check().finally(() => Tutorial.check());   // étapes 39 et 40 (en mode Supabase : après annonces et invitation, enterSupabase)
+  return true;
 }
 // Données du compte : locales tout de suite (cache), puis comparaison avec les données en ligne (syncWithRemote).
 // target : profil d'un nouveau compte { lang, support } (ou code de langue) — liste « Démo » dans cette langue.
+// Nouveau compte (ou compte vraiment vide en ligne) : liste « Démo » dans la langue choisie, langue et thème de l'écran de connexion.
+function demoData(target) {
+  const ui = state.settings.uiLang, theme = state.settings.theme; // choix de l'écran de connexion
+  const tg = target && typeof target === "object" ? target.lang : target, sp = target && typeof target === "object" ? target.support : null;
+  const d = addDemoList(emptyData(tg, sp));
+  d.settings.uiLang = ui; d.settings.theme = theme;
+  d.updatedAt = 0;                    // 0 = une version en ligne existante passe devant
+  return d;
+}
 async function startUserData(id, preset, target, sbUid) {
   Storage.setUser(id, sbUid);
   Storage.setSession(id);
@@ -447,14 +477,21 @@ async function startUserData(id, preset, target, sbUid) {
   if (preset) state = preset;
   else {
     const local = Storage.readLocal();
-    if (local) { state = normalizeData(local.data); ctx.oldLocal = local.old; if (dataVersion(local.data) < DATA_VERSION) ctx.rawV1 = local.data; }
-    else {
-      const ui = state.settings.uiLang, theme = state.settings.theme; // choix de l'écran de connexion
-      const tg = target && typeof target === "object" ? target.lang : target, sp = target && typeof target === "object" ? target.support : null;
-      state = addDemoList(emptyData(tg, sp)); // nouveau compte (ou nouvel appareil) : liste "Démo"
-      state.settings.uiLang = ui; state.settings.theme = theme;
-      state.updatedAt = 0;                    // 0 = une version en ligne existante passe devant
+    if (local) {
+      // Étape 77 : copie de sécurité locale avant toute conversion de format (ancien bloc unique ou format < DATA_VERSION).
+      if (local.old || dataVersion(local.data) < DATA_VERSION) await Guard.backup("conversion", local.data, id);
+      state = normalizeData(local.data); ctx.oldLocal = local.old; if (dataVersion(local.data) < DATA_VERSION) ctx.rawV1 = local.data;
     }
+    else if (Storage.hasRemote()) {
+      // Étape 77 : rien sur cet appareil pour ce compte (nouvel appareil, nouveau compte, cache effacé) : AUCUNE liste « Démo »
+      // tant que le serveur n'a pas été lu. Écran « Chargement de tes listes… », rien n'est modifiable ni envoyé.
+      // La « Démo » n'est créée que si le compte est vraiment vide en ligne (syncWithRemote).
+      const ui = state.settings.uiLang, theme = state.settings.theme; // choix de l'écran de connexion
+      state = emptyData();
+      state.settings.uiLang = ui; state.settings.theme = theme;
+      Guard.wait(id, target || null);
+    }
+    else state = demoData(target);   // sans données en ligne possibles (navigateur seul) : liste « Démo » comme avant
   }
   Shared.reset();
   Shared.attach(state);   // cartes des listes communes (cache de l'appareil, étape 30)
@@ -471,23 +508,37 @@ async function startUserData(id, preset, target, sbUid) {
 // locales plus récentes → envoi.
 // Ancien format (un seul bloc) ou modèle plus ancien que DATA_VERSION (v1, v2) : export JSON de sécurité, puis enregistrement
 // découpé dans la version actuelle (v3 : toutes les cartes existantes en type "vocab").
+// Étape 77 : nouvel appareil (Guard.waiting) : le serveur est TOUJOURS lu d'abord et ses données gagnent ; lecture ratée →
+// rien n'est écrit ni daté, écran « Réessayer » ; compte vraiment vide en ligne → liste « Démo ». Lecture ratée sur un appareil
+// qui a déjà les données : elles restent affichées, mais ne sont plus datées « maintenant » (elles ne passent plus devant le serveur).
+// ctx.guard = "remote" : « Utiliser la version en ligne » (garde-fou). Copie de sécurité locale avant tout remplacement de données
+// de l'appareil pas encore envoyées, et avant toute conversion de format.
 let syncBusy = false;
 async function syncWithRemote(id, ctx, first) {
   if (syncBusy && !first) return;
   syncBusy = true;
   try {
     ctx = ctx || {};
+    const fresh = Guard.waiting(id);
     let oldRemote = false, rawV1 = ctx.rawV1 || null;
     const remote = await Storage.initRemote();
     if (Storage.getUser() !== id) return;
+    const readFailed = remote === null && Storage.hasRemote();
+    if (readFailed && fresh) { Guard.waitFailed(); return; }   // rien d'affiché, rien d'envoyé ; nouvel essai toutes les 20 s
+    if (remote === undefined && fresh) {                        // compte vraiment vide en ligne : « Démo » (nouveau compte)
+      state = demoData(Guard.target());
+      Shared.attach(state);
+      render();
+    }
     if (remote) {
       const r = normalizeData(remote.data);
       const S = Storage.getSynced(), l = num(state.updatedAt, 0);
       const legacyFmt = remote.old || dataVersion(remote.data) < 2;
+      const localDirty = !!ctx.localChanged || (l > 0 && (S === null || l > S));   // modifications de l'appareil pas encore envoyées
       let take = null, asked = false;            // "remote" | "local" | null (identiques)
-      if (legacyFmt) take = r.updatedAt >= l ? "remote" : "local";
+      if (fresh || ctx.guard === "remote") take = "remote";   // étape 77 : nouvel appareil, ou choix « Utiliser la version en ligne »
+      else if (legacyFmt) take = r.updatedAt >= l ? "remote" : "local";
       else if (r.updatedAt !== l) {
-        const localDirty = !!ctx.localChanged || (l > 0 && (S === null || l > S));
         if (ctx.conflict || (r.updatedAt > l && localDirty)) {
           take = await askConflict(state, r); asked = true;
           Activity.log("conflict", { choice: take, local: state.cards.length, remote: r.cards.length });
@@ -497,6 +548,11 @@ async function syncWithRemote(id, ctx, first) {
       Storage.setConflictOpen(false);
       if (Storage.getUser() !== id) return;
       if (take === "remote") {
+        if (!fresh && (localDirty || asked || ctx.guard === "remote") && Guard.hasContent(state)) {
+          await Guard.backup("remplacement", state, id);       // étape 77 : ce que l'appareil avait de plus
+          if (Storage.getUser() !== id) return;
+        }
+        if (ctx.guard === "remote") Activity.log("guard_online", { local: state.cards.length, remote: r.cards.length });
         state = r;
         Shared.attach(state);   // étape 30
         oldRemote = remote.old;
@@ -509,28 +565,35 @@ async function syncWithRemote(id, ctx, first) {
         if (dataVersion(remote.data) < DATA_VERSION && !remote.old) rawV1 = rawV1 || remote.data;
         else Storage.markSynced(state);
       }
-      else if (asked) {                          // « garder cet appareil » : tout renvoyer
+      else if (asked) {                          // « garder cet appareil » : tout renvoyer (le garde-fou vérifie l'envoi)
         Storage.forceFullPush(remote.keys, r.updatedAt);
         state.updatedAt = Math.max(Date.now(), r.updatedAt + 1);
       }
+      // Étape 77 : appareil d'avant la version 77 (pas encore de base) dont le serveur n'a pas changé depuis sa dernière synchro.
+      else if (!Guard.base() && S !== null && r.updatedAt === S) Guard.setBase(r);
       // Série : modifications de l'admin écrites en ligne dans la clé streak (étape 28), même si les données
       // de cet appareil sont gardées. Appliquées par Streak.tick (au lancement, ou ci-dessous).
       try { streakMerge(state.streak, remote.data && remote.data.streak); } catch (e) {}
     }
     if (ctx.oldLocal || oldRemote || rawV1) {
+      // Étape 77 : copie de sécurité locale du format d'origine en ligne (celle de l'appareil est faite à l'ouverture).
+      if (remote && (oldRemote || (rawV1 && rawV1 === remote.data))) await Guard.backup("conversion", remote.data, id);
       // Sauvegarde de sécurité (on n'attend pas plus d'une minute une réponse à la demande d'enregistrement).
       const name = (rawV1 ? "sauvegarde-avant-v" + DATA_VERSION + "-" : "sauvegarde-avant-migration-") + id + "-" + todayStr() + ".json";
       try { await withTimeout(exportData(rawV1 || state, name), 60000); } catch (e) {}
       if (Storage.getUser() !== id) return;
     }
-    if (!state.updatedAt) state.updatedAt = Date.now();
-    if (rawV1) state.updatedAt = Math.max(Date.now(), state.updatedAt + 1); // la nouvelle version du modèle passe devant l'ancienne partout
-    if (first) Storage.release();
+    if (!readFailed) {   // étape 77 : jamais daté « maintenant » sans avoir pu lire le serveur
+      if (!state.updatedAt) state.updatedAt = Date.now();
+      if (rawV1) state.updatedAt = Math.max(Date.now(), state.updatedAt + 1); // la nouvelle version du modèle passe devant l'ancienne partout
+    }
+    if (first || fresh) Storage.release();
     Storage.save(state);        // local tout de suite, en ligne regroupé (seulement si les données en ligne ont été lues)
     const migKey = rawV1 ? (dataVersion(rawV1) < 2 ? "save.migratedV2" : dataVersion(rawV1) < 3 ? "save.migratedV3" : dataVersion(rawV1) < 4 ? "save.migratedV4" : dataVersion(rawV1) < 5 ? "save.migratedV5" : dataVersion(rawV1) < 6 ? "save.migratedV6" : dataVersion(rawV1) < 7 ? "save.migratedV7" : "save.migratedV8") : "save.migrated";
     if (ctx.oldLocal && Storage.dropOldLocal(state)) toast(t(migKey));
     else if (oldRemote || rawV1) toast(t(migKey));
-    if (!first) { Streak.tick(true); render(); }
+    if (fresh) Guard.done(id);   // étape 77 : le reste de l'ouverture du compte peut démarrer (startUser)
+    if (!first) { if (!fresh) Streak.tick(true); render(); }
   } finally { syncBusy = false; }
 }
 // Fenêtre de conflit (ne se ferme pas en touchant le fond). Renvoie "remote" ou "local".

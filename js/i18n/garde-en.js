@@ -1,0 +1,52 @@
+"use strict";
+
+// === I18N : GARDE-FOU DES DONNÉES (ÉTAPE 77) — ANGLAIS (en) ===
+// Première connexion d'un appareil, refus d'un envoi, copies de sécurité, import JSON (js/garde-fou.js, js/storage-supabase.js, clés gf.*).
+// Fichier à part, chargé après connus-en.js.
+
+Object.assign(I18N.en, {
+  "gf.loading": "Loading your lists…",
+  "gf.loadingHint": "Your account is read online first. Nothing changes in the meantime.",
+  "gf.waitErr": "Your online data can't be read right now. Nothing was changed or sent.",
+  "gf.waitErrHint": "Trying again automatically every 20 seconds.",
+  "gf.retry": "Try again",
+  "gf.title": "Check your data",
+  "gf.text": "Your account data seems incomplete. Nothing was sent.",
+  "gf.onlyOnline": "Online only: {names}",
+  "gf.langsOnline": "Languages online only: {names}",
+  "gf.drop": "Cards: {was} before, {now} now.",
+  "gf.copyKept": "A copy of this device is kept (Settings → Account and data → Safety copies).",
+  "gf.useOnline": "Use the online version",
+  "gf.keepDevice": "Keep this device",
+  "gf.confirmTitle": "Replace your online account?",
+  "gf.confirmText": "Your whole online account will be replaced by this device ({lists} lists, {cards} cards).",
+  "gf.confirmLost": "Deleted online: {names}.",
+  "gf.confirmCopy": "A copy of the online version will be kept on this device.",
+  "gf.confirmGo": "Replace",
+  "gf.readErr": "Online data can't be read: nothing was changed. Try again later.",
+  "gf.copyErr": "Safety copy failed: nothing was changed.",
+  "gf.copies": "Safety copies",
+  "gf.copiesTitle": "Safety copies on this device",
+  "gf.copiesHint": "Kept on this device only (the {n} most recent). Made before each replacement, format change or import.",
+  "gf.copiesNone": "No copies yet.",
+  "gf.copyLine": "{lists} lists · {cards} cards",
+  "gf.k.refus": "Upload refused",
+  "gf.k.remplacement": "Before the online version",
+  "gf.k.enligne": "Online version replaced",
+  "gf.k.conversion": "Before format change",
+  "gf.k.import": "Before import",
+  "gf.download": "Download",
+  "gf.restore": "Restore",
+  "gf.imp.who": "Account: {id}",
+  "gf.imp.warn": "The whole account will be replaced by this file. Anything not in the file will be deleted.",
+  "gf.imp.before": "Now: {lists} lists, {cards} cards.",
+  "gf.imp.after": "After import: {lists} lists, {cards} cards.",
+  "gf.imp.copy": "A safety copy is made first.",
+  "gf.imp.check": "I understand: the whole account will be replaced.",
+  "gf.imp.go": "Replace everything",
+  "gf.imp.readErr": "This account can't be read: nothing was imported.",
+  "al.k.guard_refused": "Safeguard: upload refused",
+  "al.k.guard_online": "Safeguard: online version used",
+  "al.k.guard_keep": "Safeguard: device kept",
+  "al.k.import_json": "JSON import"
+});

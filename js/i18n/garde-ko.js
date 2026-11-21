@@ -1,0 +1,52 @@
+"use strict";
+
+// === I18N : GARDE-FOU DES DONNÉES (ÉTAPE 77) — CORÉEN (ko) ===
+// Première connexion d'un appareil, refus d'un envoi, copies de sécurité, import JSON (js/garde-fou.js, js/storage-supabase.js, clés gf.*).
+// Fichier à part, chargé après connus-ko.js.
+
+Object.assign(I18N.ko, {
+  "gf.loading": "내 목록을 불러오는 중…",
+  "gf.loadingHint": "먼저 온라인 계정을 읽어요. 그동안에는 아무것도 바뀌지 않아요.",
+  "gf.waitErr": "지금은 온라인 데이터를 읽을 수 없어요. 아무것도 바뀌거나 전송되지 않았어요.",
+  "gf.waitErrHint": "20초마다 자동으로 다시 시도해요.",
+  "gf.retry": "다시 시도",
+  "gf.title": "데이터 확인 필요",
+  "gf.text": "계정 데이터가 불완전해 보여요. 아무것도 전송되지 않았어요.",
+  "gf.onlyOnline": "온라인에만 있음: {names}",
+  "gf.langsOnline": "온라인에만 있는 언어: {names}",
+  "gf.drop": "카드: 이전 {was}장, 지금 {now}장.",
+  "gf.copyKept": "이 기기의 사본을 보관했어요 (설정 → 계정과 데이터 → 안전 사본).",
+  "gf.useOnline": "온라인 버전 사용",
+  "gf.keepDevice": "이 기기 데이터 유지",
+  "gf.confirmTitle": "온라인 계정을 바꿀까요?",
+  "gf.confirmText": "온라인 계정 전체가 이 기기의 데이터로 바뀌어요 (목록 {lists}개, 카드 {cards}장).",
+  "gf.confirmLost": "온라인에서 삭제됨: {names}.",
+  "gf.confirmCopy": "온라인 버전의 사본을 이 기기에 보관해요.",
+  "gf.confirmGo": "바꾸기",
+  "gf.readErr": "온라인 데이터를 읽을 수 없어요. 아무것도 바뀌지 않았어요. 나중에 다시 시도해 주세요.",
+  "gf.copyErr": "안전 사본을 만들 수 없어요. 아무것도 바뀌지 않았어요.",
+  "gf.copies": "안전 사본",
+  "gf.copiesTitle": "이 기기의 안전 사본",
+  "gf.copiesHint": "이 기기에만 보관돼요 (최근 {n}개). 교체, 형식 변환, 가져오기 전에 만들어져요.",
+  "gf.copiesNone": "아직 사본이 없어요.",
+  "gf.copyLine": "목록 {lists}개 · 카드 {cards}장",
+  "gf.k.refus": "전송 거부됨",
+  "gf.k.remplacement": "온라인 버전 적용 전",
+  "gf.k.enligne": "교체된 온라인 버전",
+  "gf.k.conversion": "형식 변환 전",
+  "gf.k.import": "가져오기 전",
+  "gf.download": "다운로드",
+  "gf.restore": "복원",
+  "gf.imp.who": "계정: {id}",
+  "gf.imp.warn": "계정 전체가 이 파일로 바뀌어요. 파일에 없는 것은 삭제돼요.",
+  "gf.imp.before": "지금: 목록 {lists}개, 카드 {cards}장.",
+  "gf.imp.after": "가져온 후: 목록 {lists}개, 카드 {cards}장.",
+  "gf.imp.copy": "바꾸기 전에 안전 사본을 만들어요.",
+  "gf.imp.check": "이해했어요: 계정 전체가 바뀌어요.",
+  "gf.imp.go": "전체 바꾸기",
+  "gf.imp.readErr": "이 계정을 읽을 수 없어요. 아무것도 가져오지 않았어요.",
+  "al.k.guard_refused": "보호 장치: 전송 거부",
+  "al.k.guard_online": "보호 장치: 온라인 버전 사용",
+  "al.k.guard_keep": "보호 장치: 이 기기 유지",
+  "al.k.import_json": "JSON 가져오기"
+});

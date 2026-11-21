@@ -357,7 +357,7 @@ async function queueSubmitCards(kind, cards, want, label) {
 }
 // Génération : la liste de destination est créée tout de suite si c'est une nouvelle liste (les cartes arrivent plus tard).
 async function queueSubmitGenerate(req) {
-  const parts = req.type === "conj" ? chunks(req.verbs, GEN_VERBS_PER_CALL) : [null];
+  const parts = GenKnown.parts(req);                                    // étape 76 : conjugaison par 5 verbes, mots par 30
   if (parts.length > 50) { toast(t("queue.err.big")); return; }
   const isNew = req.listId === "__new__";
   const listId = genListId(req);
@@ -365,10 +365,11 @@ async function queueSubmitGenerate(req) {
   if (isNew) commit();
   const keep = Object.assign({}, req, { newName: (getList(listId) || {}).name || req.newName });
   delete keep.createdId;
-  const batches = parts.map(v => ({ prompt: genPromptJson(req, v), verbs: v || undefined }));
+  const batches = parts.map(v => ({ prompt: genPromptJson(req, v), verbs: req.type === "conj" && v ? v : undefined, words: req.type === "vocab" && v ? v : undefined,
+    near: arr(req.near).length ? req.near.map(x => ({ k: x.k, s: x.s })) : undefined }));   // étape 76 : cartes proches (aussi dans le prompt)
   const row = {
     kind: "generate", label: (listLabel(getList(listId)) + " · " + genLabel(req)).slice(0, 300),
-    card_count: req.type === "conj" ? req.verbs.length : req.count, batch_count: batches.length,
+    card_count: req.type === "conj" ? req.verbs.length : (arr(req.words).length || req.count), batch_count: batches.length,
     payload: { v: 1, app: "vocab", kind: "generate", uiLang: state.settings.uiLang, created: new Date().toISOString(),
       answer: "json-object: {\"lines\": [\"…\"]}", req: keep, batches }
   };
@@ -403,7 +404,7 @@ function queueNormItems(res, ids) {
 // Demande de génération enregistrée → demande utilisable (liste supprimée entre-temps : recréée sous le même nom).
 function queueGenReq(saved) {
   if (!saved || !saved.lg || !LANGUAGES[saved.lang]) return null;
-  const req = Object.assign({}, saved, { verbs: arr(saved.verbs), tenses: arr(saved.tenses), persons: arr(saved.persons) });
+  const req = Object.assign({}, saved, { verbs: arr(saved.verbs), tenses: arr(saved.tenses), persons: arr(saved.persons), words: arr(saved.words), near: arr(saved.near) });   // étape 76 : words, near
   // Langues affichées au moment de la demande (format de la réponse), sinon celles du profil (étape 35).
   const sup = cleanSupport(saved.lg.support, saved.lg.target);
   req.lg = Array.isArray(saved.lg.support) ? { target: saved.lg.target, support: sup } : langsFor(saved.lg.target);
@@ -416,6 +417,7 @@ function queueApply(resp) {
   const reqs = new Map(arr(resp.requests).map(r => [r.id, r]));
   const byId = new Map(state.cards.map(c => [c.id, c]));
   const genReqs = new Map();      // une nouvelle liste recréée une seule fois par demande
+  const madeFor = new Map();      // étape 77 : liste d'origine absente → UNE seule liste recréée pour toutes les demandes qui la visaient
   const out = { added: 0, cards: 0, bad: 0, stories: 0, sentences: 0 };
   const got = {};                 // demande → propositions ajoutées dans « À valider » (compteur « reçues »)
   const done = {};                // étape 73 : cases écrites directement (comptées reçues ET acceptées)
@@ -453,11 +455,17 @@ function queueApply(resp) {
       }
       if (r.kind === "generate") {
         let req = genReqs.get(r.id);
-        if (!req) { req = queueGenReq(pl.req); if (!req) { out.bad++; return; } genReqs.set(r.id, req); }
+        const orig = pl.req && pl.req.listId && pl.req.listId !== "__new__" ? String(pl.req.listId) : "";
+        if (!req) {
+          req = queueGenReq(pl.req); if (!req) { out.bad++; return; }
+          if (orig && req.listId === "__new__" && madeFor.has(orig)) req.createdId = madeFor.get(orig);
+          genReqs.set(r.id, req);
+        }
         const res = p.result;
         const lines = Array.isArray(res) ? res : res && Array.isArray(res.lines) ? res.lines : [];
         const pr = parseGenReply(lines.map(String).join("\n"), req);
         const a = addGenProposals(pr.drafts, req);
+        if (orig && req.createdId) madeFor.set(orig, req.createdId);
         out.added += a.added; out.cards += a.cards;
         return;
       }

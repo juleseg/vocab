@@ -144,6 +144,7 @@ function adminImport(a) {
   if (a.user_id === auth.sbUid) { openImport(); return; }
   openImport({
     id: a.identifiant,
+    read: () => admRead(a),   // étape 77 : listes et cartes avant / après, copie de sécurité de ce qui est remplacé
     apply: async data => { await admWrite(a, data); Activity.log("admin_import", { target: a.identifiant, cards: arr(data && data.cards).length }); loadAdmin(); }
   });
 }

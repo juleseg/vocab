@@ -31,6 +31,9 @@
 // Conflits : localStorage "vocabfr.synced:<id>" = updatedAt des données en ligne à la dernière synchro réussie.
 // Avant chaque envoi, l'index en ligne est relu : s'il a changé depuis (autre appareil), on demande quelles données garder.
 // Envoi raté : données gardées sur l'appareil, nouvel essai automatique (CONFIG.RETRY_MS, et au retour de la connexion).
+// Étape 77 : garde-fou avant chaque écriture (js/garde-fou.js, Guard) : l'index en ligne est TOUJOURS relu ; si le serveur
+// a changé depuis la « base » (dernier état connu de l'appareil et du serveur), ses listes et langues sont relues aussi, et
+// l'envoi est refusé s'il ferait disparaître une liste, une langue ou beaucoup de cartes que cet appareil n'a pas supprimées.
 // Ancien format (un seul bloc) : localStorage "vocabfr.user:<id>" + document "user:<id>". Migré automatiquement,
 // après un export JSON de sécurité. Le document cloud ancien n'est jamais effacé ; la clé locale ancienne
 // est retirée seulement après relecture réussie du nouveau format.
@@ -72,6 +75,11 @@ function supabaseBackend(client, uid, prefix) {
     },
     async del(key) {
       ok(await withTimeout(client.from("user_data").delete().eq("user_id", uid).eq("key", k(key)), T));
+    },
+    // Étape 77 : session bien ouverte pour CE compte (une session absente ou expirée peut renvoyer « aucune ligne » sans erreur).
+    async sessionOk() {
+      const r = ok(await withTimeout(client.auth.getSession(), T));
+      return !!(r && r.session && r.session.user && r.session.user.id === uid);
     }
   };
 }
@@ -93,6 +101,7 @@ const Storage = (() => {
   const beforeSaveFns = [];    // étape 30 : modifications des listes communes repérées avant chaque sauvegarde (étape 49 : + images)
   let lastErr = "";            // étape 33b : dernière erreur de synchro (message court, affiché en touchant l'indicateur)
   let paused = false;          // étape 48 : mise à jour nécessaire (js/release.js) → aucun envoi, données gardées sur l'appareil
+  let guardOpen = false;       // étape 77 : envoi refusé par le garde-fou, fenêtre ouverte → aucun envoi jusqu'au choix
   const listeners = [];
 
   function setMode(m) {
@@ -145,6 +154,7 @@ const Storage = (() => {
     const { pieces, index } = split(data), known = remoteSaved;
     remoteSaved = new Map(Array.from(pieces).filter(([k]) => known.has(k))); remoteSaved.set(pre() + "index", index);
     setSynced(data.updatedAt);
+    if (typeof Guard !== "undefined") Guard.setBase(data);   // étape 77 : état connu de l'appareil ET du serveur
   }
   // « Garder les données de cet appareil » : tout renvoyer et supprimer les morceaux en ligne en trop.
   function forceFullPush(remoteKeys, remoteUpdatedAt) {
@@ -155,6 +165,8 @@ const Storage = (() => {
   function onConflict(fn) { onConflictFn = fn; }
   function onRetryInit(fn) { onRetryInitFn = fn; }
   function setConflictOpen(v) { conflictOpen = !!v; }
+  // Étape 77 : fin du choix du garde-fou (version en ligne reprise, ou « Garder cet appareil ») : les envois reprennent.
+  function guardReset() { guardOpen = false; }
   // Nouvel essai automatique : relecture en ligne si elle a échoué, sinon nouvel envoi.
   function scheduleRetry() {
     clearTimeout(retryTimer);
@@ -166,6 +178,8 @@ const Storage = (() => {
     if (!remoteOk) { if (onRetryInitFn) { try { onRetryInitFn(); } catch (e) {} } }
     else if (lastData) flush();
   }
+  // Étape 77 : bouton « Réessayer » de l'écran de première connexion.
+  function retryInit() { if (!remoteOk) retryNow(); }
   try { window.addEventListener("online", retryNow); window.addEventListener("offline", () => { if (remote) setMode("offline"); }); } catch (e) {}
 
   function lsGet(key) { try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
@@ -366,14 +380,16 @@ const Storage = (() => {
   // sbUid : identifiant Supabase (auth.uid()) du compte, en mode Supabase.
   function setUser(id, sbUid) {
     clearTimeout(timer); timer = null; lastData = null; held = false;
-    clearTimeout(retryTimer); retryTimer = null; failWarned = false; conflictOpen = false; remoteOk = false; lastErr = "";
+    clearTimeout(retryTimer); retryTimer = null; failWarned = false; conflictOpen = false; remoteOk = false; lastErr = ""; guardOpen = false;
     localSaved = new Map(); remoteSaved = new Map(); localFullWarned = false;
     userId = id || null;
     if (!userId) remote = null;
     else if (sb) remote = sbUid ? supabaseBackend(sb, sbUid, "user:" + userId + ":") : null;
     else remote = backend || null;
     try { if (typeof Release !== "undefined") Release.userChanged(); } catch (e) {}   // étape 48
+    try { if (typeof Guard !== "undefined") Guard.userChanged(); } catch (e) {}       // étape 77
   }
+  function hasRemote() { return !!remote; }   // étape 77 : compte avec des données en ligne possibles (Supabase ou cloud)
   function getUser() { return userId; }
   // Pendant l'ouverture du compte : les sauvegardes restent en mémoire (pas d'écriture avant la migration).
   function hold() { held = true; }
@@ -443,28 +459,43 @@ const Storage = (() => {
     return true;
   }
 
-  // Lecture cloud. Renvoie { data, old, keys } (données du compte), undefined (cloud dispo mais vide), null (cloud indisponible).
-  // En cas d'échec : pas d'envoi (on n'a pas pu comparer), nouvel essai automatique.
+  // Lecture de toutes les lignes du compte (Supabase : une requête ; cloud : l'index puis ses morceaux, 8 à la fois).
+  // Renvoie { got: Map(clé → texte JSON), idx: index lu ou null }. Lève une erreur en cas d'échec.
+  async function fetchAll() {
+    const id = userId, P = pre();
+    let got = null, idxRaw;
+    if (remote.getAll) { got = await remote.getAll(); idxRaw = got.get(P + "index"); }
+    else idxRaw = await remote.get(P + "index");
+    if (userId !== id) return { got: null, idx: null, stale: true };
+    const idx = idxRaw ? JSON.parse(idxRaw) : null;
+    if (idx && !got) {
+      const keys = arr(idx.keys);
+      got = new Map([[P + "index", idxRaw]]);
+      for (let i = 0; i < keys.length; i += 8) {           // 8 lectures à la fois
+        const part = keys.slice(i, i + 8);
+        const vals = await Promise.all(part.map(k => remote.get(k)));
+        part.forEach((k, j) => { if (vals[j] !== undefined) got.set(k, vals[j]); });
+      }
+    }
+    return { got: got || new Map(), idx, stale: userId !== id };
+  }
+  // Étape 77 : morceaux en ligne SANS index (premier envoi coupé avant l'index, écriture d'une autre version…) : le compte
+  // n'est pas vide. On rassemble tout ce qui existe (updatedAt 0 : jamais « plus récent » que l'appareil).
+  function assembleNoIndex(got) {
+    const keys = Array.from(got.keys()).filter(k => k !== pre() + "index");
+    return assemble({ v: 2, updatedAt: 0, keys }, k => got.has(k) ? JSON.parse(got.get(k)) : undefined).data;
+  }
+
+  // Lecture cloud. Renvoie { data, old, keys } (données du compte), undefined (cloud dispo mais VRAIMENT vide), null (cloud
+  // indisponible, données incomplètes ou trop récentes). En cas d'échec : pas d'envoi (on n'a pas pu comparer), nouvel essai automatique.
   async function initRemote() {
     if (!remote) return null;
     const id = userId, P = pre();
     try {
-      let got = null, idxRaw;
-      if (remote.getAll) { got = await remote.getAll(); idxRaw = got.get(P + "index"); }
-      else idxRaw = await remote.get(P + "index");
-      if (userId !== id) return null;
-      if (idxRaw) {
-        const idx = JSON.parse(idxRaw);
+      const { got, idx, stale } = await fetchAll();
+      if (stale || userId !== id) return null;
+      if (idx) {
         const keys = arr(idx.keys);
-        if (!got) {
-          got = new Map([[P + "index", idxRaw]]);
-          for (let i = 0; i < keys.length; i += 8) {           // 8 lectures à la fois
-            const part = keys.slice(i, i + 8);
-            const vals = await Promise.all(part.map(k => remote.get(k)));
-            part.forEach((k, j) => { if (vals[j] !== undefined) got.set(k, vals[j]); });
-          }
-        }
-        if (userId !== id) return null;
         const { data, missing, lost } = assemble(idx, k => got.has(k) ? JSON.parse(got.get(k)) : undefined);
         // Étape 48 : données en ligne écrites par une version plus récente de l'appli (format > DATA_VERSION) : on ne les
         // reprend pas et on n'écrit rien (blocage « Mise à jour nécessaire », js/release.js). Données de l'appareil gardées.
@@ -476,9 +507,20 @@ const Storage = (() => {
         setMode("cloud");
         return { data, old: false, keys: Array.from(got.keys()) };
       }
+      if (got.size) {                                          // étape 77 : des lignes, mais pas d'index
+        const data = assembleNoIndex(got);
+        if (tooNew(data.version)) { remoteOk = false; setMode("paused"); return null; }
+        remoteSaved = new Map(Array.from(got.keys(), k => [k, null]));   // tout est renvoyé, index compris
+        remoteOk = true;
+        setMode("cloud");
+        return { data, old: false, keys: Array.from(got.keys()), partial: true };
+      }
       const old = remote.getAll ? undefined : await remoteGet(oldKey(id));
       if (userId !== id) return null;
-      remoteSaved = got ? new Map(Array.from(got.keys(), k => [k, null])) : new Map();
+      // Étape 77 : « aucune ligne » n'est cru que si la session ouverte est bien celle de ce compte (sinon : lecture ratée).
+      if (!looksLikeAppData(old) && remote.sessionOk && !(await remote.sessionOk())) throw new Error("session");
+      if (userId !== id) return null;
+      remoteSaved = new Map();
       remoteOk = true;
       setMode("cloud");
       return looksLikeAppData(old) ? { data: old, old: true, keys: [] } : undefined;
@@ -487,14 +529,35 @@ const Storage = (() => {
       return null;
     }
   }
+  // Étape 77 : lecture complète SANS rien changer à la synchro (copie de la version en ligne avant « Garder cet appareil »).
+  // Renvoie { data (ou null si rien), keys, updatedAt } ou null en cas d'échec.
+  async function peekRemote() {
+    if (!remote) return null;
+    const id = userId;
+    try {
+      const { got, idx, stale } = await fetchAll();
+      if (stale || userId !== id) return null;
+      const keys = Array.from(got.keys());
+      if (!idx) return { data: keys.length ? assembleNoIndex(got) : null, keys, updatedAt: 0 };
+      const { data, missing, lost } = assemble(idx, k => got.has(k) ? JSON.parse(got.get(k)) : undefined);
+      if (missing) throw new Error("incomplete (" + lost.slice(0, 3).join(", ") + ")");
+      return { data, keys, updatedAt: num(idx.updatedAt, 0) };
+    } catch (e) {
+      if (userId === id) setErr("lecture", e);
+      return null;
+    }
+  }
 
   // Envoi cloud des morceaux modifiés, puis de l'index, puis suppression des morceaux disparus. Renvoie true si tout est à jour.
   // Avant d'écrire : relecture de l'index en ligne ; s'il a changé depuis la dernière synchro → conflit (on n'écrit rien).
   async function doFlush() {
     if (paused && remote) { if (mode !== "paused") setMode("paused"); return false; }   // étape 48 : mise à jour nécessaire
-    if (!remote || !remoteOk || !lastData || !userId || conflictOpen) return !remote;
+    if (!remote || !remoteOk || !lastData || !userId || conflictOpen || guardOpen) return !remote;
+    if (typeof Guard !== "undefined" && Guard.isOpen()) return false;   // étape 77 : choix du garde-fou en cours
     const id = userId, P = pre();
     const { pieces, index } = split(lastData);
+    const at0 = lastData.updatedAt;                         // updatedAt écrit dans cet index
+    const sum0 = typeof Guard !== "undefined" ? Guard.summary(lastData) : null;   // étape 77 : ce qui est envoyé
     const todo = [];
     pieces.forEach((json, k) => { if (remoteSaved.get(k) !== json) todo.push([k, json]); });
     const idxChanged = remoteSaved.get(P + "index") !== index;
@@ -504,10 +567,12 @@ const Storage = (() => {
     try {
       setMode("syncing");
       const S = getSynced();
+      // Étape 77 : l'index en ligne est toujours relu (avant : seulement quand une synchro avait déjà réussi sur l'appareil).
+      const rIdx = await remote.get(P + "index");
+      if (userId !== id) return false;
+      const rI = rIdx ? JSON.parse(rIdx) : null;
+      const r = rI ? num(rI.updatedAt, 0) : 0;
       if (S !== null) {
-        const rIdx = await remote.get(P + "index");
-        if (userId !== id) return false;
-        const r = rIdx ? num(JSON.parse(rIdx).updatedAt, 0) : 0;
         if (r > S && r !== lastData.updatedAt) {            // modifié ailleurs depuis la dernière synchro
           // Étape 48 : écrit par une version plus récente (format des données) → blocage, jamais « garder cet appareil ».
           try {
@@ -522,6 +587,27 @@ const Storage = (() => {
           return false;
         }
       }
+      // Étape 77 : garde-fou. Serveur changé depuis la base (ou sans index : premier envoi) → ses listes, dossiers et réglages
+      // sont relus ; l'envoi est refusé s'il ferait disparaître une liste, une langue, ou beaucoup de cartes.
+      if (typeof Guard !== "undefined" && !Guard.allowed()) {
+        const b = Guard.base();
+        let rem = null;
+        if (!rI || !b || b.at !== r) {
+          const get = async k => { const v = await remote.get(P + k); return v === undefined ? undefined : JSON.parse(v); };
+          const [rl, rs, rf] = await Promise.all([get("lists"), get("settings"), get("folders")]);
+          if (userId !== id) return false;
+          if (rl !== undefined || rI) rem = Guard.summary({ lists: arr(rl), folders: arr(rf), settings: rs && rs.settings, cards: [] });
+        }
+        const pb = Guard.check(lastData, rem);
+        if (pb) {
+          guardOpen = true;
+          setErr("envoi", "guard (" + [pb.lists.length + " lists", pb.langs.join("/"), pb.drop ? pb.drop.was + ">" + pb.drop.now : ""].filter(Boolean).join(", ") + ")");
+          setMode("error");
+          const data = lastData;
+          setTimeout(() => { try { Guard.refuse(pb, data); } catch (e) {} }, 0);
+          return false;
+        }
+      }
       for (const [k, json] of todo) {                         // un morceau à la fois
         await remote.set(k, json, lastData.updatedAt);
         if (userId !== id) return false;
@@ -531,6 +617,7 @@ const Storage = (() => {
       remoteSaved.set(P + "index", index);
       setSynced(lastData.updatedAt);
       for (const k of gone) { await remote.del(k); remoteSaved.delete(k); }
+      if (typeof Guard !== "undefined") Guard.written(sum0, at0);   // étape 77 : nouvelle base = ce qui vient d'être écrit
       failWarned = false;
       setMode("cloud");
       return true;
@@ -603,7 +690,8 @@ const Storage = (() => {
     loadAccounts, saveAccounts, readLegacy, readLegacyLocal, getSession, setSession,
     setUser, getUser, hold, release, readLocal, writeLocal, dropOldLocal, initRemote, save, saveNow, flushNow, flushWait,
     getSynced, markSynced, forceFullPush, onConflict, onRetryInit, onSyncError, setConflictOpen, packRows, unpackRows, onBeforeSave, getLastError,
-    pause, isPaused   // étape 48
+    pause, isPaused,   // étape 48
+    hasRemote, retryInit, peekRemote, guardReset   // étape 77
   };
 })();
 

@@ -93,3 +93,30 @@ html[lang="ko"] .rc-side-t,html[lang="ko"] .rc-side-d,html[lang="ko"] .rc-mode-t
 .hs-more-btn{display:block;padding:8px 2px}
 .hd-filt3{flex-wrap:wrap}
 .hd-filt3 button{flex:1 1 auto;padding:10px 12px}
+
+/* === GÉNÉRER : MOTS DÉJÀ CONNUS (ÉTAPE 76) === */
+.gnd-sum { font-weight: 600; }
+.gnd-list { margin: 6px 0 10px; padding-left: 18px; max-height: 40vh; overflow-y: auto; overflow-wrap: anywhere; }
+.gnd-list li { margin: 2px 0; }
+.gnd p { overflow-wrap: anywhere; }
+
+/* === GARDE-FOU DES DONNÉES (ÉTAPE 77) === */
+.gf-wait { position: fixed; inset: 0; z-index: 45; background: var(--bg); display: flex; align-items: center; justify-content: center;
+  padding: 24px calc(16px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left)); }
+.gf-wait-box { max-width: 420px; width: 100%; text-align: center; }
+.gf-wait-t { font-size: 18px; font-weight: 600; margin: 12px 0 6px; overflow-wrap: anywhere; }
+.gf-wait .btns { margin-top: 16px; }
+.gf-spin { width: 34px; height: 34px; margin: 0 auto; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--accent);
+  animation: gf-spin 0.9s linear infinite; }
+@keyframes gf-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .gf-spin { animation-duration: 3s; } }
+.gf-main { font-weight: 600; }
+.gf-pb p, .gf-imp p { margin: 4px 0; overflow-wrap: anywhere; }
+.gf-pb { margin: 8px 0; padding: 8px 12px; border-radius: 10px; background: var(--surface2); }
+.gf-imp { margin: 8px 0; padding: 8px 12px; border-radius: 10px; background: var(--surface2); font-weight: 600; }
+.gf-warn { color: var(--bad); overflow-wrap: anywhere; }
+.gf-imp-ok { margin-top: 10px; }
+.gf-copies { max-height: 60vh; overflow-y: auto; }
+.gf-copy { padding: 10px 0; border-top: 1px solid var(--border); }
+.gf-copy-t { overflow-wrap: anywhere; }
+.gf-copy .btns { margin-top: 8px; }

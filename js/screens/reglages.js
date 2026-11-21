@@ -90,6 +90,8 @@ function initSettings() {
   $("#btnAboutSet").addEventListener("click", () => { location.hash = "#" + HASH_OF.about; });   // À propos (étape 39)
   $("#btnImport").addEventListener("click", openImport);
   $("#importFile").addEventListener("change", onImportFile);
+  const gfc = $("#btnGfCopies");   // étape 77 : copies de sécurité de cet appareil (js/garde-fou.js)
+  if (gfc) gfc.addEventListener("click", () => { Guard.openCopies(); });
 }
 
 // === ÉCRAN : RYTHME DE RÉVISION (ÉTAPE 47, COMPLÉMENT) ===

@@ -9,6 +9,22 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "77", date: "2026-11-21",
+    points: {
+      ko: ["새 기기에서 로그인할 때 데이터를 더 안전하게 지켜요."],
+      fr: ["Plus de sécurité pour tes données quand tu te connectes sur un nouvel appareil."],
+      en: ["Your data is safer when you sign in on a new device."]
+    }
+  },
+  {
+    version: "76", date: "2026-11-21",
+    points: {
+      ko: ["Claude가 이미 가진 단어를 다시 만들지 않아요: 그 단어들은 바로 목록에 복사돼요."],
+      fr: ["Claude ne recrée plus les mots que tu as déjà : ils sont copiés tout de suite dans ta liste."],
+      en: ["Claude no longer recreates words you already have: they're copied straight into your list."]
+    }
+  },
+  {
     version: "75", date: "2026-11-21",
     points: {
       ko: [

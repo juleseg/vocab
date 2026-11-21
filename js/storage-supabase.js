@@ -231,16 +231,53 @@ function importFromText(text) {
   try { raw = JSON.parse(text); } catch (e) { toast(t("import.error")); return false; }
   if (!looksLikeAppData(raw)) { toast(t("import.error")); return false; }
   const data = normalizeData(raw);
-  const tg = importTarget;
-  const p = document.createElement("p");
-  p.textContent = tg ? t("admin.importConfirm", { id: tg.id, lists: data.lists.length, cards: data.cards.length })
-                     : t("import.confirm", { lists: data.lists.length, cards: data.cards.length });
-  openModal(t("import.title"), p, [
+  importConfirm(data, importTarget);
+  return true;
+}
+// Étape 77 : l'import remplace TOUT le compte → confirmation forte (listes et cartes avant / après, case « J'ai compris »),
+// puis copie de sécurité OBLIGATOIRE de ce qui est remplacé (copie locale, sinon fichier téléchargé) ; sans copie : rien n'est importé.
+// tg (administration) : { id, read() → données actuelles du compte, apply(data) }.
+async function importConfirm(data, tg) {
+  let cur = state;
+  if (tg) {
+    try { cur = typeof tg.read === "function" ? await tg.read() : null; }
+    catch (e) { toast(t("gf.imp.readErr")); return; }
+  }
+  const count = d => ({ lists: arr(d && d.lists).length, cards: arr(d && d.cards).length });
+  const wrap = el("div");
+  if (tg) wrap.appendChild(el("p", null, t("gf.imp.who", { id: tg.id })));
+  wrap.appendChild(el("p", "gf-warn", t("gf.imp.warn")));
+  const tbl = el("div", "gf-imp");
+  tbl.appendChild(el("p", null, t("gf.imp.before", count(cur))));
+  tbl.appendChild(el("p", null, t("gf.imp.after", count(data))));
+  wrap.appendChild(tbl);
+  wrap.appendChild(el("p", "muted", t("gf.imp.copy")));
+  const lab = el("label", "check gf-imp-ok"), cb = el("input");
+  cb.type = "checkbox";
+  lab.append(cb, el("span", null, t("gf.imp.check")));
+  wrap.appendChild(lab);
+  let busy = false, close = null;
+  const who = Storage.getUser();
+  close = openModal(t("import.title"), wrap, [
     { label: t("cancel") },
-    { label: t("confirm"), kind: "primary", onClick: () => {
-      if (tg) { tg.apply(data).then(() => toast(t("admin.importDone", { id: tg.id })), () => toast(t("admin.err"))); return; }
-      state = data; Shared.attach(state); applyTheme(); commit(); toast(t("import.done"));
+    { label: t("gf.imp.go"), kind: "danger", onClick: () => {
+      if (!cb.checked || busy) return false;
+      busy = true;
+      (async () => {
+        let kept = !Guard.hasContent(cur) || await Guard.backup("import", cur, who, tg ? tg.id : "");
+        if (!kept) {
+          try { kept = (await exportData(cur, "copie-avant-import-" + (tg ? tg.id : who) + "-" + todayStr() + ".json")) === "saved"; } catch (e) { kept = false; }
+        }
+        if (!kept || Storage.getUser() !== who) { busy = false; toast(t("gf.copyErr")); return; }
+        close();
+        if (tg) { tg.apply(data).then(() => toast(t("admin.importDone", { id: tg.id })), () => toast(t("admin.err"))); return; }
+        Guard.allow("import");   // le garde-fou laisse passer cet envoi (choix explicite, copie faite)
+        Activity.log("import_json", { local: arr(cur && cur.cards).length, cards: data.cards.length });
+        state = data; Shared.attach(state); applyTheme(); commit(); toast(t("import.done"));
+      })();
+      return false;
     } }
   ]);
-  return true;
+  const go = Array.from(document.querySelectorAll(".modal-bg .btn.danger")).pop();
+  if (go) { go.disabled = true; cb.addEventListener("change", () => { go.disabled = !cb.checked; }); }
 }

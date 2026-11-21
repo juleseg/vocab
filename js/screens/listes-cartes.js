@@ -448,6 +448,6 @@ function confirmDeleteCard(id) {
   if (!c) return;
   openModal(t("card.delete"), el("p", null, t("card.deleteConfirm", { fr: cardTitle(c) })), [
     { label: t("cancel") },
-    { label: t("delete"), kind: "danger", onClick: () => { state.cards = state.cards.filter(x => x.id !== id); commit(); } }
+    { label: t("delete"), kind: "danger", onClick: () => { state.cards = state.cards.filter(x => x.id !== id); if (typeof Guard !== "undefined") Guard.noteDeleted(1); commit(); } }   // étape 77 : suppression voulue
   ]);
 }

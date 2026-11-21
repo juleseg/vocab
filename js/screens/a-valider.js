@@ -506,7 +506,7 @@ function pvAcceptPart(ids, edits) {
     done.add(p.id); ok++;
     QStats.decide(p, "accepted");                        // suivi admin (proposition venue de la file d'attente)
   });
-  if (removed.size) state.cards = state.cards.filter(c => !removed.has(c.id));
+  if (removed.size) { state.cards = state.cards.filter(c => !removed.has(c.id)); if (typeof Guard !== "undefined") Guard.noteDeleted(removed.size); }   // étape 77 : suppression voulue
   const cardIds = new Set(state.cards.map(c => c.id));
   const listIds = new Set(state.lists.map(l => l.id));
   state.proposals = state.proposals.filter(p => !done.has(p.id) && (p.field === "new" ? listIds.has(p.listId) : cardIds.has(p.cardId)));

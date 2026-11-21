@@ -16,6 +16,8 @@
 //   trou;phrase avec ___;réponse;indice;explication;traduction;titre de la règle
 //   erreur;phrase fautive;phrase corrigée;explication;titre de la règle
 //   regle;titre;texte;exemple1|exemple2|…;traduction
+// Étape 76 : vocabulaire avec une liste de mots (mots déjà connus copiés avant l'envoi) et cartes proches pour les autres
+// demandes (« reprendre;nX ») : js/generer-connus.js (GenKnown).
 // Rien n'est écrit dans les listes : chaque carte (ou tableau de conjugaison) devient une proposition
 // « Nouvelle carte » dans « À valider » : { id, cardId: "", listId, field: "new", type: "newcard", cards: [{ type, fields, ruleRef }], key, reason, createdAt }.
 const GEN_TYPES = ["vocab", "conj", "cloze", "fix", "rule"];
@@ -26,7 +28,7 @@ let gv = null;               // réglages de la fenêtre, gardés tant que l'app
 function genDefaults(listId) {
   const l = listId ? getList(listId) : null;
   return { listId: l ? l.id : (state.lists[0] ? orderedLists()[0].id : "__new__"), newName: "", folder: l ? (l.folderId || "") : "",
-    newTarget: accountLangs().target, type: "conj", verbs: "", tenses: [], persons: [], topic: "", count: 10, withRule: false };
+    newTarget: accountLangs().target, type: "conj", verbs: "", words: "", tenses: [], persons: [], topic: "", count: 10, withRule: false };
 }
 // Langues de la destination (liste existante, ou nouvelle liste : langue choisie + langues d'appui par défaut).
 // Étape 37 : o.lang = autre langue étudiée de la liste (cartes conj / trou / erreur / règle dans cette langue).
@@ -138,6 +140,14 @@ function openGenerate(listId, lang) {
       wrap.appendChild(formField(t("review.persons"), pw, false, t("gen.personsHint")));
     }
   } else {
+    if (o.type === "vocab") {                                             // étape 76 : liste de mots (js/generer-connus.js)
+      const wd = el("textarea", "input gen-ta");
+      wd.value = o.words || "";
+      wd.lang = L;
+      wd.placeholder = t("gnd.wordsPh");
+      wd.addEventListener("input", () => { o.words = wd.value; });
+      wrap.appendChild(formField(t("gnd.words"), wd, false, t("gnd.wordsHint")));
+    }
     const tp = textInput(o.topic, t("gen.topicPh." + o.type), L);
     tp.addEventListener("input", () => { o.topic = tp.value; });
     wrap.appendChild(formField(t("gen.topic"), tp, o.type !== "vocab"));
@@ -161,13 +171,15 @@ function openGenerate(listId, lang) {
     const req = genRequest(o);
     if (req.type === "conj" && !req.verbs.length) { toast(t("gen.needVerbs")); return null; }
     if (req.type !== "conj" && req.type !== "vocab" && !req.topic) { toast(t("gen.needTopic")); return null; }
+    if (req.words.length > GND_WORDS_MAX) { toast(t("gnd.tooMany", { n: GND_WORDS_MAX })); return null; }
     return req;
   };
   const acts = [];
-  if (AI.isOn()) acts.push({ label: t("gen.run"), kind: "primary", onClick: () => { const r = check(); if (!r) return false; runGenerate(r); } });
+  // Étape 76 : mots déjà connus copiés, cartes proches jointes (GenKnown.before), puis l'envoi habituel.
+  if (AI.isOn()) acts.push({ label: t("gen.run"), kind: "primary", onClick: () => { const r = check(); if (!r) return false; GenKnown.before(r, runGenerate); } });
   const useQueue = !AI.isOn() && Queue.usable();
-  if (useQueue) acts.push({ label: t("queue.ask"), kind: "primary", onClick: () => { const r = check(); if (!r) return false; queueSubmitGenerate(r); } });
-  acts.push({ label: t("gen.prepare"), kind: AI.isOn() || useQueue ? "" : "primary", onClick: () => { const r = check(); if (!r) return false; openGenPrepare(r); } });
+  if (useQueue) acts.push({ label: t("queue.ask"), kind: "primary", onClick: () => { const r = check(); if (!r) return false; GenKnown.before(r, queueSubmitGenerate); } });
+  acts.push({ label: t("gen.prepare"), kind: AI.isOn() || useQueue ? "" : "primary", onClick: () => { const r = check(); if (!r) return false; GenKnown.before(r, openGenPrepare); } });
   acts.push({ label: t("cancel") });
   close = openModal(t("gen.title"), wrap, acts);
 }
@@ -182,6 +194,8 @@ function genRequest(o) {
   const lg = genLangs(o);
   const req = { listId: o.listId, newName: o.newName.trim(), folder: getFolder(o.folder) ? o.folder : null, lg, lang: lg.target, type: o.type,
     verbs: genVerbs(o), topic: String(o.topic || "").trim(), count: clampInt(o.count, 1, GEN_MAX, 10), withRule: !!o.withRule };
+  req.words = req.type === "vocab" ? gndWords(o.words) : [];            // étape 76 : liste de mots (vocabulaire)
+  if (req.words.length) req.count = req.words.length;
   req.tenses = req.type === "conj" ? genTenses(o, req.lang) : [];
   req.persons = o.persons.slice();
   return req;
@@ -200,6 +214,7 @@ function genListId(req) {
 }
 function genLabel(req) {
   if (req.type === "conj") return t("type.conj") + " · " + req.tenses.map(id => tenseName(req.lang, id)).join(", ");
+  if (req.type === "vocab" && arr(req.words).length) return t("type.vocab") + " · " + req.words.slice(0, 4).join(", ") + (req.words.length > 4 ? "…" : "");
   return t("type." + req.type) + (req.topic ? " · " + req.topic : "");
 }
 
@@ -241,7 +256,10 @@ function genPrompt(req, verbs) {
     body.push("- " + trNote + " ; note = très courte (ex. « auxiliaire être », « irrégulier ») ou vide.");
     body.push("Exemple : " + genConjExample(L, req.tenses[0]));
   } else if (req.type === "vocab") {
-    body.push("Crée " + req.count + " cartes de vocabulaire" + (req.topic ? " sur le thème : " + req.topic : "") + ".");
+    if (Array.isArray(verbs) && verbs.length) {                        // étape 76 : liste de mots (les mots déjà connus ont été copiés)
+      body.push("Crée une carte de vocabulaire pour chacun de ces mots en " + Ln + ", dans cet ordre (garde chaque mot tel quel, corrige seulement une faute évidente) : " + verbs.join(" | ") + ".");
+      if (req.topic) body.push("Contexte donné par l'apprenant : " + req.topic + ".");
+    } else body.push("Crée " + req.count + " cartes de vocabulaire" + (req.topic ? " sur le thème : " + req.topic : "") + ".");
     const sn = req.lg.support.map(c => LANGUAGES[c].names.fr.toLowerCase());
     body.push("Format : vocab;mot en " + Ln + ";" + sn.map(x => "traduction en " + x).join(";") + (sn.length ? ";" : "") + "exemple;" + sn.map(x => "traduction de l'exemple en " + x).join(";") + (sn.length ? ";" : "") + "nature");
     body.push("- exemple = une phrase courte en " + Ln + " qui utilise le mot" + (sn.length ? ", suivie de sa traduction dans chaque langue (" + sn.join(", ") + ")" : "") + " ; nature = un code : nm, nf, nmf, nmpl, nfpl, n (nom sans genre), v, vpr, adj, adv, prep, conj, pron, interj, expr.");
@@ -266,6 +284,7 @@ function genPrompt(req, verbs) {
   }
   const ex = genExisting(req);
   if (ex.length) body.push("Ne refais pas ces cartes déjà présentes : " + ex.join(" | "));
+  body.push(...GenKnown.nearLines(req));                                // étape 76 : cartes proches, « reprendre;nX »
   return head.concat(body, tail);
 }
 function genConjExample(lng, tenseId) {
@@ -291,6 +310,8 @@ function parseGenReply(text, req) {
     const line = raw.trim().replace(/^[-*•]\s+/, "").replace(/^\d+[.)]\s+/, "");
     if (!line || line.startsWith("```") || !line.includes(";")) return;
     const cols = line.split(";").map(x => x.trim());
+    const k0 = normText(cols[0]).replace(/\s+/g, "");
+    if (k0 === "reprendre" || k0 === "reuse") { out.lines++; out.drafts.push({ type: "reuse", ref: cols[1] || "" }); return; }   // étape 76
     const kind = linePrefix(cols);
     if (!kind) return;                                   // texte d'accompagnement ignoré
     out.lines++;
@@ -329,7 +350,11 @@ function draftGroups(drafts) {
 // Renvoie { added (propositions), cards (cartes), skipped }.
 function addGenProposals(drafts, req) {
   const res = { added: 0, cards: 0, skipped: 0 };
-  if (!drafts.length) return res;
+  // Étape 76 : « reprendre;nX » = carte proche copiée dans la liste (js/generer-connus.js), comptée comme une carte de Claude.
+  const reuse = drafts.filter(d => d.type === "reuse");
+  drafts = drafts.filter(d => d.type !== "reuse");
+  if (reuse.length) { const n = GenKnown.reuse(reuse, req); if (n) { genCreated += n; res.added++; res.cards += n; } }
+  if (!drafts.length) { if (pvNewIds.length) { const ids = pvNewIds; pvNewIds = []; Dict.afterAdd(ids); } return res; }
   const listId = genListId(req);
   const lg = listLangs(listId);
   const have = new Set(cardsOf(listId).map(c => isVocab(c) ? "vocab|" + dupKey(c.terms, lg) : typedKey(c.type, c)));
@@ -364,7 +389,7 @@ let genCreated = 0;   // étape 73 : cartes créées directement par « Génére
 // --- Accès direct (capacité sample) ---
 async function runGenerate(req) {
   if (aiJob) { toast(t("ai.busy")); return; }
-  const parts = req.type === "conj" ? chunks(req.verbs, GEN_VERBS_PER_CALL) : [null];
+  const parts = GenKnown.parts(req);                                    // étape 76 : mots par 30
   const ctrl = new AbortController();
   aiJob = { kind: "generate", ctrl };
   let stopped = false;
@@ -408,7 +433,7 @@ function genDone(tot, req, error) {
 
 // --- Repli : « Préparer pour Claude » ---
 function openGenPrepare(req) {
-  const parts = req.type === "conj" ? chunks(req.verbs, GEN_VERBS_PER_CALL) : [null];
+  const parts = GenKnown.parts(req);                                    // étape 76 : mots par 30
   let idx = 0;
   const wrap = el("div");
   wrap.appendChild(el("p", "muted", t("gen.prepHelp")));
