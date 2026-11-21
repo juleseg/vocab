@@ -254,3 +254,24 @@ html[lang="ko"] .hl-row-t, html[lang="ko"] .hl-row-s, html[lang="ko"] .syn-head-
 .amj-ad-unit { align-self: center; color: var(--muted); font-size: 14px; }
 .amj-ad-used { margin: 10px 0 0; }
 html[lang="ko"] .cln-note, html[lang="ko"] .pvw-list li, html[lang="ko"] .amj-sheet { word-break: keep-all; overflow-wrap: anywhere; }
+
+/* === VERSIONS : APPAREILS RESTÉS SUR UNE VERSION (ÉTAPE 81) === */
+.rvd-vers{display:flex;flex-direction:column;gap:6px}
+.rvd-tip{margin:0 0 2px}
+.rvd-vrow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--surface2);border:0;border-radius:10px;
+  padding:10px 12px;min-height:44px;cursor:pointer;color:inherit;font:inherit}
+.rvd-vrow b{flex:0 0 auto}
+.rvd-vrow span{flex:1 1 auto;min-width:0;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.rvd-vrow .rvd-go{flex:0 0 auto;font-size:20px;line-height:1}
+.rvd-vrow.ok b{color:var(--ok)}
+.rvd-seg{margin:6px 0 10px}
+.rvd-sum{font-weight:600;margin:4px 0 8px}
+.rvd-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+.rvd-q{flex:1 1 100%;min-width:0}
+.rvd-sort{flex:1 1 160px;min-width:0}
+.rvd-tools .dash-csv{flex:0 0 auto}
+.rvd-list{display:flex;flex-direction:column;gap:6px}
+.rvd-dev{background:var(--surface2);border-radius:10px;padding:8px 12px;min-width:0}
+.rvd-acc{font-weight:600;padding:0;min-height:32px;text-align:left;overflow-wrap:anywhere}
+.rvd-line{font-size:13px;overflow-wrap:anywhere}
+.rvd-ro{margin-top:10px}

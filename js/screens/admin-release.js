@@ -17,6 +17,7 @@
 //   admin_settings_set('changelog_count', valeur) (journal admin_settings côté serveur). L'annonce d'une version garde
 //   les points du changelog (rlEntry lit CHANGELOG, pas la liste filtrée). Script de l'étape 50 absent : message.
 // Script SQL absent : « Lancez le script SQL de l'étape 48 ».
+// Étape 81 : « Par version » = lignes à toucher → appareils restés sur cette version (js/screens/admin-version-devices.js, rvd*).
 const rlNews = { loaded: false, missing: false, err: "", value: null, mode: "all", n: 10, busy: false };
 const rls = { started: false, loading: false, err: "", missing: false, data: null, calc: null, busy: false, mand: null, mandTouched: false };
 
@@ -56,6 +57,7 @@ async function rlLoad() {
     rls.data = await aqRpc("admin_release_devices", { p_version: parseInt(APP_VERSION, 10), p_days: 30 });
     rls.missing = false;
   } catch (e) { rls.missing = alIsMissing(e); rls.err = rls.missing ? "" : rlErrText(e); }
+  if (!rls.missing && typeof rvdCounts === "function") await rvdCounts();   // étape 81 : comptes par version
   if (!rls.missing) {
     try { rls.calc = await aqRpc("admin_push_target", { p_filter: {}, p_category: "announcements" }); } catch (e) { rls.calc = null; }
   }
@@ -151,6 +153,7 @@ function rlNewsCard(root) {
 
 function npReleaseTab(root) {
   if (!rls.started) { rlLoad(); }
+  if (typeof rvdView === "function" && rvd.version !== null) { rvdView(root); return; }   // étape 81 : appareils d'une version
   root.appendChild(el("p", "hint", t("rl.tip")));
   if (rls.loading && !rls.data) { root.appendChild(el("div", "empty", t("admin.loading"))); return; }
   if (rls.missing) { root.appendChild(el("div", "card np-msg", t("rl.missing"))); return; }
@@ -173,6 +176,9 @@ function npReleaseTab(root) {
   const bv = arr(d.by_version);
   if (bv.length) {
     c1.appendChild(el("div", "rl-sub", t("rl.byVersion")));
+    // Étape 81 : lignes à toucher (js/screens/admin-version-devices.js) ; script SQL de l'étape 81 absent : puces comme avant.
+    if (typeof rvdVersionList === "function" && !rvd.countsMissing) c1.appendChild(rvdVersionList(bv, num(Number(d.target), me)));
+    else {
     const ul = el("div", "rl-vers-list");
     bv.forEach(x => {
       const v = num(Number(x.version), 0);
@@ -180,6 +186,7 @@ function npReleaseTab(root) {
       ul.appendChild(chip);
     });
     c1.appendChild(ul);
+    }
   }
   if (num(Number(d.older), 0)) c1.appendChild(el("p", "hint", t("rl.older", { n: num(Number(d.older), 0), d: num(Number(d.days), 30) })));
   const la = arr(d.late_accounts), laTotal = num(Number(d.late_accounts_total), la.length);

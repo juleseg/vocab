@@ -9,6 +9,14 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "81", date: "2026-11-21",
+    points: {
+      ko: ["작은 개선과 수정"],
+      fr: ["Petites améliorations et corrections"],
+      en: ["Small improvements and fixes"]
+    }
+  },
+  {
     version: "80", date: "2026-11-21",
     points: {
       ko: ["Claude가 카드를 알아서 채워 줘요. 번역, 품사, 예문이 비어 있으면 따로 요청하지 않아도 돼요.", "Claude가 만든 카드는 다 채워진 채로 목록에 바로 들어가요. 목록에 작은 숫자가 뜨고, 앱에 돌아오면 알려 줘요."],
