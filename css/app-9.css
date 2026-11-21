@@ -275,3 +275,12 @@ html[lang="ko"] .cln-note, html[lang="ko"] .pvw-list li, html[lang="ko"] .amj-sh
 .rvd-acc{font-weight:600;padding:0;min-height:32px;text-align:left;overflow-wrap:anywhere}
 .rvd-line{font-size:13px;overflow-wrap:anywhere}
 .rvd-ro{margin-top:10px}
+
+/* === CONSIGNES DE CONJUGAISON CLAIRES (ÉTAPE 83) === */
+/* Consigne « Conjugue be avec you — présent simple » : texte moyen, verbe et personne en gras et plus grands. */
+.cjq{font-size:clamp(19px,5.6vw,24px);font-weight:500;line-height:1.35;overflow-wrap:anywhere}
+.cjq b{font-weight:800;font-size:1.3em;color:var(--text)}
+.cjq .cjq-v{color:var(--accent)}
+.cjq .cjq-tn{color:var(--muted);font-weight:500}
+.qz-main.cjq{font-size:clamp(20px,6vw,26px)}
+html[lang="ko"] .cjq{word-break:keep-all}

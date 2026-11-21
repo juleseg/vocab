@@ -259,6 +259,8 @@ function genPrompt(req, verbs) {
     body.push("Formats :");
     body.push("conjtab;verbe à l'infinitif;identifiant du temps;forme1|forme2|forme3|…;traduction;note");
     body.push("conj;verbe à l'infinitif;identifiant du temps;identifiant de la personne;forme;traduction;note");
+    // Étape 83 : verbe, personne et temps toujours dans des colonnes séparées ; verbe seul, sans « to » ni complément.
+    body.push("- verbe = UN seul verbe à l'infinitif, sans « to » en anglais (« be », pas « to be »), sans complément (jamais « something », « qqch »), sans pronom ; le temps et la personne vont seulement dans leurs colonnes (identifiants), jamais dans la colonne du verbe.");
     body.push("- forme = la forme conjuguée SANS le pronom sujet (ex. « allons », pas « nous allons ») ; temps composés avec l'auxiliaire (ex. « suis allé ») ; plusieurs formes correctes séparées par « / ».");
     if (personsOf(L, req.tenses[0]).some(p => !p.pronoun)) body.push("- pour une personne sans pronom (niveau de politesse, forme…), la forme complète du verbe.");
     body.push("- " + trNote + " ; note = très courte (ex. « auxiliaire être », « irrégulier ») ou vide.");
@@ -285,6 +287,8 @@ function genPrompt(req, verbs) {
     body.push("Format : trou;phrase avec ___ à la place du trou;réponse;indice;explication;traduction;titre de la règle");
     body.push("- un seul trou « ___ » par phrase ; réponse = le texte exact du trou (plusieurs réponses correctes séparées par « / ») ; indice = très court (ex. « préposition + article »), en " + Ln + " ;");
     body.push("- explication = une phrase courte et simple en " + Ln + " ; traduction = la phrase complète dans les langues d'appui (" + sup + "), séparées par « / ».");
+    // Étape 83 : phrase à trous sur un verbe → verbe à l'infinitif entre parenthèses après le trou, temps dans l'indice.
+    body.push("- si le trou est un verbe à conjuguer : écris le verbe à l'infinitif entre parenthèses juste après le trou (ex. « She ___ (go) to school every day. »), un seul verbe par trou, sans « to » ; réponse = la forme conjuguée seule ; indice = le nom du temps (ex. « présent simple »).");
   } else if (req.type === "fix") {
     body.push("Crée " + req.count + " phrases à corriger en " + Ln + " sur : " + req.topic + ".");
     body.push("Format : erreur;phrase avec UNE erreur typique d'apprenant;phrase corrigée;explication;titre de la règle");

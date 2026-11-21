@@ -198,7 +198,7 @@ function pvRow(p, c) {
   const l = getList(c.listId);
   top.append(el("span", "tag", "▸ " + (l ? l.name : "")), el("span", "pv-type " + p.type, t("pv.type." + p.type)), el("span", "pv-field", pvFieldLabel(p.field)));
   const lg = cardLangs(c);
-  const w = el("div", "pv-fr", targetTerm(c, lg) || "—"); w.lang = lg.target;
+  const w = el("div", "pv-fr", (isVocab(c) ? targetTerm(c, lg) : cardTitle(c)) || "—"); w.lang = isVocab(c) ? lg.target : c.lang;   // étape 83 : titre des cartes hors vocabulaire
   m.append(top, w);
   if (isExTrField(p.field)) { const tx = exText(c, lg.target); if (tx) { const e = el("div", "pv-field", tx); e.lang = lg.target; m.appendChild(e); } }
   if (isExltField(p.field) || isExlField(p.field)) {                    // langue étudiée en plus (étape 37) : mot (et exemple) dans cette langue

@@ -9,6 +9,14 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "83", date: "2026-11-21",
+    points: {
+      ko: ["활용 문제의 안내가 더 분명해졌어요. 어떤 동사를 어떤 인칭과 시제로 바꿔야 하는지 바로 보여요."],
+      fr: ["Les consignes de conjugaison sont plus claires : tu vois tout de suite quel verbe conjuguer, avec quelle personne et à quel temps."],
+      en: ["Conjugation instructions are clearer: you can see right away which verb to conjugate, with which person and in which tense."]
+    }
+  },
+  {
     version: "81", date: "2026-11-21",
     points: {
       ko: ["작은 개선과 수정"],

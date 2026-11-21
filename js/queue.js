@@ -19,6 +19,7 @@
 //   req               // generate : demande figée (genRequest), listId = liste de destination
 //   story             // story (étape 45) : demande d'histoire figée (storyRequest : liste, langue, niveau, longueur, mots)
 //   auto              // complete (étape 80) : 1 = demande déposée toute seule par l'appli (js/auto-maj.js) ; réponse appliquée en silence
+//   cjq               // verify (étape 83) : 1 = correction des consignes de conjugaison floues (js/conjugaison.js) ; réponse → « À valider »
 // }
 // Réponse d'un lot (ligne claude_proposals, colonne result) : la valeur JSON demandée par le prompt du lot
 //   complete : [{ "id": "k0", "<champ>": "valeur", … }]   verify : [{ "id", "field", "value", "reason" }]
@@ -500,6 +501,9 @@ function queueApply(resp) {
           if (typeof AutoMaj !== "undefined") AutoMaj.answered(String(r.id), ids);
           if (batch.some(c => !c) && !out.lost.includes(String(r.id))) out.lost.push(String(r.id));   // cartes pas (encore) sur cet appareil
         }
+      } else if (r.kind === "verify" && pl.cjq && typeof ConjQ !== "undefined") {   // étape 83 : consignes de conjugaison → « À valider »
+        const n = ConjQ.apply(batch, items);
+        out.added += n; out.cards += n;
       } else if (r.kind === "verify") {
         const n = applyAiResult("verify", batch, items);
         out.added += n; out.cards += n;

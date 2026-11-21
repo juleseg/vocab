@@ -116,12 +116,16 @@ function ruleOf(c) {
   return r && cardType(r) === "rule" ? r : null;
 }
 function clozeShow(sentence, fill) { return String(sentence || "").replace(CLOZE_GAP, fill); }
+// Étape 83 (js/conjugaison.js, chargé après) : verbe sans « to » ; phrase à trous avec le verbe entre parenthèses.
+// Sans ce fichier : valeurs de la carte telles quelles.
+function cjqVerb(c) { return typeof ConjQ !== "undefined" ? ConjQ.verbOf(c) : String(c.verb || ""); }
+function cjqCloze(c) { return typeof ConjQ !== "undefined" ? ConjQ.cloze(c) : { q: c.sentence, a: c.sentence, verb: "", fromHint: false }; }
 
 // --- Textes courts (listes, résumé, stats) ---
 function cardTitle(c) {
   switch (cardType(c)) {
-    case "conj": return c.verb + " — " + tenseName(c.lang, c.tense) + " — " + personLabel(c.lang, c.tense, c.person);
-    case "cloze": return clozeShow(c.sentence, "___");
+    case "conj": return cjqVerb(c) + " — " + tenseName(c.lang, c.tense) + " — " + personLabel(c.lang, c.tense, c.person);
+    case "cloze": return clozeShow(cjqCloze(c).q, "___");
     case "fix": return c.wrong;
     case "rule": return c.title;
   }
@@ -130,7 +134,7 @@ function cardTitle(c) {
 function cardSubtitle(c) {
   switch (cardType(c)) {
     case "conj": return [conjFull(c), c.translation].filter(Boolean).join(" · ");
-    case "cloze": return clozeShow(c.sentence, splitAlts(c.answer)[0] || "___");
+    case "cloze": return clozeShow(cjqCloze(c).a, splitAlts(c.answer)[0] || "___");
     case "fix": return c.correct;
     case "rule": return String(c.body || "").split("\n").map(x => x.replace(/\*\*/g, "").replace(/^\s*-\s*/, "")).filter(Boolean).join(" · ");
   }
@@ -206,11 +210,13 @@ function typedFaces(c) {
   const say = text => text ? [{ text, lng: L }] : [];
   let q = {}, a = {};
   if (c.type === "conj") {
-    const full = conjFull(c);
+    const full = conjFull(c), vb = cjqVerb(c);
     const info = tenseName(L, c.tense) + " — " + personLabel(L, c.tense, c.person);
-    q = { main: c.verb, items: say(c.verb), extras: () => [tyLine("ty-big", info)] };
+    // Étape 83 : consigne claire « Conjugue be avec you — présent simple » (js/conjugaison.js) ; sans ce fichier : comme avant.
+    if (typeof ConjQ !== "undefined") q = { main: ConjQ.text(c), items: say(vb), mainNode: cls => ConjQ.node(cls, c), extras: () => [] };
+    else q = { main: vb, items: say(vb), extras: () => [tyLine("ty-big", info)] };
     a = { main: full, items: say(full), extras: () => [
-      tyLine("", c.verb + " — " + info, L),
+      tyLine("", vb + " — " + info, L),
       splitAlts(c.answer).length > 1 ? tyLine("", t("type.alsoOk", { a: splitAlts(c.answer).join(" / ") }), L) : null,
       c.translation ? tyLine("ty-tr", c.translation) : null,
       c.note ? tyLine("ty-note", c.note) : null,
@@ -218,9 +224,11 @@ function typedFaces(c) {
     ] };
   } else if (c.type === "cloze") {
     const ans = splitAlts(c.answer);
-    q = { main: clozeShow(c.sentence, "…"), items: say(clozeShow(c.sentence, "…")), mainNode: cls => clozeNode(cls, c, null),
-      extras: () => [c.hint ? tyLabeled(t("type.hint"), c.hint) : null] };
-    a = { main: clozeShow(c.sentence, ans[0] || ""), items: say(clozeShow(c.sentence, ans[0] || "")), mainNode: cls => clozeNode(cls, c, ans[0] || ""),
+    // Étape 83 : verbe à conjuguer entre parenthèses après le trou (question), phrase complète sans les parenthèses (réponse).
+    const cz = cjqCloze(c), cq = Object.assign({}, c, { sentence: cz.q }), ca = Object.assign({}, c, { sentence: cz.a });
+    q = { main: clozeShow(cz.q, "…"), items: say(clozeShow(cz.a, "…")), mainNode: cls => clozeNode(cls, cq, null),
+      extras: () => [c.hint && !cz.fromHint ? tyLabeled(t("type.hint"), c.hint) : null] };
+    a = { main: clozeShow(cz.a, ans[0] || ""), items: say(clozeShow(cz.a, ans[0] || "")), mainNode: cls => clozeNode(cls, ca, ans[0] || ""),
       extras: () => [
         ans.length > 1 ? tyLine("", t("type.alsoOk", { a: ans.join(" / ") }), L) : null,
         c.explanation ? tyLine("ty-expl", c.explanation) : null,
@@ -270,7 +278,7 @@ function openConjTable(c) {
   wrap.appendChild(tb);
   const notes = [...new Set(sib.map(x => x.note).filter(Boolean))];
   if (notes.length) wrap.appendChild(tyLine("ty-note", notes.join(" · ")));
-  openModal(c.verb, wrap, [{ label: t("close"), kind: "primary" }]);
+  openModal(cjqVerb(c), wrap, [{ label: t("close"), kind: "primary" }]);
 }
 // « Voir la règle »
 function openRuleModal(r) {

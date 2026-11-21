@@ -192,11 +192,11 @@ const LANGUAGES = {
               body: { fr: "Avec **he / she / it**, on ajoute **-s** (ou **-es**) au verbe.\n- go → goes\n- do → does\n- have → has", ko: "**he / she / it** 뒤에서는 동사에 **-s**(또는 **-es**)를 붙입니다.\n- go → goes\n- do → does\n- have → has" },
               examples: ["She works in Seoul.", "He goes to school.", "It has four legs."],
               translation: { fr: "Au présent simple, -s à la 3e personne du singulier.", ko: "현재 단순 시제의 3인칭 단수에는 -s." } },
-            { type: "conjtab", verb: "to be", tense: "present_simple", forms: ["am", "are", "is", "are", "are", "are"],
+            { type: "conjtab", verb: "be", tense: "present_simple", forms: ["am", "are", "is", "are", "are", "are"],
               translation: { fr: "être", ko: "이다 / 있다" }, note: { fr: "irrégulier", ko: "불규칙", en: "irregular" } },
             { type: "conjtab", verb: "go", tense: "irregular", forms: ["go", "went", "gone"], translation: { fr: "aller", ko: "가다" } },
-            { type: "cloze", sentence: "She ___ to school every day.", answer: "goes", ruleKey: "r1",
-              hint: { fr: "go, présent simple", ko: "go, 현재 단순", en: "go, present simple" },
+            { type: "cloze", sentence: "She ___ (go) to school every day.", answer: "goes", ruleKey: "r1",   // étape 83 : verbe entre parenthèses
+              hint: { fr: "présent simple", ko: "현재 단순", en: "present simple" },
               explanation: { fr: "she → go + -es = goes", ko: "she → go + -es = goes", en: "she → go + -es = goes" },
               translation: { fr: "Elle va à l'école tous les jours.", ko: "그녀는 매일 학교에 가요." } },
             { type: "fix", wrong: "He don't like coffee.", correct: "He doesn't like coffee.", ruleKey: "r1",
@@ -564,7 +564,8 @@ function fieldCode(f) { return isLang(f) ? f : isPosField(f) ? f.slice(4) : isEx
 // Champ générique : code de langue, "example", "extr:<code>", "pos:<code>" (nature grammaticale dans cette langue)
 // ou "f:<champ>" (champ d'un autre type de carte : translation, hint, explanation, note, examples ; exemples séparés par « | »).
 // lg (facultatif) : langues de la carte déjà calculées.
-const TYPED_FILL_FIELDS = ["translation", "hint", "explanation", "note", "examples"];
+// Étape 83 : + verb (conjugaison) et sentence (phrase à trous) : corrections des consignes floues proposées dans « À valider ».
+const TYPED_FILL_FIELDS = ["translation", "hint", "explanation", "note", "examples", "verb", "sentence"];
 function typedField(name) { return "f:" + name; }
 function isTypedField(f) { return typeof f === "string" && f.startsWith("f:") && TYPED_FILL_FIELDS.includes(f.slice(2)); }
 function fieldVal(c, f, lg) {

@@ -53,15 +53,16 @@ function renderTableSession(root) {
   // En-tête : verbe, temps, traduction, note
   const head = el("div", "card tb-head ty-conj");
   head.appendChild(el("div", "sw-lang", t("type.conj") + " · " + langName(L)));
-  const vb = el("div", "tb-verb", c0.verb); vb.lang = L;
+  const v0 = cjqVerb(c0);                                // étape 83 : verbe sans « to », consigne avec le temps
+  const vb = el("div", "tb-verb", v0); vb.lang = L;
   head.appendChild(vb);
-  head.appendChild(tyLine("ty-big", tenseName(L, c0.tense)));
+  head.appendChild(tyLine("ty-big", typeof ConjQ !== "undefined" ? ConjQ.tableText(c0) : tenseName(L, c0.tense)));
   const tr0 = cs.map(x => x.translation).find(Boolean);
   if (tr0) head.appendChild(tyLine("ty-tr", tr0));
-  const sp = spkItemsRow([{ text: c0.verb, lng: L }]);
+  const sp = spkItemsRow([{ text: v0, lng: L }]);
   if (sp) head.appendChild(sp);
   root.appendChild(head);
-  autoSpeak(s, "q", [{ text: c0.verb, lng: L }], { target: L, support: cardLangs(c0).support });
+  autoSpeak(s, "q", [{ text: v0, lng: L }], { target: L, support: cardLangs(c0).support });
 
   // Tableau : une ligne par personne
   const table = el("div", "card tb-grid");
