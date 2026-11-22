@@ -9,13 +9,25 @@
 // étape 85) : l'admin voit seulement leur nombre en attente.
 // Fonctions : admin_reports, admin_reports_count, admin_report_set (script claude/supabase-etape84.sql). Script absent :
 // « Lancez le script SQL de l'étape 84 ». Textes : js/i18n/signal-<langue>.js (clés asg.*). Styles : css/app-9.css (.asg-*).
+// Étape 85 : Claude propose UNE correction par signalement (ou « rien à corriger » → « Ignoré »). La proposition est lue à
+// part (admin_report_fixes, case « reports.see ») et affichée dans la ligne : « 🤖 Claude propose : champ : ancien → nouveau »
+// avec « Appliquer » (admin_report_apply, case « reports.act » : la correction est écrite — pour le dictionnaire par son
+// circuit habituel, avec historique — et le signalement passe « Traité ») et « Refuser » (= « Ignorer » de l'étape 84).
+// Interrupteur « Claude propose des corrections pour les signalements » : carte asgAiCard, affichée dans Administration →
+// Demandes à Claude sous la mise à jour automatique (claude_reports_get ; écriture admin_claude_reports_set, ADMIN SEULEMENT).
+// Script claude/supabase-etape85.sql absent : écran identique à la version 84. Textes : js/i18n/sigclaude-<langue>.js.
 const ASG_PAGE = 50;
-const asg = { started: false, loading: false, err: "", missing: false, data: null, page: 0, f: { status: "open", reason: "", lang: "" }, busy: false, count: null, countAt: 0 };
+const asg = { started: false, loading: false, err: "", missing: false, data: null, page: 0, f: { status: "open", reason: "", lang: "" }, busy: false, count: null, countAt: 0,
+              fix: null, fixOff: false };   // étape 85 : propositions de Claude de la page affichée ({ on, rows }) ; fixOff = script de l'étape 85 absent
+const asgAi = { on: true, saved: false, started: false, missing: false, err: "", busy: false };   // étape 85 : interrupteur
 
 function asgRerender() { try { if (currentScreen === "adminsig") renderAdminReports(); } catch (e) {} }
 function asgErrText(e) {
   const h = String((e && e.hint) || "");
   if (h === "rep_gone") return t("asg.err.gone");
+  if (h === "rep_stale") return t("asg.ai.err.stale");      // étape 85 : carte modifiée depuis la proposition
+  if (h === "rep_nofix") return t("asg.ai.err.nofix");
+  if (h === "rep_bad") return t("asg.ai.err.bad");
   if (alIsMissing(e)) return t("asg.missing");
   return modErrText(e);
 }
@@ -29,6 +41,109 @@ async function asgLoad() {
   } catch (e) { asg.missing = alIsMissing(e); asg.err = asgErrText(e); }
   asg.loading = false;
   asgRerender();
+  asgLoadFixes();
+}
+// Étape 85 : propositions de Claude pour les signalements de la page (jamais bloquant ; script absent = rien d'affiché).
+async function asgLoadFixes() {
+  const d = asg.data, ids = arr(d && d.rows).map(x => x.id).filter(Boolean);
+  if (asg.fixOff || !ids.length) { asg.fix = null; return; }
+  try {
+    const r = await aqRpc("admin_report_fixes", { p_ids: ids });
+    if (asg.data !== d) return;                                  // autre page chargée entre-temps
+    asg.fix = r && typeof r === "object" ? { on: r.on !== false, rows: r.rows && typeof r.rows === "object" ? r.rows : {} } : null;
+  } catch (e) { if (alIsMissing(e)) asg.fixOff = true; asg.fix = null; return; }
+  asgRerender();
+}
+function asgFixOf(x) { const f = asg.fix && asg.fix.rows ? asg.fix.rows[x.id] : null; return f && typeof f === "object" ? f : null; }
+// Proposition encore à décider : une correction, sur un signalement « À traiter ».
+function asgFixOpen(x) { const f = asgFixOf(x); return !!f && f.action === "fix" && !f.st && x.status === "open"; }
+function asgFieldLabel(f) { try { return typeof pvFieldLabel === "function" ? pvFieldLabel(String(f || "")) : String(f || ""); } catch (e) { return String(f || ""); } }
+function asgFixValue(f, v) {
+  v = String(v == null ? "" : v);
+  if (/^pos:/.test(String(f)) && v && typeof pvPosText === "function") { try { return pvPosText(v, String(f).slice(4)) || v; } catch (e) {} }
+  return v;
+}
+// Ligne « 🤖 … » d'un signalement : correction proposée, appliquée, refusée, rien à corriger, ou en attente de Claude.
+function asgFixNode(x) {
+  const f = asgFixOf(x);
+  if (!f) return null;
+  const box = el("div", "asg-ai");
+  if (f.wait) { box.classList.add("muted"); box.textContent = "🤖 " + t("asg.ai.wait"); return box; }
+  if (f.action === "none") { box.classList.add("muted"); box.textContent = "🤖 " + t("asg.ai.none"); return box; }
+  if (f.action !== "fix") return null;
+  const head = f.st === "applied" ? t("asg.ai.applied") : x.status === "open" ? t("asg.ai.fix") : t("asg.ai.refused");
+  box.dataset.ai = f.st === "applied" ? "applied" : x.status === "open" ? "fix" : "refused";
+  box.appendChild(el("div", "asg-ai-h", "🤖 " + head));
+  const line = el("div", "asg-ai-l");
+  line.appendChild(el("span", "asg-ai-f", asgFieldLabel(f.field)));
+  const oldV = asgFixValue(f.field, f.old);
+  line.appendChild(oldV ? el("s", "asg-ai-old", oldV) : el("span", "asg-ai-old muted", "—"));
+  line.appendChild(el("span", "asg-ai-ar", "→"));
+  line.appendChild(el("b", "asg-ai-new", asgFixValue(f.field, f.value)));
+  box.appendChild(line);
+  return box;
+}
+// « Appliquer » : confirmation (la carte commune change pour tout le monde), puis admin_report_apply.
+function asgApply(x) {
+  if (asg.busy || !asgFixOpen(x)) return;
+  const f = asgFixOf(x), body = el("div", "asg-ai-confirm");
+  body.appendChild(el("p", null, t(x.scope === "dict" ? "asg.ai.confirmDict" : "asg.ai.confirmShared")));
+  const n = asgFixNode(x); if (n) body.appendChild(n);
+  openModal(t("asg.ai.apply"), body, [{ label: t("cancel") }, { label: "✓ " + t("asg.ai.apply"), kind: "primary", onClick: async () => {
+    if (asg.busy) return;
+    asg.busy = true; asgRerender();
+    try {
+      const r = await aqRpc("admin_report_apply", { p_id: x.id });
+      toast(t("asg.ai.done", { n: num(Number(r && r.n), 0) }));
+    } catch (e) { toast(asgErrText(e)); }
+    asg.busy = false;
+    asgLoad();
+  } }]);
+  return f;
+}
+
+// Étape 85 : interrupteur « Claude propose des corrections pour les signalements » (Administration → Demandes à Claude,
+// sous la mise à jour automatique). Lecture : claude_reports_get (tout compte connecté) ; écriture : ADMIN SEULEMENT.
+async function asgAiLoad() {
+  asgAi.started = true;
+  try {
+    const r = await aqRpc("claude_reports_get");
+    asgAi.missing = false; asgAi.err = "";
+    if (r && typeof r.on === "boolean") asgAi.on = r.on;
+    asgAi.saved = !!(r && r.saved);
+  } catch (e) { asgAi.missing = alIsMissing(e); asgAi.err = asgAi.missing ? "" : aqErrText(e); }
+  try { if (currentScreen === "adminreq") renderAdminReq(); } catch (e) {}
+}
+function asgAiCard(root) {
+  if (!asgAi.started) asgAiLoad();
+  const c = el("div", "card aqc asg-ai-card");
+  c.id = "asgAiCard";
+  c.appendChild(el("h3", "aq-h", "🚩 " + t("asg.ai.h")));
+  c.appendChild(el("p", "hint", t("asg.ai.help")));
+  if (asgAi.missing) { c.appendChild(el("div", "np-msg", t("asg.ai.missing"))); root.appendChild(c); return; }
+  if (asgAi.err) c.appendChild(el("div", "q-err", asgAi.err));
+  const lab = el("label", "gen-chk amj-ad-on");
+  const cb = el("input"); cb.type = "checkbox"; cb.id = "asgAiOn"; cb.checked = asgAi.on; cb.disabled = asgAi.busy;
+  lab.append(cb, document.createTextNode(t("asg.ai.on")));
+  c.appendChild(lab);
+  const prev = el("p", "rl-news-prev", (asgAi.on ? t("asg.ai.prevOn") : t("asg.ai.prevOff")) + (asgAi.saved ? "" : " " + t("amj.ad.default")));
+  prev.id = "asgAiPrev";
+  c.appendChild(prev);
+  cb.addEventListener("change", async () => {
+    if (asgAi.busy) return;
+    const want = cb.checked;
+    asgAi.busy = true; cb.disabled = true;
+    try {
+      const r = await aqRpc("admin_claude_reports_set", { p_on: want });
+      asgAi.on = r && typeof r.on === "boolean" ? r.on : want; asgAi.saved = true; asgAi.err = "";
+      toast(t("asg.ai.saved"));
+    } catch (e) { toast(alIsMissing(e) ? t("asg.ai.missing") : aqErrText(e)); }
+    asgAi.busy = false;
+    try { if (currentScreen === "adminreq") renderAdminReq(); } catch (e) {}
+  });
+  // Écriture réservée à l'admin (le serveur refuse les autres) : lecture seule pour un modérateur.
+  if (!auth.isAdmin) { cb.disabled = true; c.appendChild(el("p", "hint", t("amj.ad.adminOnly"))); }
+  root.appendChild(c);
 }
 // Compteur du bouton de l'accueil de l'Administration (au plus une lecture par minute ; jamais bloquant).
 async function asgLoadCount() {
@@ -130,6 +245,7 @@ function renderAdminReports() {
   sum.id = "asgCount";
   root.appendChild(sum);
   if (d.personal_open != null && num(Number(d.personal_open), 0) > 0) root.appendChild(el("p", "muted asg-personal", "🤖 " + t("asg.personal", { n: num(Number(d.personal_open), 0) })));
+  if (asg.fix && asg.fix.on === false) root.appendChild(el("p", "muted asg-ai-off", "🤖 " + t("asg.ai.off")));   // étape 85
   const rows = arr(d.rows);
   if (!rows.length) root.appendChild(el("div", "card muted", t("asg.none")));
   rows.forEach(x => root.appendChild(asgRow(x)));
@@ -158,6 +274,8 @@ function asgRow(x) {
   const words = el("div", "asg-words", w || t("asg.cardGone"));
   if (!w) words.classList.add("muted");
   row.appendChild(words);
+  const fx = asgFixNode(x);                                    // étape 85 : proposition de Claude
+  if (fx) row.appendChild(fx);
   const scope = x.scope === "dict" ? t("asg.scope.dict") : (x.list_name ? t("asg.scope.sharedName", { name: x.list_name }) : t("asg.scope.shared"));
   const bits = [scope];
   if (x.lang) bits.push(langName(x.lang));
@@ -184,7 +302,16 @@ function asgRow(x) {
     b.addEventListener("click", () => asgSet(x, status));
     btns.appendChild(modGate(b, "reports.act"));
   };
-  if (x.status === "open") { act("done", "✓ " + t("asg.done"), "primary"); act("ignored", t("asg.ignore")); }
+  if (x.status === "open" && asgFixOpen(x)) {                    // étape 85 : « Appliquer » / « Refuser » (+ « Traité » sans appliquer)
+    const ap = el("button", "am-btn primary", "✓ " + t("asg.ai.apply"));
+    ap.type = "button"; ap.dataset.act = "apply"; ap.disabled = asg.busy;
+    ap.setAttribute("data-net", "1");
+    ap.addEventListener("click", () => asgApply(x));
+    btns.appendChild(modGate(ap, "reports.act"));
+    act("ignored", t("asg.ai.refuse"));
+    act("done", t("asg.done"));
+  }
+  else if (x.status === "open") { act("done", "✓ " + t("asg.done"), "primary"); act("ignored", t("asg.ignore")); }
   else act("open", t("asg.reopen"));
   row.appendChild(btns);
   return row;

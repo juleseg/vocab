@@ -157,13 +157,14 @@ function renderAdminReq() {
   const top = el("div", "adm-top");
   top.appendChild(el("h2", null, t("aq.title")));
   const ref = el("button", "link-btn", t("admin.refresh"));
-  ref.addEventListener("click", () => { aqReload(); if (typeof amjAdLoad === "function") amjAdLoad(); });   // étape 80 : + réglage de la mise à jour automatique
+  ref.addEventListener("click", () => { aqReload(); if (typeof amjAdLoad === "function") amjAdLoad(); if (typeof asgAiLoad === "function") asgAiLoad(); });   // étape 80 : + réglage de la mise à jour automatique ; étape 85 : + interrupteur des signalements
   top.appendChild(ref);
   root.appendChild(top);
   root.appendChild(el("p", "q-note", t("aq.help")));
   root.appendChild(ClaudeRun.adminCard());          // étape 66 : dernier passage de Claude (alerte au-delà de 3 fois la fréquence)
   aqCadCard(root);                                   // étape 59 : fréquence de passage de Claude
   if (typeof amjAdCard === "function") amjAdCard(root);   // étape 80 : mise à jour automatique (interrupteur, cartes par jour) — js/screens/admin-auto.js
+  if (typeof asgAiCard === "function") asgAiCard(root);   // étape 85 : Claude propose des corrections pour les signalements (interrupteur) — js/screens/admin-signalements.js
   if (!aq.stats && !aq.statsLoading && !aq.statsErr) { aqReload(); return; }
 
   // Compteurs par compte
@@ -316,7 +317,7 @@ function aqFilters() {
   };
   const accts = (aq.stats || []).slice().sort((a, b) => String(a.identifiant).localeCompare(String(b.identifiant)));
   mk(t("aq.f.account"), [["", t("aq.f.all")]].concat(accts.map(a => [a.user_id, a.identifiant])), aq.f.user, v => { aq.f.user = v; });
-  mk(t("aq.f.kind"), [["", t("aq.f.all")]].concat(["complete", "verify", "generate", "story", "sentence", "dict_dupes"].map(k => [k, t("queue.kind." + k)])), aq.f.kind, v => { aq.f.kind = v; });
+  mk(t("aq.f.kind"), [["", t("aq.f.all")]].concat(["complete", "verify", "generate", "story", "sentence", "dict_dupes", "report"].map(k => [k, t("queue.kind." + k)])), aq.f.kind, v => { aq.f.kind = v; });
   mk(t("aq.f.status"), [["", t("aq.f.all")]].concat(["pending", "processing", "done", "error"].map(k => [k, t("aq.st." + k)])), aq.f.status, v => { aq.f.status = v; });
   mk(t("aq.f.period"), [["", t("aq.pAll")], ["7", t("aq.p7")], ["30", t("aq.p30")]], aq.f.days, v => { aq.f.days = v; });
   return box;

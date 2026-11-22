@@ -9,6 +9,8 @@
 // Destination : décidée PAR LE SERVEUR (card_report_send). Carte reliée à un sens du dictionnaire commun (senseId, sauf si la
 // case signalée est une « version perso ») ou carte d'une liste partagée → modérateurs « Signalements » + admin ; carte
 // personnelle → enregistrée pour Claude seulement (étape 85), avec une copie courte de la carte (snap).
+// Étape 85 : la copie porte aussi les traductions de l'exemple de la langue apprise (tr) et, hors vocabulaire, les champs
+// translation / explanation / note / wrong / correct / body : Claude lit ce qu'il peut corriger (js/signalements-claude.js).
 // Anti-abus (serveur) : 1 signalement par compte, par carte et par motif ; SGL_DAY_MAX par jour ; compte bloqué refusé.
 // L'appareil retient seulement ce qu'il a déjà envoyé (clé locale vocabfr.sgl:<compte>, jamais dans le compte) pour griser
 // les motifs déjà choisis.
@@ -80,9 +82,11 @@ const Sgl = (() => {
       else if (c.pos) o.pos = cut(c.pos).slice(0, 24);
       const m = typeof exMap === "function" ? exMap(c) : null;
       if (m) { o.ex = {}; Object.keys(m).slice(0, 4).forEach(L => { const x = typeof exText === "function" ? exText(c, L) : ""; if (x) o.ex[L] = cut(x); }); }
+      const tg = cardLangs(c).target, en = tg && typeof exEntry === "function" ? exEntry(c, tg) : null;   // étape 85 : traductions de l'exemple
+      if (en && en.text && en.tr) { const tr = {}; Object.keys(en.tr).slice(0, 6).forEach(L => { if (typeof en.tr[L] === "string" && en.tr[L]) tr[L] = cut(en.tr[L]); }); if (Object.keys(tr).length) { o.tr = tr; if (!o.ex) o.ex = {}; if (!o.ex[tg]) o.ex[tg] = cut(en.text); } }
       if (c.gender) o.gender = typeof c.gender === "object" ? JSON.parse(JSON.stringify(c.gender)) : cut(c.gender).slice(0, 12);
     } else {
-      ["lang", "verb", "tense", "person", "answer", "sentence", "hint", "title", "question"].forEach(f => { if (typeof c[f] === "string" && c[f]) o[f] = cut(c[f]); });
+      ["lang", "verb", "tense", "person", "answer", "sentence", "hint", "title", "question", "translation", "explanation", "note", "wrong", "correct", "body"].forEach(f => { if (typeof c[f] === "string" && c[f]) o[f] = cut(c[f]); });
     }
     let s = "";
     try { s = JSON.stringify(o); } catch (e) { return { type: o.type }; }

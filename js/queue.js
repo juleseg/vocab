@@ -21,6 +21,11 @@
 //   auto              // complete (étape 80) : 1 = demande déposée toute seule par l'appli (js/auto-maj.js) ; réponse appliquée en silence
 //   cjq               // verify (étape 83) : 1 = correction des consignes de conjugaison floues (js/conjugaison.js) ; réponse → « À valider »
 // }
+// Étape 85 : type « report » (signalements de cartes). Cette demande n'est JAMAIS déposée par l'appli : le serveur la crée
+// à chaque passage de Claude (claude/supabase-etape85.sql), au nom de l'admin, masquée, sans lot (payload.reports = identifiants
+// de signalements). La tâche la lit par claude_report_batch et répond par claude_report_answer : aucune ligne dans
+// claude_proposals, donc rien à récupérer ici. Les propositions arrivent par js/signalements-claude.js (carte personnelle →
+// « À valider ») et par l'écran Administration → Signalements (dictionnaire commun, listes partagées).
 // Réponse d'un lot (ligne claude_proposals, colonne result) : la valeur JSON demandée par le prompt du lot
 //   complete : [{ "id": "k0", "<champ>": "valeur", … }]   verify : [{ "id", "field", "value", "reason" }]
 //   generate : { "lines": ["ligne au format de l'import", …] }
@@ -179,6 +184,7 @@ const Queue = (() => {
         busy = null;
         schedule();
         if (typeof AutoMaj !== "undefined") AutoMaj.tick();   // étape 80 : demande automatique finie par un autre appareil du compte
+        if (typeof SglC !== "undefined") SglC.tick();         // étape 85 : correction proposée par Claude pour une carte personnelle signalée (au plus toutes les 10 min)
         if (currentScreen === "requests") renderRequests();
         else if (currentScreen === "settings") renderAiCard();
         else if (currentScreen === "pending" && !(res && res.added)) renderPending();   // bandeau à jour
@@ -287,6 +293,7 @@ const QStats = (() => {
   }
   // Acceptation / refus d'une proposition de la file (une seule fois par proposition, même après « Annuler »).
   function decide(p, field) {
+    if (typeof SglC !== "undefined") { try { SglC.decided(p, field); } catch (e) {} }   // étape 85 : proposition venue d'un signalement → décision renvoyée au serveur
     if (!p || !p.reqId || p.qc || counted.has(p.id)) return;
     counted.add(p.id);
     add(p.reqId, field, 1);
@@ -545,7 +552,7 @@ function queueDate(s) {
 }
 // Nombre de la demande : cartes, cartes à générer, ou mots de l'histoire (étape 45).
 function queueMetaCount(r) {
-  return t(r.kind === "generate" ? "queue.meta.gen" : r.kind === "story" ? "st.meta" : r.kind === "dict_dupes" ? "dpa.meta" : "queue.meta.cards", { n: r.card_count });   // étape 66 : cas de faux doublons
+  return t(r.kind === "generate" ? "queue.meta.gen" : r.kind === "story" ? "st.meta" : r.kind === "dict_dupes" ? "dpa.meta" : r.kind === "report" ? "sgc.meta" : "queue.meta.cards", { n: r.card_count });   // étape 66 : cas de faux doublons
 }
 function queueStatusText(r) {
   if (r.status === "done") return t(r.fetched_at ? "queue.st.fetched" : "queue.st.done");

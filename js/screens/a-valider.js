@@ -527,7 +527,7 @@ function pvAcceptPart(ids, edits) {
     if (isPosField(p.field)) nv = parsePos(nv, p.field.slice(4)); // nature non valide : la ligne reste
     const cur = fieldVal(c, p.field);
     const stale = p.type === "completion" ? !!cur.trim() : cur !== p.oldValue; // champ modifié entre-temps : jamais écrasé
-    if (stale) { done.add(p.id); no("stale"); return; }
+    if (stale) { done.add(p.id); no("stale"); if (typeof SglC !== "undefined") SglC.decided(p, "rejected"); return; }   // étape 85 : case changée par l'utilisateur → signalement refermé
     const next = Object.assign({}, c, { terms: Object.assign({}, c.terms), pos: Object.assign({}, c.pos) });   // setFieldVal ne modifie pas examples en place
     setFieldVal(next, p.field, nv);
     if (!nv || (!cardUsable(next) && cardUsable(c))) { no("value"); return; } // valeur non valide (ou qui rendrait la carte inutilisable) : la ligne reste

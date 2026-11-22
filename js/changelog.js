@@ -9,6 +9,14 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "85", date: "2026-11-22",
+    points: {
+      ko: ["카드를 신고하면 Claude가 수정안을 제안할 수 있어요. 내 카드는 '검토'에서 받아들이거나 거절하면 돼요."],
+      fr: ["Claude peut proposer une correction après ton signalement : pour tes propres cartes, tu l'acceptes ou la refuses dans « À valider »."],
+      en: ["Claude can suggest a fix after your report: for your own cards, accept or decline it in \"Pending\"."]
+    }
+  },
+  {
     version: "84", date: "2026-11-22",
     points: {
       ko: ["🚩로 카드를 신고할 수 있어요. 번역, 성, 예문, 소리가 틀리면 눌러 주세요."],

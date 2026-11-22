@@ -455,6 +455,7 @@ async function startUserRun(id, preset, target, sbUid) {
   if (typeof AutoMaj !== "undefined") AutoMaj.start();   // étape 80 : mise à jour automatique (cases vides demandées à Claude toutes seules)
   if (typeof ConjQ !== "undefined") ConjQ.start();       // étape 83 : anciennes cartes de conjugaison floues proposées à Claude
   if (typeof Sgl !== "undefined") Sgl.start();           // étape 84 : pastille « Merci, corrigé » des signalements traités
+  if (typeof SglC !== "undefined") SglC.start();         // étape 85 : correction proposée par Claude pour une carte personnelle signalée
   Dict.start();  // dictionnaire commun (étape 36) : envois en attente, liaison des cartes, sens modifiés
   Images.start();   // images (étape 49) : images des sens, place utilisée, ménage (30 s après le lancement)
   if (auth.mode !== "supabase") WhatsNew.check().finally(() => Tutorial.check());   // étapes 39 et 40 (en mode Supabase : après annonces et invitation, enterSupabase)
@@ -665,6 +666,7 @@ async function logout() {
   if (typeof AutoMaj !== "undefined") AutoMaj.reset();   // étape 80
   if (typeof ConjQ !== "undefined") ConjQ.reset();       // étape 83
   if (typeof Sgl !== "undefined") Sgl.reset();           // étape 84
+  if (typeof SglC !== "undefined") SglC.reset();         // étape 85
   if (typeof ClNew !== "undefined") ClNew.reset();       // étape 80
   Dict.reset();   // dictionnaire commun (étape 36)
   Ann.reset();

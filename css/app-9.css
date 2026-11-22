@@ -319,3 +319,18 @@ html[lang="ko"] .cjq{word-break:keep-all}
 .asg-k{flex:none;min-width:88px;color:var(--muted);font-size:13px}
 .asg-v{flex:1;overflow-wrap:anywhere}
 @media (max-width:420px){.asg-filters{grid-template-columns:1fr 1fr}}
+
+/* === CLAUDE PROPOSE UNE CORRECTION POUR CHAQUE SIGNALEMENT (ÉTAPE 85) === */
+/* Ligne « 🤖 … » d'un signalement (Administration → Signalements) : champ, ancienne valeur barrée → nouvelle valeur. */
+.asg-ai{margin-top:4px;padding:8px 10px;border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:10px;background:var(--surface2);font-size:14px;overflow-wrap:anywhere}
+.asg-ai.muted{border-left-color:var(--border);font-size:13px}
+.asg-ai[data-ai="refused"]{border-left-color:var(--border);opacity:.8}
+.asg-ai-h{font-size:13px;color:var(--muted);margin-bottom:2px}
+.asg-ai-l{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px}
+.asg-ai-f{font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:1px 8px;white-space:nowrap}
+.asg-ai-old{color:var(--muted)}
+.asg-ai-ar{color:var(--muted)}
+.asg-ai-new{font-weight:700}
+.asg-ai-confirm p{margin:0 0 8px}
+.asg-ai-off{margin:0 0 6px;font-size:13px}
+.asg-ai-card .gen-chk{min-height:44px}
