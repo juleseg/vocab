@@ -235,12 +235,22 @@ async function init() {
       auth.mode = "supabase";
       Release.start();   // étape 48 : dernière version annoncée, avant même la connexion (blocage si obligatoire)
       Storage.useSupabase(Supa.client());
-      let session = null;
-      try { session = await Supa.session(); } catch (e) {}
+      // Étape 86 (js/connexion-locale.js) : une session gardée sur l'appareil ouvre TOUJOURS le compte, même si elle ne peut
+      // pas être renouvelée (hors ligne, serveur injoignable) : données locales, voyant « Hors connexion ». L'écran de
+      // connexion ne s'affiche que s'il n'y a aucune session sur l'appareil, ou si le serveur l'a refusée (boot.refused).
+      const CL = typeof ConnLocal !== "undefined" ? ConnLocal : null;
+      if (CL) CL.keepLib();
+      let session = null, boot = null;
+      if (CL) { boot = await CL.boot(); session = boot && boot.session ? boot.session : null; }
+      else { try { session = await Supa.session(); } catch (e) {} }
       if (session) {
-        try { await enterSupabase(session); return; }
-        catch (e) { auth.err = { key: { net: "auth.err.net" }[sbErrKind(e)] || "auth.err.server", vars: null }; }
+        try { await enterSupabase(session, null, boot && boot.offline ? { offline: true } : null); return; }
+        catch (e) {
+          if (CL && Storage.getUser()) return;   // compte déjà ouvert sur ses données locales : jamais d'écran de connexion sur une erreur
+          auth.err = { key: { net: "auth.err.net" }[sbErrKind(e)] || "auth.err.server", vars: null };
+        }
       }
+      else if (boot && boot.refused) auth.err = { key: "cxl.refused", vars: null };
       showAuth("login");
       return;
     }

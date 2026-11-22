@@ -128,7 +128,8 @@ const Storage = (() => {
   function isSupabase() { return !!sb; }
   // Supabase : pas de registre de comptes local (Supabase Auth s'en charge).
   function useSupabase(client) { sb = client; backend = null; setMode("cloud"); }
-  function failMode() { setMode(navigator.onLine === false ? "offline" : "error"); }
+  // Étape 86 : compte ouvert sans session renouvelée (serveur injoignable, PIN vérifié sur l'appareil) = « Hors connexion ».
+  function failMode() { setMode(navigator.onLine === false || (typeof ConnLocal !== "undefined" && ConnLocal.waiting()) ? "offline" : "error"); }
   // Message court, sans contenu de données : code / message de l'erreur, clé du morceau en cause.
   function setErr(where, e) {
     const m = typeof e === "string" ? e : [e && e.code, e && (e.message || e.msg), e && e.status].filter(x => x !== undefined && x !== null && x !== "").join(" ") || String(e);

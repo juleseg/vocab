@@ -9,6 +9,14 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "86", date: "2026-11-23",
+    points: {
+      ko: ["이제 인터넷이 없어도 다시 로그인하라는 화면 없이 앱이 열려요."],
+      fr: ["L'appli s'ouvre maintenant hors connexion sans te redemander de te connecter."],
+      en: ["The app now opens offline without asking you to sign in again."]
+    }
+  },
+  {
     version: "85", date: "2026-11-22",
     points: {
       ko: ["카드를 신고하면 Claude가 수정안을 제안할 수 있어요. 내 카드는 '검토'에서 받아들이거나 거절하면 돼요."],

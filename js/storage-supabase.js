@@ -98,14 +98,20 @@ const Supa = (() => {
     if (!c) return false;
     try {
       await loadLib();
+      // Étape 41 : fetch surveillé (erreurs des appels Supabase et de send-push → journal des erreurs).
+      // Étape 48 : portillon des écritures (Release.gateFetch) sous le fetch surveillé : rien n'est écrit tant que
+      // l'appli doit être mise à jour.
+      let f = typeof Release !== "undefined" ? Release.gateFetch : undefined;
+      if (typeof ErrLog !== "undefined") f = ErrLog.wrapFetch(f);
+      // Étape 86 : par-dessus (jamais dans le journal des erreurs), ConnLocal.guardFetch : aucune requête ne part sous la clé
+      // publique pour un compte ouvert dont la session n'a pas pu être renouvelée, ni quand l'appareil est hors ligne ;
+      // elle échoue tout de suite, comme une coupure réseau.
+      if (typeof ConnLocal !== "undefined") f = ConnLocal.guardFetch(f);
       client = window.supabase.createClient(c.url, c.key, {
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: authStorage, storageKey: AUTH_KEY },
-        // Étape 41 : fetch surveillé (erreurs des appels Supabase et de send-push → journal des erreurs).
-        // Étape 48 : portillon des écritures (Release.gateFetch) sous le fetch surveillé : rien n'est écrit tant que
-        // l'appli doit être mise à jour.
-        global: typeof ErrLog !== "undefined" ? { fetch: ErrLog.wrapFetch(typeof Release !== "undefined" ? Release.gateFetch : undefined) }
-              : typeof Release !== "undefined" ? { fetch: Release.gateFetch } : {}
+        global: f ? { fetch: f } : {}
       });
+      if (typeof ConnLocal !== "undefined") ConnLocal.attach(client);   // étape 86 : pas d'attente quand le renouvellement ne peut pas aboutir
       return true;
     } catch (e) { client = null; return false; }
   }
@@ -114,9 +120,19 @@ const Supa = (() => {
   function email(id) { return id + "@" + CONFIG.SB_EMAIL_DOMAIN; }
   function password(id, pin) { return sha256Hex(id + ":" + pin); }
   async function session() { return ok(await withTimeout(client.auth.getSession(), T)).session || null; }
-  async function signIn(id, pin) {
-    return ok(await withTimeout(client.auth.signInWithPassword({ email: email(id), password: await password(id, pin) }), T)).session;
+  // Étape 86 : session écrite sur l'appareil, lue telle quelle (même périmée, même sans Internet) ; null = aucune.
+  function stored() {
+    try {
+      const s = JSON.parse(authStorage.getItem(AUTH_KEY) || "null");
+      return s && s.access_token && s.refresh_token && s.user && s.user.id ? s : null;
+    } catch (e) { return null; }
   }
+  function anonKey() { const c = cfg(); return c ? c.key : ""; }
+  // Connexion avec le mot de passe déjà dérivé (SHA-256 de identifiant:PIN) : retour d'Internet après un PIN vérifié sur l'appareil.
+  async function signInPwd(id, pwd) {
+    return ok(await withTimeout(client.auth.signInWithPassword({ email: email(id), password: pwd }), T)).session;
+  }
+  async function signIn(id, pin) { return signInPwd(id, await password(id, pin)); }
   async function signUp(id, pin) {
     const d = ok(await withTimeout(client.auth.signUp({ email: email(id), password: await password(id, pin) }), T));
     if (!d || !d.session) throw { code: "confirm" };   // confirmation par email encore activée
@@ -151,7 +167,7 @@ const Supa = (() => {
     }
   }
   return {
-    configured, init, client: () => client, password, session, signIn, signUp, signOut, setPin, readRows, writeRows,
+    configured, init, client: () => client, password, session, stored, anonKey, signIn, signInPwd, signUp, signOut, setPin, readRows, writeRows,
     usernameExists: id => rpc("username_exists", { p_identifiant: id }),
     myProfile: () => rpc("my_profile"),
     touch: () => rpc("touch_last_seen"),

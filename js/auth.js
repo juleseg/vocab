@@ -114,6 +114,7 @@ function renderAuth() {
   const box = el("div", "card");
   box.appendChild(el("h2", null, t(first ? "auth.firstTitle" : creating ? "auth.createTitle" : "auth.loginTitle")));
   if (auth.msg) box.appendChild(el("div", "auth-msg", t(auth.msg.key, auth.msg.vars)));
+  if (sbMode && !creating && typeof ConnLocal !== "undefined") { const h = ConnLocal.hint(); if (h) box.appendChild(h); }   // étape 86 : hors connexion
   if (auth.err) box.appendChild(authErrBox());
   const idInp = textInput(f.id, "");
   idInp.autocomplete = "username"; idInp.spellcheck = false;
@@ -202,10 +203,13 @@ async function sbLogin(id, pin) {
     const session = await Supa.signIn(id, pin);
     auth.lastPin = pin;
     auth.loginVia = "pin";
+    if (typeof ConnLocal !== "undefined") ConnLocal.remember(id, pin, session.user.id);   // étape 86 : vérificateur du PIN pour cet appareil
     clearAuthForm();
     await enterSupabase(session);
   } catch (e) {
     const k = sbErrKind(e);
+    // Étape 86 : serveur injoignable → PIN vérifié sur l'appareil, seulement pour un compte déjà connecté ici.
+    if (k === "net" && !Storage.getUser() && typeof ConnLocal !== "undefined" && await ConnLocal.login(id, pin)) return;
     if (k !== "wrong") { authErrKind(k); return; }
     let exists = true;
     try { exists = await Supa.usernameExists(id); } catch (e2) {}
@@ -248,6 +252,7 @@ async function sbCreate(id, pin, target) {
     const session = await Supa.signUp(id, pin);
     auth.lastPin = pin;
     auth.loginVia = "create";
+    if (typeof ConnLocal !== "undefined") ConnLocal.remember(id, pin, session.user.id);   // étape 86
     clearAuthForm();
     Tutorial.markNew(id);   // étape 40 : tutoriel lancé tout seul pour ce nouveau compte
     if (typeof AccNotif !== "undefined") AccNotif.markNew(id);   // étape 71 : rappels proposés juste après la création
@@ -259,21 +264,32 @@ async function sbCreate(id, pin, target) {
 // Supabase : profil du compte (identifiant, PIN à changer, admin), puis ouverture des données.
 // Hors connexion : dernier profil connu sur cet appareil, s'il s'agit du même compte.
 // Étape 77 : un seul passage à la fois pour un même compte (un 2e appel pendant l'ouverture attend le 1er, sans tout refaire).
+// Étape 86 : opts.offline = session gardée sur l'appareil mais pas renouvelée (hors ligne, serveur injoignable) : le profil
+// connu de l'appareil sert tout de suite, sans appel au serveur ; il est relu au retour d'Internet (ConnLocal).
+// Une erreur RÉSEAU sur le profil n'est jamais un refus : sans profil connu, l'identifiant est lu dans la session.
 let enterRun = null;
-function enterSupabase(session, target) {
+function enterSupabase(session, target, opts) {
   const u = session && session.user && session.user.id;
   if (enterRun && enterRun.uid === u) return enterRun.p;
-  const p = enterSupabaseRun(session, target).finally(() => { if (enterRun && enterRun.p === p) enterRun = null; });
+  const p = enterSupabaseRun(session, target, opts).finally(() => { if (enterRun && enterRun.p === p) enterRun = null; });
   enterRun = { uid: u, p };
   return p;
 }
-async function enterSupabaseRun(session, target) {
+async function enterSupabaseRun(session, target, opts) {
   const userUuid = session.user.id;
+  const off = !!(opts && opts.offline);
+  const known = () => { try { const c = JSON.parse(localStorage.getItem(CONFIG.LS_SB_PROFILE) || "null"); return c && c.uid === userUuid ? c : null; } catch (e2) { return null; } };
   let prof = null;
-  try { prof = await Supa.myProfile(); }
-  catch (e) {
-    try { const c = JSON.parse(localStorage.getItem(CONFIG.LS_SB_PROFILE) || "null"); if (c && c.uid === userUuid) prof = c; } catch (e2) {}
-    if (!prof) throw e;
+  if (off) prof = known() || {};
+  else {
+    // Profil déjà connu de l'appareil : le serveur a 4 s pour répondre (réseau lent ou coupé : l'appli s'ouvre quand même).
+    try { prof = await (known() ? withTimeout(Supa.myProfile(), 4000) : Supa.myProfile()); }
+    catch (e) {
+      prof = known();
+      if (!prof && sbErrKind(e) === "net") prof = {};
+      if (!prof) throw e;
+      if (typeof ConnLocal !== "undefined") ConnLocal.unsure();   // profil à relire au retour d'Internet (compte bloqué, PIN à changer)
+    }
   }
   const id = normId((prof && prof.identifiant) || String(session.user.email || "").split("@")[0]);
   // Compte bloqué par l'admin (étape 27) : écran « Compte bloqué » avec la raison, puis déconnexion (données gardées).
@@ -287,9 +303,13 @@ async function enterSupabaseRun(session, target) {
     showAuth("force");
     return;
   }
-  Supa.touch().catch(() => {});
+  if (!off) Supa.touch().catch(() => {});
   if (!(await startUser(id, null, target, userUuid))) return;   // étape 77 : compte quitté avant la lecture en ligne
   Mod.refresh(true);   // étape 66 : rôle de modérateur et cases (Réglages → Administration si au moins une case)
+  enterChecks(id);
+}
+// Fenêtres du lancement (étape 86 : fonction à part, relancée par ConnLocal au retour d'Internet après une ouverture hors connexion).
+function enterChecks(id) {
   // Fenêtres du lancement, l'une après l'autre (étape 38) : annonces de l'admin (étape 27), puis invitation à activer
   // les notifications (fenêtre de première ouverture ou invitation de l'admin). Migration / sauvegarde : déjà faites.
   // Étape 39 : puis « Quoi de neuf » (une fois par nouvelle version).
@@ -308,6 +328,7 @@ async function enterSupabaseRun(session, target) {
 async function showBlocked(id, reason) {
   auth.blocked = { id, reason: String(reason || "").trim() };
   auth.sbUid = null; auth.isAdmin = false; auth.lastPin = ""; auth.loginVia = null;
+  if (typeof ConnLocal !== "undefined") { ConnLocal.onLogout(null); ConnLocal.forget(id); }   // étape 86 : plus d'ouverture par PIN hors ligne
   try { localStorage.removeItem(CONFIG.LS_SB_PROFILE); } catch (e) {}
   Storage.setUser(null);
   Storage.setSession(null);
@@ -362,10 +383,11 @@ async function doForcePin() {
     await Supa.setPin(auth.forceId, f.pin);
     auth.lastPin = "";
     Activity.log("pin_change", { forced: true });   // gardé pour le compte qui s'ouvre juste après
-    const target = auth.forceTarget;
+    const target = auth.forceTarget, newPin = f.pin, forId = auth.forceId;
     clearAuthForm();
     toast(t("pin.done"));
     const s = await Supa.session();
+    if (s && typeof ConnLocal !== "undefined") ConnLocal.remember(forId, newPin, s.user.id);   // étape 86 : vérificateur remplacé
     if (s) await enterSupabase(s, target); else showAuth("login");
   } catch (e) { authErrKind(sbErrKind(e)); }
   finally { auth.busy = false; }
@@ -398,6 +420,7 @@ async function changePin(f) {
     catch (e) { const k = sbErrKind(e); toast(k === "wrong" ? t("pin.err.old") : errText(k)); return false; }
     try { await Supa.setPin(id, f.n1); }
     catch (e) { toast(errText(sbErrKind(e))); return false; }
+    if (typeof ConnLocal !== "undefined" && auth.sbUid) ConnLocal.remember(id, f.n1, auth.sbUid);   // étape 86 : vérificateur remplacé
     Activity.log("pin_change", {});
   } else {
     const reg = await Storage.loadAccounts();
@@ -659,6 +682,8 @@ function resetViews() {
 }
 
 async function logout() {
+  // Étape 86 : vérificateur du PIN de cet appareil gardé seulement si « Rester connecté » est coché ; mot de passe en mémoire oublié.
+  if (typeof ConnLocal !== "undefined") ConnLocal.onLogout(auth.mode === "supabase" ? Storage.getUser() : null);
   await Activity.end();   // journal : logout + envoi de ce qui attend (5 s max)
   await Push.end();       // notifications : cet appareil ne reçoit plus celles de ce compte (étape 32)
   await Storage.flushWait();

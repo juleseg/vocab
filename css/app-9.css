@@ -334,3 +334,10 @@ html[lang="ko"] .cjq{word-break:keep-all}
 .asg-ai-confirm p{margin:0 0 8px}
 .asg-ai-off{margin:0 0 6px;font-size:13px}
 .asg-ai-card .gen-chk{min-height:44px}
+
+/* === CONNEXION HORS LIGNE FIABLE (ÉTAPE 86) ===
+   Phrase « Hors connexion » de l'écran de connexion (.cxl-hint), fenêtre « PIN changé » (.cxl-ask). js/connexion-locale.js. */
+.cxl-hint{border-left:3px solid var(--accent);font-size:14px}
+.cxl-ask p{margin:0 0 12px}
+.cxl-ask-err{margin-bottom:12px}
+.cxl-ask-err[hidden]{display:none}
