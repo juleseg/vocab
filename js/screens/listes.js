@@ -64,6 +64,7 @@ const canDrag = (() => { try { return window.matchMedia("(hover: hover) and (poi
 function renderLists() {
   if (lv.listId && !getList(lv.listId)) lv.listId = null;
   const list = lv.listId ? getList(lv.listId) : null;
+  if (typeof Lots !== "undefined") Lots.before(list);   // étape 89 : mode « Sélectionner » (js/lots.js) : en-tête et barre d'actions
   $("#lvTop").hidden = !list;
   $("#lvTitleRow").hidden = !list;
   $("#lvLinks").hidden = !list;
@@ -138,6 +139,7 @@ function renderLists() {
   const wrap = el("div", "items");
   cards.forEach(c => wrap.appendChild(cardItem(c, !list)));
   box.appendChild(wrap);
+  if (typeof Lots !== "undefined") Lots.paint(list, cards, wrap);   // étape 89 : cases à cocher du mode « Sélectionner »
 }
 
 // Un dossier : en-tête (repli, nombre de listes / cartes / à réviser, menu ⋯ ou ↑ ↓), puis ses listes.

@@ -22,6 +22,7 @@ const GF_DROP_MIN = 30;        // baisse de cartes refusée : au moins 30 cartes
 const GF_DROP_RATIO = 0.5;     // … ET plus de la moitié des cartes des listes connues
 const GF_COPIES_MAX = 5;       // copies de sécurité gardées par compte sur l'appareil
 const GF_FUSION_MAX = 20;      // étape 78 : fusions gardées par compte (versions perdantes des collisions), comptées à part
+const GF_LOT_MAX = 3;          // étape 89 : copies « avant une modification par lots » gardées par compte, comptées à part
 const GF_DB = "vocab-copies", GF_STORE = "copies";
 
 const Guard = (() => {
@@ -69,10 +70,12 @@ const Guard = (() => {
     try { localStorage.setItem(k, JSON.stringify({ at: num(at, num(data.updatedAt, 0)), lists, langs: s.langs, del: 0 })); } catch (e) {}
   }
   // Cartes supprimées volontairement sur cet appareil depuis la base (suppression, doublons retirés, « Remplacer » d'un import).
+  // Étape 89 : n négatif = suppression annulée (bouton « Annuler » d'une modification par lots) ; jamais sous zéro.
   function noteDeleted(n) {
     const k = baseKey(), b = base();
-    if (!k || !b || !(n > 0)) return;
-    b.del = num(b.del, 0) + n;
+    n = num(Number(n), 0);
+    if (!k || !b || !n) return;
+    b.del = Math.max(0, num(b.del, 0) + n);
     try { localStorage.setItem(k, JSON.stringify(b)); } catch (e) {}
   }
   // Renvoie null (envoi permis) ou { lists: [{ id, name }], langs: [codes], drop: { was, now } | null }.
@@ -147,7 +150,9 @@ const Guard = (() => {
   async function backupNow(kind, data, acc, note, cnt) {
     const who = acc || Storage.getUser();
     if (!who || !data || typeof data !== "object") return false;
-    const json = JSON.stringify(data), fu = kind === "fusion";
+    // Étape 89 : trois familles comptées à part (une copie d'une famille n'en chasse jamais une d'une autre).
+    const fam = k => k === "fusion" ? "fusion" : k === "lot" ? "lot" : "copie";
+    const json = JSON.stringify(data), fu = fam(kind);
     const rec = { acc: who, kind: String(kind || "copie"), at: Date.now(), v: num(Number(data.version), 0),
       lists: cnt ? num(cnt.lists, 0) : arr(data.lists).length, cards: cnt ? num(cnt.cards, 0) : arr(data.cards).length, note: String(note || "").slice(0, 40), json };
     const d = await db();
@@ -157,7 +162,7 @@ const Guard = (() => {
       const rows = [];
       await tx(d, "readonly", st => { const rq = st.index("acc").getAll(who); rq.onsuccess = () => { rows.push(...arr(rq.result)); }; });
       // Étape 78 : les fusions ont leur propre limite (elles ne chassent jamais une copie de sécurité, et inversement).
-      const old = rows.filter(r => (r.kind === "fusion") === fu).sort((a, b) => b.at - a.at).slice(fu ? GF_FUSION_MAX : GF_COPIES_MAX);
+      const old = rows.filter(r => fam(r.kind) === fu).sort((a, b) => b.at - a.at).slice(fu === "fusion" ? GF_FUSION_MAX : fu === "lot" ? GF_LOT_MAX : GF_COPIES_MAX);
       if (old.length) await tx(d, "readwrite", st => { old.forEach(r => st.delete(r.id)); });
       return id || true;
     } finally { d.close(); }

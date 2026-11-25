@@ -75,6 +75,7 @@ function lmListMenu() {
   const l = lv.listId ? getList(lv.listId) : null;
   if (!l) return;
   lmSheet(l.name, [
+    typeof Lots !== "undefined" ? Lots.menuItem(l) : null,   // étape 89 : « Sélectionner des cartes » (modification par lots, js/lots.js)
     lmFrom("#lvRename", "✏️"),
     lmFrom("#lvMove", "📁"),
     lmFrom("#lvShare", "👥"),

@@ -101,6 +101,7 @@ const Storage = (() => {
   let chain = Promise.resolve();
   let localSaved = new Map();  // clé → JSON déjà présent dans localStorage
   let remoteSaved = new Map(); // clé → JSON déjà présent dans le cloud
+  let dupKeys = new Set();     // étape 89 : morceaux lus qui contenaient une carte en double (à réécrire au prochain envoi)
   let localFullWarned = false;
   const beforeSaveFns = [];    // étape 30 : modifications des listes communes repérées avant chaque sauvegarde (étape 49 : + images)
   let lastErr = "";            // étape 33b : dernière erreur de synchro (message court, affiché en touchant l'indicateur)
@@ -168,6 +169,8 @@ const Storage = (() => {
     if (!userId) return;
     const { pieces, index } = split(data), known = remoteSaved;
     remoteSaved = new Map(Array.from(pieces).filter(([k]) => known.has(k))); remoteSaved.set(pre() + "index", index);
+    // Étape 89 : un morceau en ligne qui contenait une carte en double n'est PAS identique à celui de l'appareil : il repart.
+    if (dupKeys.size) { dupKeys.forEach(k => { if (remoteSaved.has(k)) remoteSaved.set(k, null); }); dupKeys = new Set(); }
     setSynced(data.updatedAt);
     unsent = false;                                          // étape 79 : l'appareil et le serveur sont identiques
     if (typeof Guard !== "undefined") Guard.setBase(data);   // étape 77 : état connu de l'appareil ET du serveur
@@ -379,6 +382,7 @@ const Storage = (() => {
     const ids = [];
     let missing = 0;
     const lost = [];
+    const from = [];   // étape 89 : morceau d'origine de chaque carte lue
     arr(idx.keys).forEach(k => {
       const v = getPiece(k);
       // « streak » absent (étape 33b) : pas bloquant, la série est recalculée depuis history (comme en v3) puis renvoyée.
@@ -386,7 +390,7 @@ const Storage = (() => {
       // « hard » et « tips » absents (étape 57) : pas bloquant non plus (données vides). « progres » (étape 64) : pareil.
       // « tombs » absent (étape 78) : pas bloquant (au pire un élément supprimé revient, rien n'est perdu).
       if (v === undefined) { if (k !== P + "streak" && k !== P + "xp" && k !== P + "hard" && k !== P + "tips" && k !== P + "progres" && k !== P + "tombs") { missing++; lost.push(k.slice(P.length)); } return; }
-      if (k.startsWith(P + "cards:")) { out.cards.push(...arr(v.cards)); Object.assign(out.checkedSig, v.sig || {}); }
+      if (k.startsWith(P + "cards:")) { arr(v.cards).forEach(c => { out.cards.push(c); from.push(k); }); Object.assign(out.checkedSig, v.sig || {}); }
       else if (k.startsWith(P + "proposals:")) out.proposals.push(...arr(v));
       else if (k.startsWith(P + "resume:")) ids.push(...arr(v));
       else if (k === P + "sentences") out.sentences = arr(v);   // étape 58
@@ -397,6 +401,23 @@ const Storage = (() => {
       }
     });
     if (s.aiResume && s.aiResume.kind) out.aiResume = { kind: s.aiResume.kind, ids };
+    // Étape 89 : même carte lue dans deux morceaux (carte déplacée d'une liste à une autre, lue pendant l'envoi ou après un
+    // envoi coupé entre deux morceaux) : une seule est gardée, la plus récemment modifiée (m, étape 78), sinon la dernière lue.
+    // Le morceau qui portait l'autre exemplaire est noté (dupKeys) : markSynced le fera réécrire au prochain envoi.
+    if (out.cards.length > 1) {
+      const at = new Map(), drop = [];
+      out.cards.forEach((c, i) => {
+        if (!c || !c.id) return;
+        const j = at.get(c.id);
+        if (j === undefined) { at.set(c.id, i); return; }
+        if (num(c.m, 0) >= num(out.cards[j].m, 0)) { drop.push(j); at.set(c.id, i); } else drop.push(i);
+      });
+      if (drop.length) {
+        const gone = new Set(drop);
+        if (prefix === undefined) drop.forEach(i => dupKeys.add(from[i]));
+        out.cards = out.cards.filter((c, i) => !gone.has(i));
+      }
+    }
     return { data: out, missing, lost };
   }
 
@@ -405,7 +426,7 @@ const Storage = (() => {
   function setUser(id, sbUid) {
     clearTimeout(timer); timer = null; lastData = null; held = false;
     clearTimeout(retryTimer); retryTimer = null; failWarned = false; conflictOpen = false; remoteOk = false; lastErr = ""; guardOpen = false;
-    localSaved = new Map(); remoteSaved = new Map(); localFullWarned = false;
+    localSaved = new Map(); remoteSaved = new Map(); dupKeys = new Set(); localFullWarned = false;
     userId = id || null;
     unsent = false; lastOkAt = 0;
     if (userId) { try { lastOkAt = num(Number(localStorage.getItem(okKey())), 0); } catch (e) {} }   // étape 79

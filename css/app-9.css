@@ -357,3 +357,49 @@ body.vm-locked{overflow:hidden}
 .vm-ad-on b{color:var(--warn)}
 .vm-ad-bad b,.np-msg.vm-ad-bad{color:var(--bad)}
 .vm-ad-warn{font-weight:600}
+
+/* === MODIFICATION PAR LOTS (ÉTAPE 89) === */
+/* Mode « Sélectionner » d'une liste (js/lots.js) : en-tête (Terminer, compteur, Tout sélectionner), case sur chaque carte,
+   barre d'actions fixée au-dessus de la barre du bas, bilan des fenêtres, « Fait » + « Annuler ». Zones tactiles ≥ 44 px. */
+#screen-lists.lt-on #lvTop, #screen-lists.lt-on #lmListMenu, #screen-lists.lt-on #lmReview,
+#screen-lists.lt-on #lvActions, #screen-lists.lt-on #lmReorderDone { display: none !important; }
+#screen-lists.lt-on #lvContent { padding-bottom: 76px; }
+.lt-head { position: sticky; top: var(--syn-top); z-index: 15; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 0 6px; margin: 8px 0 4px; padding: 2px 0 6px; background: var(--bg); border-bottom: 1px solid var(--border); }
+.lt-head[hidden] { display: none; }
+.lt-head .link-btn { flex: 0 1 auto; min-width: 0; min-height: 44px; padding: 8px 6px; overflow-wrap: anywhere; }
+.lt-head .link-btn:disabled { opacity: .45; }
+.lt-count { order: 3; flex: 1 1 100%; min-width: 0; font-size: 14px; font-weight: 600; color: var(--muted); padding: 0 6px; overflow-wrap: anywhere; }
+.lt-win .seg { margin-bottom: 12px; }
+.lt-items .item .chev { display: none; }
+.lt-items .item { min-height: 60px; }
+.lt-box { flex: none; width: 26px; height: 26px; box-sizing: border-box; border: 2px solid var(--muted); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; line-height: 1; color: transparent; }
+.item.lt-sel { background: var(--surface2); }
+.item.lt-sel .lt-box { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.lt-bar { position: fixed; left: 0; right: 0; bottom: calc(65px + env(safe-area-inset-bottom)); z-index: 20; max-width: 560px;
+  margin: 0 auto; padding: 6px 8px 8px; box-sizing: border-box; background: var(--surface); border-top: 1px solid var(--border);
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.lt-bar.lt-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.lt-bar[hidden] { display: none; }
+.lt-act { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 52px; min-width: 0;
+  padding: 4px 2px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface2); color: var(--text);
+  font-size: 12px; font-weight: 600; line-height: 1.15; text-align: center; cursor: pointer; overflow-wrap: anywhere; }
+.lt-act[hidden] { display: none; }
+.lt-act .lt-ic { font-size: 18px; line-height: 1; }
+.lt-act.lt-danger { color: var(--bad); }
+.lt-act[aria-disabled="true"] { opacity: .45; }
+.lt-win .field[hidden] { display: none; }
+.lt-bilan { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--surface2); font-size: 14px; }
+.lt-bilan p { margin: 0 0 6px; overflow-wrap: anywhere; }
+.lt-bilan p:last-child { margin-bottom: 0; }
+.lt-bilan .lt-main { font-weight: 600; font-size: 15px; }
+.lt-bilan .lt-note { color: var(--muted); }
+.lt-skip { margin: 6px 0 0; }
+.lt-skip summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--warn); font-weight: 600; overflow-wrap: anywhere; }
+.lt-skip ul { margin: 0 0 6px; padding-left: 20px; max-height: 160px; overflow: auto; }
+.lt-skip li { margin: 3px 0; overflow-wrap: anywhere; }
+.undo-bar.lt-undo { bottom: calc(146px + env(safe-area-inset-bottom)); width: max-content; max-width: min(92vw, 520px); box-sizing: border-box; }
+.undo-bar.lt-undo span { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.undo-bar.lt-undo button { flex: 0 0 auto; white-space: nowrap; min-height: 44px; }
+body.auth .lt-undo, body.auth .lt-bar { display: none; }

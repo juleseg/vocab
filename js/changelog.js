@@ -9,6 +9,14 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "89", date: "2026-11-25",
+    points: {
+      ko: ["이제 카드 여러 장을 한 번에 고칠 수 있어요. 목록의 ⋯ 메뉴에서 '카드 선택'을 눌러 옮기거나 복사하고, 바꾸고, 지울 수 있어요."],
+      fr: ["Tu peux modifier plusieurs cartes à la fois : dans une liste, « ⋯ » puis « Sélectionner des cartes » pour les déplacer, les copier, les changer ou les supprimer."],
+      en: ["You can now edit several cards at once: in a list, tap \"⋯\" then \"Select cards\" to move, copy, change or delete them."]
+    }
+  },
+  {
     version: "88", date: "2026-11-23",
     points: {
       ko: ["작은 개선과 수정"],
