@@ -341,3 +341,19 @@ html[lang="ko"] .cjq{word-break:keep-all}
 .cxl-ask p{margin:0 0 12px}
 .cxl-ask-err{margin-bottom:12px}
 .cxl-ask-err[hidden]{display:none}
+
+/* === VERSION MINIMALE ACCEPTÉE PAR LE SERVEUR (ÉTAPE 88) ===
+   Écran « Mise à jour nécessaire » (#vmBlock, js/version-minimale.js : reprend .rl-block et .rl-card de l'étape 48) et
+   carte « Version minimale acceptée » de l'onglet Versions (#vmAdCard, js/screens/admin-versionmin.js). */
+body.vm-locked{overflow:hidden}
+.vm-block{z-index:410}
+.vm-out{display:block;width:100%;margin-top:10px;padding:10px 8px;min-height:44px;background:none;border:0;color:var(--muted);
+  font:inherit;font-size:14px;text-decoration:underline;cursor:pointer}
+.vm-out:disabled{opacity:.5}
+.vm-ad-lab{display:block;margin:12px 0 4px;font-size:14px;font-weight:600}
+.vm-ad-row{display:flex;gap:8px;align-items:center}
+.vm-ad-n{flex:1 1 auto;min-width:0;max-width:140px}
+.vm-ad-prev{margin:8px 0 0;font-weight:600}
+.vm-ad-on b{color:var(--warn)}
+.vm-ad-bad b,.np-msg.vm-ad-bad{color:var(--bad)}
+.vm-ad-warn{font-weight:600}

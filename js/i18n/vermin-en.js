@@ -1,0 +1,48 @@
+"use strict";
+
+// === I18N: MINIMUM VERSION ACCEPTED BY THE SERVER (STEP 88) — ENGLISH (en) ===
+// "Update required" screen (js/version-minimale.js) and "Minimum accepted version" card in
+// Administration → Notifications → Versions (js/screens/admin-versionmin.js). Loaded after connlocal-en.js.
+Object.assign(I18N.en, {
+  "vm.title": "Update required",
+  "vm.text": "This version of the app ({v}) is too old: the server requires version {n} or later.",
+  "vm.textNoMin": "This version of the app ({v}) is too old for the server.",
+  "vm.keep": "Your data stays on this device: nothing is deleted and you stay signed in. What you did will be sent after the update.",
+  "vm.reload": "Reload the app",
+  "vm.still": "This is still version {v}: the new version may not be available yet. Try again in a few minutes.",
+  "vm.back": "Version accepted again: sync is resuming.",
+  "vm.logoutSure": "Confirm: sign out",
+  "vm.ad.h": "Minimum accepted version",
+  "vm.ad.help": "The server refuses devices older than this version, and devices that do not send their version (before 88): they can no longer read or send their data until they are updated. 0 = off. The admin account is never blocked.",
+  "vm.ad.cur": "Current setting",
+  "vm.ad.off": "off (0)",
+  "vm.ad.on": "version {n} or later",
+  "vm.ad.by": "set by {who} on {date}",
+  "vm.ad.seen": "This device",
+  "vm.ad.seenOk": "the server receives its version ({v})",
+  "vm.ad.seenNo": "the server does not receive its version",
+  "vm.ad.notPlugged": "The check is incomplete on the server: run the step 88 SQL script again. Until then, the setting is not reliable.",
+  "vm.ad.label": "Minimum version (0 = off)",
+  "vm.ad.max": "At most {v}: this device's version.",
+  "vm.ad.maxNone": "The server does not receive this device's version: only 0 can be set from here.",
+  "vm.ad.prev": "With {n}: {b} active device(s) would be blocked ({a} account(s)), out of {t} seen in the last 30 days.",
+  "vm.ad.prev0": "With 0: no device is blocked.",
+  "vm.ad.prevNone": "With {n}: none of the {t} devices seen in the last 30 days would be blocked.",
+  "vm.ad.prevUnknown": "Number of blocked devices: cannot be calculated right now.",
+  "vm.ad.prevWait": "Calculating…",
+  "vm.ad.invalid": "Enter a whole number from 0 to {v}.",
+  "vm.ad.save": "Save",
+  "vm.ad.confirmTitle": "Minimum version: {n}",
+  "vm.ad.confirm": "{b} active device(s) would be blocked ({a} account(s)).",
+  "vm.ad.confirmNone": "No active device would be blocked.",
+  "vm.ad.confirmUnknown": "Number of blocked devices unknown (cannot be calculated).",
+  "vm.ad.confirmHint": "Devices seen in the last 30 days. A blocked device can no longer read or send its data until it is updated; nothing is deleted.",
+  "vm.ad.confirmOff": "Turn blocking off? All devices will be accepted by the server again.",
+  "vm.ad.go": "Block versions before {n}",
+  "vm.ad.goOff": "Turn off",
+  "vm.ad.saved": "Minimum version set: {n}.",
+  "vm.ad.savedOff": "Blocking is off: all versions are accepted.",
+  "vm.ad.missing": "Run the step 88 SQL script to set a minimum version.",
+  "vm.ad.err.vm_self": "Refused: the requested version is higher than this device's version, or the server does not receive its version.",
+  "vm.ad.err.vm_bad": "Value refused (whole number from 0 to 100000)."
+});

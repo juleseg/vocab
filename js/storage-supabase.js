@@ -102,7 +102,12 @@ const Supa = (() => {
       // Étape 48 : portillon des écritures (Release.gateFetch) sous le fetch surveillé : rien n'est écrit tant que
       // l'appli doit être mise à jour.
       let f = typeof Release !== "undefined" ? Release.gateFetch : undefined;
+      // Étape 88 (js/version-minimale.js) : juste au-dessus du portillon, VerMin.wrapFetch ajoute l'en-tête x-app-version aux
+      // requêtes de données (/rest/v1/ seulement) et reconnaît le refus « version trop ancienne » du serveur ; au-dessus du
+      // journal des erreurs, VerMin.guardFetch : tant que le serveur refuse, plus rien ne part (comme une coupure réseau).
+      if (typeof VerMin !== "undefined") f = VerMin.wrapFetch(f);
       if (typeof ErrLog !== "undefined") f = ErrLog.wrapFetch(f);
+      if (typeof VerMin !== "undefined") f = VerMin.guardFetch(f);
       // Étape 86 : par-dessus (jamais dans le journal des erreurs), ConnLocal.guardFetch : aucune requête ne part sous la clé
       // publique pour un compte ouvert dont la session n'a pas pu être renouvelée, ni quand l'appareil est hors ligne ;
       // elle échoue tout de suite, comme une coupure réseau.

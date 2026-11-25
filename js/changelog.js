@@ -9,6 +9,14 @@
 // Les premières entrées regroupent les grandes fonctions livrées avant l'étape 39.
 const CHANGELOG = [
   {
+    version: "88", date: "2026-11-23",
+    points: {
+      ko: ["작은 개선과 수정"],
+      fr: ["Petites améliorations et corrections"],
+      en: ["Small improvements and fixes"]
+    }
+  },
+  {
     version: "86", date: "2026-11-23",
     points: {
       ko: ["이제 인터넷이 없어도 다시 로그인하라는 화면 없이 앱이 열려요."],

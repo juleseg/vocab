@@ -18,6 +18,7 @@
 //   les points du changelog (rlEntry lit CHANGELOG, pas la liste filtrée). Script de l'étape 50 absent : message.
 // Script SQL absent : « Lancez le script SQL de l'étape 48 ».
 // Étape 81 : « Par version » = lignes à toucher → appareils restés sur cette version (js/screens/admin-version-devices.js, rvd*).
+// Étape 88 : carte « Version minimale acceptée » (js/screens/admin-versionmin.js, vmAdCard), entre l'état et « Nouveautés visibles ».
 const rlNews = { loaded: false, missing: false, err: "", value: null, mode: "all", n: 10, busy: false };
 const rls = { started: false, loading: false, err: "", missing: false, data: null, calc: null, busy: false, mand: null, mandTouched: false };
 
@@ -207,6 +208,9 @@ function npReleaseTab(root) {
     if (laTotal > la.length) c1.appendChild(el("p", "hint", t("rl.lateMore", { n: laTotal - la.length })));
   }
   root.appendChild(c1);
+
+  // --- Version minimale acceptée par le serveur (étape 88, js/screens/admin-versionmin.js) ---
+  if (typeof vmAdCard === "function") vmAdCard(root);
 
   // --- Nouveautés visibles (étape 50) ---
   rlNewsCard(root);
